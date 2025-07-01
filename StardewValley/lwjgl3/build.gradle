@@ -1,0 +1,47 @@
+plugins {
+  id 'java'
+  id 'application'
+}
+
+dependencies {
+  implementation project(':core')
+
+  implementation "com.badlogicgames.gdx:gdx-backend-lwjgl3:$gdxVersion"
+  implementation "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
+  implementation "com.badlogicgames.gdx:gdx-box2d-platform:$gdxVersion:natives-desktop"
+}
+
+application {
+  mainClass = 'ap.project.lwjgl3.Lwjgl3Launcher'
+}
+
+java {
+  toolchain {
+    languageVersion = JavaLanguageVersion.of(21)
+  }
+}
+
+tasks.withType(JavaCompile).configureEach {
+  options.encoding = 'UTF-8'
+}
+
+distributions {
+  main {
+    contents {
+      into("libs") {
+        project.configurations.runtimeClasspath.files.findAll { file ->
+          file.name != project.tasks.jar.outputs.files.singleFile.name
+        }.each { file ->
+          exclude file.name
+        }
+      }
+    }
+  }
+}
+
+startScripts.dependsOn(':lwjgl3:jar')
+startScripts.classpath = project.tasks.jar.outputs.files
+
+if (enableGraalNative == 'true') {
+  apply from: file("nativeimage.gradle")
+}
