@@ -1,10 +1,10 @@
 package ap.project.control.game.activities;
 
-import ap.project.model.App;
-import ap.project.model.GameObject;
-import ap.project.model.Gift;
-import ap.project.model.Player;
-import ap.project.model.*;
+import ap.project.model.App.App;
+import ap.project.model.App.Result;
+import ap.project.model.game.GameObject;
+import ap.project.model.game.Gift;
+import ap.project.model.game.Player;
 import ap.project.model.enums.Gender;
 import ap.project.model.player_data.FriendshipData;
 import ap.project.model.enums.GameObjectType;

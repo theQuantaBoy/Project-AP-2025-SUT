@@ -1,7 +1,7 @@
 package ap.project.view;
 
 import ap.project.control.RegisterController;
-import ap.project.model.Result;
+import ap.project.model.App.Result;
 import ap.project.model.enums.SecurityQuestionType;
 import ap.project.model.enums.regex_enums.RegisterCommands;
 

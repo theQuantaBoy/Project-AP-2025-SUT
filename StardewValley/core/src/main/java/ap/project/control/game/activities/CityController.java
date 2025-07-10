@@ -1,8 +1,8 @@
 package ap.project.control.game.activities;
 
-import ap.project.model.App;
-import ap.project.model.Player;
-import ap.project.model.Result;
+import ap.project.model.App.App;
+import ap.project.model.game.Player;
+import ap.project.model.App.Result;
 import ap.project.model.enums.Menu;
 
 public class CityController

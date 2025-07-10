@@ -1,7 +1,7 @@
 package ap.project.control;
 
-import ap.project.model.App;
-import ap.project.model.*;
+import ap.project.model.App.App;
+import ap.project.model.App.Result;
 import ap.project.model.enums.Menu;
 
 public class MainMenuController

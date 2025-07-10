@@ -1,7 +1,7 @@
 package ap.project.model.animal;
 
-import ap.project.model.GameObject;
-import ap.project.model.Tile;
+import ap.project.model.game.GameObject;
+import ap.project.model.game.Tile;
 import ap.project.model.enums.animal_enums.FarmAnimalsType;
 import ap.project.view.GameMenu;
 

@@ -1,6 +1,6 @@
 package ap.project.model.player_data;
 
-import ap.project.model.Player;
+import ap.project.model.game.Player;
 
 import java.util.ArrayList;
 

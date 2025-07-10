@@ -1,6 +1,6 @@
 package ap.project.model.resources;
 
-import ap.project.model.GameObject;
+import ap.project.model.game.GameObject;
 import ap.project.model.enums.resources_enums.ForagingCropType;
 import ap.project.model.enums.Season;
 

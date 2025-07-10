@@ -1,6 +1,6 @@
 package ap.project.model.enums.resources_enums;
 
-import ap.project.model.App;
+import ap.project.model.App.App;
 import ap.project.model.enums.GameObjectType;
 import ap.project.model.enums.Season;
 

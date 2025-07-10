@@ -1,6 +1,6 @@
 package ap.project.model.resources;
 
-import ap.project.model.Tile;
+import ap.project.model.game.Tile;
 import ap.project.model.enums.resources_enums.FruitType;
 import ap.project.model.enums.resources_enums.TreeType;
 

@@ -1,7 +1,7 @@
 package ap.project.model.shops;
 
-import ap.project.model.App;
-import ap.project.model.GameObject;
+import ap.project.model.App.App;
+import ap.project.model.game.GameObject;
 import ap.project.model.enums.GameObjectType;
 import ap.project.model.enums.ShopType;
 import ap.project.model.enums.animal_enums.FarmBuildingType;

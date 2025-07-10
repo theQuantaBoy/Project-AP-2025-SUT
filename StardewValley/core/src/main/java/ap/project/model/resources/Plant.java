@@ -1,8 +1,8 @@
 package ap.project.model.resources;
 
-import ap.project.model.App;
-import ap.project.model.GameObject;
-import ap.project.model.Tile;
+import ap.project.model.App.App;
+import ap.project.model.game.GameObject;
+import ap.project.model.game.Tile;
 import ap.project.model.enums.Season;
 
 import java.util.List;

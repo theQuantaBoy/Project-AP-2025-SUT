@@ -1,6 +1,6 @@
 package ap.project.view;
 
-import ap.project.model.Result;
+import ap.project.model.App.Result;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

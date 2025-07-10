@@ -1,19 +1,19 @@
 package ap.project.control.game.activities;
 
-import ap.project.model.*;
+import ap.project.model.App.App;
+import ap.project.model.App.Result;
 import ap.project.model.enums.GameObjectType;
 import ap.project.model.enums.ShopType;
 import ap.project.model.enums.TileTexture;
 import ap.project.model.enums.Weather;
-import ap.project.model.*;
 import ap.project.model.animal.Animal;
 import ap.project.model.animal.AnimalBuilding;
 import ap.project.model.animal.Fish;
-import ap.project.model.enums.*;
 import ap.project.model.enums.animal_enums.FarmAnimalsType;
 import ap.project.model.enums.animal_enums.FarmBuildingType;
 import ap.project.model.enums.animal_enums.FishType;
 import ap.project.model.enums.regex_enums.GameCommands;
+import ap.project.model.game.*;
 import ap.project.model.tools.FishingPole;
 import ap.project.model.tools.Tool;
 import ap.project.view.CityMenu;

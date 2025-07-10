@@ -6,7 +6,7 @@ import ap.project.control.game.activities.AnimalController;
 import ap.project.control.game.activities.MarketingController;
 import ap.project.control.game.activities.CommunicateController;
 import ap.project.control.game.activities.TradeController;
-import ap.project.model.App;
+import ap.project.model.App.App;
 import ap.project.model.enums.Menu;
 import ap.project.model.enums.regex_enums.CommunicateCommands;
 import ap.project.model.enums.regex_enums.GameCommands;

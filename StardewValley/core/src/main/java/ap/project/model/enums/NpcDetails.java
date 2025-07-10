@@ -1,6 +1,6 @@
 package ap.project.model.enums;
 
-import ap.project.model.GameObject;
+import ap.project.model.game.GameObject;
 
 import java.util.List;
 import java.util.Map;

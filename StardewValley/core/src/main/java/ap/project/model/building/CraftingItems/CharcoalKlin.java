@@ -1,8 +1,8 @@
 package ap.project.model.building.CraftingItems;
 
-import ap.project.model.App;
-import ap.project.model.GameObject;
-import ap.project.model.Player;
+import ap.project.model.App.App;
+import ap.project.model.game.GameObject;
+import ap.project.model.game.Player;
 import ap.project.model.enums.GameObjectType;
 import ap.project.model.enums.building_enums.CraftingRecipeEnums;
 import ap.project.view.HomeMenu;

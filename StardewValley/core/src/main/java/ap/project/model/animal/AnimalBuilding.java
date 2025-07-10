@@ -1,9 +1,9 @@
 package ap.project.model.animal;
 
-import ap.project.model.App;
-import ap.project.model.GameObject;
-import ap.project.model.Point;
-import ap.project.model.Tile;
+import ap.project.model.App.App;
+import ap.project.model.game.GameObject;
+import ap.project.model.game.Point;
+import ap.project.model.game.Tile;
 import ap.project.model.enums.GameObjectType;
 import ap.project.model.enums.animal_enums.FarmBuildingType;
 

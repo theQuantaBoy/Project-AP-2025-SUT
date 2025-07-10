@@ -1,9 +1,14 @@
 package ap.project.control;
 
-import ap.project.model.*;
+import ap.project.model.App.App;
+import ap.project.model.App.Result;
+import ap.project.model.App.User;
 import ap.project.model.enums.Gender;
 import ap.project.model.enums.MapTypes;
 import ap.project.model.enums.Menu;
+import ap.project.model.game.Farm;
+import ap.project.model.game.Game;
+import ap.project.model.game.Player;
 import ap.project.view.PreGameMenu;
 
 import java.util.ArrayList;

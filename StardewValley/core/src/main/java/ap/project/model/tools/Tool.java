@@ -1,6 +1,6 @@
 package ap.project.model.tools;
 
-import ap.project.model.GameObject;
+import ap.project.model.game.GameObject;
 import ap.project.model.enums.GameObjectType;
 import ap.project.model.enums.tool_enums.ToolType;
 

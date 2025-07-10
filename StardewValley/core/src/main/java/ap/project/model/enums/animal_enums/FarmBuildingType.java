@@ -1,6 +1,6 @@
 package ap.project.model.enums.animal_enums;
 
-import ap.project.model.GameObject;
+import ap.project.model.game.GameObject;
 import ap.project.model.enums.GameObjectType;
 
 import java.util.List;

@@ -1,8 +1,7 @@
 package ap.project.model.shops;
 
-import ap.project.model.GameObject;
-import ap.project.model.Time;
-import ap.project.model.*;
+import ap.project.model.game.GameObject;
+import ap.project.model.game.Time;
 import ap.project.model.enums.ShopType;
 
 public abstract class Shop

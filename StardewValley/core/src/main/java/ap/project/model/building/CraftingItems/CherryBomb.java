@@ -1,8 +1,11 @@
 package ap.project.model.building.CraftingItems;
 
-import ap.project.model.*;
-import ap.project.model.*;
+import ap.project.model.App.App;
 import ap.project.model.enums.building_enums.CraftingRecipeEnums;
+import ap.project.model.game.Map;
+import ap.project.model.game.Player;
+import ap.project.model.game.Point;
+import ap.project.model.game.Tile;
 
 public class CherryBomb extends CraftingItem
 {

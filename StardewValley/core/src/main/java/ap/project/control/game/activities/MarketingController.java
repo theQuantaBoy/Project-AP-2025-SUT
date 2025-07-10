@@ -1,8 +1,9 @@
 package ap.project.control.game.activities;
 
-import ap.project.model.*;
+import ap.project.model.App.App;
+import ap.project.model.App.Result;
+import ap.project.model.game.*;
 import ap.project.model.shops.*;
-import ap.project.model.*;
 import ap.project.model.animal.AnimalBuilding;
 import ap.project.model.enums.GameObjectType;
 import ap.project.model.enums.NpcDetails;
@@ -19,7 +20,6 @@ import ap.project.model.enums.resources_enums.ForagingMineralType;
 import ap.project.model.enums.resources_enums.TreeType;
 import ap.project.model.enums.tool_enums.ToolType;
 import ap.project.model.player_data.FriendshipWithNpcData;
-import ap.project.model.shops.*;
 import ap.project.model.tools.Tool;
 import ap.project.view.CityMenu;
 import ap.project.view.GameMenu;

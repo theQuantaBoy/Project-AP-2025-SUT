@@ -1,8 +1,8 @@
 package ap.project.model.resources;
 
-import ap.project.model.App;
-import ap.project.model.Map;
-import ap.project.model.Tile;
+import ap.project.model.App.App;
+import ap.project.model.game.Map;
+import ap.project.model.game.Tile;
 import ap.project.model.enums.resources_enums.CropType;
 
 import java.util.ArrayList;
