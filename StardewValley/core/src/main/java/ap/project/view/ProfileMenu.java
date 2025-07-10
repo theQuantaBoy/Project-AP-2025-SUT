@@ -1,7 +1,9 @@
 package ap.project.view;
 
 import ap.project.control.ProfileController;
+import ap.project.model.App.Result;
 import ap.project.model.enums.regex_enums.ProfileCommands;
+import ap.project.screen.TerminalScreen;
 
 import java.util.Scanner;
 import java.util.regex.Matcher;
@@ -19,12 +21,12 @@ public class ProfileMenu implements AppMenu
         if ((matcher = ProfileCommands.CHANGE_USERNAME.getMatcher(input)) != null)
         {
             String newUsername = matcher.group("newUsername").trim();
-            System.out.println(controller.changeUsername(newUsername, scanner));
+            println(controller.changeUsername(newUsername, scanner));
         } else if ((matcher = ProfileCommands.CHANGE_PASSWORD.getMatcher(input)) != null)
         {
             String newPassword = matcher.group("newPassword").trim();
             String oldPassword = matcher.group("oldPassword").trim();
-            System.out.println(controller.changePassword(newPassword, oldPassword));
+            println(controller.changePassword(newPassword, oldPassword));
         } else if ((matcher = ProfileCommands.SET_PASSWORD_TO_RANDOM.getMatcher(input)) != null)
         {
             String oldPassword = matcher.group("oldPassword").trim();
@@ -32,37 +34,37 @@ public class ProfileMenu implements AppMenu
         } else if ((matcher = ProfileCommands.CHANGE_NICKNAME.getMatcher(input)) != null)
         {
             String newNickname = matcher.group("newNickname").trim();
-            System.out.println(controller.changeNickName(newNickname));
+            println(controller.changeNickName(newNickname));
         } else if ((matcher = ProfileCommands.CHANGE_EMAIL.getMatcher(input)) != null)
         {
             String newEmail = matcher.group("newEmail").trim();
-            System.out.println(controller.changeEmail(newEmail));
+            println(controller.changeEmail(newEmail));
         } else if ((matcher = ProfileCommands.CHANGE_GENDER.getMatcher(input)) != null)
         {
             String newGender = matcher.group("newGender").trim();
-            System.out.println(controller.changeGender(newGender));
+            println(controller.changeGender(newGender));
         } else if ((matcher = ProfileCommands.USER_INFO.getMatcher(input)) != null)
         {
-            System.out.println(controller.userInfo());
+            println(controller.userInfo());
         } else if ((matcher = ProfileCommands.MENU_EXIT.getMatcher(input)) != null)
         {
-            System.out.println(controller.exitMenu());
+            println(controller.exitMenu());
         } else if ((matcher = ProfileCommands.SHOW_CURRENT_MENU.getMatcher(input)) != null)
         {
-            System.out.println(controller.showCurrentMenu());
+            println(controller.showCurrentMenu());
         } else if ((matcher = ProfileCommands.MENU_ENTER.getMatcher(input)) != null)
         {
             String menuName = matcher.group("menuName").trim();
-            System.out.println(controller.enterMenu(menuName));
+            println(controller.enterMenu(menuName));
         } else if ((matcher = ProfileCommands.MENU_BACK.getMatcher(input)) != null)
         {
-            System.out.println(controller.back());
+            println(controller.back());
         } else if ((matcher = ProfileCommands.HELP.getMatcher(input)) != null)
         {
-            System.out.println(controller.help());
+            println(controller.help());
         } else
         {
-            System.out.println("invalid command");
+            println("invalid command");
         }
     }
 
@@ -71,8 +73,27 @@ public class ProfileMenu implements AppMenu
         return scanner.nextLine().trim();
     }
 
+    public static void println(Result result)
+    {
+        System.out.println(result.toString());
+        TerminalScreen.appendOutputLn(result.toString());
+    }
+
+    public static void print(Result result)
+    {
+        System.out.print(result.toString());
+        TerminalScreen.appendOutput(result.toString());
+    }
+
     public static void println(String output)
     {
         System.out.println(output);
+        TerminalScreen.appendOutputLn(output);
+    }
+
+    public static void print(String output)
+    {
+        System.out.print(output);
+        TerminalScreen.appendOutput(output);
     }
 }

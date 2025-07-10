@@ -3,7 +3,9 @@ package ap.project.view;
 import ap.project.Main;
 import ap.project.model.App.App;
 import ap.project.model.App.CommandInput;
+import ap.project.model.App.TerminalEntry;
 import ap.project.model.enums.Menu;
+import ap.project.screen.TerminalScreen;
 import com.badlogic.gdx.Gdx;
 
 import java.util.Scanner;
@@ -23,7 +25,9 @@ public class AppView
     {
         if (App.getCurrentMenu() != Menu.ExitMenu)
         {
+            TerminalScreen.waitForOutput();
             App.getCurrentMenu().checkCommand(CommandInput.getScanner());
+            TerminalScreen.endCommand();
         } else
         {
             Gdx.app.exit();
