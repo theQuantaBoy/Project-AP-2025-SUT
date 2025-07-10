@@ -15,15 +15,11 @@ import com.badlogic.gdx.backends.headless.HeadlessApplicationConfiguration;
 /** {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms. */
 public class Main extends com.badlogic.gdx.Game
 {
-    private SpriteBatch batch;
-    private Texture image;
     private static Main app;
 
     @Override
-    public void create() {
-//        batch = new SpriteBatch();
-//        image = new Texture("libgdx.png");
-
+    public void create()
+    {
         app = this;
         TerminalScreen.run(); // start first input
         setScreen(TerminalScreen.getInstance());
@@ -43,9 +39,9 @@ public class Main extends com.badlogic.gdx.Game
     }
 
     @Override
-    public void dispose() {
-        batch.dispose();
-        image.dispose();
+    public void dispose()
+    {
+       super.dispose();
     }
 
     public static Main getApp()

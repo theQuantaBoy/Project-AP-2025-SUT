@@ -4,6 +4,7 @@ import ap.project.Main;
 import ap.project.model.App.App;
 import ap.project.model.App.CommandInput;
 import ap.project.model.enums.Menu;
+import com.badlogic.gdx.Gdx;
 
 import java.util.Scanner;
 
@@ -25,7 +26,7 @@ public class AppView
             App.getCurrentMenu().checkCommand(CommandInput.getScanner());
         } else
         {
-            System.exit(0);
+            Gdx.app.exit();
         }
     }
 }
