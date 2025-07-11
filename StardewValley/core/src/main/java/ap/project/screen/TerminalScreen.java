@@ -182,27 +182,6 @@ public final class TerminalScreen implements Screen, InputProcessor
         return (int)((Gdx.graphics.getHeight() - 40) / (font.getLineHeight() * 1.5f));
     }
 
-//    @Override
-//    public boolean keyTyped(char character) {
-//        if (!awaitingInput) return false;
-//
-//        switch (character) {
-//            case '\b':
-//                if (currentLine.length() > 0) currentLine.deleteCharAt(currentLine.length() - 1);
-//                break;
-//            case '\r':
-//                break;
-//            case '\n':
-//                submit();
-//                break;
-//            default:
-//                if (!Character.isISOControl(character)) {
-//                    currentLine.append(character);
-//                }
-//        }
-//        return true;
-//    }
-
     @Override
     public boolean keyTyped(char character) {
         if (!awaitingInput) return false;
@@ -298,33 +277,9 @@ public final class TerminalScreen implements Screen, InputProcessor
     @Override public boolean scrolled(float amountX,float amountY)
     {
         int max = Math.max(0, totalLineCount() - visibleLines());  // ✅ use method
-        scroll = Math.max(0, Math.min(scroll - (int)amountY, max));
+        scroll = Math.max(0, Math.min(scroll - (int) amountY, max));
         return true;
     }
-
-//    @Override
-//    public boolean keyDown(int keycode)
-//    {
-//        if (keycode == Input.Keys.V && Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT))
-//        {
-//            String clip = Gdx.app.getClipboard().getContents();
-//            if (clip != null && !clip.isEmpty()) {
-//                currentLine.append(clip.replace("\r", "").replace("\n", " ")); // flatten multiline
-//            }
-//            return true;
-//        }
-//
-//        switch (keycode)
-//        {
-//            case Input.Keys.PAGE_UP:
-//                scroll = Math.min(scroll + visibleLines(), buffer.size - visibleLines());
-//                break;
-//            case Input.Keys.PAGE_DOWN:
-//                scroll = Math.max(scroll - visibleLines(), 0);
-//                break;
-//        }
-//        return false;
-//    }
 
     @Override
     public boolean keyDown(int keycode) {

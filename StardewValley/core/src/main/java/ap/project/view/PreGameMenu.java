@@ -51,12 +51,6 @@ public class PreGameMenu implements AppMenu
         }
     }
 
-//    public static String scan()
-//    {
-//        return  null;
-////        return TerminalScreen.readLine().trim();
-//    }
-
     public static String scan() {
         return TerminalScreen.readLine().trim();
     }
