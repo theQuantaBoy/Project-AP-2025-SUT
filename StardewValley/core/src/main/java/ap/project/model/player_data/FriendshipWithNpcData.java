@@ -1,7 +1,7 @@
 package ap.project.model.player_data;
 
-import ap.project.model.NPC;
-import ap.project.model.Player;
+import ap.project.model.game.NPC;
+import ap.project.model.game.Player;
 import ap.project.view.GameMenu;
 
 public class FriendshipWithNpcData

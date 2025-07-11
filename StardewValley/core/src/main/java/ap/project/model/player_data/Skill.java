@@ -1,6 +1,6 @@
 package ap.project.model.player_data;
-import ap.project.model.App;
-import ap.project.model.Player;
+import ap.project.model.App.App;
+import ap.project.model.game.Player;
 import ap.project.model.enums.SkillType;
 import ap.project.model.enums.building_enums.CraftingRecipeEnums;
 import ap.project.model.enums.building_enums.KitchenRecipe;

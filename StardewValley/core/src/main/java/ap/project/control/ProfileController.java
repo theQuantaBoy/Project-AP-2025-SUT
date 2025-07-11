@@ -1,9 +1,9 @@
 package ap.project.control;
 
-import ap.project.model.App;
-import ap.project.model.Result;
-import ap.project.model.SHA256Hasher;
-import ap.project.model.User;
+import ap.project.model.App.App;
+import ap.project.model.App.Result;
+import ap.project.model.App.SHA256Hasher;
+import ap.project.model.App.User;
 import ap.project.model.enums.Gender;
 import ap.project.model.enums.Menu;
 import ap.project.model.enums.regex_enums.RegexCommands;
@@ -37,7 +37,7 @@ public class ProfileController
 
         ProfileMenu.println("Your new username would be: " + newUsername);
         ProfileMenu.println("Do you confirm the change? [y/n]");
-        String answer = ProfileMenu.scan(scanner);
+        String answer = ProfileMenu.scan();
 
         String output = "";
 
@@ -116,7 +116,7 @@ public class ProfileController
             newPassword = generateStrongRandomPassword();
             ProfileMenu.println("Your new password would be: " + newPassword);
             ProfileMenu.println("Do you confirm the change? [y/n]");
-            String answer = ProfileMenu.scan(scanner).toLowerCase();
+            String answer = ProfileMenu.scan().toLowerCase();
 
             switch (answer)
             {

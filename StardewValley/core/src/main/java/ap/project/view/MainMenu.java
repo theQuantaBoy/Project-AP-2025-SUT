@@ -1,7 +1,9 @@
 package ap.project.view;
 
 import ap.project.control.MainMenuController;
+import ap.project.model.App.Result;
 import ap.project.model.enums.regex_enums.MainCommands;
+import ap.project.screen.TerminalScreen;
 
 import java.util.Scanner;
 import java.util.regex.Matcher;
@@ -19,34 +21,48 @@ public class MainMenu implements AppMenu
         if ((matcher = MainCommands.MENU_ENTER.getMatcher(input)) != null)
         {
             String menuName = matcher.group("menuName").trim();
-            System.out.println(controller.enterMenu(menuName));
+            println(controller.enterMenu(menuName));
         } else if (MainCommands.MENU_EXIT.getMatcher(input) != null)
         {
-            System.out.println(controller.exit());
+            println(controller.exit());
         } else if (MainCommands.MENU_BACK.getMatcher(input) != null) {
-            System.out.println(controller.back());
+            println(controller.back());
         } else if (MainCommands.SHOW_CURRENT_MENU.getMatcher(input) != null)
         {
-            System.out.println(controller.showCurrentMenu());
+            println(controller.showCurrentMenu());
         } else if (MainCommands.USER_LOGOUT.getMatcher(input) != null)
         {
-            System.out.println(controller.logout());
+            println(controller.logout());
         } else if (MainCommands.HELP.getMatcher(input) != null)
         {
-            System.out.println(controller.help());
+            println(controller.help());
         } else
         {
-            System.out.println("invalid command");
+            println("invalid command");
         }
     }
 
-    public static String scan(Scanner scanner)
+    public static void println(Result result)
     {
-        return scanner.nextLine().trim();
+        System.out.println(result.toString());
+        TerminalScreen.appendOutputLn(result.toString());
+    }
+
+    public static void print(Result result)
+    {
+        System.out.print(result.toString());
+        TerminalScreen.appendOutput(result.toString());
     }
 
     public static void println(String output)
     {
         System.out.println(output);
+        TerminalScreen.appendOutputLn(output);
+    }
+
+    public static void print(String output)
+    {
+        System.out.print(output);
+        TerminalScreen.appendOutput(output);
     }
 }

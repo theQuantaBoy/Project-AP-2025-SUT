@@ -1,6 +1,6 @@
 package ap.project.model.enums.animal_enums;
 
-import ap.project.model.App;
+import ap.project.model.App.App;
 import ap.project.model.enums.GameObjectType;
 import ap.project.model.enums.Season;
 import ap.project.model.enums.tool_enums.FishingPoleLevel;

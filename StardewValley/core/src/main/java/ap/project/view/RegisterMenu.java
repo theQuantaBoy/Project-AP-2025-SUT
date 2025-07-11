@@ -1,9 +1,10 @@
 package ap.project.view;
 
 import ap.project.control.RegisterController;
-import ap.project.model.Result;
+import ap.project.model.App.Result;
 import ap.project.model.enums.SecurityQuestionType;
 import ap.project.model.enums.regex_enums.RegisterCommands;
+import ap.project.screen.TerminalScreen;
 
 import java.util.Scanner;
 import java.util.regex.Matcher;
@@ -19,28 +20,52 @@ public class RegisterMenu implements AppMenu
 
         if ((matcher = RegisterCommands.REGISTER.getMatcher(input)) != null) {
             Result result = controller.register(matcher, scanner);
-            System.out.println(result);
+            println(result);
             if (result.isSuccessful()) {
-                System.out.println("choose your security question number: ");
+                println("choose your security question number: ");
                 for (SecurityQuestionType type : SecurityQuestionType.values()) {
-                    System.out.println(type.getId() + "- " + type.getQuestion());
+                    println(type.getId() + "- " + type.getQuestion());
                 }
             }
         } else if ((matcher = RegisterCommands.PICK_QUESTION.getMatcher(input)) != null) {
-            System.out.println(controller.pickQuestion(matcher));
+            println(controller.pickQuestion(matcher));
         } else if ((matcher = RegisterCommands.MENU_ENTER.getMatcher(input)) != null) {
             String menuName = matcher.group("menuName").trim();
-            System.out.println(controller.enterMenu(menuName));
+            println(controller.enterMenu(menuName));
         } else if (RegisterCommands.MENU_EXIT.getMatcher(input) != null) {
-            System.out.println(controller.exit());
+            println(controller.exit());
         } else if (RegisterCommands.MENU_BACK.getMatcher(input) != null) {
-            System.out.println(controller.back());
+            println(controller.back());
         } else if (RegisterCommands.HELP.getMatcher(input) != null) {
-            System.out.println(controller.help());
+            println(controller.help());
         } else if (RegisterCommands.SHOW_CURRENT_MENU.getMatcher(input) != null) {
-            System.out.println(controller.showCurrentMenu());
+            println(controller.showCurrentMenu());
         } else {
-            System.out.println("invalid command");
+            println("invalid command");
         }
+    }
+
+    public static void println(Result result)
+    {
+        System.out.println(result.toString());
+        TerminalScreen.appendOutputLn(result.toString());
+    }
+
+    public static void print(Result result)
+    {
+        System.out.print(result.toString());
+        TerminalScreen.appendOutput(result.toString());
+    }
+
+    public static void println(String output)
+    {
+        System.out.println(output);
+        TerminalScreen.appendOutputLn(output);
+    }
+
+    public static void print(String output)
+    {
+        System.out.print(output);
+        TerminalScreen.appendOutput(output);
     }
 }

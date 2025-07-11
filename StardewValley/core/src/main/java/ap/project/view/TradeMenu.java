@@ -2,13 +2,15 @@ package ap.project.view;
 
 import ap.project.control.GeneralController;
 import ap.project.control.game.activities.TradeController;
-import ap.project.model.App;
-import ap.project.model.Player;
+import ap.project.model.App.App;
+import ap.project.model.App.Result;
+import ap.project.model.game.Player;
 import ap.project.model.enums.GameObjectType;
 import ap.project.model.enums.Menu;
 import ap.project.model.enums.TradeType;
 import ap.project.model.enums.regex_enums.GeneralCommands;
 import ap.project.model.enums.regex_enums.TradeCommands;
+import ap.project.screen.TerminalScreen;
 
 import java.util.Scanner;
 import java.util.regex.Matcher;
@@ -49,7 +51,7 @@ public class TradeMenu implements AppMenu {
             } catch (Exception ignored) {}
 
             if (price != -1) {
-                System.out.println(controller.tradeWith(player, type, item, amount, price));
+                println(controller.tradeWith(player, type, item, amount, price));
             } else {
                 GameObjectType targetItem = null;
                 for (GameObjectType type1 : GameObjectType.values()) {
@@ -64,7 +66,7 @@ public class TradeMenu implements AppMenu {
                 } catch (Exception ignored) {}
 
 
-                System.out.println(controller.tradeWith(player, type, item, amount, targetItem, targetAmount));
+                println(controller.tradeWith(player, type, item, amount, targetItem, targetAmount));
             }
         } else if (TradeCommands.TRADE_LIST.getMatcher(input) != null) {
             controller.tradeList();
@@ -74,17 +76,41 @@ public class TradeMenu implements AppMenu {
             if (matcher.group("respond").equals("reject")) {
                 respond = false;
             }
-            System.out.println(controller.responseTrade(respond, id));
+            println(controller.responseTrade(respond, id));
         } else if (TradeCommands.TRADE_HISTORY.getMatcher(input) != null) {
             controller.tradeHistory();
         } else if (TradeCommands.END_TRADE.getMatcher(input) != null) {
             App.setCurrentMenu(Menu.GameMenu);
-            System.out.println("redirecting to game menu...");
+            println("redirecting to game menu...");
         } else if (GeneralCommands.NEXT_TURN.getMatcher(input) != null)
         {
             generalController.nextTurn();
         } else {
-            System.out.println("invalid command");
+            println("invalid command");
         }
+    }
+
+    public static void println(Result result)
+    {
+        System.out.println(result.toString());
+        TerminalScreen.appendOutputLn(result.toString());
+    }
+
+    public static void print(Result result)
+    {
+        System.out.print(result.toString());
+        TerminalScreen.appendOutput(result.toString());
+    }
+
+    public static void println(String output)
+    {
+        System.out.println(output);
+        TerminalScreen.appendOutputLn(output);
+    }
+
+    public static void print(String output)
+    {
+        System.out.print(output);
+        TerminalScreen.appendOutput(output);
     }
 }

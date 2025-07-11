@@ -1,7 +1,7 @@
 package ap.project.model.animal;
 
-import ap.project.model.App;
-import ap.project.model.GameObject;
+import ap.project.model.App.App;
+import ap.project.model.game.GameObject;
 import ap.project.model.enums.Weather;
 import ap.project.model.enums.animal_enums.FishType;
 import ap.project.model.enums.tool_enums.FishingPoleLevel;

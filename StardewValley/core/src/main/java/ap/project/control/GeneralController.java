@@ -1,15 +1,15 @@
 package ap.project.control;
 
-import ap.project.model.*;
+import ap.project.model.App.App;
+import ap.project.model.App.Result;
+import ap.project.model.App.User;
 import ap.project.model.enums.DayOfWeek;
 import ap.project.model.enums.Menu;
 import ap.project.model.enums.Season;
 import ap.project.model.enums.Weather;
+import ap.project.model.game.*;
 import ap.project.model.tools.Tool;
 import ap.project.model.tools.TrashCan;
-import ap.project.model.*;
-import ap.project.model.enums.*;
-import ap.project.model.tools.*;
 import ap.project.view.GameMenu;
 
 import java.util.ArrayList;
@@ -389,7 +389,7 @@ public class GeneralController
             GameMenu.println("\t[3] Do nothing.");
             GameMenu.print("Which one? ");
 
-            String input = GameMenu.scan(scanner);
+            String input = GameMenu.scan();
 
             if (input.equals("1"))
             {
@@ -501,7 +501,7 @@ public class GeneralController
         }
 
         GameMenu.println("Are you sure? [y/n]");
-        String answer = GameMenu.scan(scanner);
+        String answer = GameMenu.scan();
 
         if (answer.equalsIgnoreCase("n"))
         {
@@ -547,7 +547,7 @@ public class GeneralController
                     do
                     {
                         GameMenu.println("Do you vote for this game to be deleted? [y/n]");
-                        String answer = GameMenu.scan(scanner);
+                        String answer = GameMenu.scan();
                         if (answer.equalsIgnoreCase("y"))
                         {
                             positive += 1;

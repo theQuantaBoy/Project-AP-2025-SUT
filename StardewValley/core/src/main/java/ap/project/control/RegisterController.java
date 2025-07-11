@@ -1,8 +1,8 @@
 package ap.project.control;
 
-import ap.project.model.App;
-import ap.project.model.Result;
-import ap.project.model.User;
+import ap.project.model.App.App;
+import ap.project.model.App.Result;
+import ap.project.model.App.User;
 import ap.project.model.enums.Gender;
 import ap.project.model.enums.Menu;
 import ap.project.model.enums.SecurityQuestionType;

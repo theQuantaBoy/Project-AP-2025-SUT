@@ -1,9 +1,15 @@
 package ap.project.control;
 
-import ap.project.model.*;
+import ap.project.model.App.App;
+import ap.project.model.App.Result;
+import ap.project.model.App.User;
 import ap.project.model.enums.Gender;
 import ap.project.model.enums.MapTypes;
 import ap.project.model.enums.Menu;
+import ap.project.model.game.Farm;
+import ap.project.model.game.Game;
+import ap.project.model.game.Player;
+import ap.project.screen.TerminalScreen;
 import ap.project.view.PreGameMenu;
 
 import java.util.ArrayList;
@@ -11,7 +17,7 @@ import java.util.Scanner;
 
 public class PreGameController
 {
-    public void newGame(String[] usernames, Scanner scanner)
+    public void newGame(String[] usernames)
     {
         User user = App.getCurrentUser();
         ArrayList<User> users = new ArrayList<>();
@@ -48,11 +54,12 @@ public class PreGameController
             users.add(newUser);
         }
 
-        String string = scanner.nextLine();
-
         PreGameMenu.println("Users selected successfully.");
-        chooseMaps(users, scanner);
-        chooseGender(scanner);
+
+        Scanner sc = new Scanner(System.in);
+
+        chooseMaps(users, sc);
+        chooseGender(sc);
 
         PreGameMenu.println("New Game created.\n\n" +
                 "Welcome to Stardew Valley!");
@@ -140,7 +147,7 @@ public class PreGameController
         return new Result(true, "Exiting the game...");
     }
 
-    private void chooseMaps(ArrayList<User> users, Scanner scanner)
+    private void chooseMaps(ArrayList<User> users, Scanner sc)
     {
         ArrayList<MapTypes> farmTypes = MapTypes.farmTypes();
         PreGameMenu.println("Farm Options: ");
@@ -159,7 +166,8 @@ public class PreGameController
             PreGameMenu.print("Choosing farm for " + user.getNickname() + ": ");
             while (true)
             {
-                String input = PreGameMenu.scan(scanner);
+                String input = PreGameMenu.scan();
+//                String input = sc.nextLine().trim();
                 if (!input.matches("-?[0-9]+"))
                 {
                     PreGameMenu.print("Please enter a valid number: ");
@@ -194,12 +202,16 @@ public class PreGameController
 
     }
 
-    public void chooseGender(Scanner scanner) {
+    public void chooseGender(Scanner sc) {
         PreGameMenu.println("\nchoosing gender... ");
         for (Player player : App.getCurrentGame().getPlayers()) {
             while (true) {
                 PreGameMenu.print(player.getNickName() + ": ");
-                String genderName = scanner.nextLine();
+
+                /**/
+
+                String genderName = PreGameMenu.scan();
+//                String genderName = sc.nextLine().trim();
                 Gender gender = Gender.getGender(genderName);
                 if (gender != null) {
                     player.setGender(gender);

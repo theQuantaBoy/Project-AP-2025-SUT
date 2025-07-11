@@ -1,7 +1,7 @@
 package ap.project.model.building.CraftingItems;
 
 
-import ap.project.model.GameObject;
+import ap.project.model.game.GameObject;
 import ap.project.model.enums.building_enums.CraftingRecipeEnums;
 
 public abstract class CraftingItem extends GameObject
