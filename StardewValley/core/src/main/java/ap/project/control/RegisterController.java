@@ -17,39 +17,39 @@ public class RegisterController
     private static final SecureRandom random = new SecureRandom();
     private static User newUser = null;
 
-    public Result register(Matcher matcher, Scanner scanner)
+    public Result register(String username, String password, String passwordConfirm, String email, String nickName, Gender gender)
     {
-        String username = matcher.group("username");
-        String password = matcher.group("password");
-        String passwordConfirm = matcher.group("passwordConfirm");
-        String input;
+//        String username = matcher.group("username");
+//        String password = matcher.group("password");
+//        String passwordConfirm = matcher.group("passwordConfirm");
+//        String input;
         boolean random = false;
-        if (password.equals("random") && passwordConfirm.equals("password")) {
-            random = true;
-            do {
-                password = generatePassword();
-                passwordConfirm = password;
-                System.out.println("your password is " + password +
-                        ". type y to confirm, n for another password or exit for rejection");
-                input = scanner.nextLine().trim();
+//        if (password.equals("random") && passwordConfirm.equals("password")) {
+//            random = true;
+//            do {
+//                password = generatePassword();
+//                passwordConfirm = password;
+//                System.out.println("your password is " + password +
+//                        ". type y to confirm, n for another password or exit for rejection");
+//                input = scanner.nextLine().trim();
+//
+//                if (input.equalsIgnoreCase("y")) {
+//                    break;
+//                } else if (input.equalsIgnoreCase("exit")) {
+//                    return new Result(false, "registration cancelled by user.");
+//                }
+//
+//            } while (input.equalsIgnoreCase("n"));
+//        }
+//        String nickName = matcher.group("nickname");
+//        String email = matcher.group("email");
+//        String genderName = matcher.group("gender");
 
-                if (input.equalsIgnoreCase("y")) {
-                    break;
-                } else if (input.equalsIgnoreCase("exit")) {
-                    return new Result(false, "registration cancelled by user.");
-                }
-
-            } while (input.equalsIgnoreCase("n"));
-        }
-        String nickName = matcher.group("nickname");
-        String email = matcher.group("email");
-        String genderName = matcher.group("gender");
-
-        Gender gender = Gender.getGender(genderName);
-        if (gender == null)
-        {
-            return new Result(false, "invalid gender");
-        }
+//        Gender gender = Gender.getGender(genderName);
+//        if (gender == null)
+//        {
+//            return new Result(false, "invalid gender");
+//        }
 
         if (RegisterCommands.CHECK_USERNAME.getMatcher(username) == null) {
             return new Result(false, "username is not valid!");
@@ -71,6 +71,8 @@ public class RegisterController
                 return new Result(false, "your password should include special character!");
             } else if (!password.equals(passwordConfirm)) {
                 return new Result(false, "your password doesn't match confirm password!");
+            } else if (nickName.equals("")) {
+                return new Result(false, "nickname is invalid!");
             } else if (gender == null) {
                 return new Result(false, "gender is invalid!");
             }

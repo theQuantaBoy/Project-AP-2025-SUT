@@ -18,16 +18,17 @@ public class RegisterMenu implements AppMenu
         String input = scanner.nextLine().trim();
         Matcher matcher;
 
-        if ((matcher = RegisterCommands.REGISTER.getMatcher(input)) != null) {
-            Result result = controller.register(matcher, scanner);
-            println(result);
-            if (result.isSuccessful()) {
-                println("choose your security question number: ");
-                for (SecurityQuestionType type : SecurityQuestionType.values()) {
-                    println(type.getId() + "- " + type.getQuestion());
-                }
-            }
-        } else if ((matcher = RegisterCommands.PICK_QUESTION.getMatcher(input)) != null) {
+//        if ((matcher = RegisterCommands.REGISTER.getMatcher(input)) != null) {
+//            Result result = controller.register(matcher, scanner);
+//            println(result);
+//            if (result.isSuccessful()) {
+//                println("choose your security question number: ");
+//                for (SecurityQuestionType type : SecurityQuestionType.values()) {
+//                    println(type.getId() + "- " + type.getQuestion());
+//                }
+//            }
+//        }
+        if ((matcher = RegisterCommands.PICK_QUESTION.getMatcher(input)) != null) {
             println(controller.pickQuestion(matcher));
         } else if ((matcher = RegisterCommands.MENU_ENTER.getMatcher(input)) != null) {
             String menuName = matcher.group("menuName").trim();
