@@ -1,0 +1,26 @@
+buildscript {
+  repositories {
+    mavenCentral()
+  }
+}
+
+allprojects {
+  repositories {
+    mavenCentral()
+  }
+}
+
+subprojects {
+  // Only applies to subprojects like :core and :lwjgl3
+  plugins.withId('java') {
+    java {
+      toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+      }
+    }
+
+    tasks.withType(JavaCompile).configureEach {
+      options.encoding = 'UTF-8'
+    }
+  }
+}
