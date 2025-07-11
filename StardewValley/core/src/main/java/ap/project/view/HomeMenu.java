@@ -232,11 +232,6 @@ public class HomeMenu implements AppMenu
         }
     }
 
-    public static String scan(Scanner scanner)
-    {
-        return scanner.nextLine().trim();
-    }
-
     public static void println(Result result)
     {
         System.out.println(result.toString());

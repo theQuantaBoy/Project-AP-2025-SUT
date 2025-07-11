@@ -25,7 +25,7 @@ public class PreGameMenu implements AppMenu
             usernames[1] = matcher.group("user2") == null ? "" : matcher.group("user2").trim();
             usernames[2] = matcher.group("user3") == null ? "" : matcher.group("user3").trim();
 
-            controller.newGame(usernames, scanner);
+            controller.newGame(usernames);
         } else if ((matcher = PreGameCommands.LOAD_GAME.getMatcher(input)) != null)
         {
             println(controller.loadGame());
@@ -51,9 +51,10 @@ public class PreGameMenu implements AppMenu
         }
     }
 
-    public static String scan(Scanner scanner)
+    public static String scan()
     {
-        return scanner.nextLine().trim();
+        return  null;
+//        return TerminalScreen.readLine().trim();
     }
 
     public static void println(Result result)

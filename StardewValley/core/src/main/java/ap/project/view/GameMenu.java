@@ -321,9 +321,10 @@ public class GameMenu implements AppMenu
         }
     }
 
-    public static String scan(Scanner scanner)
+    public static String scan()
     {
-        return scanner.nextLine().trim();
+        return null;
+//        return TerminalScreen.readLine().trim();
     }
 
     public static void println(Result result)

@@ -389,7 +389,7 @@ public class GeneralController
             GameMenu.println("\t[3] Do nothing.");
             GameMenu.print("Which one? ");
 
-            String input = GameMenu.scan(scanner);
+            String input = GameMenu.scan();
 
             if (input.equals("1"))
             {
@@ -501,7 +501,7 @@ public class GeneralController
         }
 
         GameMenu.println("Are you sure? [y/n]");
-        String answer = GameMenu.scan(scanner);
+        String answer = GameMenu.scan();
 
         if (answer.equalsIgnoreCase("n"))
         {
@@ -547,7 +547,7 @@ public class GeneralController
                     do
                     {
                         GameMenu.println("Do you vote for this game to be deleted? [y/n]");
-                        String answer = GameMenu.scan(scanner);
+                        String answer = GameMenu.scan();
                         if (answer.equalsIgnoreCase("y"))
                         {
                             positive += 1;

@@ -387,7 +387,7 @@ public class AnimalController
         }
 
         GameMenu.print("Noooo! You really want to sell " + name + "? [y/n] ");
-        String answer = GameMenu.scan(scanner);
+        String answer = GameMenu.scan();
 
         if (answer.equalsIgnoreCase("n"))
         {

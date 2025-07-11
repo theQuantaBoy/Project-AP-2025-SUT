@@ -37,7 +37,7 @@ public class ProfileController
 
         ProfileMenu.println("Your new username would be: " + newUsername);
         ProfileMenu.println("Do you confirm the change? [y/n]");
-        String answer = ProfileMenu.scan(scanner);
+        String answer = ProfileMenu.scan();
 
         String output = "";
 
@@ -116,7 +116,7 @@ public class ProfileController
             newPassword = generateStrongRandomPassword();
             ProfileMenu.println("Your new password would be: " + newPassword);
             ProfileMenu.println("Do you confirm the change? [y/n]");
-            String answer = ProfileMenu.scan(scanner).toLowerCase();
+            String answer = ProfileMenu.scan().toLowerCase();
 
             switch (answer)
             {
