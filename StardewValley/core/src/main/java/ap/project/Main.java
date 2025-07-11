@@ -1,5 +1,7 @@
 package ap.project;
 
+import ap.project.model.App.GameAssetsManager;
+import ap.project.screen.RegisterScreen;
 import ap.project.screen.TerminalScreen;
 import ap.project.view.AppView;
 import com.badlogic.gdx.ApplicationAdapter;
@@ -16,14 +18,17 @@ import com.badlogic.gdx.backends.headless.HeadlessApplicationConfiguration;
 public class Main extends com.badlogic.gdx.Game
 {
     private static Main app;
+    private SpriteBatch batch;
 
     @Override
     public void create()
     {
         app = this;
-        TerminalScreen.run(); // start first input
-        setScreen(TerminalScreen.getInstance());
-        getApp().setScreen(new TerminalScreen());
+        batch = new SpriteBatch();
+//        TerminalScreen.run(); // start first input
+//        setScreen(TerminalScreen.getInstance());
+//        getApp().setScreen(new TerminalScreen());
+        app.setScreen(new RegisterScreen());
     }
 
     @Override
@@ -47,6 +52,10 @@ public class Main extends com.badlogic.gdx.Game
     public static Main getApp()
     {
         return app;
+    }
+
+    public SpriteBatch getBatch() {
+        return batch;
     }
 
     public void runConsole()
