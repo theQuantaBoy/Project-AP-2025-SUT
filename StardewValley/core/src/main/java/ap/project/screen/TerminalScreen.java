@@ -29,6 +29,7 @@ public final class TerminalScreen implements Screen, InputProcessor
     private static BitmapFont font;
 
     private static final SpriteBatch batch = new SpriteBatch();
+    private static final ShapeRenderer shapes = new ShapeRenderer();
     private static final OrthographicCamera camera = new OrthographicCamera();
     private static final Viewport viewport = new ScreenViewport(camera);
 
@@ -51,7 +52,7 @@ public final class TerminalScreen implements Screen, InputProcessor
     private boolean cursorVisible = true;
 
     private static final BlockingQueue<String> inputQueue =
-        new LinkedBlockingQueue<>();
+            new LinkedBlockingQueue<>();
     private static volatile boolean awaitingNestedInput = false;
 
     /** Blocks the calling THREAD (Command-Thread) until the user hits ENTER. */
@@ -70,7 +71,6 @@ public final class TerminalScreen implements Screen, InputProcessor
         awaitingInput = true;
         lineSubmitted = false;
         currentLine.setLength(0);
-        currentEntry = null;
         Gdx.input.setInputProcessor(INSTANCE);
     }
 
@@ -91,8 +91,7 @@ public final class TerminalScreen implements Screen, InputProcessor
     @Override
     public void render(float delta)
     {
-        // Clear screen manually to keep black background
-        Gdx.gl.glClearColor(0f, 0f, 0f, 1f);
+        Gdx.gl.glClearColor(0x17 / 255f, 0x14 / 255f, 0x21 / 255f, 1f);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         // Make sure camera & viewport are in sync
@@ -110,14 +109,11 @@ public final class TerminalScreen implements Screen, InputProcessor
         float baseHeight = 720f; // or any height you designed your font for
         float scale = Gdx.graphics.getHeight() / baseHeight;
 
+        /* ---------- draw scroll bar (track + thumb) ---------------- */
+        int totalLines = totalLineCount();
+
         viewport.apply();
         batch.begin();
-
-        Gdx.gl.glClearColor(0x17 / 255f, 0x14 / 255f, 0x21 / 255f, 1f);
-        Gdx.gl.glClear(Gdx.gl.GL_COLOR_BUFFER_BIT);
-
-        /* ---- how many total lines do we need to show? ---- */
-        int totalLines = totalLineCount();
 
         int visible = visibleLines();
 
@@ -127,33 +123,79 @@ public final class TerminalScreen implements Screen, InputProcessor
         float lineHeight = font.getLineHeight() * 1.5f;
         float topY = Gdx.graphics.getHeight() - 20;
 
-        float y = Gdx.graphics.getHeight() - 20;
+        float bottomPad = 16f;
+        float y = Gdx.graphics.getHeight() - 20 - bottomPad;
+
         int skipped = 0;                     // how many lines we’ve skipped (scroll)
 
-        for (TerminalEntry e : history) {
-            int need = linesOf(e);
-            if (skipped + need <= firstLine) { skipped += need; continue; }
+        synchronized (history)
+        {
+            for (TerminalEntry e : history)
+            {
+                int need = linesOf(e);
+                if (skipped + need <= firstLine)
+                {
+                    skipped += need;
+                    continue;
+                }
 
-            /* prompt (green) + input (white) */
-            if (skipped >= firstLine) {
-                font.setColor(0x63/255f, 0xf0/255f, 0x64/255f, 1); // green
-                font.draw(batch, e.prompt, 20, y);
-                layout.setText(font, e.prompt);
-                font.setColor(1,1,1,1);
-                font.draw(batch, e.input, 20 + layout.width, y);
-                y -= lineHeight;
-            } else skipped++;        // we skipped the prompt line
-            /* output lines (gray) */
-            for (String out : e.getOutput().split("\n")) {
-                if (skipped < firstLine) { skipped++; continue; }
-                font.setColor(.7f,.7f,.7f,1);
-                font.draw(batch, out, 20, y);
-                y -= lineHeight;
+                /* prompt (green) + input (white) */
+                if (skipped >= firstLine)
+                {
+                    font.setColor(0x63 / 255f, 0xf0 / 255f, 0x64 / 255f, 1); // green
+                    font.draw(batch, e.prompt, 20, y);
+                    layout.setText(font, e.prompt);
+                    font.setColor(1, 1, 1, 1);
+                    font.draw(batch, e.input, 20 + layout.width, y);
+                    y -= lineHeight;
+                } else skipped++;        // we skipped the prompt line
+                /* output lines (gray) */
+                for (String out : e.getOutput().split("\n"))
+                {
+                    if (skipped < firstLine)
+                    {
+                        skipped++;
+                        continue;
+                    }
+                    font.setColor(.7f, .7f, .7f, 1);
+                    font.draw(batch, out, 20, y);
+                    y -= lineHeight;
+                }
             }
+
+            /* -------- draw the running command so live output appears -------- */
+            synchronized (history) {                       // ensure thread-safety
+                if (currentEntry != null) {
+                    int need = linesOf(currentEntry);
+                    if (skipped + need > firstLine) {
+                        /* prompt + input */
+                        if (skipped >= firstLine) {
+                            font.setColor(0x63/255f, 0xf0/255f, 0x64/255f, 1);
+                            font.draw(batch, currentEntry.prompt, 20, y);
+                            layout.setText(font, currentEntry.prompt);
+                            font.setColor(1,1,1,1);
+                            font.draw(batch, currentEntry.input,
+                                    20 + layout.width, y);
+                            y -= lineHeight;
+                        } else skipped++;
+
+                        /* output lines */
+                        for (String out : currentEntry.getOutput().split("\n")) {
+                            if (skipped < firstLine) { skipped++; continue; }
+                            font.setColor(.7f,.7f,.7f,1);
+                            font.draw(batch, out, 20, y);
+                            y -= lineHeight;
+                        }
+                    } else {
+                        skipped += need;        // scrolled past it
+                    }
+                }
+            }
+
         }
 
         /* live prompt + typing */
-        if (awaitingInput && y >= 0 && currentEntry == null)
+        if (awaitingInput && y >= bottomPad && currentEntry == null)
         {
             font.setColor(0x63/255f, 0xf0/255f, 0x64/255f, 1);
             font.draw(batch, prompt, 20, y);
@@ -201,32 +243,12 @@ public final class TerminalScreen implements Screen, InputProcessor
         return true;
     }
 
-    private void submit()
-    {
-        String cmd = currentLine.toString();
-
-        // Always add user input to buffer (we'll prefix with prompt during rendering)
-        currentEntry = new TerminalEntry(prompt, cmd);
-        waitForOutput(); // start capturing output
-
-        if (!cmd.trim().isEmpty())
-        {
-            CommandInput.setCommand(cmd); // run command logic
-        }
-
-        currentLine.setLength(0);
-        lineSubmitted = true;
-        awaitingInput = false;
-        AppView.run();
-        Gdx.input.setInputProcessor(null);
-        scroll = 0;
-    }
-
     public static void appendOutput(String text)
     {
         if (currentEntry != null && awaitingOutput)
         {
             currentEntry.appendOutput(text);
+            Gdx.graphics.requestRendering();
         }
     }
 
@@ -235,6 +257,7 @@ public final class TerminalScreen implements Screen, InputProcessor
         if (currentEntry != null && awaitingOutput)
         {
             currentEntry.appendOutputLn(text);
+            Gdx.graphics.requestRendering();
         }
     }
 
@@ -247,7 +270,10 @@ public final class TerminalScreen implements Screen, InputProcessor
     {
         if (currentEntry != null)
         {
-            history.add(currentEntry);
+            synchronized (history)
+            {
+                history.add(currentEntry);
+            }
             currentEntry = null;
         }
 
@@ -266,18 +292,23 @@ public final class TerminalScreen implements Screen, InputProcessor
         return lines;
     }
 
-    private static int totalLineCount()
-    {
-        int total = 0;
-        for (TerminalEntry e : history) total += linesOf(e);
-        if (awaitingInput) total++;
-        return total;
+    private static int totalLineCount() {
+        synchronized (history) {
+            int total = 0;
+            for (TerminalEntry e : history) total += linesOf(e);
+
+            /* NEW — count the running command too */
+            if (currentEntry != null) total += linesOf(currentEntry);
+
+            if (awaitingInput) total++;
+            return total;
+        }
     }
 
     @Override public boolean scrolled(float amountX,float amountY)
     {
         int max = Math.max(0, totalLineCount() - visibleLines());  // ✅ use method
-        scroll = Math.max(0, Math.min(scroll - (int) amountY, max));
+        scroll = Math.max(0, Math.min(scroll - (int)amountY, max));
         return true;
     }
 
@@ -305,24 +336,33 @@ public final class TerminalScreen implements Screen, InputProcessor
                 return true;
         }
 
-        // Handle ENTER key
         if (keycode == Input.Keys.ENTER) {
             String cmd = currentLine.toString();
             if (cmd.isEmpty()) return true;
 
             if (awaitingNestedInput) {
-                appendOutputLn("");
+
+                // ✅ Add this to log the response like a command
+                TerminalEntry temp = new TerminalEntry(prompt, cmd);
+
+                synchronized (history)
+                {
+                    history.add(temp);
+                }
+
                 currentLine.setLength(0);
                 awaitingNestedInput = false;
-                inputQueue.offer(cmd); // Deliver nested input
+                inputQueue.offer(cmd);
                 return true;
             }
 
-            // Top-level command
-            appendOutputLn("");
+            // ✅ FIX HERE: store prompt + input in currentEntry
+            currentEntry = new TerminalEntry(prompt, cmd);
+            waitForOutput();
+
             currentLine.setLength(0);
             CommandInput.setCommand(cmd);
-            AppView.run(); // Launch controller logic on background thread
+            AppView.run();                   // Run logic in background thread
             return true;
         }
 
