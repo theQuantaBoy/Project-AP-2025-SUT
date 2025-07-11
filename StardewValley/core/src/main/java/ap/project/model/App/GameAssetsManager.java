@@ -7,8 +7,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator.FreeTypeFontParameter;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 
 public class GameAssetsManager {
@@ -22,7 +21,7 @@ public class GameAssetsManager {
     private Skin skin;
 
     public GameAssetsManager() {
-        skin = new Skin(Gdx.files.internal("skin/skin/craftacular-ui.json"));
+        skin = new Skin(Gdx.files.internal("czyzby gdx-skins master pixthulhu/skin/pixthulhu-ui.json"));
         this.registerBackground = new Texture(Gdx.files.internal("menu/Panorama.png"));
         this.logo = new Texture(Gdx.files.internal("menu/Logo No Background.png"));
 
@@ -38,7 +37,6 @@ public class GameAssetsManager {
             throw new GdxRuntimeException("Skin failed to load");
         }
         Gdx.app.log("GameAssetsManager", "Skin loaded successfully");
-
     }
 
 

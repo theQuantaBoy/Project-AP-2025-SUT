@@ -1,5 +1,6 @@
 package ap.project;
 
+import ap.project.control.RegisterController;
 import ap.project.model.App.GameAssetsManager;
 import ap.project.screen.RegisterScreen;
 import ap.project.screen.TerminalScreen;
@@ -28,7 +29,7 @@ public class Main extends com.badlogic.gdx.Game
 //        TerminalScreen.run(); // start first input
 //        setScreen(TerminalScreen.getInstance());
 //        getApp().setScreen(new TerminalScreen());
-        app.setScreen(new RegisterScreen());
+        app.setScreen(new RegisterScreen(new RegisterController()));
     }
 
     @Override
