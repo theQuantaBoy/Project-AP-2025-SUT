@@ -166,8 +166,8 @@ public class PreGameController
             PreGameMenu.print("Choosing farm for " + user.getNickname() + ": ");
             while (true)
             {
-//                String input = PreGameMenu.scan();
-                String input = sc.nextLine().trim();
+                String input = PreGameMenu.scan();
+//                String input = sc.nextLine().trim();
                 if (!input.matches("-?[0-9]+"))
                 {
                     PreGameMenu.print("Please enter a valid number: ");
@@ -210,8 +210,8 @@ public class PreGameController
 
                 /**/
 
-//                String genderName = PreGameMenu.scan();
-                String genderName = sc.nextLine().trim();
+                String genderName = PreGameMenu.scan();
+//                String genderName = sc.nextLine().trim();
                 Gender gender = Gender.getGender(genderName);
                 if (gender != null) {
                     player.setGender(gender);

@@ -19,10 +19,11 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
 import java.util.ArrayList;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 public final class TerminalScreen implements Screen, InputProcessor
 {
-    private static final Array<String> buffer = new Array<>();          // scroll-back
     private static final StringBuilder currentLine = new StringBuilder();
 
     private static BitmapFont font;
@@ -48,6 +49,21 @@ public final class TerminalScreen implements Screen, InputProcessor
     private static final float CURSOR_BLINK_INTERVAL = 0.5f; // seconds
     private float cursorTimer = 0f;
     private boolean cursorVisible = true;
+
+    private static final BlockingQueue<String> inputQueue =
+        new LinkedBlockingQueue<>();
+    private static volatile boolean awaitingNestedInput = false;
+
+    /** Blocks the calling THREAD (Command-Thread) until the user hits ENTER. */
+    public static String readLine() {
+        awaitingNestedInput = true;       // tell keyDown() we’re in prompt mode
+        try {
+            return inputQueue.take();     // blocks only the background thread
+        } catch (InterruptedException ie) {
+            Thread.currentThread().interrupt();
+            return "";                    // or throw RuntimeException
+        }
+    }
 
     public static void run()
     {
@@ -166,6 +182,27 @@ public final class TerminalScreen implements Screen, InputProcessor
         return (int)((Gdx.graphics.getHeight() - 40) / (font.getLineHeight() * 1.5f));
     }
 
+//    @Override
+//    public boolean keyTyped(char character) {
+//        if (!awaitingInput) return false;
+//
+//        switch (character) {
+//            case '\b':
+//                if (currentLine.length() > 0) currentLine.deleteCharAt(currentLine.length() - 1);
+//                break;
+//            case '\r':
+//                break;
+//            case '\n':
+//                submit();
+//                break;
+//            default:
+//                if (!Character.isISOControl(character)) {
+//                    currentLine.append(character);
+//                }
+//        }
+//        return true;
+//    }
+
     @Override
     public boolean keyTyped(char character) {
         if (!awaitingInput) return false;
@@ -174,10 +211,8 @@ public final class TerminalScreen implements Screen, InputProcessor
             case '\b':
                 if (currentLine.length() > 0) currentLine.deleteCharAt(currentLine.length() - 1);
                 break;
-            case '\r':
-                break;
-            case '\n':
-                submit();
+            case '\r': case '\n':
+                // We handle ENTER in keyDown(), not here
                 break;
             default:
                 if (!Character.isISOControl(character)) {
@@ -267,11 +302,36 @@ public final class TerminalScreen implements Screen, InputProcessor
         return true;
     }
 
+//    @Override
+//    public boolean keyDown(int keycode)
+//    {
+//        if (keycode == Input.Keys.V && Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT))
+//        {
+//            String clip = Gdx.app.getClipboard().getContents();
+//            if (clip != null && !clip.isEmpty()) {
+//                currentLine.append(clip.replace("\r", "").replace("\n", " ")); // flatten multiline
+//            }
+//            return true;
+//        }
+//
+//        switch (keycode)
+//        {
+//            case Input.Keys.PAGE_UP:
+//                scroll = Math.min(scroll + visibleLines(), buffer.size - visibleLines());
+//                break;
+//            case Input.Keys.PAGE_DOWN:
+//                scroll = Math.max(scroll - visibleLines(), 0);
+//                break;
+//        }
+//        return false;
+//    }
+
     @Override
-    public boolean keyDown(int keycode)
-    {
-        if (keycode == Input.Keys.V && Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT))
-        {
+    public boolean keyDown(int keycode) {
+        if (!awaitingInput) return false;
+
+        // Handle CTRL+V clipboard paste
+        if (keycode == Input.Keys.V && Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT)) {
             String clip = Gdx.app.getClipboard().getContents();
             if (clip != null && !clip.isEmpty()) {
                 currentLine.append(clip.replace("\r", "").replace("\n", " ")); // flatten multiline
@@ -279,16 +339,39 @@ public final class TerminalScreen implements Screen, InputProcessor
             return true;
         }
 
-        switch (keycode)
-        {
+        // Scroll up/down with PAGE_UP / PAGE_DOWN
+        switch (keycode) {
             case Input.Keys.PAGE_UP:
-                scroll = Math.min(scroll + visibleLines(), buffer.size - visibleLines());
-                break;
+                scroll = Math.min(scroll + visibleLines(), totalLineCount() - visibleLines());
+                return true;
+
             case Input.Keys.PAGE_DOWN:
                 scroll = Math.max(scroll - visibleLines(), 0);
-                break;
+                return true;
         }
-        return false;
+
+        // Handle ENTER key
+        if (keycode == Input.Keys.ENTER) {
+            String cmd = currentLine.toString();
+            if (cmd.isEmpty()) return true;
+
+            if (awaitingNestedInput) {
+                appendOutputLn("");
+                currentLine.setLength(0);
+                awaitingNestedInput = false;
+                inputQueue.offer(cmd); // Deliver nested input
+                return true;
+            }
+
+            // Top-level command
+            appendOutputLn("");
+            currentLine.setLength(0);
+            CommandInput.setCommand(cmd);
+            AppView.run(); // Launch controller logic on background thread
+            return true;
+        }
+
+        return false; // Let keyTyped() handle printable characters
     }
 
     @Override public boolean keyUp(int keycode) { return false; }
