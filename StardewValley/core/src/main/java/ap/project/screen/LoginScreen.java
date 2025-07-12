@@ -32,6 +32,7 @@ public class LoginScreen implements Screen {
     private CheckBox stayLoggedIn;
     private TextButton signup;
     private TextButton forgotPassword;
+    private TextButton exit;
     private Label errorLabel;
     private Table table;
 
@@ -67,6 +68,7 @@ public class LoginScreen implements Screen {
         this.stayLoggedIn = new CheckBox("stay logged in", GameAssetsManager.getGameAssetsManager().getSkin());
         this.forgotPassword =  new TextButton("Forgot Password", GameAssetsManager.getGameAssetsManager().getSkin());
         this.signup = new TextButton("Sign up", GameAssetsManager.getGameAssetsManager().getSkin());
+        this.exit = new TextButton("Exit", GameAssetsManager.getGameAssetsManager().getSkin());
         this.errorLabel = new Label("", GameAssetsManager.getGameAssetsManager().getSkin());
         this.errorLabel.setAlignment(Align.center);
         this.errorLabel.setColor(Color.RED);
@@ -79,6 +81,7 @@ public class LoginScreen implements Screen {
         table.add(table1).row();
         table.add(forgotPassword).width(500).height(50).pad(10).row();
         table.add(signup).width(500).height(50).pad(10).row();
+        table.add(exit).width(500).height(50).pad(10).row();
         table.add(errorLabel).width(500).height(50).pad(10).row();
 
         addButtonListeners();
@@ -101,6 +104,13 @@ public class LoginScreen implements Screen {
                 if (result.isSuccessful()) {
                     Main.getApp().setScreen(new MainScreen(new MainMenuController()));
                 }
+            }
+        });
+
+        exit.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                Gdx.app.exit();
             }
         });
 

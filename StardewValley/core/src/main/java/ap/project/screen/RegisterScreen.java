@@ -37,6 +37,7 @@ public class RegisterScreen implements Screen {
     private TextButton enter;
     private TextButton randomPass;
     private TextButton login;
+    private TextButton exit;
     private Label errorLabel;
     private Table table;
     private RegisterController controller;
@@ -106,6 +107,7 @@ public class RegisterScreen implements Screen {
         this.errorLabel.setAlignment(Align.center);
         this.errorLabel.setColor(Color.RED);
         this.errorLabel.setFontScale(2);
+        this.exit = new TextButton("Exit", GameAssetsManager.getGameAssetsManager().getSkin());
 
         // Build form layout
         table.add(username).width(500).height(50).pad(10).row();
@@ -124,6 +126,7 @@ public class RegisterScreen implements Screen {
         table.add(secAnswer).width(500).height(50).pad(10).row();
         table.add(enter).width(500).height(60).pad(20).row();
         table.add(login).width(500).height(50).pad(20).row();
+        table.add(exit).width(500).height(60).pad(20).row();
         table.add(errorLabel).width(300).height(60).pad(20).row();
 
         // Add button listeners
@@ -163,6 +166,13 @@ public class RegisterScreen implements Screen {
                 String generatedPassword = generatePassword();
                 password.setText(generatedPassword);
                 confirmPassword.setText(generatedPassword);
+            }
+        });
+
+        exit.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                Gdx.app.exit();
             }
         });
 

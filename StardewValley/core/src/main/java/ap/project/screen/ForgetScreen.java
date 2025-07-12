@@ -4,10 +4,7 @@ import ap.project.Main;
 import ap.project.control.LoginController;
 import ap.project.control.MainMenuController;
 import ap.project.control.RegisterController;
-import ap.project.model.App.App;
-import ap.project.model.App.GameAssetsManager;
-import ap.project.model.App.Result;
-import ap.project.model.App.User;
+import ap.project.model.App.*;
 import ap.project.model.enums.regex_enums.RegisterCommands;
 import ap.project.model.game.Player;
 import com.badlogic.gdx.Gdx;
@@ -35,6 +32,7 @@ public class ForgetScreen implements Screen {
     private TextField password;
     private TextField confirmPassword;
     private TextButton resetPassword;
+    private TextButton random;
     private Label errorLabel;
 
     public ForgetScreen(User user) {
@@ -59,11 +57,12 @@ public class ForgetScreen implements Screen {
         this.confirmPassword.setMessageText("confirm password");
         this.confirmPassword.setAlignment(Align.center);
         this.resetPassword = new TextButton("reset password", GameAssetsManager.getGameAssetsManager().getSkin());
+        this.random = new TextButton("random", GameAssetsManager.getGameAssetsManager().getSkin());
         this.backButton = new TextButton("Back", GameAssetsManager.getGameAssetsManager().getSkin());
         this.errorLabel = new Label("", GameAssetsManager.getGameAssetsManager().getSkin());
 
-        answer.setDisabled(false); secCheck.setDisabled(false);
-        password.setDisabled(true); confirmPassword.setDisabled(true); resetPassword.setDisabled(true);
+        answer.setVisible(true); secCheck.setVisible(true);
+        password.setVisible(false); confirmPassword.setVisible(false); resetPassword.setVisible(false); random.setVisible(false);
 
         this.table = new Table();
         Table secTable = new Table();
@@ -72,9 +71,10 @@ public class ForgetScreen implements Screen {
         secTable.add(secCheck).width(180).height(50).pad(10).row();
         this.table.add(secTable).row();
         Table passTable  = new Table();
-        table.add(password).width(500).height(50).pad(10).row();
+        passTable.add(password).width(320).height(50).pad(10);
+        passTable.add(random).width(180).height(50).pad(10).row();
         passTable.add(confirmPassword).width(320).height(50).pad(10);
-        passTable.add(resetPassword).width(320).height(50).pad(10);
+        passTable.add(resetPassword).width(180).height(50).pad(10);
         this.table.add(passTable).row();
         table.add(backButton).width(500).height(50).pad(10).row();
         table.add(errorLabel).width(500).height(50).pad(10).row();
@@ -89,9 +89,18 @@ public class ForgetScreen implements Screen {
             public void changed(ChangeEvent event, Actor actor) {
                 if (user.getAnswer().equals(answer.getText())) {
                     errorLabel.setText("reset your password");
-                    answer.setDisabled(true); secCheck.setDisabled(true);
-                    password.setDisabled(false); confirmPassword.setDisabled(false); resetPassword.setDisabled(false);
+                    answer.setVisible(false); secCheck.setVisible(false);
+                    password.setVisible(true); confirmPassword.setVisible(true); resetPassword.setVisible(true); random.setVisible(true);
                 }
+            }
+        });
+
+        random.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                String generatedPassword = RegisterScreen.generatePassword();
+                password.setText(generatedPassword);
+                confirmPassword.setText(generatedPassword);
             }
         });
 
@@ -122,7 +131,7 @@ public class ForgetScreen implements Screen {
                     errorLabel.setText("your password doesn't match confirm password!");
                     errorLabel.setColor(Color.RED);
                 } else {
-                    user.setPassword(newPass);
+                    user.setPassword(SHA256Hasher.hash(newPass));
                     errorLabel.setText("your password changed successfully!");
                     errorLabel.setColor(Color.GREEN);
                 }

@@ -21,12 +21,15 @@ public class LoginController
         if (user == null) {
             return new Result(false, "User not found");
         }
+
+        if (username == null) {
+            return new Result(false, "username doesn't exist");
+        }
         System.out.println("password: " + password);
         System.out.println("your password: " + user.getPassword());
         System.out.println("hash: " + SHA256Hasher.hash(password));
-        if (user == null) {
-            return new Result(false, "username doesn't exist");
-        } else if (!SHA256Hasher.hash(user.getPassword()).equals(SHA256Hasher.hash(password))) {
+        System.out.println("main hash: " + SHA256Hasher.hash(user.getPassword()));
+        if (!user.getPassword().equals(SHA256Hasher.hash(password))) {
             return new Result(false, "password doesn't match");
         }
 
