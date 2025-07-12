@@ -1,7 +1,12 @@
 package ap.project;
 
+import ap.project.control.MainMenuController;
 import ap.project.control.RegisterController;
+import ap.project.model.App.App;
 import ap.project.model.App.GameAssetsManager;
+import ap.project.model.App.User;
+import ap.project.model.enums.Gender;
+import ap.project.screen.MainScreen;
 import ap.project.screen.RegisterScreen;
 import ap.project.screen.TerminalScreen;
 import ap.project.view.AppView;
@@ -29,7 +34,11 @@ public class Main extends com.badlogic.gdx.Game
 //        TerminalScreen.run(); // start first input
 //        setScreen(TerminalScreen.getInstance());
 //        getApp().setScreen(new TerminalScreen());
-        app.setScreen(new RegisterScreen(new RegisterController()));
+        User newUser = new User("arash", "a36213126A@", "arash", "arash@gmail.com", Gender.MALE, "what is your favorite animal", "cat");
+        App.getUsers().add(newUser);
+        App.setCurrentUser(newUser);
+        app.setScreen(new MainScreen(new MainMenuController()));
+        //app.setScreen(new RegisterScreen(new RegisterController()));
     }
 
     @Override

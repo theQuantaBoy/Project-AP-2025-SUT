@@ -71,15 +71,15 @@ public class RegisterController
                 return new Result(false, "your password should include special character!");
             } else if (!password.equals(passwordConfirm)) {
                 return new Result(false, "your password doesn't match confirm password!");
+            } else if (RegisterCommands.CHECK_EMAIL.getMatcher(email) == null) {
+                return new Result(false, "email is invalid!");
             } else if (nickName.equals("")) {
                 return new Result(false, "your nickname must not be empty!");
             } else if (secA.equals("")) {
                 return new Result(false, "your answer must not be empty!");
             }
         }
-        if (RegisterCommands.CHECK_EMAIL.getMatcher(email) == null) {
-            return new Result(false, "email is invalid!");
-        }
+
         newUser = new User(username, password, nickName, email, gender, secQ, secA);
         App.getUsers().add(newUser);
         return new Result(true, "user created successfully!");
