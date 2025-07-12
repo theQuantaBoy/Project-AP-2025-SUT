@@ -13,7 +13,7 @@ public class User {
     private String email;
     private Gender gender;
     private String question;
-    private int answer;
+    private String answer;
     private boolean stay;
 
     private int numberOfGames = 0;
@@ -34,12 +34,14 @@ public class User {
         }
     }
 
-    public User(String username, String password, String nickname, String email, Gender gender) {
+    public User(String username, String password, String nickname, String email, Gender gender, String secQ, String secA) {
         this.username = username;
         this.password = SHA256Hasher.hash(password);
         this.nickname = nickname;
         this.email = email;
         this.gender = gender;
+        this.question = secQ;
+        this.answer = secA;
     }
 
     public String getUsername() {
@@ -84,10 +86,11 @@ public class User {
         this.question = question;
     }
 
-    public int getAnswer() {
+    public String getAnswer() {
         return answer;
     }
-    public void setAnswer(int answer) {
+
+    public void setAnswer(String answer) {
         this.answer = answer;
     }
 
