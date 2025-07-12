@@ -19,8 +19,14 @@ public class LoginController
 //        boolean stayLoggedIn = matcher.group("flag") != null;
         User user = App.getPlayerByUsername(username);
         if (user == null) {
+            return new Result(false, "User not found");
+        }
+        System.out.println("password: " + password);
+        System.out.println("your password: " + user.getPassword());
+        System.out.println("hash: " + SHA256Hasher.hash(password));
+        if (user == null) {
             return new Result(false, "username doesn't exist");
-        } else if (!user.getPassword().equals(SHA256Hasher.hash(password))) {
+        } else if (!SHA256Hasher.hash(user.getPassword()).equals(SHA256Hasher.hash(password))) {
             return new Result(false, "password doesn't match");
         }
 

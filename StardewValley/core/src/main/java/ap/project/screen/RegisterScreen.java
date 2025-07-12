@@ -91,7 +91,9 @@ public class RegisterScreen implements Screen {
         this.gender.getStyle().fontColor.set(Color.WHITE);
         this.username.getStyle().fontColor = Color.WHITE;
         Array<String> secQuestionOptions = new Array<>();
-        secQuestionOptions.add(SecurityQuestionType.CAT_OR_DOG.getQuestion()); secQuestionOptions.add(SecurityQuestionType.NERDFIGHTERIA_TEST.getQuestion());
+        secQuestionOptions.add(SecurityQuestionType.ANIMAL.getQuestion());
+        secQuestionOptions.add(SecurityQuestionType.GAME.getQuestion());
+        secQuestionOptions.add(SecurityQuestionType.TA.getQuestion());
         this.secQuestion = new SelectBox<>(GameAssetsManager.getGameAssetsManager().getSkin());
         this.secQuestion.setItems(secQuestionOptions);
         this.secAnswer = new TextField("", GameAssetsManager.getGameAssetsManager().getSkin());

@@ -4,8 +4,10 @@ import ap.project.Main;
 import ap.project.control.LoginController;
 import ap.project.control.MainMenuController;
 import ap.project.control.RegisterController;
+import ap.project.model.App.App;
 import ap.project.model.App.GameAssetsManager;
 import ap.project.model.App.Result;
+import ap.project.model.App.User;
 import ap.project.model.enums.Gender;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
@@ -112,7 +114,15 @@ public class LoginScreen implements Screen {
         forgotPassword.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                Main.getApp().setScreen(new ForgetScreen());
+                if (username.getText().equals("") || username.getText().equals("Username")) {
+                    errorLabel.setText("Please enter username");
+                }
+                User user = App.getPlayerByUsername(username.getText());
+                if (user == null) {
+                    errorLabel.setText("Invalid username");
+                } else {
+                    Main.getApp().setScreen(new ForgetScreen(user));
+                }
             }
         });
 
