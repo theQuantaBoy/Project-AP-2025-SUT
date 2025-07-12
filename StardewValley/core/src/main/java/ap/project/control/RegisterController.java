@@ -17,7 +17,7 @@ public class RegisterController
     private static final SecureRandom random = new SecureRandom();
     private static User newUser = null;
 
-    public Result register(String username, String password, String passwordConfirm, String email, String nickName, Gender gender)
+    public Result register(String username, String password, String passwordConfirm, String email, String nickName, Gender gender, String secQ, String secA)
     {
 //        String username = matcher.group("username");
 //        String password = matcher.group("password");
@@ -67,44 +67,44 @@ public class RegisterController
                 return new Result(false, "your password should include capital letters!");
             } else if (!password.matches(".*[0-9].*")) {
                 return new Result(false, "your password should include numbers!");
-            } else if (!password.matches(".*[!#$%^&*)(=+}{\\[\\]|\\\\/:;'\",><?].*")) {
+            } else if (!password.matches(".*[!@#$%^&*)(=+}{\\[\\]|\\\\/:;'\",><?].*")) {
                 return new Result(false, "your password should include special character!");
             } else if (!password.equals(passwordConfirm)) {
                 return new Result(false, "your password doesn't match confirm password!");
             } else if (nickName.equals("")) {
-                return new Result(false, "nickname is invalid!");
-            } else if (gender == null) {
-                return new Result(false, "gender is invalid!");
+                return new Result(false, "your nickname must not be empty!");
+            } else if (secA.equals("")) {
+                return new Result(false, "your answer must not be empty!");
             }
         }
         if (RegisterCommands.CHECK_EMAIL.getMatcher(email) == null) {
             return new Result(false, "email is invalid!");
         }
-        newUser = new User(username, password, nickName, email, gender);
+        newUser = new User(username, password, nickName, email, gender, secQ, secA);
         App.getUsers().add(newUser);
         return new Result(true, "user created successfully!");
     }
 
-    public Result pickQuestion(Matcher matcher)
-    {
-        int questionId = Integer.parseInt(matcher.group("questionNumber"));
-        int answer = Integer.parseInt(matcher.group("answer"));
-        int confirmAnswer = Integer.parseInt(matcher.group("answerConfirm"));
-        if (questionId > 2 || questionId < 1) {
-            return new Result(false, "question number invalid");
-        } else if (answer > 2 || answer < 1) {
-                return new Result(false, "answer is invalid");
-        } else if (confirmAnswer > 2 || confirmAnswer < 1) {
-            return new Result(false, "confirm answer is invalid");
-        } else if (answer != confirmAnswer) {
-            return new Result(false, "answer is not equal to confirm answer");
-        } else if (newUser == null) {
-            return new Result(false, "register first");
-        }
-        newUser.setQuestion(SecurityQuestionType.getQuestionById(questionId));
-        newUser.setAnswer(answer);
-        return new Result(true, "security question set.");
-    }
+//    public Result pickQuestion(Matcher matcher)
+//    {
+//        int questionId = Integer.parseInt(matcher.group("questionNumber"));
+//        int answer = Integer.parseInt(matcher.group("answer"));
+//        int confirmAnswer = Integer.parseInt(matcher.group("answerConfirm"));
+//        if (questionId > 2 || questionId < 1) {
+//            return new Result(false, "question number invalid");
+//        } else if (answer > 2 || answer < 1) {
+//                return new Result(false, "answer is invalid");
+//        } else if (confirmAnswer > 2 || confirmAnswer < 1) {
+//            return new Result(false, "confirm answer is invalid");
+//        } else if (answer != confirmAnswer) {
+//            return new Result(false, "answer is not equal to confirm answer");
+//        } else if (newUser == null) {
+//            return new Result(false, "register first");
+//        }
+//        newUser.setQuestion(SecurityQuestionType.getQuestionById(questionId));
+//        newUser.setAnswer(answer);
+//        return new Result(true, "security question set.");
+//    }
 
     public Result enterMenu(String menuName)
     {
