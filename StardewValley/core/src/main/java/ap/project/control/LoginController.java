@@ -12,28 +12,29 @@ import java.util.regex.Matcher;
 
 public class LoginController
 {
-//    public Result login(Matcher matcher)
-//    {
+    public Result login(String username, String password, boolean stayLoggedIn)
+    {
 //        String username = matcher.group("username");
 //        String password = matcher.group("password");
 //        boolean stayLoggedIn = matcher.group("flag") != null;
-//        User user = App.getPlayerByUsername(username);
-//        if (user == null) {
-//            return new Result(false, "username doesn't exist");
-//        } else if (!user.getPassword().equals(SHA256Hasher.hash(password))) {
-//            return new Result(false, "password doesn't match");
-//        }
-//
-//        App.setCurrentUser(user);
-//        App.setCurrentMenu(Menu.MainMenu);
-//
-//        if (stayLoggedIn)
-//        {
-//            App.setLoggedInUser(user);
-//        }
-//
-//        return new Result(true, "logged in successfully");
-//    }
+        User user = App.getPlayerByUsername(username);
+        if (user == null) {
+            return new Result(false, "username doesn't exist");
+        } else if (!user.getPassword().equals(SHA256Hasher.hash(password))) {
+            return new Result(false, "password doesn't match");
+        }
+
+        App.setCurrentUser(user);
+        App.setCurrentMenu(Menu.MainMenu);
+
+
+        if (stayLoggedIn)
+        {
+            App.setLoggedInUser(user);
+        }
+
+        return new Result(true, "logged in successfully");
+    }
 //
 //    public Result forgetPassword(Matcher matcher, Scanner scanner)
 //    {
