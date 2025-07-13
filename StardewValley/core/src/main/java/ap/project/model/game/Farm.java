@@ -20,6 +20,12 @@ public class Farm extends Map
     private ArrayList<Tile> lakeTiles = new ArrayList<>();
     private ArrayList<AnimalBuilding> animalBuildings = new ArrayList<>();
 
+    public Farm(Tile[][] tiles)
+    {
+        this.tiles = tiles;
+        this.homePoint = new Point(0, 0);
+    }
+
     public Farm(MapTypes farmType) {
         this.mapType = farmType;
 

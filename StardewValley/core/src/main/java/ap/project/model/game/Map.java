@@ -16,14 +16,28 @@ public abstract class Map
     protected Point startingPoint;
     protected java.util.Map<String, List<Point>> mapData;
 
+    public void setTile(int x, int y, Tile tile)
+    {
+        this.tiles[x][y] = tile;
+    }
+
     public Tile getTile(int x, int y)
     {
-        if (isInBounds(x, y))
+        if (x >= 0 && x < 120 &&  y >= 0 && y < 120)
         {
             return tiles[y][x];
         }
         return null;
     }
+
+//    public Tile getTile(int x, int y)
+//    {
+//        if (isInBounds(x, y))
+//        {
+//            return tiles[y][x];
+//        }
+//        return null;
+//    }
 
     public boolean isInBounds(int x, int y)
     {
@@ -417,6 +431,11 @@ public abstract class Map
             }
         }
         return allPlantTiles;
+    }
+
+    public Tile[][] getTiles()
+    {
+        return tiles;
     }
 }
 

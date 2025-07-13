@@ -1,9 +1,15 @@
 package ap.project.screen;
 
+import ap.project.model.enums.TileTexture;
+import ap.project.model.game.Farm;
+import ap.project.model.game.Tile;
+import ap.project.util.GameMapLoader;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
@@ -12,16 +18,18 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 
+import javax.sound.midi.Soundbank;
+
 public final class ForestScreen implements Screen {
 
     // ------------------------------------------------------------------------
     // constants (change these two numbers to taste)
     // ------------------------------------------------------------------------
     private static final float MAP_SCALE  = 1.0f;   // 1 = native 16‑px tiles, 3 = 48px, etc.
-    private static final float CHAR_SCALE = 1.0f; // how big Abigail appears relative to map
+    private static final float CHAR_SCALE = 1f; // how big Abigail appears relative to map
     private static final float TILE_SIZE  = 24f * MAP_SCALE;
     private static final float PLAYER_SPEED = 50f * MAP_SCALE;
-    private static final float FRAME_TIME = 0.12f;
+    private static final float FRAME_TIME = 0.2f;
 
     // ------------------------------------------------------------------------
     // map & camera
@@ -40,6 +48,9 @@ public final class ForestScreen implements Screen {
     private final Animation<TextureRegion>   walkRight;
     private Animation<TextureRegion>         currentAnim;              // which to render
     private float                            stateTime = 0f;
+    private final Texture shadowTexture;
+
+    private final Farm farm;
 
     // ------------------------------------------------------------------------
     // ctor
@@ -62,6 +73,10 @@ public final class ForestScreen implements Screen {
         // --- player animations ---
         TextureAtlas atlas = new TextureAtlas(Gdx.files.internal(
             "characters/Abigail/Abigail_Sheet.atlas"));
+        atlas.getTextures().forEach(tex -> tex.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest));
+
+        shadowTexture = new Texture(Gdx.files.internal("characters/shadow.png"));
+        shadowTexture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest); // optional
 
         walkDown  = createAnim(atlas, "Abigail_0_walk_front_");
         walkUp    = createAnim(atlas, "Abigail_0_walk_back_");
@@ -69,6 +84,40 @@ public final class ForestScreen implements Screen {
         walkRight = createAnim(atlas, "Abigail_0_walk_right_");
 
         currentAnim = walkDown;        // default facing
+
+        Tile[][] tiles = GameMapLoader.load("maps/Forest.tmx");
+        farm = new Farm(tiles);
+
+        System.out.println(tiles.length);
+        System.out.println(tiles[0].length);
+
+        for (int y =  0; y < tiles.length; y++)
+        {
+            for (int x = 0; x < tiles[y].length; x++)
+            {
+                Tile tile = tiles[y][x];
+                if (tile == null)
+                {
+                    System.out.print(" ");
+                } else
+                {
+                    if (tile.getTexture() == null)
+                    {
+                        System.out.print("#");
+                    } else
+                    {
+                        switch (tile.getTexture()) {
+                            case LAND  -> System.out.print("\u001B[33mL\u001B[0m");  // brownish-yellow
+                            case LAKE  -> System.out.print("\u001B[34mO\u001B[0m");  // blue
+                            case GRASS -> System.out.print("\u001B[32mG\u001B[0m");  // green
+                            default    -> System.out.print("*");
+                        }
+                    }
+                }
+            }
+
+            System.out.print("\n");
+        }
     }
 
     // helper: builds a 4‑frame looping animation
@@ -92,6 +141,11 @@ public final class ForestScreen implements Screen {
 
         Batch batch = mapRenderer.getBatch();
         batch.begin();
+
+        // --- draw shadow under character ---
+        batch.draw(shadowTexture,
+            pos.x, pos.y - 3);
+
         TextureRegion frame = currentAnim.getKeyFrame(stateTime);
         batch.draw(frame,
             pos.x, pos.y,
@@ -116,8 +170,36 @@ public final class ForestScreen implements Screen {
             dx = dx / len * PLAYER_SPEED * dt;
             dy = dy / len * PLAYER_SPEED * dt;
 
-            pos.add(dx, dy);
+            // Preview the new position
+            float nextX = pos.x + dx;
+            float nextY = pos.y + dy;
+
+            // Check target tile before moving
+//            System.out.println("x: " + nextY + ", y: " + nextX);
+//            System.out.println("next tile at " + (int)(nextX / 16) + (int) ((120 - nextY) / 16));
+
+            int x = (int)(nextX / 16);
+            int y = (int)((1912 - nextY) / 16);
+
+            Tile target = farm.getTile(x, y);
+
+            System.out.println("x: " + x + " - y: " + y);
+
+            // Block movement if tile is LAKE
+            if (target != null && (target.getTexture() == TileTexture.LAKE || target.getTexture() == TileTexture.UNPASSABLE
+            || target.getTexture() == TileTexture.BUILDING || target.getTexture() == TileTexture.OBJECT)) {
+                // blocked by water – don’t move
+                return;
+            }
+
+//            System.out.println(nextX + " " + nextY);
+
+//            System.out.println(target.getTexture().getName() + " at " + target.getX() + "," + target.getY());
+
+            // Allowed tile – apply movement
+            pos.set(nextX, nextY);
             stateTime += dt;
+
 
             // pick animation based on last direction pressed
             if (Math.abs(dx) > Math.abs(dy))    // horiz dominates
