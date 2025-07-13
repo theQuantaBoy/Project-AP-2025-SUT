@@ -6,9 +6,9 @@ import ap.project.model.App.App;
 import ap.project.model.App.GameAssetsManager;
 import ap.project.model.App.User;
 import ap.project.model.enums.Gender;
+import ap.project.screen.InventoryWindow;
 import ap.project.screen.MainScreen;
 import ap.project.screen.RegisterScreen;
-import ap.project.screen.TempScreen;
 import ap.project.screen.TerminalScreen;
 import ap.project.view.AppView;
 import com.badlogic.gdx.ApplicationAdapter;
@@ -47,7 +47,7 @@ public class Main extends com.badlogic.gdx.Game
         App.setCurrentUser(newUser);
         app.setScreen(new MainScreen(new MainMenuController()));
         //app.setScreen(new RegisterScreen(new RegisterController()));
-        //app.setScreen(new TempScreen());
+        //app.setScreen(new InventoryWindow());
 
     }
 
