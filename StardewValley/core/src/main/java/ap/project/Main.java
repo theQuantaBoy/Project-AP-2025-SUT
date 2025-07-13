@@ -26,10 +26,10 @@ public class Main extends com.badlogic.gdx.Game
     {
         app = this;
         batch = new SpriteBatch();
-//        TerminalScreen.run(); // start first input
-//        setScreen(TerminalScreen.getInstance());
-//        getApp().setScreen(new TerminalScreen());
-        app.setScreen(new RegisterScreen(new RegisterController()));
+        TerminalScreen.run(); // start first input
+        setScreen(TerminalScreen.getInstance());
+        getApp().setScreen(new TerminalScreen());
+//        app.setScreen(new RegisterScreen(new RegisterController()));
     }
 
     @Override
