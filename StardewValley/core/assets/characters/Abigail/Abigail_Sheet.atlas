@@ -1,0 +1,126 @@
+Abigail_Sheet.png
+size: 472, 123
+format: RGBA8888
+filter: Linear, Linear
+repeat: none
+pma: false
+Abigail_0_avatar_angry
+  bounds: 161, 1, 53, 59
+Abigail_0_avatar_laugh
+  bounds: 119, 65, 53, 57
+Abigail_0_avatar_normal
+  bounds: 227, 61, 53, 57
+Abigail_0_avatar_surprised
+  bounds: 1, 1, 54, 63
+Abigail_0_walk_back_0
+  bounds: 334, 1, 12, 27
+Abigail_0_walk_back_1
+  bounds: 348, 1, 13, 26
+Abigail_0_walk_back_2
+  bounds: 334, 30, 12, 27
+Abigail_0_walk_back_3
+  bounds: 348, 29, 13, 26
+Abigail_0_walk_front_0
+  bounds: 103, 66, 14, 27
+Abigail_0_walk_front_1
+  bounds: 335, 59, 14, 26
+Abigail_0_walk_front_2
+  bounds: 103, 95, 14, 27
+Abigail_0_walk_front_3
+  bounds: 335, 87, 14, 26
+Abigail_0_walk_left_0
+  bounds: 319, 1, 13, 27
+Abigail_0_walk_left_1
+  bounds: 351, 57, 13, 26
+Abigail_0_walk_left_2
+  bounds: 319, 1, 13, 27
+Abigail_0_walk_left_3
+  bounds: 351, 85, 13, 26
+Abigail_0_walk_right_0
+  bounds: 319, 30, 13, 27
+Abigail_0_walk_right_1
+  bounds: 363, 1, 13, 26
+Abigail_0_walk_right_2
+  bounds: 319, 30, 13, 27
+Abigail_0_walk_right_3
+  bounds: 363, 29, 13, 26
+Abigail_1_avatar_angry
+  bounds: 174, 62, 51, 59
+Abigail_1_avatar_laugh
+  bounds: 266, 1, 51, 57
+Abigail_1_avatar_normal
+  bounds: 282, 60, 51, 57
+Abigail_1_avatar_surprised
+  bounds: 57, 1, 51, 63
+Abigail_1_walk_back_0
+  bounds: 398, 55, 12, 25
+Abigail_1_walk_back_1
+  bounds: 458, 1, 13, 24
+Abigail_1_walk_back_2
+  bounds: 398, 82, 12, 25
+Abigail_1_walk_back_3
+  bounds: 426, 27, 13, 24
+Abigail_1_walk_front_0
+  bounds: 378, 1, 14, 25
+Abigail_1_walk_front_1
+  bounds: 426, 1, 14, 24
+Abigail_1_walk_front_2
+  bounds: 378, 1, 14, 25
+Abigail_1_walk_front_3
+  bounds: 442, 1, 14, 24
+Abigail_1_walk_left_0
+  bounds: 383, 55, 13, 25
+Abigail_1_walk_left_1
+  bounds: 441, 27, 13, 24
+Abigail_1_walk_left_2
+  bounds: 383, 55, 13, 25
+Abigail_1_walk_left_3
+  bounds: 456, 27, 13, 24
+Abigail_1_walk_right_0
+  bounds: 383, 82, 13, 25
+Abigail_1_walk_right_1
+  bounds: 412, 53, 13, 24
+Abigail_1_walk_right_2
+  bounds: 383, 82, 13, 25
+Abigail_1_walk_right_3
+  bounds: 412, 79, 13, 24
+Abigail_2_avatar_angry
+  bounds: 216, 1, 48, 58
+Abigail_2_avatar_laugh
+  bounds: 1, 66, 49, 56
+Abigail_2_avatar_normal
+  bounds: 52, 66, 49, 56
+Abigail_2_avatar_surprised
+  bounds: 110, 1, 49, 62
+Abigail_2_walk_back_0
+  bounds: 378, 28, 14, 25
+Abigail_2_walk_back_1
+  bounds: 427, 53, 13, 24
+Abigail_2_walk_back_2
+  bounds: 378, 28, 14, 25
+Abigail_2_walk_back_3
+  bounds: 442, 53, 13, 24
+Abigail_2_walk_front_0
+  bounds: 366, 57, 15, 25
+Abigail_2_walk_front_1
+  bounds: 409, 1, 15, 24
+Abigail_2_walk_front_2
+  bounds: 366, 84, 15, 25
+Abigail_2_walk_front_3
+  bounds: 409, 27, 15, 24
+Abigail_2_walk_left_0
+  bounds: 394, 1, 13, 25
+Abigail_2_walk_left_1
+  bounds: 457, 53, 13, 24
+Abigail_2_walk_left_2
+  bounds: 394, 1, 13, 25
+Abigail_2_walk_left_3
+  bounds: 427, 79, 13, 24
+Abigail_2_walk_right_0
+  bounds: 394, 28, 13, 25
+Abigail_2_walk_right_1
+  bounds: 442, 79, 13, 24
+Abigail_2_walk_right_2
+  bounds: 394, 28, 13, 25
+Abigail_2_walk_right_3
+  bounds: 457, 79, 13, 24

@@ -2,6 +2,7 @@ package ap.project;
 
 import ap.project.control.RegisterController;
 import ap.project.model.App.GameAssetsManager;
+import ap.project.screen.ForestScreen;
 import ap.project.screen.RegisterScreen;
 import ap.project.screen.TerminalScreen;
 import ap.project.view.AppView;
@@ -26,10 +27,11 @@ public class Main extends com.badlogic.gdx.Game
     {
         app = this;
         batch = new SpriteBatch();
-        TerminalScreen.run(); // start first input
-        setScreen(TerminalScreen.getInstance());
-        getApp().setScreen(new TerminalScreen());
+//        TerminalScreen.run(); // start first input
+//        setScreen(TerminalScreen.getInstance());
+//        getApp().setScreen(new TerminalScreen());
 //        app.setScreen(new RegisterScreen(new RegisterController()));
+        app.setScreen(new ForestScreen());
     }
 
     @Override
