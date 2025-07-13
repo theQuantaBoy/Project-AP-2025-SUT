@@ -28,6 +28,7 @@ public class MainScreen implements Screen {
     private MainMenuController controller;
     private Image background;
     private Image logo;
+    private Image avatar;
     private Label menuName;
     private Label nickname;
     private Table table;
@@ -45,6 +46,7 @@ public class MainScreen implements Screen {
         this.background = new Image(GameAssetsManager.getGameAssetsManager().getRegisterBackground());
         this.background.setFillParent(true);
         this.logo = new Image(GameAssetsManager.getGameAssetsManager().getLogo());
+        this.avatar = new Image(App.getCurrentUser().getAvatar());
         this.menuName = new Label("MAIN\nMENU", GameAssetsManager.getGameAssetsManager().getSkin());
         this.menuName.setAlignment(Align.center);
         this.menuName.setColor(Color.GOLD);
@@ -108,6 +110,7 @@ public class MainScreen implements Screen {
         stage.addActor(menuName);
         stage.addActor(nickname);
         stage.addActor(table);
+        stage.addActor(avatar);
         positionElements();
     }
 
@@ -156,6 +159,7 @@ public class MainScreen implements Screen {
         float labelRightX = stage.getWidth() - nickname.getPrefWidth() - 100;
         float labelTopY = stage.getHeight() - menuName.getHeight() - 20;
         menuName.setPosition(labelLeftX, labelTopY);
+        avatar.setPosition(labelLeftX + 5, labelTopY - avatar.getHeight() - 40);
         nickname.setPosition(labelRightX, labelTopY);
 
 
