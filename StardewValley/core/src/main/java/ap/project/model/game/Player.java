@@ -18,10 +18,12 @@ import ap.project.model.player_data.Skill;
 import ap.project.model.player_data.Trade;
 import ap.project.model.resources.Plant;
 import ap.project.view.CityMenu;
+import com.badlogic.gdx.math.Vector2;
 
 import java.util.*;
 
 public class Player {
+    private final PlayerCharacter character;
 
     private final User user;
     private final Farm farm;
@@ -119,6 +121,13 @@ public class Player {
         this.location = farm.getStartingPoint();
         this.newMessage = false;
         this.apperance = appearences.get(number);
+
+        this.character = new PlayerCharacter(CharacterType.ABIGAIL, new Vector2(60 * 24, 60 * 24));
+    }
+
+    public PlayerCharacter getCharacter()
+    {
+        return character;
     }
 
     public Gender getGender() {

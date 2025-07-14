@@ -1,8 +1,12 @@
 package ap.project.screen;
 
+import ap.project.control.CharacterController;
+import ap.project.graphics.CharacterRenderer;
+import ap.project.model.enums.CharacterType;
 import ap.project.model.enums.DayOfWeek;
 import ap.project.model.enums.TileTexture;
 import ap.project.model.game.Farm;
+import ap.project.model.game.PlayerCharacter;
 import ap.project.model.game.Tile;
 import ap.project.model.game.Time;
 import ap.project.util.GameMapLoader;
@@ -25,7 +29,7 @@ import com.badlogic.gdx.utils.Array;
 
 import javax.sound.midi.Soundbank;
 
-public final class ForestScreen implements Screen {
+public final class TestScreen implements Screen {
 
     // ------------------------------------------------------------------------
     // constants (change these two numbers to taste)
@@ -48,14 +52,9 @@ public final class ForestScreen implements Screen {
     // ------------------------------------------------------------------------
     // player
     // ------------------------------------------------------------------------
-    private final Vector2                    pos = new Vector2();      // world‑space
-    private final Animation<TextureRegion>   walkDown;
-    private final Animation<TextureRegion>   walkUp;
-    private final Animation<TextureRegion>   walkLeft;
-    private final Animation<TextureRegion>   walkRight;
-    private Animation<TextureRegion>         currentAnim;              // which to render
-    private float                            stateTime = 0f;
-    private final Texture shadowTexture;
+    private final PlayerCharacter player;
+    private final CharacterController characterController;
+    private final CharacterRenderer characterRenderer;
 
     private final Farm farm;
 
@@ -73,7 +72,7 @@ public final class ForestScreen implements Screen {
     // ------------------------------------------------------------------------
     // ctor
     // ------------------------------------------------------------------------
-    public ForestScreen() {
+    public TestScreen() {
 
         // map (unitScale converts map px → world units)
         float unitScale = MAP_SCALE;                 // 1 tile = 16 * MAP_SCALE world units
@@ -84,27 +83,13 @@ public final class ForestScreen implements Screen {
         cam = new OrthographicCamera(20 * TILE_SIZE, 15 * TILE_SIZE);
         cam.setToOrtho(false);
 
-    // start in map centre
-        pos.set(60 * TILE_SIZE, 60 * TILE_SIZE);
-
-
-        // --- player animations ---
-        TextureAtlas atlas = new TextureAtlas(Gdx.files.internal(
-            "characters/Abigail/Abigail_Sheet.atlas"));
-        atlas.getTextures().forEach(tex -> tex.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest));
-
-        shadowTexture = new Texture(Gdx.files.internal("characters/shadow.png"));
-        shadowTexture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest); // optional
-
-        walkDown  = createAnim(atlas, "Abigail_0_walk_down_");
-        walkUp    = createAnim(atlas, "Abigail_0_walk_up_");
-        walkLeft  = createAnim(atlas, "Abigail_0_walk_left_");
-        walkRight = createAnim(atlas, "Abigail_0_walk_right_");
-
-        currentAnim = walkDown;        // default facing
-
         Tile[][] tiles = GameMapLoader.load("maps/Forest.tmx");
         farm = new Farm(tiles);
+
+        Vector2 spawn = new Vector2(60 * TILE_SIZE, 60 * TILE_SIZE);
+        player = new PlayerCharacter(CharacterType.ABIGAIL, spawn);
+        characterController = new CharacterController(player, farm, PLAYER_SPEED, TILE_SIZE);
+        characterRenderer = new CharacterRenderer();
 
         clockTexture         = new Texture(Gdx.files.internal("clock/clock.png"));
         handleUpTexture      = new Texture(Gdx.files.internal("clock/handle_up.png"));
@@ -160,12 +145,7 @@ public final class ForestScreen implements Screen {
         Batch batch = mapRenderer.getBatch();
         batch.setProjectionMatrix(cam.combined);
         batch.begin();
-        batch.draw(shadowTexture, pos.x, pos.y - 3);
-        TextureRegion frame = currentAnim.getKeyFrame(stateTime);
-        batch.draw(currentAnim.getKeyFrame(stateTime), pos.x, pos.y,
-            0, 0, /*w h*/           // …unchanged…
-            frame.getRegionWidth(), frame.getRegionHeight(),
-            CHAR_SCALE, CHAR_SCALE, 0);
+        characterRenderer.render(batch, player, CHAR_SCALE);
         batch.end();
 
         // (optional overlay here)
@@ -215,62 +195,10 @@ public final class ForestScreen implements Screen {
 
     private void update(float dt) {
 
-        // -------- movement --------
-        float dx = (Gdx.input.isKeyPressed(Keys.D) ? 1 : 0)
-            - (Gdx.input.isKeyPressed(Keys.A) ? 1 : 0);
-        float dy = (Gdx.input.isKeyPressed(Keys.W) ? 1 : 0)
-            - (Gdx.input.isKeyPressed(Keys.S) ? 1 : 0);
-
-        if (dx != 0 || dy != 0) {
-            // normalise and scale
-            float len = (float) Math.sqrt(dx*dx + dy*dy);
-            dx = dx / len * PLAYER_SPEED * dt;
-            dy = dy / len * PLAYER_SPEED * dt;
-
-            // Preview the new position
-            float nextX = pos.x + dx;
-            float nextY = pos.y + dy;
-
-            // Check target tile before moving
-//            System.out.println("x: " + nextY + ", y: " + nextX);
-//            System.out.println("next tile at " + (int)(nextX / 16) + (int) ((120 - nextY) / 16));
-
-            int x = (int)(nextX / 16);
-            int y = (int)((1912 - nextY) / 16);
-
-            Tile target = farm.getTile(x, y);
-
-            System.out.println("x: " + x + " - y: " + y);
-
-            // Block movement if tile is LAKE
-            if (target != null && (target.getTexture() == TileTexture.LAKE || target.getTexture() == TileTexture.UNPASSABLE
-            || target.getTexture() == TileTexture.BUILDING || target.getTexture() == TileTexture.OBJECT)) {
-                // blocked by water – don’t move
-                return;
-            }
-
-//            System.out.println(nextX + " " + nextY);
-
-//            System.out.println(target.getTexture().getName() + " at " + target.getX() + "," + target.getY());
-
-            // Allowed tile – apply movement
-            pos.set(nextX, nextY);
-            stateTime += dt;
-
-
-            // pick animation based on last direction pressed
-            if (Math.abs(dx) > Math.abs(dy))    // horiz dominates
-                currentAnim = dx > 0 ? walkRight : walkLeft;
-            else
-                currentAnim = dy > 0 ? walkUp   : walkDown;
-
-        } else {
-            // standing still → use first frame of current facing
-            stateTime = 0f;
-        }
+        characterController.update(dt);
 
         // -------- camera --------  keep centred but clamped to map bounds
-        cam.position.set(pos.x + TILE_SIZE/2, pos.y + TILE_SIZE/2, 0);
+        cam.position.set(player.getPosition().x + TILE_SIZE/2, player.getPosition().y + TILE_SIZE/2, 0);
 
         float mapPixelW = map.getProperties().get("width",  Integer.class) *
             map.getProperties().get("tilewidth",  Integer.class) * MAP_SCALE;

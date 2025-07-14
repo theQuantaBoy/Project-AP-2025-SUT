@@ -5,6 +5,7 @@ import ap.project.model.App.GameAssetsManager;
 import ap.project.screen.ForestScreen;
 import ap.project.screen.RegisterScreen;
 import ap.project.screen.TerminalScreen;
+import ap.project.screen.TestScreen;
 import ap.project.view.AppView;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
@@ -40,7 +41,7 @@ public class Main extends com.badlogic.gdx.Game
 //        setScreen(TerminalScreen.getInstance());
 //        getApp().setScreen(new TerminalScreen());
 //        app.setScreen(new RegisterScreen(new RegisterController()));
-        app.setScreen(new ForestScreen());
+        app.setScreen(new TestScreen());
     }
 
     @Override
