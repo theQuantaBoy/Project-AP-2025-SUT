@@ -25,7 +25,7 @@ public class FishingGame extends Game {
         // (using the `this` keyword). This allows each screen to call back to the main
         // game class to trigger a screen change.
         fishingScreen = new FishingMinigameScreen(this);
-        menuScreen = new RegisterScreen(registerController);
+        menuScreen = new RegisterScreen(registerController, this);
 
         // Set the RegisterMenuScreen as the starting screen for the application.
         setScreen(menuScreen);
