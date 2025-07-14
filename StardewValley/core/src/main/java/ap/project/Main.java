@@ -1,20 +1,13 @@
 package ap.project;
 
-import ap.project.control.RegisterController;
-import ap.project.model.App.GameAssetsManager;
-import ap.project.screen.ForestScreen;
-import ap.project.screen.RegisterScreen;
 import ap.project.screen.TerminalScreen;
 import ap.project.screen.TestScreen;
 import ap.project.view.AppView;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Pixmap;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.utils.ScreenUtils;
 
-import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.backends.headless.HeadlessApplication;
 import com.badlogic.gdx.backends.headless.HeadlessApplicationConfiguration;
 

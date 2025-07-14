@@ -58,9 +58,10 @@ public class CharacterController
             character.updateAnimation(delta);
 
             // set animation
-            if (Math.abs(dx) > Math.abs(dy)) {
+            if (Math.abs(dx) > 0) {
                 character.setDirection(dx > 0 ? AbstractCharacter.Direction.RIGHT : AbstractCharacter.Direction.LEFT);
-            } else {
+            } else
+            {
                 character.setDirection(dy > 0 ? AbstractCharacter.Direction.UP : AbstractCharacter.Direction.DOWN);
             }
 

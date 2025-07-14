@@ -1,4 +1,4 @@
-package ap.project.graphics;
+package ap.project.visual;
 
 import ap.project.model.game.AbstractCharacter;
 import com.badlogic.gdx.graphics.g2d.Batch;

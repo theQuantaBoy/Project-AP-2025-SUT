@@ -5,7 +5,7 @@ import ap.project.model.enums.TileTexture;
 import ap.project.model.resources.ForagingCrop;
 import ap.project.model.resources.ForagingTree;
 import ap.project.model.resources.Tree;
-import ap.project.util.MapAssetLoader;
+import ap.project.visual.MapVisual;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 
 import java.util.*;

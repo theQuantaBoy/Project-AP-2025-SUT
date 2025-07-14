@@ -12,6 +12,7 @@ import ap.project.model.enums.animal_enums.FishType;
 import ap.project.model.enums.resources_enums.*;
 import ap.project.model.resources.*;
 import ap.project.util.MapAssetLoader;
+import ap.project.visual.MapVisual;
 
 import java.util.*;
 
