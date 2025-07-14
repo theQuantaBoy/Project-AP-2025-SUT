@@ -3,6 +3,7 @@ package ap.project.screen;// FishingMinigameScreen.java
 // It handles all rendering, input, and game logic updates for the minigame.
 
 import ap.project.model.animal.MiniGameState;
+import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.ScreenAdapter;
@@ -15,10 +16,9 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.ScreenUtils;
 
-
 public class FishingMinigameScreen extends ScreenAdapter {
 
-    // --- Game Logic ---
+    private final Game game; // A reference back to the main game class to allow screen switching
     private MiniGameState gameState;
 
     // --- Rendering & Camera ---
@@ -35,17 +35,28 @@ public class FishingMinigameScreen extends ScreenAdapter {
     private boolean wasSpacePressed = false;
 
     /**
-     * Called when this screen becomes the current screen.
+     * Constructor now takes a Game instance so it can switch screens.
+     * @param game The main game class instance.
+     */
+    public FishingMinigameScreen(Game game) {
+        this.game = game;
+    }
+
+    /**
+     * Called when this screen becomes the current screen. Used for initialization.
      */
     @Override
     public void show() {
+        // This resets the game state every time the screen is shown.
         gameState = new MiniGameState();
+
+        // Initialize rendering objects
         shapeRenderer = new ShapeRenderer();
         spriteBatch = new SpriteBatch();
-        font = new BitmapFont(); // A default font
+        font = new BitmapFont(); // Uses libGDX's default Arial font
         glyphLayout = new GlyphLayout();
 
-        // Set up the camera to view our game world
+        // Set up the camera to view our game world at a consistent size
         float totalWidth = MiniGameState.TRACK_WIDTH + MiniGameState.PROGRESS_BAR_WIDTH + 50;
         float totalHeight = MiniGameState.TRACK_HEIGHT + 40;
         camera = new OrthographicCamera(totalWidth, totalHeight);
@@ -54,7 +65,7 @@ public class FishingMinigameScreen extends ScreenAdapter {
     }
 
     /**
-     * Called every frame by the application. This is the main game loop.
+     * Called every frame by the application. This is the main game loop for this screen.
      * @param delta The time in seconds since the last render.
      */
     @Override
@@ -63,40 +74,48 @@ public class FishingMinigameScreen extends ScreenAdapter {
         if (!gameState.isGameOver()) {
             handleInput(delta);
             updateGame(delta);
+        } else {
+            // After the game ends, check for input to restart or go back to the menu.
+            if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
+                game.setScreen(((FishingGame) game).fishingScreen); // Restart by resetting the screen
+            } else if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
+                game.setScreen(((FishingGame) game).menuScreen); // Go back to the menu
+            }
         }
 
         // --- 2. Clear the Screen ---
-        ScreenUtils.clear(new Color(0.81f, 0.91f, 0.99f, 1)); // Light blue background
+        ScreenUtils.clear(new Color(0.81f, 0.91f, 0.99f, 1)); // A pleasant light blue
 
-        // --- 3. Render the Game ---
-        // Use the ShapeRenderer for drawing geometric shapes.
+        // --- 3. Render the Game Shapes ---
         shapeRenderer.setProjectionMatrix(camera.combined);
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-
         drawTrack();
         drawPlayerBar();
         drawFish();
         drawProgressBar();
-
         shapeRenderer.end();
 
-        // Use the SpriteBatch for drawing text (and textures later).
+        // --- 4. Render Text ---
         spriteBatch.setProjectionMatrix(camera.combined);
         spriteBatch.begin();
-
         if (gameState.isGameOver()){
             drawGameOver();
         }
-
         spriteBatch.end();
     }
 
     private void handleInput(float delta) {
         boolean isSpacePressed = Gdx.input.isKeyPressed(Input.Keys.SPACE);
+        // Check if the key was just pressed on this frame
         if (isSpacePressed && !wasSpacePressed) {
             gameState.getPlayerBar().flap();
         }
         wasSpacePressed = isSpacePressed;
+
+        // Allow the player to exit to the menu at any time by pressing Escape.
+        if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
+            game.setScreen(((FishingGame) game).menuScreen);
+        }
     }
 
     private void updateGame(float delta) {
@@ -104,12 +123,14 @@ public class FishingMinigameScreen extends ScreenAdapter {
         gameState.getPlayerBar().update(delta, isSpacePressed);
         gameState.getFish().update(delta);
 
+        // Update the catch progress based on whether the fish is in the bar
         if (gameState.isFishInBar()) {
             gameState.setCatchProgress(gameState.getCatchProgress() + CATCH_RATE * delta);
         } else {
             gameState.setCatchProgress(gameState.getCatchProgress() - LOSE_RATE * delta);
         }
 
+        // Check for win/loss conditions
         if (gameState.getCatchProgress() >= 1.0) {
             gameState.setGameOver(true, true); // Win
         } else if (gameState.getCatchProgress() <= 0.0) {
@@ -132,6 +153,7 @@ public class FishingMinigameScreen extends ScreenAdapter {
 
     private void drawPlayerBar() {
         Rectangle barBounds = gameState.getPlayerBar().getBounds();
+        // The bar changes color when it's successfully on the fish
         Color barColor = gameState.isFishInBar() ? new Color(0.47f, 0.95f, 0.56f, 0.7f) : new Color(0.95f, 0.47f, 0.47f, 0.7f);
 
         // Enable blending for transparency
@@ -156,17 +178,23 @@ public class FishingMinigameScreen extends ScreenAdapter {
     private void drawGameOver() {
         String message = gameState.didPlayerWin() ? "You caught it!" : "It got away...";
         glyphLayout.setText(font, message);
-        float textX = (Gdx.graphics.getWidth() - glyphLayout.width) / 2f;
-        float textY = (Gdx.graphics.getHeight() + glyphLayout.height) / 2f;
-
-        // This is a bit of a hack for positioning text without a proper scene graph.
-        // For a real game, you'd use a Scene2D Stage.
+        float textX = (camera.viewportWidth - glyphLayout.width) / 2f;
+        float textY = (camera.viewportHeight + glyphLayout.height) / 2f;
         font.draw(spriteBatch, glyphLayout, textX, textY);
+
+        String restartMessage = "Press SPACE to restart, or ESC for menu.";
+        glyphLayout.setText(font, restartMessage);
+        float restartX = (camera.viewportWidth - glyphLayout.width) / 2f;
+        font.draw(spriteBatch, glyphLayout, restartX, textY - 30);
     }
 
+
+    /**
+     * Called when this screen is no longer the current screen for a Game.
+     * We dispose of resources here to prevent memory leaks.
+     */
     @Override
     public void dispose() {
-        // Dispose of resources to prevent memory leaks
         shapeRenderer.dispose();
         spriteBatch.dispose();
         font.dispose();

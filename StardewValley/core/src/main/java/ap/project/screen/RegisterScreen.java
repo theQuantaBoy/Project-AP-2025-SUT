@@ -4,6 +4,7 @@ import ap.project.control.RegisterController;
 import ap.project.model.App.GameAssetsManager;
 import ap.project.model.App.Result;
 import ap.project.model.enums.Gender;
+import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
@@ -32,6 +33,8 @@ public class RegisterScreen implements Screen {
     private Label errorLabel;
     private Table table;
     private RegisterController controller;
+    private TextButton miniGame;
+    private final Game game = new FishingGame();
 
     public RegisterScreen(RegisterController controller) {
         this.stage = new Stage(new ScreenViewport());
@@ -102,6 +105,9 @@ public class RegisterScreen implements Screen {
 
         // Add button listeners
         addButtonListeners();
+
+        this.miniGame = new TextButton("MiniGame", GameAssetsManager.getGameAssetsManager().getSkin());
+        table.add(miniGame).width(500).height(50).pad(20).row();
     }
 
     private void addButtonListeners() {
@@ -161,6 +167,10 @@ public class RegisterScreen implements Screen {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         stage.act(Math.min(delta, 1/30f));
         stage.draw();
+
+        if(miniGame.isChecked()) {
+            game.setScreen(((FishingGame) game).fishingScreen);
+        }
     }
 
     @Override
