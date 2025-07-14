@@ -3,6 +3,7 @@ package ap.project.control;
 import ap.project.model.enums.TileTexture;
 import ap.project.model.game.AbstractCharacter;
 import ap.project.model.game.Farm;
+import ap.project.model.game.Point;
 import ap.project.model.game.Tile;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
@@ -18,7 +19,8 @@ public class CharacterController
     private final float speed;
     private final float tileSize;
 
-    public CharacterController(AbstractCharacter character, Farm farm, float speed, float tileSize) {
+    public CharacterController(AbstractCharacter character, Farm farm, float speed, float tileSize)
+    {
         this.character = character;
         this.farm = farm;
         this.speed = speed;
@@ -41,10 +43,8 @@ public class CharacterController
             float nextX = pos.x + dx;
             float nextY = pos.y + dy;
 
-            int x = (int)(nextX / 16);
-            int y = (int)((1912 - nextY) / 16);
-
-            Tile target = farm.getTile(x, y);
+            Point tilePos = farm.worldToTile(nextX, nextY);
+            Tile target   = farm.getTile(tilePos.getX(), tilePos.getY());
 
             if (target == null) return;
             TileTexture texture = target.getTexture();

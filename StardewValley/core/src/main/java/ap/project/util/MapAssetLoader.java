@@ -64,6 +64,17 @@ public final class MapAssetLoader
                     }
                 }
             }
+
+            for (int y = 0; y < height; y++)
+            {
+                for (int x = 0; x < width; x++)
+                {
+                    if (tiles[y][x] == null)
+                    {
+                        tiles[y][x] = new Tile(TileTexture.EMPTY, new Point(x, y));
+                    }
+                }
+            }
         }
     }
 }

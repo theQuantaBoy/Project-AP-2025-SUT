@@ -5,8 +5,12 @@ import ap.project.model.enums.TileTexture;
 import ap.project.model.resources.ForagingCrop;
 import ap.project.model.resources.ForagingTree;
 import ap.project.model.resources.Tree;
+import ap.project.screen.TestScreen;
 import ap.project.visual.MapVisual;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.maps.tiled.TiledMap;
+import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
 
 import java.util.*;
 
@@ -21,6 +25,41 @@ public abstract class Map
     protected MapVisual visual;
     protected TiledMap tiledMap;
 
+    public static final float TILE_SIZE = 16f * TestScreen.MAP_SCALE;
+
+    public Vector2 screenToWorld(float screenX, float screenY, OrthographicCamera cam)
+    {
+        Vector3 tmp3 = new Vector3(screenX, screenY, 0);
+        cam.unproject(tmp3);
+        return new Vector2(tmp3.x, tmp3.y);
+    }
+
+    public Point worldToTile(float worldX, float worldY)
+    {
+        int tileX = (int) (worldX / TILE_SIZE);
+        int tileY = (int) ((HEIGHT * TILE_SIZE - worldY) / TILE_SIZE);
+
+        return new Point(tileX, tileY);
+    }
+
+    public Vector2 tileToWorld(Tile tile)
+    {
+        if (tile == null) return null;
+
+        int tileX = tile.getX();
+        int tileY = tile.getY();
+
+        float worldX = tileX * TILE_SIZE;
+        float worldY = HEIGHT * TILE_SIZE - tileY * TILE_SIZE;
+
+        return new Vector2(worldX, worldY);
+    }
+
+    public Point screenToTile(float screenX, float screenY, OrthographicCamera cam)
+    {
+        Vector2 world = screenToWorld(screenX, screenY, cam);
+        return worldToTile(world.x, world.y);
+    }
 
     public MapVisual getMapVisual()
     {
