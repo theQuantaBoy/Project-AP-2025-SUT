@@ -5,6 +5,8 @@ import ap.project.model.enums.TileTexture;
 import ap.project.model.resources.ForagingCrop;
 import ap.project.model.resources.ForagingTree;
 import ap.project.model.resources.Tree;
+import ap.project.util.MapAssetLoader;
+import com.badlogic.gdx.maps.tiled.TiledMap;
 
 import java.util.*;
 
@@ -16,6 +18,15 @@ public abstract class Map
     protected Point startingPoint;
     protected java.util.Map<String, List<Point>> mapData;
 
+    protected MapVisual visual;
+    protected TiledMap tiledMap;
+
+
+    public MapVisual getMapVisual()
+    {
+        return visual;
+    }
+
     public void setTile(int x, int y, Tile tile)
     {
         this.tiles[x][y] = tile;
@@ -23,21 +34,12 @@ public abstract class Map
 
     public Tile getTile(int x, int y)
     {
-        if (x >= 0 && x < 120 &&  y >= 0 && y < 120)
+        if (isInBounds(x, y))
         {
             return tiles[y][x];
         }
         return null;
     }
-
-//    public Tile getTile(int x, int y)
-//    {
-//        if (isInBounds(x, y))
-//        {
-//            return tiles[y][x];
-//        }
-//        return null;
-//    }
 
     public boolean isInBounds(int x, int y)
     {

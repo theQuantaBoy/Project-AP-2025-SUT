@@ -4,11 +4,9 @@ import ap.project.control.CharacterController;
 import ap.project.graphics.CharacterRenderer;
 import ap.project.model.enums.CharacterType;
 import ap.project.model.enums.DayOfWeek;
+import ap.project.model.enums.MapTypes;
 import ap.project.model.enums.TileTexture;
-import ap.project.model.game.Farm;
-import ap.project.model.game.PlayerCharacter;
-import ap.project.model.game.Tile;
-import ap.project.model.game.Time;
+import ap.project.model.game.*;
 import ap.project.util.GameMapLoader;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
@@ -43,9 +41,10 @@ public final class TestScreen implements Screen {
     // ------------------------------------------------------------------------
     // map & camera
     // ------------------------------------------------------------------------
-    private final TiledMap map;
-    private final OrthogonalTiledMapRenderer mapRenderer;
+
     private final OrthographicCamera cam;
+    private final MapVisual mapVisual;
+
 
     private final OrthographicCamera uiCam = new OrthographicCamera();
 
@@ -76,15 +75,13 @@ public final class TestScreen implements Screen {
 
         // map (unitScale converts map px → world units)
         float unitScale = MAP_SCALE;                 // 1 tile = 16 * MAP_SCALE world units
-        map = new TmxMapLoader().load("maps/Forest.tmx");
-        mapRenderer = new OrthogonalTiledMapRenderer(map, unitScale);
 
         // camera (shows 20×15 tiles *after* scaling)
         cam = new OrthographicCamera(20 * TILE_SIZE, 15 * TILE_SIZE);
         cam.setToOrtho(false);
 
-        Tile[][] tiles = GameMapLoader.load("maps/Forest.tmx");
-        farm = new Farm(tiles);
+        farm = new Farm(MapTypes.FOREST);
+        mapVisual = farm.getMapVisual();
 
         Vector2 spawn = new Vector2(60 * TILE_SIZE, 60 * TILE_SIZE);
         player = new PlayerCharacter(CharacterType.ABIGAIL, spawn);
@@ -130,19 +127,11 @@ public final class TestScreen implements Screen {
         update(dt);
 
         cam.update();
-        mapRenderer.setView(cam);          // set view once, up‑front
 
-        // ----- 1) MAP WITH (OPTIONAL) SHADER -----
-        if (useAutumn && autumnShader.isCompiled()) {
-            mapRenderer.getBatch().setShader(autumnShader);
-        } else {
-            mapRenderer.getBatch().setShader(null);
-        }
-        mapRenderer.render();              // draw only once
-        mapRenderer.getBatch().setShader(null);   // reset for everything else
+        mapVisual.render(cam, useAutumn ? autumnShader : null);
 
         // ----- 2) WORLD ACTORS -----
-        Batch batch = mapRenderer.getBatch();
+        Batch batch = mapVisual.getRenderer().getBatch();
         batch.setProjectionMatrix(cam.combined);
         batch.begin();
         characterRenderer.render(batch, player, CHAR_SCALE);
@@ -200,10 +189,8 @@ public final class TestScreen implements Screen {
         // -------- camera --------  keep centred but clamped to map bounds
         cam.position.set(player.getPosition().x + TILE_SIZE/2, player.getPosition().y + TILE_SIZE/2, 0);
 
-        float mapPixelW = map.getProperties().get("width",  Integer.class) *
-            map.getProperties().get("tilewidth",  Integer.class) * MAP_SCALE;
-        float mapPixelH = map.getProperties().get("height", Integer.class) *
-            map.getProperties().get("tileheight", Integer.class) * MAP_SCALE;
+        float mapPixelW = farm.getWIDTH()  * TILE_SIZE;
+        float mapPixelH = farm.getHEIGHT() * TILE_SIZE;
 
         cam.position.x = MathUtils.clamp(cam.position.x,
             cam.viewportWidth  /2, mapPixelW  - cam.viewportWidth /2);
@@ -236,7 +223,7 @@ public final class TestScreen implements Screen {
     @Override public void pause(){}  @Override public void resume(){}
     @Override public void show(){}   @Override public void hide(){}
     @Override public void dispose(){
-        map.dispose(); mapRenderer.dispose();
+        mapVisual.dispose();
         clockTexture.dispose();
         handleUpTexture.dispose();
         handleDownTexture.dispose();

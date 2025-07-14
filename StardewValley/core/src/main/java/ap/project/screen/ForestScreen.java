@@ -1,6 +1,7 @@
 package ap.project.screen;
 
 import ap.project.model.enums.DayOfWeek;
+import ap.project.model.enums.MapTypes;
 import ap.project.model.enums.TileTexture;
 import ap.project.model.game.Farm;
 import ap.project.model.game.Tile;
@@ -57,7 +58,7 @@ public final class ForestScreen implements Screen {
     private float                            stateTime = 0f;
     private final Texture shadowTexture;
 
-    private final Farm farm;
+    private final Farm farm = new Farm(MapTypes.STANDARD);
 
     private Texture clockTexture;
     private Texture handleUpTexture, handleDownTexture, handleMiddleTexture;
@@ -104,7 +105,7 @@ public final class ForestScreen implements Screen {
         currentAnim = walkDown;        // default facing
 
         Tile[][] tiles = GameMapLoader.load("maps/Forest.tmx");
-        farm = new Farm(tiles);
+//        farm = new Farm(tiles);
 
         clockTexture         = new Texture(Gdx.files.internal("clock/clock.png"));
         handleUpTexture      = new Texture(Gdx.files.internal("clock/handle_up.png"));
