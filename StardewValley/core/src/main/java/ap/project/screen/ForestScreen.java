@@ -1,8 +1,10 @@
 package ap.project.screen;
 
+import ap.project.model.enums.DayOfWeek;
 import ap.project.model.enums.TileTexture;
 import ap.project.model.game.Farm;
 import ap.project.model.game.Tile;
+import ap.project.model.game.Time;
 import ap.project.util.GameMapLoader;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
@@ -11,6 +13,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.*;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
@@ -38,6 +41,8 @@ public final class ForestScreen implements Screen {
     private final OrthogonalTiledMapRenderer mapRenderer;
     private final OrthographicCamera cam;
 
+    private final OrthographicCamera uiCam = new OrthographicCamera();
+
     // ------------------------------------------------------------------------
     // player
     // ------------------------------------------------------------------------
@@ -51,6 +56,14 @@ public final class ForestScreen implements Screen {
     private final Texture shadowTexture;
 
     private final Farm farm;
+
+    private Texture clockTexture;
+    private Texture handleUpTexture, handleDownTexture, handleMiddleTexture;
+    private Texture journalAlertTexture;
+    private BitmapFont font;
+    private final Time time = new Time(); // or get it from elsewhere if shared
+
+    private final ShapeRenderer shapeRenderer = new ShapeRenderer();
 
     // ------------------------------------------------------------------------
     // ctor
@@ -88,36 +101,22 @@ public final class ForestScreen implements Screen {
         Tile[][] tiles = GameMapLoader.load("maps/Forest.tmx");
         farm = new Farm(tiles);
 
-        System.out.println(tiles.length);
-        System.out.println(tiles[0].length);
+        clockTexture         = new Texture(Gdx.files.internal("clock/clock.png"));
+        handleUpTexture      = new Texture(Gdx.files.internal("clock/handle_up.png"));
+        handleDownTexture    = new Texture(Gdx.files.internal("clock/handle_down.png"));
+        handleMiddleTexture  = new Texture(Gdx.files.internal("clock/handle_middle.png"));
+        journalAlertTexture  = new Texture(Gdx.files.internal("clock/journal_alert.png"));
 
-        for (int y =  0; y < tiles.length; y++)
-        {
-            for (int x = 0; x < tiles[y].length; x++)
-            {
-                Tile tile = tiles[y][x];
-                if (tile == null)
-                {
-                    System.out.print(" ");
-                } else
-                {
-                    if (tile.getTexture() == null)
-                    {
-                        System.out.print("#");
-                    } else
-                    {
-                        switch (tile.getTexture()) {
-                            case LAND  -> System.out.print("\u001B[33mL\u001B[0m");  // brownish-yellow
-                            case LAKE  -> System.out.print("\u001B[34mO\u001B[0m");  // blue
-                            case GRASS -> System.out.print("\u001B[32mG\u001B[0m");  // green
-                            default    -> System.out.print("*");
-                        }
-                    }
-                }
-            }
+        clockTexture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
+        handleUpTexture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
+        handleDownTexture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
+        handleMiddleTexture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
+        journalAlertTexture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
 
-            System.out.print("\n");
-        }
+        // Load your pixel font
+        font = new BitmapFont(Gdx.files.internal("fonts/Stardew_Valley.fnt"));
+        font.getRegion().getTexture()
+            .setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest); // keep pixels crisp
     }
 
     // helper: builds a 4‑frame looping animation
@@ -128,9 +127,6 @@ public final class ForestScreen implements Screen {
         return new Animation<>(FRAME_TIME, frames, Animation.PlayMode.LOOP);
     }
 
-    // ------------------------------------------------------------------------
-    // render & update
-    // ------------------------------------------------------------------------
     @Override
     public void render(float dt) {
         update(dt);
@@ -140,19 +136,62 @@ public final class ForestScreen implements Screen {
         mapRenderer.render();
 
         Batch batch = mapRenderer.getBatch();
+
+        // -------------------
+        // Draw world (player, shadow)
+        // -------------------
+        batch.setProjectionMatrix(cam.combined);
         batch.begin();
 
-        // --- draw shadow under character ---
-        batch.draw(shadowTexture,
-            pos.x, pos.y - 3);
+        // draw shadow
+        batch.draw(shadowTexture, pos.x, pos.y - 3);
 
+        // draw player
         TextureRegion frame = currentAnim.getKeyFrame(stateTime);
-        batch.draw(frame,
-            pos.x, pos.y,
-            0, 0,
+        batch.draw(frame, pos.x, pos.y, 0, 0,
             frame.getRegionWidth(), frame.getRegionHeight(),
-            CHAR_SCALE, CHAR_SCALE,           // scale X / Y
-            0);                               // rotation
+            CHAR_SCALE, CHAR_SCALE, 0);
+
+        batch.end();
+
+        // -------------------
+        // Draw UI (clock/text)
+        // -------------------
+        batch.setProjectionMatrix(uiCam.combined);  // use the pixel camera
+        batch.begin();
+
+        int screenW = (int) uiCam.viewportWidth;
+        int screenH = (int) uiCam.viewportHeight;
+
+        int clockX = screenW - clockTexture.getWidth() - 10;
+        int clockY = screenH - clockTexture.getHeight() - 10;
+
+        batch.draw(clockTexture, clockX - 20, clockY);
+
+        // optional handle / alert
+
+        batch.draw(handleDownTexture, clockX - 20, clockY);
+        batch.draw(handleMiddleTexture, clockX - 22, clockY + 4);
+        batch.draw(handleUpTexture, clockX - 20, clockY + 8);
+
+        batch.draw(journalAlertTexture, clockX, clockY - 55);
+
+        // format text
+        String dayText = DayOfWeek.getShortDayOfWeek((time.getDay() - 1) % 7) + " " + time.getDay();
+        String timeText = time.getHour() + ":00" + ((time.getHour() >= 12) ? " pm" : " am");
+    //    String moneyText = "" + money;
+        String moneyText = "500000";
+
+        font.getData().setScale(1.5f);
+
+        font.setColor(Color.BLACK);
+        font.draw(batch, dayText, clockX + 130, clockY + 210);
+        font.draw(batch, timeText, clockX + 115, clockY + 120);
+
+        font.setColor(Color.RED);
+        font.draw(batch, moneyText, clockX + 64, clockY + 38);
+    //    font.draw(batch, moneyText, clockX + 167, clockY + 40);
+
         batch.end();
     }
 
@@ -242,9 +281,21 @@ public final class ForestScreen implements Screen {
             cam.viewportWidth  = 20 * TILE_SIZE;
             cam.viewportHeight = cam.viewportWidth / currentRatio;
         }
+
+        // --- UI camera uses raw screen pixels (0,0 bottom-left)
+        uiCam.setToOrtho(false, w, h);  // use true if you want (0,0) to be top-left
+        uiCam.update();
     }
 
     @Override public void pause(){}  @Override public void resume(){}
     @Override public void show(){}   @Override public void hide(){}
-    @Override public void dispose(){ map.dispose(); mapRenderer.dispose(); }
+    @Override public void dispose(){
+        map.dispose(); mapRenderer.dispose();
+        clockTexture.dispose();
+        handleUpTexture.dispose();
+        handleDownTexture.dispose();
+        handleMiddleTexture.dispose();
+        journalAlertTexture.dispose();
+        font.dispose();
+    }
 }

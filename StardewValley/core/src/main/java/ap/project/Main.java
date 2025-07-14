@@ -8,6 +8,7 @@ import ap.project.screen.TerminalScreen;
 import ap.project.view.AppView;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.ScreenUtils;
@@ -27,6 +28,14 @@ public class Main extends com.badlogic.gdx.Game
     {
         app = this;
         batch = new SpriteBatch();
+
+        // --- Set custom cursor ---
+        Pixmap cursorPixmap = new Pixmap(Gdx.files.internal("general/cursor/cursor.png")); // put it in assets
+        int hotspotX = 0; // adjust to your cursor's "click point"
+        int hotspotY = 0;
+        Gdx.graphics.setCursor(Gdx.graphics.newCursor(cursorPixmap, hotspotX, hotspotY));
+        cursorPixmap.dispose();
+
 //        TerminalScreen.run(); // start first input
 //        setScreen(TerminalScreen.getInstance());
 //        getApp().setScreen(new TerminalScreen());
