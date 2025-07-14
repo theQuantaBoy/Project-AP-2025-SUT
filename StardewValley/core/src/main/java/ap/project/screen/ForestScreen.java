@@ -10,9 +10,11 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.*;
+import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
@@ -32,7 +34,7 @@ public final class ForestScreen implements Screen {
     private static final float CHAR_SCALE = 1f; // how big Abigail appears relative to map
     private static final float TILE_SIZE  = 24f * MAP_SCALE;
     private static final float PLAYER_SPEED = 50f * MAP_SCALE;
-    private static final float FRAME_TIME = 0.2f;
+    private static final float FRAME_TIME = 0.16f;
 
     // ------------------------------------------------------------------------
     // map & camera
@@ -64,6 +66,9 @@ public final class ForestScreen implements Screen {
     private final Time time = new Time(); // or get it from elsewhere if shared
 
     private final ShapeRenderer shapeRenderer = new ShapeRenderer();
+
+    private ShaderProgram autumnShader;
+    private boolean useAutumn = false;   // toggle if you want seasons
 
     // ------------------------------------------------------------------------
     // ctor
@@ -117,6 +122,14 @@ public final class ForestScreen implements Screen {
         font = new BitmapFont(Gdx.files.internal("fonts/Stardew_Valley.fnt"));
         font.getRegion().getTexture()
             .setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest); // keep pixels crisp
+
+        ShaderProgram.pedantic = false;  // suppress strict‑mode warnings
+        autumnShader = new ShaderProgram(
+            Gdx.files.internal("default.vert"),   // or "shaders/autumn.vert" if you have one
+            Gdx.files.internal("fall.frag"));
+        if (!autumnShader.isCompiled()) {
+            Gdx.app.error("Shader", "Compilation failed:\n" + autumnShader.getLog());
+        }
     }
 
     // helper: builds a 4‑frame looping animation
@@ -128,38 +141,52 @@ public final class ForestScreen implements Screen {
     }
 
     @Override
-    public void render(float dt) {
+    public void render (float dt) {
         update(dt);
 
         cam.update();
-        mapRenderer.setView(cam);
-        mapRenderer.render();
+        mapRenderer.setView(cam);          // set view once, up‑front
 
+        // ----- 1) MAP WITH (OPTIONAL) SHADER -----
+        if (useAutumn && autumnShader.isCompiled()) {
+            mapRenderer.getBatch().setShader(autumnShader);
+        } else {
+            mapRenderer.getBatch().setShader(null);
+        }
+        mapRenderer.render();              // draw only once
+        mapRenderer.getBatch().setShader(null);   // reset for everything else
+
+        // ----- 2) WORLD ACTORS -----
         Batch batch = mapRenderer.getBatch();
-
-        // -------------------
-        // Draw world (player, shadow)
-        // -------------------
         batch.setProjectionMatrix(cam.combined);
         batch.begin();
-
-        // draw shadow
         batch.draw(shadowTexture, pos.x, pos.y - 3);
-
-        // draw player
         TextureRegion frame = currentAnim.getKeyFrame(stateTime);
-        batch.draw(frame, pos.x, pos.y, 0, 0,
+        batch.draw(currentAnim.getKeyFrame(stateTime), pos.x, pos.y,
+            0, 0, /*w h*/           // …unchanged…
             frame.getRegionWidth(), frame.getRegionHeight(),
             CHAR_SCALE, CHAR_SCALE, 0);
-
         batch.end();
 
-        // -------------------
-        // Draw UI (clock/text)
-        // -------------------
-        batch.setProjectionMatrix(uiCam.combined);  // use the pixel camera
-        batch.begin();
+        // (optional overlay here)
+        Gdx.gl.glEnable(GL20.GL_BLEND);          // 1️⃣ allow transparency
+        shapeRenderer.setProjectionMatrix(uiCam.combined);   // 2️⃣ screen‑space overlay
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        shapeRenderer.setColor(0f, 0f, 0f, 0.7f);            // 30 % opaque black
+        shapeRenderer.rect(0, 0, uiCam.viewportWidth, uiCam.viewportHeight);
+        shapeRenderer.end();
+        Gdx.gl.glDisable(GL20.GL_BLEND);
 
+
+
+        // ----- 3) UI -----
+        batch.setProjectionMatrix(uiCam.combined);
+        batch.begin();
+        drawClockUI(batch);
+        batch.end();
+    }
+
+    private void drawClockUI(Batch batch) {
         int screenW = (int) uiCam.viewportWidth;
         int screenH = (int) uiCam.viewportHeight;
 
@@ -167,19 +194,13 @@ public final class ForestScreen implements Screen {
         int clockY = screenH - clockTexture.getHeight() - 10;
 
         batch.draw(clockTexture, clockX - 20, clockY);
-
-        // optional handle / alert
-
         batch.draw(handleDownTexture, clockX - 20, clockY);
         batch.draw(handleMiddleTexture, clockX - 22, clockY + 4);
         batch.draw(handleUpTexture, clockX - 20, clockY + 8);
-
         batch.draw(journalAlertTexture, clockX, clockY - 55);
 
-        // format text
         String dayText = DayOfWeek.getShortDayOfWeek((time.getDay() - 1) % 7) + " " + time.getDay();
         String timeText = time.getHour() + ":00" + ((time.getHour() >= 12) ? " pm" : " am");
-    //    String moneyText = "" + money;
         String moneyText = "500000";
 
         font.getData().setScale(1.5f);
@@ -190,9 +211,6 @@ public final class ForestScreen implements Screen {
 
         font.setColor(Color.RED);
         font.draw(batch, moneyText, clockX + 64, clockY + 38);
-    //    font.draw(batch, moneyText, clockX + 167, clockY + 40);
-
-        batch.end();
     }
 
     private void update(float dt) {
