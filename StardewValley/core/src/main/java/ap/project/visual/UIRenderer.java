@@ -13,6 +13,8 @@ public class UIRenderer {
     private final Texture clockTexture;
     private final Texture handleUp, handleDown, handleMid;
     private final Texture journalAlert;
+    private final Texture statusRain, statusSnow, statusStorm, statusSun, statusWedding;
+    private final Texture springBanner, summerBanner, fallBanner, winterBanner;
 
     private final BitmapFont font;
     private final Time time;
@@ -26,7 +28,20 @@ public class UIRenderer {
         handleMid = new Texture(Gdx.files.internal("clock/handle_middle.png"));
         journalAlert = new Texture(Gdx.files.internal("clock/journal_alert.png"));
 
-        for (Texture t : new Texture[]{clockTexture, handleUp, handleDown, handleMid, journalAlert}) {
+        statusRain = new Texture(Gdx.files.internal("clock/status/StatusRain.png"));
+        statusSnow = new Texture(Gdx.files.internal("clock/status/StatusSnow.png"));
+        statusStorm = new Texture(Gdx.files.internal("clock/status/StatusStorm.png"));
+        statusSun = new Texture(Gdx.files.internal("clock/status/StatusSun.png"));
+        statusWedding = new Texture(Gdx.files.internal("clock/status/StatusWedding.png"));
+
+        springBanner = new Texture(Gdx.files.internal("clock/season/Spring.png"));
+        summerBanner = new Texture(Gdx.files.internal("clock/season/Summer.png"));
+        fallBanner = new Texture(Gdx.files.internal("clock/season/Fall.png"));
+        winterBanner = new Texture(Gdx.files.internal("clock/season/Winter.png"));
+
+        for (Texture t : new Texture[]{clockTexture, handleUp, handleDown, handleMid, journalAlert,
+            statusRain, statusSnow, statusStorm, statusSun, statusWedding,
+            springBanner, summerBanner, fallBanner, winterBanner}) {
             t.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
         }
 
@@ -40,9 +55,6 @@ public class UIRenderer {
         int screenH = (int) uiCam.viewportHeight;
 
         renderClock(batch, screenW, screenH);
-        // In the future:
-        // renderEnergyBar(batch, screenW, screenH);
-        // renderInventoryBar(batch, screenW, screenH);
     }
 
     /** Draw the entire clock UI section */
@@ -52,6 +64,8 @@ public class UIRenderer {
 
         drawClockBackground(batch, clockX, clockY);
         drawClockHandles(batch, clockX, clockY);
+        drawStatus(batch, clockX, clockY);
+        drawSeasonBanner(batch, clockX, clockY);
         drawClockText(batch, clockX, clockY);
     }
 
@@ -79,6 +93,16 @@ public class UIRenderer {
 
         font.setColor(Color.RED);
         font.draw(batch, moneyText, x + 64, y + 38);
+    }
+
+    private void drawStatus(Batch batch, int x, int y)
+    {
+        batch.draw(statusStorm, x + 108, y + 136);
+    }
+
+    private void drawSeasonBanner(Batch batch, int x, int y)
+    {
+        batch.draw(fallBanner, x + 204, y + 136);
     }
 
     public void dispose() {
