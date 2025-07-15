@@ -2,7 +2,7 @@ package ap.project.screen;
 
 import ap.project.model.App.CommandInput;
 import ap.project.model.App.TerminalEntry;
-import ap.project.view.AppView;
+import ap.project.view_test.AppView;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
@@ -52,7 +52,7 @@ public final class TerminalScreen implements Screen, InputProcessor
     private boolean cursorVisible = true;
 
     private static final BlockingQueue<String> inputQueue =
-            new LinkedBlockingQueue<>();
+        new LinkedBlockingQueue<>();
     private static volatile boolean awaitingNestedInput = false;
 
     /** Blocks the calling THREAD (Command-Thread) until the user hits ENTER. */
@@ -175,7 +175,7 @@ public final class TerminalScreen implements Screen, InputProcessor
                             layout.setText(font, currentEntry.prompt);
                             font.setColor(1,1,1,1);
                             font.draw(batch, currentEntry.input,
-                                    20 + layout.width, y);
+                                20 + layout.width, y);
                             y -= lineHeight;
                         } else skipped++;
 
@@ -362,7 +362,7 @@ public final class TerminalScreen implements Screen, InputProcessor
 
             currentLine.setLength(0);
             CommandInput.setCommand(cmd);
-            AppView.run();                   // Run logic in background thread
+            AppView.run();
             return true;
         }
 

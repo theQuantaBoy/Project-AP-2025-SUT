@@ -1,7 +1,9 @@
 package ap.project.screen;
 
 import ap.project.control.CharacterController;
+import ap.project.model.App.App;
 import ap.project.model.enums.Season;
+import ap.project.util.MapAssetLoader;
 import ap.project.visual.CharacterRenderer;
 import ap.project.model.enums.CharacterType;
 import ap.project.model.enums.MapTypes;
@@ -16,19 +18,20 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 
 public final class TestScreen implements Screen
 {
-    public static final float MAP_SCALE  = 1.0f;   // 1 = native 16‑px tiles, 3 = 48px, etc.
-    private static final float CHAR_SCALE = 1f; // how big Abigail appears relative to map
+    public static final float MAP_SCALE  = 1.0f;
+    private static final float CHAR_SCALE = 1f;
     private static final float TILE_SIZE  = 24f * MAP_SCALE;
     private static final float PLAYER_SPEED = 50f * MAP_SCALE;
 
-    private final OrthographicCamera cam;
-    private MapVisual mapVisual;
+    private final Game game;
 
+    private final OrthographicCamera cam;
     private final OrthographicCamera uiCam = new OrthographicCamera();
 
     private final PlayerCharacter player;
@@ -37,9 +40,6 @@ public final class TestScreen implements Screen
 
     private Farm farm;
     private final UIRenderer uiRenderer;
-
-    private ShaderProgram autumnShader;
-    private boolean useAutumn = false;   // toggle if you want seasons
 
     private Point hoveredTile = null;
     private final ShapeRenderer shapeRenderer = new ShapeRenderer();
@@ -50,13 +50,24 @@ public final class TestScreen implements Screen
     private PlayerCharacter player2;
     private CharacterController controller2;
 
+    private final Time time;
+    private Season currentSeason;
+
     public TestScreen()
     {
         cam = new OrthographicCamera(20 * TILE_SIZE, 15 * TILE_SIZE);
         cam.setToOrtho(false);
 
-        farm = new Farm(MapTypes.FOREST, season);
-        mapVisual = farm.getMapVisual();
+        this.game = App.getCurrentGame();
+        for (Player p : game.getPlayers())
+        {
+            Farm f = new Farm(p.getMapType());
+            p.setFarm(f);
+        }
+
+        farm = game.getPlayers().get(0).getFarm();
+        time = game.getCurrentTime();
+        currentSeason = time.getSeason();
 
         Vector2 spawn = new Vector2(60 * TILE_SIZE, 60 * TILE_SIZE);
         player = new PlayerCharacter(CharacterType.ABIGAIL, spawn);
@@ -72,25 +83,23 @@ public final class TestScreen implements Screen
         }
 
         ShaderProgram.pedantic = false;
-        autumnShader = new ShaderProgram(
-            Gdx.files.internal("default.vert"),
-            Gdx.files.internal("fall.frag"));
-        if (!autumnShader.isCompiled()) {
-            Gdx.app.error("Shader", "Compilation failed:\n" + autumnShader.getLog());
-        }
 
-        uiRenderer = new UIRenderer(new Time());
+        uiRenderer = new UIRenderer(time);
     }
 
     @Override
-    public void render (float dt) {
+    public void render (float dt)
+    {
+        Gdx.gl.glClearColor(0f, 0f, 0f, 1f);
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+
         update(dt);
 
         cam.update();
 
-        mapVisual.render(cam, useAutumn ? autumnShader : null);
+        farm.getMapVisual().render(cam);
 
-        Batch batch = mapVisual.getRenderer().getBatch();
+        Batch batch = farm.getMapVisual().getRenderer().getBatch();
         batch.setProjectionMatrix(cam.combined);
         batch.begin();
         characterRenderer.render(batch, player, CHAR_SCALE);
@@ -131,7 +140,8 @@ public final class TestScreen implements Screen
         characterController.update(dt);
         if (SECOND_PLAYER) controller2.update(dt);
 
-        // -------- camera --------  keep centred but clamped to map bounds
+        updateSeason();
+
         cam.position.set(player.getPosition().x + TILE_SIZE/2, player.getPosition().y + TILE_SIZE/2, 0);
 
         float mapPixelW = farm.getWIDTH()  * TILE_SIZE;
@@ -153,11 +163,6 @@ public final class TestScreen implements Screen
                 System.out.println("Clicked Tile (x: " + tile.getX() + ", y: " + tile.getY() + ") - " + tile.getTexture());
             }
         }
-
-        if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_1)) changeSeason(Season.Spring);
-        if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_2)) changeSeason(Season.Summer);
-        if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_3)) changeSeason(Season.Fall);
-        if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_4)) changeSeason(Season.Winter);
     }
 
     @Override
@@ -175,25 +180,27 @@ public final class TestScreen implements Screen
         }
 
         // --- UI camera uses raw screen pixels (0,0 bottom-left)
-        uiCam.setToOrtho(false, w, h);  // use true if you want (0,0) to be top-left
+        uiCam.setToOrtho(false, w, h);
         uiCam.update();
     }
 
     @Override public void pause(){}  @Override public void resume(){}
     @Override public void show(){}   @Override public void hide(){}
     @Override public void dispose(){
-        mapVisual.dispose();
+        farm.getMapVisual().dispose();
         uiRenderer.dispose();
         shapeRenderer.dispose();
     }
 
-    private void changeSeason(Season newSeason) {
-        this.season = newSeason;
-        Farm newFarm = new Farm(MapTypes.FOREST, newSeason);
+    private void updateSeason()
+    {
+        if (time.getSeason() != currentSeason)
+        {
+            MapAssetLoader.LoadedMap loaded = MapAssetLoader.loadFromTmx(farm.getMapType().getName(), time.getSeason());
+            TiledMap tiledMap = loaded.tiledMap;
+            farm.setVisual(new MapVisual(tiledMap));
+        }
 
-        this.mapVisual.dispose(); // Dispose old map visual
-        this.mapVisual = newFarm.getMapVisual(); // Replace with new
-        this.farm = newFarm;
-        characterController = new CharacterController(player, farm, PLAYER_SPEED, TILE_SIZE);
+        currentSeason = time.getSeason();
     }
 }

@@ -8,7 +8,7 @@ import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 
 public class MapVisual
 {
-    private final TiledMap tiledMap;
+    private TiledMap tiledMap;
     private final OrthogonalTiledMapRenderer renderer;
 
     public MapVisual(TiledMap tiledMap)
@@ -17,10 +17,14 @@ public class MapVisual
         this.renderer = new OrthogonalTiledMapRenderer(tiledMap, 1.0f);
     }
 
-    public void render(OrthographicCamera cam, ShaderProgram shader)
+    public void updateMap(TiledMap tiledMap)
+    {
+        this.tiledMap = tiledMap;
+    }
+
+    public void render(OrthographicCamera cam)
     {
         renderer.setView(cam);
-        renderer.getBatch().setShader(shader);
         renderer.render();
         renderer.getBatch().setShader(null);
     }

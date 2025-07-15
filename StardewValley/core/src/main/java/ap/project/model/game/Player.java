@@ -23,10 +23,10 @@ import com.badlogic.gdx.math.Vector2;
 import java.util.*;
 
 public class Player {
-    private final PlayerCharacter character;
+    private PlayerCharacter character;
 
     private final User user;
-    private final Farm farm;
+    private Farm farm;
     private final Cabin cabin;
     private final GreenHouse greenHouse;
 
@@ -99,6 +99,43 @@ public class Player {
     private ShopType currentShop;
 
     private ArrayList<Fish> fishes = new ArrayList<>();
+
+    private MapTypes mapType;
+
+    public MapTypes getMapType()
+    {
+        return mapType;
+    }
+
+    public void setFarm(Farm farm)
+    {
+        this.farm = farm;
+    }
+
+    public Player(User user, MapTypes currentMapType, int number) {
+        this.user = user;
+        this.mapType = currentMapType;
+        this.cabin = new Cabin();
+        this.greenHouse = new GreenHouse();
+//        this.currentMap = this.farm;
+        this.energy = 200;
+        this.turnEnergy = 50;
+        this.fainted = false;
+        this.money = 0;
+        this.addToInventory(new Axe());
+        this.addToInventory(new Hoe());
+        this.addToInventory(new Pickaxe());
+        this.addToInventory(new WateringCan());
+        this.addToInventory(new Seythe());
+        this.addToInventory(new TrashCan());
+
+        this.zeidy = null;
+//        this.location = farm.getStartingPoint();
+        this.newMessage = false;
+        this.apperance = appearences.get(number);
+
+//        this.character = new PlayerCharacter(CharacterType.ABIGAIL, new Vector2(60 * 24, 60 * 24));
+    }
 
     public Player(User user, Farm farm, int number) {
         this.user = user;

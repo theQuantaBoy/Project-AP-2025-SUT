@@ -23,15 +23,10 @@ public class Farm extends Map
     private ArrayList<Tile> lakeTiles = new ArrayList<>();
     private ArrayList<AnimalBuilding> animalBuildings = new ArrayList<>();
 
-    public Farm(MapTypes mapType)
-    {
-
-    }
-
-    public Farm(MapTypes farmType, Season season) {
+    public Farm(MapTypes farmType) {
         this.mapType = farmType;
 
-        MapAssetLoader.LoadedMap loaded = MapAssetLoader.loadFromTmx("forest", season);
+        MapAssetLoader.LoadedMap loaded = MapAssetLoader.loadFromTmx("forest", Season.Spring);
 
         this.WIDTH = loaded.width;
         this.HEIGHT = loaded.height;

@@ -27,6 +27,16 @@ public abstract class Map
 
     public static final float TILE_SIZE = 16f * TestScreen.MAP_SCALE;
 
+    public void setVisual(MapVisual visual)
+    {
+        this.visual = visual;
+    }
+
+    public MapTypes getMapType()
+    {
+        return mapType;
+    }
+
     public Vector2 screenToWorld(float screenX, float screenY, OrthographicCamera cam)
     {
         Vector3 tmp3 = new Vector3(screenX, screenY, 0);
