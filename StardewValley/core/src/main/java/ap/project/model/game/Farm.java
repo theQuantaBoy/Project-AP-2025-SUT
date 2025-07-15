@@ -13,6 +13,7 @@ import ap.project.model.enums.resources_enums.*;
 import ap.project.model.resources.*;
 import ap.project.util.MapAssetLoader;
 import ap.project.visual.MapVisual;
+import com.fasterxml.jackson.databind.type.MapType;
 
 import java.util.*;
 
@@ -22,10 +23,15 @@ public class Farm extends Map
     private ArrayList<Tile> lakeTiles = new ArrayList<>();
     private ArrayList<AnimalBuilding> animalBuildings = new ArrayList<>();
 
-    public Farm(MapTypes farmType) {
+    public Farm(MapTypes mapType)
+    {
+
+    }
+
+    public Farm(MapTypes farmType, Season season) {
         this.mapType = farmType;
 
-        MapAssetLoader.LoadedMap loaded = MapAssetLoader.loadFromTmx(farmType.getTmxPath());
+        MapAssetLoader.LoadedMap loaded = MapAssetLoader.loadFromTmx("forest", season);
 
         this.WIDTH = loaded.width;
         this.HEIGHT = loaded.height;

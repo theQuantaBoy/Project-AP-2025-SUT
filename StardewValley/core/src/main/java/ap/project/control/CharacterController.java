@@ -19,6 +19,11 @@ public class CharacterController
     private final float speed;
     private final float tileSize;
 
+    private int upKey = Input.Keys.W,
+        downKey = Input.Keys.S,
+        leftKey = Input.Keys.A,
+        rightKey =  Input.Keys.D;
+
     public CharacterController(AbstractCharacter character, Farm farm, float speed, float tileSize)
     {
         this.character = character;
@@ -28,10 +33,10 @@ public class CharacterController
     }
 
     public void update(float delta) {
-        float dx = (Gdx.input.isKeyPressed(Input.Keys.D) ? 1 : 0)
-            - (Gdx.input.isKeyPressed(Input.Keys.A) ? 1 : 0);
-        float dy = (Gdx.input.isKeyPressed(Input.Keys.W) ? 1 : 0)
-            - (Gdx.input.isKeyPressed(Input.Keys.S) ? 1 : 0);
+        float dx = (Gdx.input.isKeyPressed(rightKey) ? 1 : 0)
+            - (Gdx.input.isKeyPressed(leftKey)  ? 1 : 0);
+        float dy = (Gdx.input.isKeyPressed(upKey)    ? 1 : 0)
+            - (Gdx.input.isKeyPressed(downKey)  ? 1 : 0);
 
         Vector2 pos = character.getPosition();
 
@@ -49,9 +54,13 @@ public class CharacterController
             if (target == null) return;
             TileTexture texture = target.getTexture();
 
-            if (texture == TileTexture.LAKE || texture == TileTexture.UNPASSABLE
-                || texture == TileTexture.BUILDING || texture == TileTexture.OBJECT) {
-                return; // blocked
+            if (!Gdx.input.isKeyPressed(Input.Keys.SHIFT_RIGHT) && !Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT))
+            {
+                if (texture == TileTexture.LAKE || texture == TileTexture.UNPASSABLE
+                    || texture == TileTexture.BUILDING || texture == TileTexture.OBJECT)
+                {
+                    return; // blocked
+                }
             }
 
             pos.set(nextX, nextY);
@@ -81,5 +90,13 @@ public class CharacterController
 
     public AbstractCharacter getCharacter() {
         return character;
+    }
+
+    public void chnageMoveKeys(int up, int left, int down, int right)
+    {
+        upKey = up;
+        downKey = down;
+        leftKey = left;
+        rightKey = right;
     }
 }

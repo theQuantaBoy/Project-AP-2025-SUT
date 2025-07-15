@@ -4,10 +4,10 @@ import java.util.List;
 
 public enum Season
 {
-    Spring(0, "Spring", List.of(Weather.Sunny, Weather.Rain, Weather.Storm)),
-    Summer(1, "Summer", List.of(Weather.Sunny, Weather.Rain, Weather.Storm)),
-    Fall(2, "Fall", List.of(Weather.Sunny, Weather.Rain, Weather.Storm)),
-    Winter(3, "Winter", List.of(Weather.Sunny, Weather.Snow));
+    Spring(0, "spring", List.of(Weather.Sunny, Weather.Rain, Weather.Storm)),
+    Summer(1, "summer", List.of(Weather.Sunny, Weather.Rain, Weather.Storm)),
+    Fall(2, "fall", List.of(Weather.Sunny, Weather.Rain, Weather.Storm)),
+    Winter(3, "winter", List.of(Weather.Sunny, Weather.Snow));
 
     private final int id;
     private final String name;

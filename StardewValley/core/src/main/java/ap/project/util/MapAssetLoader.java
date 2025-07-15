@@ -1,5 +1,6 @@
 package ap.project.util;
 
+import ap.project.model.enums.Season;
 import ap.project.model.enums.TileTexture;
 import ap.project.model.game.Point;
 import ap.project.model.game.Tile;
@@ -13,6 +14,12 @@ public final class MapAssetLoader
     public static LoadedMap loadFromTmx(String tmxPath)
     {
         return new LoadedMap(tmxPath);
+    }
+
+    public static LoadedMap loadFromTmx(String baseMapName, Season season)
+    {
+        String fileName = String.format("maps/%s/%s_%s.tmx", baseMapName, baseMapName, season.toString());
+        return new LoadedMap(fileName);
     }
 
     public static class LoadedMap

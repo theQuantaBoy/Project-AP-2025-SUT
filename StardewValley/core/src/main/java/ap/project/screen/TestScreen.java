@@ -1,6 +1,7 @@
 package ap.project.screen;
 
 import ap.project.control.CharacterController;
+import ap.project.model.enums.Season;
 import ap.project.visual.CharacterRenderer;
 import ap.project.model.enums.CharacterType;
 import ap.project.model.enums.MapTypes;
@@ -27,16 +28,15 @@ public final class TestScreen implements Screen
     private static final float FRAME_TIME = 0.16f;
 
     private final OrthographicCamera cam;
-    private final MapVisual mapVisual;
-
+    private MapVisual mapVisual;
 
     private final OrthographicCamera uiCam = new OrthographicCamera();
 
     private final PlayerCharacter player;
-    private final CharacterController characterController;
+    private CharacterController characterController;
     private final CharacterRenderer characterRenderer;
 
-    private final Farm farm;
+    private Farm farm;
     private final UIRenderer uiRenderer;
 
     private ShaderProgram autumnShader;
@@ -45,18 +45,32 @@ public final class TestScreen implements Screen
     private Point hoveredTile = null;
     private final ShapeRenderer shapeRenderer = new ShapeRenderer();
 
+    private Season season = Season.Spring;
+
+    private final boolean SECOND_PLAYER = true;
+    private PlayerCharacter player2;
+    private CharacterController controller2;
+
     public TestScreen()
     {
         cam = new OrthographicCamera(20 * TILE_SIZE, 15 * TILE_SIZE);
         cam.setToOrtho(false);
 
-        farm = new Farm(MapTypes.FOREST);
+        farm = new Farm(MapTypes.FOREST, season);
         mapVisual = farm.getMapVisual();
 
         Vector2 spawn = new Vector2(60 * TILE_SIZE, 60 * TILE_SIZE);
         player = new PlayerCharacter(CharacterType.ABIGAIL, spawn);
         characterController = new CharacterController(player, farm, PLAYER_SPEED, TILE_SIZE);
         characterRenderer = new CharacterRenderer();
+
+        if (SECOND_PLAYER)
+        {
+            Vector2 spawn2 = new Vector2(62 * TILE_SIZE, 60 * TILE_SIZE);
+            player2 = new PlayerCharacter(CharacterType.ABIGAIL, spawn2); // or any other character
+            controller2 = new CharacterController(player2, farm, PLAYER_SPEED, TILE_SIZE);
+            controller2.chnageMoveKeys(Input.Keys.UP, Input.Keys.LEFT, Input.Keys.DOWN, Input.Keys.RIGHT);
+        }
 
         ShaderProgram.pedantic = false;
         autumnShader = new ShaderProgram(
@@ -81,6 +95,7 @@ public final class TestScreen implements Screen
         batch.setProjectionMatrix(cam.combined);
         batch.begin();
         characterRenderer.render(batch, player, CHAR_SCALE);
+        if (SECOND_PLAYER) characterRenderer.render(batch, player2, CHAR_SCALE);
         batch.end();
 
         batch.setProjectionMatrix(uiCam.combined);
@@ -110,9 +125,10 @@ public final class TestScreen implements Screen
         }
     }
 
-    private void update(float dt) {
-
+    private void update(float dt)
+    {
         characterController.update(dt);
+        if (SECOND_PLAYER) controller2.update(dt);
 
         // -------- camera --------  keep centred but clamped to map bounds
         cam.position.set(player.getPosition().x + TILE_SIZE/2, player.getPosition().y + TILE_SIZE/2, 0);
@@ -136,6 +152,11 @@ public final class TestScreen implements Screen
                 System.out.println("Clicked Tile (x: " + tile.getX() + ", y: " + tile.getY() + ") - " + tile.getTexture());
             }
         }
+
+        if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_1)) changeSeason(Season.Spring);
+        if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_2)) changeSeason(Season.Summer);
+        if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_3)) changeSeason(Season.Fall);
+        if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_4)) changeSeason(Season.Winter);
     }
 
     @Override
@@ -163,5 +184,15 @@ public final class TestScreen implements Screen
         mapVisual.dispose();
         uiRenderer.dispose();
         shapeRenderer.dispose();
+    }
+
+    private void changeSeason(Season newSeason) {
+        this.season = newSeason;
+        Farm newFarm = new Farm(MapTypes.FOREST, newSeason);
+
+        this.mapVisual.dispose(); // Dispose old map visual
+        this.mapVisual = newFarm.getMapVisual(); // Replace with new
+        this.farm = newFarm;
+        characterController = new CharacterController(player, farm, PLAYER_SPEED, TILE_SIZE);
     }
 }
