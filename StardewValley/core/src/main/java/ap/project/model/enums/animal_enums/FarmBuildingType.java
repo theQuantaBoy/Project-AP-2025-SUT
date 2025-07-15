@@ -2,6 +2,7 @@ package ap.project.model.enums.animal_enums;
 
 import ap.project.model.game.GameObject;
 import ap.project.model.enums.GameObjectType;
+import com.badlogic.gdx.graphics.Texture;
 
 import java.util.List;
 
@@ -9,33 +10,41 @@ public enum FarmBuildingType
 {
     BARN("Barn", "Houses 4 barn-dwelling animals.", 6000,
             List.of(new GameObject(GameObjectType.WOOD, 350),
-                    new GameObject(GameObjectType.STONE, 150)), List.of(7, 4), 4, 1),
+                    new GameObject(GameObjectType.STONE, 150)), List.of(7, 4), 4, 1,
+            new Texture("StardewValley/core/assets/animals/Barn.png")),
 
     BIG_BARN("Big Barn", "Houses 8 barn-dwelling animals. Unlocks goats.", 12000,
             List.of(new GameObject(GameObjectType.WOOD, 450),
-                    new GameObject(GameObjectType.STONE, 200)), List.of(7, 4), 8, 1),
+                    new GameObject(GameObjectType.STONE, 200)), List.of(7, 4), 8, 1,
+            new Texture("StardewValley/core/assets/animals/BigBarn.png")),
 
     DELUXE_BARN("Deluxe Barn", "Houses 12 barn-dwelling animals. Unlocks sheep and pigs.", 25000,
             List.of(new GameObject(GameObjectType.WOOD, 550),
-                    new GameObject(GameObjectType.STONE, 300)), List.of(7, 4), 12, 1),
+                    new GameObject(GameObjectType.STONE, 300)), List.of(7, 4), 12, 1,
+            new Texture("StardewValley/core/assets/animals/DeluxeBarn.png")),
 
     COOP("Coop", "Houses 4 coop-dwelling animals.", 4000,
             List.of(new GameObject(GameObjectType.WOOD, 300),
-                    new GameObject(GameObjectType.STONE, 100)), List.of(6, 3), 4, 1),
+                    new GameObject(GameObjectType.STONE, 100)), List.of(6, 3), 4, 1,
+            new Texture("StardewValley/core/assets/animals/Coop.png")),
 
     BIG_COOP("Big Coop", "Houses 8 coop-dwelling animals. Unlocks ducks.", 10000,
             List.of(new GameObject(GameObjectType.WOOD, 400),
-                    new GameObject(GameObjectType.STONE, 150)), List.of(6, 3), 8, 1),
+                    new GameObject(GameObjectType.STONE, 150)), List.of(6, 3), 8, 1,
+            new Texture("StardewValley/core/assets/animals/BigCoop.png")),
 
     DELUXE_COOP("Deluxe Coop", "Houses 12 coop-dwelling animals. Unlocks rabbits.", 20000,
             List.of(new GameObject(GameObjectType.WOOD, 500),
-                    new GameObject(GameObjectType.STONE, 200)), List.of(6, 3), 12, 1),
+                    new GameObject(GameObjectType.STONE, 200)), List.of(6, 3), 12, 1,
+            new Texture("StardewValley/core/assets/animals/DeluxeCoop.png")),
 
     WELL("Well", "Provides a place for you to refill your watering can.", 1000,
-            List.of(new GameObject(GameObjectType.STONE, 75)), List.of(3, 3), -1, 1),
+            List.of(new GameObject(GameObjectType.STONE, 75)), List.of(3, 3), -1, 1,
+            new Texture("StardewValley/core/assets/animals/Well.png")),
 
     SHIPPING_BIN("Shipping Bin", "Items placed in it will be included in the nightly shipment.", 250,
-            List.of(new GameObject(GameObjectType.WOOD, 150)), List.of(1, 1), -1, -1);
+            List.of(new GameObject(GameObjectType.WOOD, 150)), List.of(1, 1), -1, -1,
+            new Texture("StardewValley/core/assets/animals/ShippingBin.png")),;
 
     private final String name;
     private final String description;
@@ -44,8 +53,10 @@ public enum FarmBuildingType
     private final List<Integer> size;
     private final int capacity;
     private final int dailyLimit;
+    private final Texture texture;
 
-    FarmBuildingType(String name, String description, int price, List<GameObject> requirements, List<Integer> size, int capacity, int dailyLimit) {
+    FarmBuildingType(String name, String description, int price, List<GameObject> requirements,
+                     List<Integer> size, int capacity, int dailyLimit, Texture texture) {
         this.name = name;
         this.description = description;
         this.price = price;
@@ -53,6 +64,7 @@ public enum FarmBuildingType
         this.size = size;
         this.capacity = capacity;
         this.dailyLimit = dailyLimit;
+        this.texture = texture;
     }
 
     public String getName() {
