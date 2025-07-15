@@ -2,17 +2,15 @@ package ap.project;
 
 import ap.project.control.RegisterController;
 import ap.project.model.App.GameAssetsManager;
-import ap.project.screen.FishingGame;
 import ap.project.screen.RegisterScreen;
 import ap.project.screen.TerminalScreen;
+import ap.project.screen.TestScreen;
 import ap.project.view.AppView;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.utils.ScreenUtils;
 
-import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.backends.headless.HeadlessApplication;
 import com.badlogic.gdx.backends.headless.HeadlessApplicationConfiguration;
 
@@ -27,10 +25,19 @@ public class Main extends com.badlogic.gdx.Game
     {
         app = this;
         batch = new SpriteBatch();
+
+        // --- Set custom cursor ---
+        Pixmap cursorPixmap = new Pixmap(Gdx.files.internal("general/cursor/cursor.png")); // put it in assets
+        int hotspotX = 0; // adjust to your cursor's "click point"
+        int hotspotY = 0;
+        Gdx.graphics.setCursor(Gdx.graphics.newCursor(cursorPixmap, hotspotX, hotspotY));
+        cursorPixmap.dispose();
+
 //        TerminalScreen.run(); // start first input
 //        setScreen(TerminalScreen.getInstance());
 //        getApp().setScreen(new TerminalScreen());
-        app.setScreen(new RegisterScreen(new RegisterController(), new FishingGame()));
+//        app.setScreen(new RegisterScreen(new RegisterController()));
+        app.setScreen(new TestScreen());
     }
 
     @Override

@@ -11,49 +11,46 @@ import ap.project.model.enums.animal_enums.FarmAnimalsType;
 import ap.project.model.enums.animal_enums.FishType;
 import ap.project.model.enums.resources_enums.*;
 import ap.project.model.resources.*;
+import ap.project.util.MapAssetLoader;
+import ap.project.visual.MapVisual;
+import com.fasterxml.jackson.databind.type.MapType;
 
 import java.util.*;
 
 public class Farm extends Map
 {
-    private final Point homePoint;
+    private Point homePoint;
     private ArrayList<Tile> lakeTiles = new ArrayList<>();
     private ArrayList<AnimalBuilding> animalBuildings = new ArrayList<>();
 
-    public Farm(MapTypes farmType) {
+    public Farm(MapTypes mapType)
+    {
+
+    }
+
+    public Farm(MapTypes farmType, Season season) {
         this.mapType = farmType;
 
-        // Load map data and dimensions
-        int[] dims = new int[2];
-        this.mapData = MapLoader.loadMap(farmType.getMapPath(), dims);
+        MapAssetLoader.LoadedMap loaded = MapAssetLoader.loadFromTmx("forest", season);
 
-        if (mapData == null) {
-            throw new IllegalStateException("Failed to load farm map: " + farmType.getName());
-        }
+        this.WIDTH = loaded.width;
+        this.HEIGHT = loaded.height;
+        this.tiledMap = loaded.tiledMap;
+        this.tiles = loaded.tiles;
 
-        this.WIDTH = dims[0];
-        this.HEIGHT = dims[1];
-        this.tiles = new Tile[HEIGHT][WIDTH];
+        this.visual = new MapVisual(loaded.tiledMap);
 
-        // Initialize all tiles as LAND
-        for (int y = 0; y < HEIGHT; y++) {
-            for (int x = 0; x < WIDTH; x++) {
-                tiles[y][x] = new Tile(new Point(x, y));
-                tiles[y][x].setType(TileTexture.LAND);
-            }
-        }
+//        applyMap();
+//        setRandomItems();
 
-        applyMap();
-        setRandomItems();
+//        ArrayList<Tile> cabinNeighbors = getHouseNeighborTiles();
+//        Random rand = new Random();
 
-        ArrayList<Tile> cabinNeighbors = getHouseNeighborTiles();
-        Random rand = new Random();
+//        this.startingPoint = cabinNeighbors.get(rand.nextInt(cabinNeighbors.size())).getPoint();
+//        this.homePoint = startingPoint;
 
-        this.startingPoint = cabinNeighbors.get(rand.nextInt(cabinNeighbors.size())).getPoint();
-        this.homePoint = startingPoint;
-
-        this.lakeTiles = getLakeTiles();
-        putFishInLake(Season.Spring);
+//        this.lakeTiles = getLakeTiles();
+//        putFishInLake(Season.Spring);
     }
 
     public Tile getRandomFreeTile()

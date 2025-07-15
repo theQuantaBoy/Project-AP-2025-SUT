@@ -34,6 +34,12 @@ public class Tile
         isInCity = true;
     }
 
+    public Tile(TileTexture texture, Point point)
+    {
+        this.texture = texture;
+        this.point = point;
+    }
+
     public Tile(Point point)
     {
         this.point = point;

@@ -4,8 +4,10 @@ import ap.project.Main;
 import ap.project.control.LoginController;
 import ap.project.control.MainMenuController;
 import ap.project.control.RegisterController;
+import ap.project.model.App.App;
 import ap.project.model.App.GameAssetsManager;
 import ap.project.model.App.Result;
+import ap.project.model.App.User;
 import ap.project.model.enums.Gender;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
@@ -30,6 +32,7 @@ public class LoginScreen implements Screen {
     private CheckBox stayLoggedIn;
     private TextButton signup;
     private TextButton forgotPassword;
+    private TextButton exit;
     private Label errorLabel;
     private Table table;
 
@@ -65,6 +68,7 @@ public class LoginScreen implements Screen {
         this.stayLoggedIn = new CheckBox("stay logged in", GameAssetsManager.getGameAssetsManager().getSkin());
         this.forgotPassword =  new TextButton("Forgot Password", GameAssetsManager.getGameAssetsManager().getSkin());
         this.signup = new TextButton("Sign up", GameAssetsManager.getGameAssetsManager().getSkin());
+        this.exit = new TextButton("Exit", GameAssetsManager.getGameAssetsManager().getSkin());
         this.errorLabel = new Label("", GameAssetsManager.getGameAssetsManager().getSkin());
         this.errorLabel.setAlignment(Align.center);
         this.errorLabel.setColor(Color.RED);
@@ -77,6 +81,7 @@ public class LoginScreen implements Screen {
         table.add(table1).row();
         table.add(forgotPassword).width(500).height(50).pad(10).row();
         table.add(signup).width(500).height(50).pad(10).row();
+        table.add(exit).width(500).height(50).pad(10).row();
         table.add(errorLabel).width(500).height(50).pad(10).row();
 
         addButtonListeners();
@@ -102,17 +107,32 @@ public class LoginScreen implements Screen {
             }
         });
 
+        exit.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                Gdx.app.exit();
+            }
+        });
+
         signup.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                Main.getApp().setScreen(new RegisterScreen(new RegisterController(), new FishingGame()));
+                Main.getApp().setScreen(new RegisterScreen(new RegisterController()));
             }
         });
 
         forgotPassword.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                Main.getApp().setScreen(new ForgetScreen());
+                if (username.getText().equals("") || username.getText().equals("Username")) {
+                    errorLabel.setText("Please enter username");
+                }
+                User user = App.getPlayerByUsername(username.getText());
+                if (user == null) {
+                    errorLabel.setText("Invalid username");
+                } else {
+                    Main.getApp().setScreen(new ForgetScreen(user));
+                }
             }
         });
 

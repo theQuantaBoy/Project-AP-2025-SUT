@@ -56,6 +56,15 @@ public enum TileTexture
     FLOOR("floor"),
 
     ANIMAL_BUILDING("animal building"),
+
+    LEAF("leaf"),
+    TRUNK("trunk"),
+    UNPASSABLE("unpassable"),
+    PATH("path"),
+    DOOR("door"),
+    OBJECT("object"),
+    PLOUGHED_LAND("ploughed-land"),
+    VEHICLE("vehicle"),
     ;
 
     private final String name;

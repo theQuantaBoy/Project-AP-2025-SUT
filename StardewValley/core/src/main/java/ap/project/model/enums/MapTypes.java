@@ -4,24 +4,28 @@ import java.util.ArrayList;
 
 public enum MapTypes
 {
-    STANDARD("standard", "map/standard.json"),
-    RIVERLAND("riverland", "map/river.json"),
-    HILL_TOP("hilltop", "map/hilltop.json"),
-    BEACH("four_corners", "map/beach.json"),
+    STANDARD("standard", "map/standard.json", ""),
+    RIVERLAND("riverland", "map/river.json", ""),
+    HILL_TOP("hilltop", "map/hilltop.json", ""),
+    BEACH("four_corners", "map/beach.json", ""),
 
-    CABIN("cabin", "map/cabin.json"),
-    GREEN_HOUSE("greenhouse", "map/greenhouse.json"),
-    CITY("city", "map/city.json"),
-    SHOP("shop", "map/shop.json"),
+    CABIN("cabin", "map/cabin.json", ""),
+    GREEN_HOUSE("greenhouse", "map/greenhouse.json", ""),
+    CITY("city", "map/city.json", ""),
+    SHOP("shop", "map/shop.json", ""),
+
+    FOREST("forest", "", "maps/Forest.tmx"),
     ;
 
     private final String name;
     private final String mapPath;
+    private final String tmxPath;
 
-    MapTypes(String name, String mapPath)
+    MapTypes(String name, String mapPath, String tmxPath)
     {
         this.name = name;
         this.mapPath = mapPath;
+        this.tmxPath = tmxPath;
     }
 
     public String getName()
@@ -84,5 +88,10 @@ public enum MapTypes
         }
 
         return STANDARD;
+    }
+
+    public String getTmxPath()
+    {
+        return tmxPath;
     }
 }
