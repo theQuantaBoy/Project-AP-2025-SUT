@@ -25,7 +25,6 @@ public final class TestScreen implements Screen
     private static final float CHAR_SCALE = 1f; // how big Abigail appears relative to map
     private static final float TILE_SIZE  = 24f * MAP_SCALE;
     private static final float PLAYER_SPEED = 50f * MAP_SCALE;
-    private static final float FRAME_TIME = 0.16f;
 
     private final OrthographicCamera cam;
     private MapVisual mapVisual;
@@ -102,6 +101,8 @@ public final class TestScreen implements Screen
         batch.begin();
         uiRenderer.renderUI(batch, uiCam);
         batch.end();
+
+        uiRenderer.renderDarkOverlay(uiCam);
 
         if (hoveredTile != null) {
             Gdx.gl.glEnable(GL20.GL_BLEND);

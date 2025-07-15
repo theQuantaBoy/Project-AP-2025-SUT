@@ -1,6 +1,5 @@
 package ap.project.control;
 
-import ap.project.model.enums.TileTexture;
 import ap.project.model.game.AbstractCharacter;
 import ap.project.model.game.Farm;
 import ap.project.model.game.Point;
@@ -32,50 +31,58 @@ public class CharacterController
         this.tileSize = tileSize;
     }
 
-    public void update(float delta) {
-        float dx = (Gdx.input.isKeyPressed(rightKey) ? 1 : 0)
-            - (Gdx.input.isKeyPressed(leftKey)  ? 1 : 0);
-        float dy = (Gdx.input.isKeyPressed(upKey)    ? 1 : 0)
-            - (Gdx.input.isKeyPressed(downKey)  ? 1 : 0);
+    public void update(float delta)
+    {
+        float rawDx = (Gdx.input.isKeyPressed(rightKey) ? 1 : 0)
+                - (Gdx.input.isKeyPressed(leftKey)  ? 1 : 0);
+        float rawDy = (Gdx.input.isKeyPressed(upKey)    ? 1 : 0)
+                - (Gdx.input.isKeyPressed(downKey)  ? 1 : 0);
+
+        if (rawDx == 0 && rawDy == 0)
+        {
+            character.resetAnimation();
+            return;
+        }
+
+        if (Math.abs(rawDx) > Math.abs(rawDy))
+            character.setDirection(rawDx > 0 ? AbstractCharacter.Direction.RIGHT
+                    : AbstractCharacter.Direction.LEFT);
+        else
+            character.setDirection(rawDy > 0 ? AbstractCharacter.Direction.UP
+                    : AbstractCharacter.Direction.DOWN);
+
+        character.updateAnimation(delta);
+
+        float len = (float)Math.sqrt(rawDx*rawDx + rawDy*rawDy);
+        float nx  = rawDx / len;
+        float ny  = rawDy / len;
+
+        boolean shift = Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT)
+                || Gdx.input.isKeyPressed(Input.Keys.SHIFT_RIGHT);
+
+        float moveSpeed = speed * (shift ? 2f : 1f);
+        float dx = nx * moveSpeed * delta;
+        float dy = ny * moveSpeed * delta;
 
         Vector2 pos = character.getPosition();
+        float nextX = pos.x + dx;
+        float nextY = pos.y + dy;
 
-        if (dx != 0 || dy != 0) {
-            float len = (float) Math.sqrt(dx * dx + dy * dy);
-            dx = dx / len * speed * delta;
-            dy = dy / len * speed * delta;
+        Point tilePos = farm.worldToTile(nextX, nextY);
+        Tile  target  = farm.getTile(tilePos.getX(), tilePos.getY());
 
-            float nextX = pos.x + dx;
-            float nextY = pos.y + dy;
+        boolean ctrl = Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT)
+                || Gdx.input.isKeyPressed(Input.Keys.CONTROL_RIGHT);
 
-            Point tilePos = farm.worldToTile(nextX, nextY);
-            Tile target   = farm.getTile(tilePos.getX(), tilePos.getY());
+        boolean blocked = target == null ||
+                (!ctrl && switch (target.getTexture()) {
+                    case LAKE, UNPASSABLE, BUILDING, OBJECT -> true;
+                    default -> false;
+                });
 
-            if (target == null) return;
-            TileTexture texture = target.getTexture();
-
-            if (!Gdx.input.isKeyPressed(Input.Keys.SHIFT_RIGHT) && !Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT))
-            {
-                if (texture == TileTexture.LAKE || texture == TileTexture.UNPASSABLE
-                    || texture == TileTexture.BUILDING || texture == TileTexture.OBJECT)
-                {
-                    return; // blocked
-                }
-            }
-
+        if (!blocked)
+        {
             pos.set(nextX, nextY);
-            character.updateAnimation(delta);
-
-            // set animation
-            if (Math.abs(dx) > 0) {
-                character.setDirection(dx > 0 ? AbstractCharacter.Direction.RIGHT : AbstractCharacter.Direction.LEFT);
-            } else
-            {
-                character.setDirection(dy > 0 ? AbstractCharacter.Direction.UP : AbstractCharacter.Direction.DOWN);
-            }
-
-        } else {
-            character.resetAnimation();
         }
     }
 

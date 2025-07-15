@@ -4,10 +4,12 @@ import ap.project.model.enums.DayOfWeek;
 import ap.project.model.game.Time;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 
 public class UIRenderer {
     private final Texture clockTexture;
@@ -18,6 +20,8 @@ public class UIRenderer {
 
     private final BitmapFont font;
     private final Time time;
+
+    private final ShapeRenderer shapeRenderer = new ShapeRenderer();
 
     public UIRenderer(Time time) {
         this.time = time;
@@ -71,13 +75,23 @@ public class UIRenderer {
 
     private void drawClockBackground(Batch batch, int x, int y) {
         batch.draw(clockTexture, x - 20, y);
-        batch.draw(journalAlert, x, y - 55);
+//        batch.draw(journalAlert, x, y - 55);
     }
 
-    private void drawClockHandles(Batch batch, int x, int y) {
-        batch.draw(handleDown, x - 20, y);
-        batch.draw(handleMid, x - 22, y + 4);
-        batch.draw(handleUp, x - 20, y + 8);
+    private void drawClockHandles(Batch batch, int x, int y)
+    {
+        int hour = time.getHour();
+
+        if (hour >= 9 && hour <= 12)
+        {
+            batch.draw(handleDown, x - 20, y);
+        } else if (hour >= 13 && hour <= 18)
+        {
+            batch.draw(handleMid, x - 22, y + 4);
+        } else if (hour >= 19 && hour <= 23)
+        {
+            batch.draw(handleUp, x - 20, y + 8);
+        }
     }
 
     private void drawClockText(Batch batch, int x, int y) {
@@ -97,12 +111,51 @@ public class UIRenderer {
 
     private void drawStatus(Batch batch, int x, int y)
     {
-        batch.draw(statusStorm, x + 108, y + 136);
+        Texture status;
+
+        switch (time.getCurrentWeather())
+        {
+            case Sunny ->  status = statusSun;
+            case Rain -> status = statusRain;
+            case Storm -> status = statusStorm;
+            case Snow -> status = statusSnow;
+            default -> status = statusWedding;
+        }
+
+        batch.draw(status, x + 108, y + 136);
     }
 
     private void drawSeasonBanner(Batch batch, int x, int y)
     {
-        batch.draw(fallBanner, x + 204, y + 136);
+        Texture status;
+
+        switch (time.getSeason())
+        {
+            case Summer -> status = summerBanner;
+            case Fall -> status = fallBanner;
+            case Winter -> status = winterBanner;
+            default -> status = springBanner;
+        }
+
+        batch.draw(status, x + 204, y + 136);
+    }
+
+    public void renderDarkOverlay(OrthographicCamera uiCam)
+    {
+        float darknessLevel = 0f;
+
+        if (time.getHour() >= 18)
+        {
+            darknessLevel = (time.getHour() - 17) * 0.15f;
+        }
+
+        Gdx.gl.glEnable(GL20.GL_BLEND);
+        shapeRenderer.setProjectionMatrix(uiCam.combined);
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        shapeRenderer.setColor(0f, 0f, 0f, darknessLevel);
+        shapeRenderer.rect(0, 0, uiCam.viewportWidth, uiCam.viewportHeight);
+        shapeRenderer.end();
+        Gdx.gl.glDisable(GL20.GL_BLEND);
     }
 
     public void dispose() {
@@ -111,6 +164,19 @@ public class UIRenderer {
         handleDown.dispose();
         handleMid.dispose();
         journalAlert.dispose();
+
+        statusSun.dispose();
+        statusRain.dispose();
+        statusStorm.dispose();
+        statusSnow.dispose();
+        statusWedding.dispose();
+
+        springBanner.dispose();
+        summerBanner.dispose();
+        fallBanner.dispose();
+        winterBanner.dispose();
+
         font.dispose();
+        shapeRenderer.dispose();
     }
 }
