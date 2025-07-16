@@ -64,6 +64,7 @@ public class CharacterController
             }
 
             pos.set(nextX, nextY);
+            character.decreaseEnergy(0.8f * delta);
             character.updateAnimation(delta);
 
             // set animation

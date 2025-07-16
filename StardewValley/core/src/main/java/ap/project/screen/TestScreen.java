@@ -80,7 +80,7 @@ public final class TestScreen implements Screen
             Gdx.app.error("Shader", "Compilation failed:\n" + autumnShader.getLog());
         }
 
-        uiRenderer = new UIRenderer(new Time());
+        uiRenderer = new UIRenderer(new Time(), player);
     }
 
     @Override
