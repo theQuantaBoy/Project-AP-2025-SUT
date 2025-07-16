@@ -1,9 +1,7 @@
 package ap.project;
 
-import ap.project.control.RegisterController;
-import ap.project.screen.RegisterScreen;
 import ap.project.screen.TerminalScreen;
-import ap.project.screen.TestScreen;
+import ap.project.screen.WorldScreen;
 import ap.project.view.AppView;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
@@ -32,7 +30,7 @@ public class Main extends com.badlogic.gdx.Game
         Gdx.graphics.setCursor(Gdx.graphics.newCursor(cursorPixmap, hotspotX, hotspotY));
         cursorPixmap.dispose();
 
-        app.setScreen(new TestScreen());
+        app.setScreen(new WorldScreen());
 
 //        app.setScreen(new RegisterScreen(new RegisterController()));
 

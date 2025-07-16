@@ -2,16 +2,14 @@ package ap.project.visual;
 
 import ap.project.model.enums.GameObjectType;
 import ap.project.model.game.*;
-import ap.project.screen.TestScreen;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Vector2;
 
-import static ap.project.screen.TestScreen.MAP_SCALE;
+import static ap.project.screen.WorldScreen.MAP_SCALE;
 
 
 public class MapVisual

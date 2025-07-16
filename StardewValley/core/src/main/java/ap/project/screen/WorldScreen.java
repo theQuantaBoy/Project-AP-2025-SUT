@@ -1,10 +1,10 @@
 package ap.project.screen;
 
 import ap.project.control.CharacterController;
-import ap.project.model.App.App;
 import ap.project.model.App.User;
 import ap.project.model.enums.Gender;
 import ap.project.model.enums.Season;
+import ap.project.screen.input.WorldScreenInputProcessor;
 import ap.project.util.MapAssetLoader;
 import ap.project.visual.CharacterRenderer;
 import ap.project.model.enums.CharacterType;
@@ -17,7 +17,6 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
@@ -25,11 +24,10 @@ import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 
-import javax.sound.midi.Soundbank;
 import java.util.ArrayList;
 import java.util.List;
 
-public final class TestScreen implements Screen
+public final class WorldScreen implements Screen
 {
     public static final float MAP_SCALE  = 1.0f;
     private static final float CHAR_SCALE = 1f;
@@ -60,7 +58,7 @@ public final class TestScreen implements Screen
     private final Time time;
     private Season currentSeason;
 
-    public TestScreen()
+    public WorldScreen()
     {
         cam = new OrthographicCamera(20 * TILE_SIZE, 15 * TILE_SIZE);
         cam.setToOrtho(false);
@@ -94,6 +92,8 @@ public final class TestScreen implements Screen
         ShaderProgram.pedantic = false;
 
         uiRenderer = new UIRenderer(time);
+
+        Gdx.input.setInputProcessor(new WorldScreenInputProcessor(farm, player, characterController, cam, this));
     }
 
     @Override
@@ -160,45 +160,6 @@ public final class TestScreen implements Screen
             cam.viewportWidth  /2, mapPixelW  - cam.viewportWidth /2);
         cam.position.y = MathUtils.clamp(cam.position.y,
             cam.viewportHeight /2, mapPixelH - cam.viewportHeight/2);
-
-        if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT))
-        {
-            Tile tile = cursorToTile();
-
-            if (tile != null)
-            {
-                System.out.println("Clicked Tile (x: " + tile.getX() + ", y: " + tile.getY() + ") - " + tile.getTexture());
-//                for (int i = 0; i < farm.getDepth(); i++)
-//                {
-//                    Tile layerTile = farm.getLayerTiles()[i][tile.getY()][tile.getX()];
-//                    if (layerTile != null)
-//                    {
-//                        System.out.println("Layer " + i + ": " + layerTile.getTypeName());
-//                    } else
-//                    {
-//                        System.out.println("Layer " + i + ": null");
-//                    }
-//                }
-            }
-        }
-
-        if (Gdx.input.isButtonJustPressed(Input.Buttons.RIGHT))
-        {
-            Point clicked = farm.screenToTile(Gdx.input.getX(), Gdx.input.getY(), cam);
-
-            if (clicked != null)
-            {
-                Vector2 playerPos = player.getPosition();
-                Point playerTile = farm.worldToTile(playerPos.x, playerPos.y);
-
-                ArrayList<Point> path = farm.findShortestPath(playerTile, clicked);
-
-                if (path != null)
-                {
-                    characterController.moveToPath(path);
-                }
-            }
-        }
     }
 
     @Override
@@ -240,7 +201,7 @@ public final class TestScreen implements Screen
         currentSeason = time.getSeason();
     }
 
-    private Tile cursorToTile()
+    public Tile cursorToTile()
     {
         float mouseX = Gdx.input.getX();
         float mouseY = Gdx.input.getY() + (60); // Hard-Coded
