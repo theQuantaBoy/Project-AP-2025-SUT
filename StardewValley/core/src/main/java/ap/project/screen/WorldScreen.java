@@ -58,8 +58,6 @@ public final class WorldScreen implements Screen
     private Point hoveredTile = null;
     private final ShapeRenderer shapeRenderer = new ShapeRenderer();
 
-    private Season season = Season.Spring;
-
     private final boolean SECOND_PLAYER = false;
     private PlayerCharacter player2;
     private CharacterController controller2;
@@ -83,6 +81,7 @@ public final class WorldScreen implements Screen
 
         this.game = new Game(new ArrayList<>(List.of(new Player(new User("","","","", Gender.FEMALE, "", ""), MapTypes.STANDARD, 0))));
         App.setCurrentGame(game);
+        game.setCurrentPlayer(game.getPlayers().get(0));
 
 //        this.game = App.getCurrentGame();
         for (Player p : game.getPlayers())
@@ -269,13 +268,13 @@ public final class WorldScreen implements Screen
 
         // Layout components - WIDER dimensions
         Table contentTable = testDialog.getContentTable();
-        contentTable.add(scrollPane).grow().width(650).height(350).pad(10); // Wider and taller
+        contentTable.add(scrollPane).grow().width(1000).height(350).pad(10); // Wider and taller
         contentTable.row();
-        contentTable.add(userInputField).growX().width(650).pad(10); // Wider input field
+        contentTable.add(userInputField).growX().width(1000).pad(10); // Wider input field
 
         // Create button table with smaller buttons
         Table buttonTable = new Table();
-        buttonTable.defaults().pad(3).minWidth(80); // Smaller padding and width
+        buttonTable.defaults().pad(3).minWidth(40); // Smaller padding and width
 
         // Create smaller buttons
         TextButton submitButton = new TextButton("Submit", skin);
@@ -283,10 +282,10 @@ public final class WorldScreen implements Screen
 
         // Scale down button text
         Label submitLabel = (Label)submitButton.getLabel();
-        submitLabel.setFontScale(0.8f); // Reduce font size
+        submitLabel.setFontScale(0.4f); // Reduce font size
 
         Label closeLabel = (Label)closeButton.getLabel();
-        closeLabel.setFontScale(0.8f); // Reduce font size
+        closeLabel.setFontScale(0.4f); // Reduce font size
 
         // Reduce button padding
         submitButton.pad(3, 8, 3, 8);
@@ -297,7 +296,6 @@ public final class WorldScreen implements Screen
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 processUserInput();
-                // Clear input but keep dialog open
                 userInputField.setText("");
             }
         });
@@ -333,9 +331,7 @@ public final class WorldScreen implements Screen
         String input = userInputField.getText().trim();
 
         if (!input.isEmpty()) {
-            // Add user input to buffer
             appendToDialog("> " + input);
-            // Process command (your game logic)
             GameMenu.check(input);
         }
     }
@@ -364,12 +360,8 @@ public final class WorldScreen implements Screen
         Gdx.input.setInputProcessor(uiStage);
     }
 
-    // Public method to add text to the dialog buffer
-    public static void appendToDialog(String text) {
-        // Add timestamp if desired
-        // String timestamp = new SimpleDateFormat("HH:mm:ss").format(new Date());
-        // dialogTextBuffer.append("[").append(timestamp).append("] ");
-
+    public static void appendToDialog(String text)
+    {
         dialogTextBuffer.append(text).append("\n");
         updateDialogDisplay();
     }

@@ -634,12 +634,14 @@ public class GameMenu implements AppMenu
     public static void println(String output)
     {
         System.out.println(output);
+        WorldScreen.appendToDialog(output + "\n");
 //        TerminalScreen.appendOutputLn(output);
     }
 
     public static void print(String output)
     {
         System.out.print(output);
+        WorldScreen.appendToDialog(output);
 //        TerminalScreen.appendOutput(output);
     }
 }
