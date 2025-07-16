@@ -10,6 +10,8 @@ import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 
+import java.util.ArrayList;
+
 public class CharacterController
 {
 
@@ -23,6 +25,9 @@ public class CharacterController
         leftKey = Input.Keys.A,
         rightKey =  Input.Keys.D;
 
+    private ArrayList<Point> path = null;
+    private int pathIndex = 0;
+
     public CharacterController(AbstractCharacter character, Farm farm, float speed, float tileSize)
     {
         this.character = character;
@@ -33,6 +38,53 @@ public class CharacterController
 
     public void update(float delta)
     {
+        if (Gdx.input.isKeyPressed(rightKey) ||
+            Gdx.input.isKeyPressed(leftKey) ||
+            Gdx.input.isKeyPressed(upKey) ||
+            Gdx.input.isKeyPressed(downKey))
+        {
+            endWalk();
+        }
+
+        if (path != null && pathIndex < path.size())
+        {
+            Point point = path.get(pathIndex);
+            Vector2 targetWorld = farm.tileToWorld(farm.getTile(point.getX(), point.getY()));
+            Vector2 pos = character.getPosition();
+
+            float dx = targetWorld.x - pos.x;
+            float dy = targetWorld.y - pos.y;
+
+            float dist = (float)Math.sqrt(dx * dx + dy * dy);
+
+            if (dist < 2f)
+            {
+                pathIndex += 1;
+                if (pathIndex >= path.size())
+                {
+                    path = null;
+                }
+                return;
+            }
+
+            // Direction & animation
+            if (Math.abs(dx) > Math.abs(dy))
+                character.setDirection(dx > 0 ? AbstractCharacter.Direction.RIGHT : AbstractCharacter.Direction.LEFT);
+            else
+                character.setDirection(dy > 0 ? AbstractCharacter.Direction.UP : AbstractCharacter.Direction.DOWN);
+
+            character.updateAnimation(delta);
+
+            float nx = dx / dist;
+            float ny = dy / dist;
+
+            float moveSpeed = speed;
+            pos.x += nx * moveSpeed * delta;
+            pos.y += ny * moveSpeed * delta;
+
+            return; // skip manual key movement if following path
+        }
+
         float rawDx = (Gdx.input.isKeyPressed(rightKey) ? 1 : 0)
                 - (Gdx.input.isKeyPressed(leftKey)  ? 1 : 0);
         float rawDy = (Gdx.input.isKeyPressed(upKey)    ? 1 : 0)
@@ -105,5 +157,21 @@ public class CharacterController
         downKey = down;
         leftKey = left;
         rightKey = right;
+    }
+
+    public void moveToPath(ArrayList<Point> path)
+    {
+        if (path == null || path.size() < 2) {
+            return;
+        }
+
+        this.path = path;
+        this.pathIndex = 1;
+    }
+
+    public void endWalk()
+    {
+        this.path = null;
+        this.pathIndex = 0;
     }
 }

@@ -168,16 +168,34 @@ public final class TestScreen implements Screen
             if (tile != null)
             {
                 System.out.println("Clicked Tile (x: " + tile.getX() + ", y: " + tile.getY() + ") - " + tile.getTexture());
-                for (int i = 0; i < farm.getDepth(); i++)
+//                for (int i = 0; i < farm.getDepth(); i++)
+//                {
+//                    Tile layerTile = farm.getLayerTiles()[i][tile.getY()][tile.getX()];
+//                    if (layerTile != null)
+//                    {
+//                        System.out.println("Layer " + i + ": " + layerTile.getTypeName());
+//                    } else
+//                    {
+//                        System.out.println("Layer " + i + ": null");
+//                    }
+//                }
+            }
+        }
+
+        if (Gdx.input.isButtonJustPressed(Input.Buttons.RIGHT))
+        {
+            Point clicked = farm.screenToTile(Gdx.input.getX(), Gdx.input.getY(), cam);
+
+            if (clicked != null)
+            {
+                Vector2 playerPos = player.getPosition();
+                Point playerTile = farm.worldToTile(playerPos.x, playerPos.y);
+
+                ArrayList<Point> path = farm.findShortestPath(playerTile, clicked);
+
+                if (path != null)
                 {
-                    Tile layerTile = farm.getLayerTiles()[i][tile.getY()][tile.getX()];
-                    if (layerTile != null)
-                    {
-                        System.out.println("Layer " + i + ": " + layerTile.getTypeName());
-                    } else
-                    {
-                        System.out.println("Layer " + i + ": null");
-                    }
+                    characterController.moveToPath(path);
                 }
             }
         }

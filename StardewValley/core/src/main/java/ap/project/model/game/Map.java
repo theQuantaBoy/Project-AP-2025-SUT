@@ -179,6 +179,7 @@ public abstract class Map
             case FLOWER:
             case FLOOR:
             case BED_TILE:
+            case EMPTY:
                 return true;
 
             case LAKE:
@@ -190,7 +191,7 @@ public abstract class Map
             case BUILDING:
             case CITY_BOARD:
             case TREE:
-            case EMPTY:
+//            case EMPTY:
             case BOOK:
             case LAMP:
             case TABLE:
