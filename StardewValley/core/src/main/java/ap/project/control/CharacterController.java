@@ -84,7 +84,9 @@ public class CharacterController
             pos.x += nx * moveSpeed * delta;
             pos.y += ny * moveSpeed * delta;
 
-            return; // skip manual key movement if following path
+            App.getCurrentGame().getCurrentPlayer().increaseEnergy(-0.8f * delta);
+
+            return;
         }
 
         float rawDx = (Gdx.input.isKeyPressed(rightKey) ? 1 : 0)
