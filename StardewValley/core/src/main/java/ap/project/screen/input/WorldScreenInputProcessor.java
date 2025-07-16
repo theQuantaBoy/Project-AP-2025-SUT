@@ -73,11 +73,20 @@ public class WorldScreenInputProcessor implements InputProcessor
                 }
             }
         }
-
         return true;
     }
 
-    @Override public boolean keyDown(int keycode)  { return false; }
+    @Override
+    public boolean keyDown(int keycode)
+    {
+        if (!worldScreen.isDialogVisible() && Gdx.input.isKeyJustPressed(Input.Keys.T))
+        {
+            worldScreen.showTestDialog();
+            return true;
+        }
+        return false;
+    }
+
     @Override public boolean keyUp(int keycode)    { return false; }
     @Override public boolean keyTyped(char character) { return false; }
     @Override public boolean touchUp(int x, int y, int p, int b) { return false; }
