@@ -50,6 +50,15 @@ public class Time
         day += dayNum;
         totalDaysPassed += dayNum;
 
+        if (day > 28)
+        {
+            int seasonNum = ((day - 29) / 28) + 1;
+            day = ((day - 29) % 28) + 1;
+            season = season.update(seasonNum);
+        }
+
+        updateWeather();
+
         for (int i = 0; i < dayNum; i++)
         {
             if (hasCheated)
@@ -57,18 +66,10 @@ public class Time
                 App.getCurrentGame().waterAllFarmPlants();
             }
 
-            App.getCurrentGame().endDay();
+//            App.getCurrentGame().endDay();
         }
 
-        updateWeather();
         friendshipUpdate();
-
-        if (day > 28)
-        {
-            int seasonNum = ((day - 29) / 28) + 1;
-            day = ((day - 29) % 28) + 1;
-            season = season.update(seasonNum);
-        }
 
         Game game = App.getCurrentGame();
     }

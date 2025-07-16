@@ -3,7 +3,8 @@ package ap.project.model.enums.regex_enums;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public enum GeneralCommands implements Command
+public
+                enum GeneralCommands implements Command
 {
     /* Player Commands */
     ENERGY_SHOW("energy show"),

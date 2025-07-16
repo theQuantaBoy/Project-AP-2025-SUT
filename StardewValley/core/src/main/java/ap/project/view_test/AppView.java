@@ -14,6 +14,8 @@ import java.util.concurrent.Executors;
 
 public class AppView
 {
+    private static boolean first = true;
+
     public void runInConsole()
     {
         Scanner scanner = new Scanner(System.in);
@@ -58,9 +60,10 @@ public class AppView
             TerminalScreen.endCommand();                      // unchanged
         });
 
-        if (App.getCurrentMenu() == Menu.GameMenu)
+        if (first && (App.getCurrentMenu() == Menu.GameMenu))
         {
             Main.getApp().setScreen(new TestScreen());
+//            first = false;
         }
 
     }
