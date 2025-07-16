@@ -66,7 +66,8 @@ public class PreGameController
         for (int i = 0; i < users.size(); i++)
         {
             User thisUser = users.get(i);
-            Player player = new Player(thisUser, MapTypes.FOREST, i);
+//            Player player = new Player(thisUser, MapTypes.STANDARD, i);
+            Player player = new Player(thisUser, MapTypes.STANDARD, i);
             players.add(player);
         }
 

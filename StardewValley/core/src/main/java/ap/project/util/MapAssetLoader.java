@@ -13,7 +13,7 @@ public final class MapAssetLoader
 {
     public static LoadedMap loadFromTmx(String baseMapName, Season season)
     {
-        String fileName = String.format("maps/%s/%s_%s.tmx", baseMapName, baseMapName, season.getName());
+        String fileName = String.format("maps/farm/%s/%s_%s.tmx", baseMapName, baseMapName, season.getName());
         return new LoadedMap(fileName);
     }
 

@@ -26,7 +26,7 @@ public class Farm extends Map
     public Farm(MapTypes farmType) {
         this.mapType = farmType;
 
-        MapAssetLoader.LoadedMap loaded = MapAssetLoader.loadFromTmx("forest", Season.Spring);
+        MapAssetLoader.LoadedMap loaded = MapAssetLoader.loadFromTmx(farmType.getName(), Season.Spring);
 
         this.WIDTH = loaded.width;
         this.HEIGHT = loaded.height;

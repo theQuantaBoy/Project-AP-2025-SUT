@@ -46,7 +46,7 @@ public final class TestScreen implements Screen
 
     private Season season = Season.Spring;
 
-    private final boolean SECOND_PLAYER = true;
+    private final boolean SECOND_PLAYER = false;
     private PlayerCharacter player2;
     private CharacterController controller2;
 
@@ -69,7 +69,7 @@ public final class TestScreen implements Screen
         time = game.getCurrentTime();
         currentSeason = time.getSeason();
 
-        Vector2 spawn = new Vector2(60 * TILE_SIZE, 60 * TILE_SIZE);
+        Vector2 spawn = new Vector2(10 * TILE_SIZE, 10 * TILE_SIZE);
         player = new PlayerCharacter(CharacterType.ABIGAIL, spawn);
         characterController = new CharacterController(player, farm, PLAYER_SPEED, TILE_SIZE);
         characterRenderer = new CharacterRenderer();
