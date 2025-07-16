@@ -9,10 +9,12 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
@@ -21,6 +23,7 @@ public class ProfileMenu implements Screen {
     private Stage stage;
     private Image background;
     private Image logo;
+    private Image avatar;
     private Label menuName;
     private Label nickname;
     private Table rootTable;
@@ -31,6 +34,7 @@ public class ProfileMenu implements Screen {
     private TextField field1;
     private TextField field2;
     private TextButton random;
+    private SelectBox<AvatarOptions> avatarOption;
     private TextButton change;
     private TextButton backButton;
     private Label error;
@@ -45,6 +49,7 @@ public class ProfileMenu implements Screen {
         this.background = new Image(GameAssetsManager.getGameAssetsManager().getRegisterBackground());
         this.background.setFillParent(true);
         this.logo = new Image(GameAssetsManager.getGameAssetsManager().getLogo());
+        this.avatar = new Image(user.getAvatar());
         this.menuName = new Label("PROFILE\nMENU", GameAssetsManager.getGameAssetsManager().getSkin());
         this.menuName.setAlignment(Align.center);
         this.menuName.setColor(Color.GOLD);
@@ -59,6 +64,10 @@ public class ProfileMenu implements Screen {
         this.field1 = new TextField("", GameAssetsManager.getGameAssetsManager().getSkin());
         this.field2 = new TextField("", GameAssetsManager.getGameAssetsManager().getSkin());
         this.random = new TextButton("Random", GameAssetsManager.getGameAssetsManager().getSkin());
+        this.avatarOption = new SelectBox<>(GameAssetsManager.getGameAssetsManager().getSkin());
+        this.avatarOption.setItems(GameAssetsManager.getGameAssetsManager().getAvatars());
+        this.avatarOption.setWidth(300);
+        this.avatarOption.getStyle().fontColor = Color.CYAN;
         this.change = new TextButton("Change", GameAssetsManager.getGameAssetsManager().getSkin());
         this.backButton = new TextButton("Back", GameAssetsManager.getGameAssetsManager().getSkin());
         this.error = new Label("", GameAssetsManager.getGameAssetsManager().getSkin());
@@ -89,6 +98,17 @@ public class ProfileMenu implements Screen {
     }
 
     private void addListeners() {
+        avatarOption.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                field1.setVisible(false);
+                field2.setVisible(false);
+                random.setVisible(false);
+                change.setVisible(false);
+                avatar.setDrawable(new TextureRegionDrawable(avatarOption.getSelected().texture));
+                user.setAvatar(avatarOption.getSelected().texture);
+            }
+        });
         changeUsernameButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
@@ -229,6 +249,8 @@ public class ProfileMenu implements Screen {
         stage.addActor(menuName);
         stage.addActor(nickname);
         stage.addActor(rootTable);
+        stage.addActor(avatar);
+        stage.addActor(avatarOption);
         positionElements();
     }
 
@@ -283,6 +305,8 @@ public class ProfileMenu implements Screen {
         float labelRightX = stage.getWidth() - nickname.getPrefWidth() - 100;
         float labelTopY = stage.getHeight() - menuName.getHeight() - 20;
         menuName.setPosition(labelLeftX, labelTopY);
+        avatar.setPosition( labelLeftX + 10, labelTopY - avatar.getHeight() - 40);
+        avatarOption.setPosition(labelLeftX + 100, labelTopY - avatar.getHeight() - 43);
         nickname.setPosition(labelRightX - nickname.getPrefWidth(), labelTopY - nickname.getHeight());
 
 

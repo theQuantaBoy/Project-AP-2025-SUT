@@ -2,9 +2,11 @@ package ap.project.model.App;
 
 import ap.project.model.game.Game;
 import ap.project.model.enums.Gender;
+import com.badlogic.gdx.graphics.Texture;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Random;
 
 public class User {
     private String username;
@@ -15,6 +17,8 @@ public class User {
     private String question;
     private String answer;
     private boolean stay;
+
+    private Texture avatar;
 
     private int numberOfGames = 0;
     private Game currentGame = null;
@@ -42,6 +46,7 @@ public class User {
         this.gender = gender;
         this.question = secQ;
         this.answer = secA;
+        this.avatar = getRandomAvatar();
     }
 
     public String getUsername() {
@@ -137,6 +142,18 @@ public class User {
     public Game getCurrentGame()
     {
         return currentGame;
+    }
+
+    private Texture getRandomAvatar() {
+        return GameAssetsManager.getGameAssetsManager().getAvatars().random().texture;
+    }
+
+    public Texture getAvatar() {
+        return avatar;
+    }
+
+    public void setAvatar(Texture avatar) {
+        this.avatar = avatar;
     }
 }
 

@@ -1,5 +1,6 @@
 package ap.project.control;
 
+import ap.project.model.enums.TileTexture;
 import ap.project.model.game.AbstractCharacter;
 import ap.project.model.game.Farm;
 import ap.project.model.game.Point;
@@ -83,6 +84,19 @@ public class CharacterController
         if (!blocked)
         {
             pos.set(nextX, nextY);
+            character.decreaseEnergy(0.8f * delta);
+            character.updateAnimation(delta);
+
+            // set animation
+            if (Math.abs(dx) > 0) {
+                character.setDirection(dx > 0 ? AbstractCharacter.Direction.RIGHT : AbstractCharacter.Direction.LEFT);
+            } else
+            {
+                character.setDirection(dy > 0 ? AbstractCharacter.Direction.UP : AbstractCharacter.Direction.DOWN);
+            }
+
+        } else {
+            character.resetAnimation();
         }
     }
 

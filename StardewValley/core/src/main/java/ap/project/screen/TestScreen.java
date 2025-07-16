@@ -12,6 +12,8 @@ import ap.project.visual.MapVisual;
 import ap.project.visual.UIRenderer;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.InputAdapter;
+import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -21,6 +23,8 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
 public final class TestScreen implements Screen
 {
@@ -33,22 +37,21 @@ public final class TestScreen implements Screen
 
     private final OrthographicCamera cam;
     private final OrthographicCamera uiCam = new OrthographicCamera();
-
     private final PlayerCharacter player;
     private CharacterController characterController;
     private final CharacterRenderer characterRenderer;
-
     private Farm farm;
     private final UIRenderer uiRenderer;
 
     private Point hoveredTile = null;
     private final ShapeRenderer shapeRenderer = new ShapeRenderer();
-
     private Season season = Season.Spring;
 
     private final boolean SECOND_PLAYER = false;
     private PlayerCharacter player2;
     private CharacterController controller2;
+    private InventoryWindow inventoryWindow;
+    private Stage stage;
 
     private final Time time;
     private Season currentSeason;
@@ -85,6 +88,30 @@ public final class TestScreen implements Screen
         ShaderProgram.pedantic = false;
 
         uiRenderer = new UIRenderer(time);
+        uiRenderer = new UIRenderer(new Time(), player);
+        stage = new Stage(new ScreenViewport());
+        inventoryWindow = new InventoryWindow(stage);
+    }
+
+    @Override
+    public void show() {
+        InputMultiplexer multiplexer = new InputMultiplexer();
+        multiplexer.addProcessor(stage);
+        multiplexer.addProcessor(new InputAdapter() {
+            @Override
+            public boolean keyDown(int keycode) {
+                if (keycode == Input.Keys.E || keycode == Input.Keys.ESCAPE) {
+                    inventoryWindow.toggleVisibility();
+                    return true;
+                }
+                if (keycode == Input.Keys.NUM_1) changeSeason(Season.Spring);
+                if (keycode == Input.Keys.NUM_2) changeSeason(Season.Summer);
+                if (keycode == Input.Keys.NUM_3) changeSeason(Season.Fall);
+                if (keycode == Input.Keys.NUM_4) changeSeason(Season.Winter);
+                return false;
+            }
+        });
+        Gdx.input.setInputProcessor(multiplexer);
     }
 
     @Override
@@ -94,7 +121,6 @@ public final class TestScreen implements Screen
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         update(dt);
-
         cam.update();
 
         farm.getMapVisual().render(cam);
@@ -133,6 +159,10 @@ public final class TestScreen implements Screen
             shapeRenderer.end();
             Gdx.gl.glDisable(GL20.GL_BLEND);
         }
+
+        // Render stage (UI elements)
+        stage.act(dt);
+        stage.draw();
     }
 
     private void update(float dt)
@@ -182,14 +212,19 @@ public final class TestScreen implements Screen
         // --- UI camera uses raw screen pixels (0,0 bottom-left)
         uiCam.setToOrtho(false, w, h);
         uiCam.update();
+
+        // Stage viewport
+        stage.getViewport().update(w, h, true);
     }
 
     @Override public void pause(){}  @Override public void resume(){}
-    @Override public void show(){}   @Override public void hide(){}
+    @Override public void hide(){}
     @Override public void dispose(){
         farm.getMapVisual().dispose();
         uiRenderer.dispose();
         shapeRenderer.dispose();
+        stage.dispose();
+        autumnShader.dispose();
     }
 
     private void updateSeason()
