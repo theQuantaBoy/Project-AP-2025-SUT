@@ -13,6 +13,10 @@ import ap.project.model.enums.resources_enums.*;
 import ap.project.model.resources.*;
 import ap.project.util.MapAssetLoader;
 import ap.project.visual.MapVisual;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.math.Vector2;
 import com.fasterxml.jackson.databind.type.MapType;
 
 import java.util.*;
@@ -22,6 +26,7 @@ public class Farm extends Map
     private Point homePoint;
     private ArrayList<Tile> lakeTiles = new ArrayList<>();
     private ArrayList<AnimalBuilding> animalBuildings = new ArrayList<>();
+    private ArrayList<Tile> tilesWithResources = new ArrayList<>();
 
     public Farm(MapTypes farmType) {
         this.mapType = farmType;
@@ -32,11 +37,13 @@ public class Farm extends Map
         this.HEIGHT = loaded.height;
         this.tiledMap = loaded.tiledMap;
         this.tiles = loaded.tiles;
+        this.layerTiles = loaded.layerTiles;
+        this.depth = loaded.depth;
 
-        this.visual = new MapVisual(loaded.tiledMap);
+        this.visual = new MapVisual(this, loaded.tiledMap);
 
 //        applyMap();
-//        setRandomItems();
+        setRandomItems();
 
 //        ArrayList<Tile> cabinNeighbors = getHouseNeighborTiles();
 //        Random rand = new Random();
@@ -87,26 +94,33 @@ public class Farm extends Map
 
     private void setRandomItems()
     {
-        int randomItemsCount = getFreeTiles().size() / 50;
+        int randomItemsCount = getFreeTiles().size() / 60;
 
         for (int i = 0; i < randomItemsCount / 3; i++)
         {
             Tile random = getRandomFreeTile();
             random.setObject(new Resource(ResourceItem.STONE));
+            tilesWithResources.add(random);
         }
 
         for (int i = 0; i < randomItemsCount / 3; i++)
         {
             Tile random = getRandomFreeTile();
             random.setObject(new Resource(ResourceItem.WOOD));
+            tilesWithResources.add(random);
         }
+//
+//        for (int i = 0; i < randomItemsCount / 3; i++)
+//        {
+//            Tile random = getRandomFreeTile();
+//            ForagingTreeType type = randomItem(ForagingTreeType.class);
+//            random.setObject(new ForagingTree(type));
+//        }
+    }
 
-        for (int i = 0; i < randomItemsCount / 3; i++)
-        {
-            Tile random = getRandomFreeTile();
-            ForagingTreeType type = randomItem(ForagingTreeType.class);
-            random.setObject(new ForagingTree(type));
-        }
+    public ArrayList<Tile> getTilesWithResources()
+    {
+        return tilesWithResources;
     }
 
     public void setRandomForagingItems()

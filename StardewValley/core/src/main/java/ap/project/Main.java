@@ -1,13 +1,6 @@
 package ap.project;
 
-import ap.project.control.MainMenuController;
 import ap.project.control.RegisterController;
-import ap.project.model.App.App;
-import ap.project.model.App.User;
-import ap.project.model.enums.Gender;
-import ap.project.model.enums.SecurityQuestionType;
-import ap.project.model.game.Player;
-import ap.project.screen.MainScreen;
 import ap.project.screen.RegisterScreen;
 import ap.project.screen.TerminalScreen;
 import ap.project.screen.TestScreen;
@@ -39,10 +32,14 @@ public class Main extends com.badlogic.gdx.Game
         Gdx.graphics.setCursor(Gdx.graphics.newCursor(cursorPixmap, hotspotX, hotspotY));
         cursorPixmap.dispose();
 
-        User newUser = new User("arash", "a36213126A@", "arash", "arash@gmail.com", Gender.MALE, SecurityQuestionType.ANIMAL.getQuestion(), "cat");
-        App.setCurrentUser(newUser);
-        app.setScreen(new MainScreen(new MainMenuController()));
+//        User newUser = new User("arash", "a36213126A@", "arash", "arash@gmail.com", Gender.MALE, SecurityQuestionType.ANIMAL.getQuestion(), "cat");
+//        App.setCurrentUser(newUser);
+//        app.setScreen(new MainScreen(new MainMenuController()));
         //        app.setScreen(new RegisterScreen(new RegisterController()));
+
+        app.setScreen(new WorldScreen());
+
+//        app.setScreen(new RegisterScreen(new RegisterController()));
 
 //        TerminalScreen.run(); // start first input
 //        setScreen(TerminalScreen.getInstance());

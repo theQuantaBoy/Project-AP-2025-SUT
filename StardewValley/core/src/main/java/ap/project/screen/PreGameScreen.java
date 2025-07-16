@@ -1,36 +1,28 @@
 package ap.project.screen;
 
 import ap.project.Main;
-import ap.project.control.LoginController;
 import ap.project.control.MainMenuController;
 import ap.project.control.PreGameController;
-import ap.project.control.ProfileController;
 import ap.project.model.App.App;
 import ap.project.model.App.GameAssetsManager;
 import ap.project.model.App.User;
 import ap.project.model.enums.CharacterType;
 import ap.project.model.enums.MapTypes;
-import ap.project.model.enums.animal_enums.FarmAnimalsType;
-import ap.project.model.game.Farm;
 import ap.project.model.game.Player;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
-import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
 import java.util.ArrayList;
-import java.util.Map;
 
 public class PreGameScreen implements Screen
 {
@@ -117,7 +109,7 @@ public class PreGameScreen implements Screen
                 controller.createGame(players);
                 dispose(); // Dispose of the stage and actors before switching
                 Gdx.input.setInputProcessor(null); // Optional: Clear input processor
-                Main.getApp().setScreen(new TestScreen());
+                Main.getApp().setScreen(new WorldScreen());
             }
         });
 
