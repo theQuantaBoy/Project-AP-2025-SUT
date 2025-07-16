@@ -95,6 +95,8 @@ public class PreGameScreen implements Screen
                     usernames[i] = users.get(i).getUsername();
                 }
                 controller.newGame(usernames);
+                dispose(); // Dispose of the stage and actors before switching
+                Gdx.input.setInputProcessor(null); // Optional: Clear input processor
                 Main.getApp().setScreen(new TestScreen());
             }
         });
@@ -164,6 +166,7 @@ public class PreGameScreen implements Screen
     @Override
     public void dispose()
     {
+        stage.dispose();
     }
 
     private void positionElements()
