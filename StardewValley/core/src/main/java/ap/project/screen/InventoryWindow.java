@@ -13,7 +13,8 @@ public class InventoryWindow {
     private Window popup;
     private Table inventoryTable;
     private Table skillsTable;
-    private Table shippingTable;
+    private Table socialTable;
+    private Table mapTable;
     private Stack contentStack;
     private boolean isVisible = false;
     Skin skin;
@@ -30,20 +31,24 @@ public class InventoryWindow {
         // Tab buttons
         TextButton invTab = new TextButton("Inventory", skin);
         TextButton skillsTab = new TextButton("Skills", skin);
-        TextButton shipTab = new TextButton("Shipping", skin);
+        TextButton socialTab = new TextButton("Social", skin);
+        TextButton mapTab = new TextButton("Map", skin);
 
         // Build content tables
         inventoryTable = buildInventoryTable();
         skillsTable = buildSkillsTable();
-        shippingTable = buildShippingTable();
+        socialTable = buildSocialTable();
+        mapTable = buildMapTable();
 
         // Stack the panels
         contentStack = new Stack();
         contentStack.add(inventoryTable);
         contentStack.add(skillsTable);
-        contentStack.add(shippingTable);
+        contentStack.add(socialTable);
+        contentStack.add(mapTable);
         skillsTable.setVisible(false);
-        shippingTable.setVisible(false);
+        socialTable.setVisible(false);
+        mapTable.setVisible(false);
 
         // Tab switching logic
         invTab.addListener(new ChangeListener() {
@@ -51,7 +56,8 @@ public class InventoryWindow {
             public void changed(ChangeEvent event, Actor actor) {
                 inventoryTable.setVisible(true);
                 skillsTable.setVisible(false);
-                shippingTable.setVisible(false);
+                socialTable.setVisible(false);
+                mapTable.setVisible(false);
                 popup.pack();
                 center(stage);
             }
@@ -61,17 +67,30 @@ public class InventoryWindow {
             public void changed(ChangeEvent event, Actor actor) {
                 inventoryTable.setVisible(false);
                 skillsTable.setVisible(true);
-                shippingTable.setVisible(false);
+                socialTable.setVisible(false);
+                mapTable.setVisible(false);
                 popup.pack();
                 center(stage);
             }
         });
-        shipTab.addListener(new ChangeListener() {
+        socialTab.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 inventoryTable.setVisible(false);
                 skillsTable.setVisible(false);
-                shippingTable.setVisible(true);
+                socialTable.setVisible(true);
+                mapTable.setVisible(false);
+                popup.pack();
+                center(stage);
+            }
+        });
+        mapTab.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                inventoryTable.setVisible(false);
+                skillsTable.setVisible(false);
+                socialTable.setVisible(false);
+                mapTable.setVisible(true);
                 popup.pack();
                 center(stage);
             }
@@ -81,7 +100,8 @@ public class InventoryWindow {
         popup.row();
         popup.add(invTab).expandX().fillX();
         popup.add(skillsTab).expandX().fillX();
-        popup.add(shipTab).expandX().fillX();
+        popup.add(socialTab).expandX().fillX();
+        popup.add(mapTab).expandX().fillX();
         popup.row();
         popup.add(contentStack).colspan(3).expand().fill();
         popup.pack();
@@ -116,11 +136,21 @@ public class InventoryWindow {
         return table;
     }
 
-    private Table buildShippingTable() {
+    private Table buildSocialTable() {
         Table table = new Table(skin);
         table.defaults().pad(4);
         for (int i = 1; i <= 10; i++) {
             table.add(new Label("Item #" + i, skin));
+            table.add(new Label("x" + (int) (Math.random() * 50), skin));
+            table.row();
+        }
+        return table;
+    }
+    private Table buildMapTable() {
+        Table table = new Table(skin);
+        table.defaults().pad(4);
+        for (int i = 1; i <= 10; i++) {
+            table.add(new Label("Map #" + i, skin));
             table.add(new Label("x" + (int) (Math.random() * 50), skin));
             table.row();
         }

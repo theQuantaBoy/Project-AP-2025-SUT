@@ -88,7 +88,7 @@ public final class TestScreen implements Screen {
         multiplexer.addProcessor(new InputAdapter() {
             @Override
             public boolean keyDown(int keycode) {
-                if (keycode == Input.Keys.I) {
+                if (keycode == Input.Keys.E || keycode == Input.Keys.ESCAPE) {
                     inventoryWindow.toggleVisibility();
                     return true;
                 }
