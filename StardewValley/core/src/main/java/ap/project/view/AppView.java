@@ -23,18 +23,18 @@ public class AppView
         } while(App.getCurrentMenu() != Menu.ExitMenu);
     }
 
-    public static void run()
-    {
-        if (App.getCurrentMenu() != Menu.ExitMenu)
-        {
-            TerminalScreen.waitForOutput();
-            App.getCurrentMenu().checkCommand(CommandInput.getScanner());
-            TerminalScreen.endCommand();
-        } else
-        {
-            Gdx.app.exit();
-        }
-    }
+//    public static void run()
+//    {
+//        if (App.getCurrentMenu() != Menu.ExitMenu)
+//        {
+//            TerminalScreen.waitForOutput();
+//            App.getCurrentMenu().checkCommand(CommandInput.getScanner());
+//            TerminalScreen.endCommand();
+//        } else
+//        {
+//            Gdx.app.exit();
+//        }
+//    }
 
     // SINGLE executor for all command jobs
     private static final ExecutorService COMMAND_EXEC =
@@ -44,19 +44,19 @@ public class AppView
             return t;
         });
 
-//    public static void run() {
-//        if (App.getCurrentMenu() == Menu.ExitMenu) {
-//            Gdx.app.exit();
-//            return;
-//        }
-//
-//        // push the whole command-handling job off the render thread
-//        COMMAND_EXEC.execute(() -> {
-//            TerminalScreen.waitForOutput();                    // unchanged
-//            App.getCurrentMenu().checkCommand(
-//                CommandInput.getScanner());               // unchanged
-//            TerminalScreen.endCommand();                      // unchanged
-//        });
-//    }
+    public static void run() {
+        if (App.getCurrentMenu() == Menu.ExitMenu) {
+            Gdx.app.exit();
+            return;
+        }
+
+        // push the whole command-handling job off the render thread
+        COMMAND_EXEC.execute(() -> {
+            TerminalScreen.waitForOutput();                    // unchanged
+            App.getCurrentMenu().checkCommand(
+                CommandInput.getScanner());               // unchanged
+            TerminalScreen.endCommand();                      // unchanged
+        });
+    }
 
 }

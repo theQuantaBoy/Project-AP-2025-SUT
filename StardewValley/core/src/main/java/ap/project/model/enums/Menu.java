@@ -1,6 +1,6 @@
 package ap.project.model.enums;
 
-import ap.project.view_test.*;
+import ap.project.view.*;
 
 import java.util.Scanner;
 

@@ -56,10 +56,30 @@ public class PreGameController
 
         PreGameMenu.println("Users selected successfully.");
 
-        Scanner sc = new Scanner(System.in);
+//        Scanner sc = new Scanner(System.in);
 
-        chooseMaps(users, sc);
-        chooseGender(sc);
+//        chooseMaps(users, sc);
+//        chooseGender(sc);
+
+        ArrayList<Player> players = new ArrayList<>();
+
+        for (int i = 0; i < users.size(); i++)
+        {
+            User thisUser = users.get(i);
+            Player player = new Player(thisUser, MapTypes.FOREST, i);
+            players.add(player);
+        }
+
+        Game game = new Game(players);
+        game.setCurrentPlayer(players.get(0));
+        App.addGame(game);
+        App.setCurrentGame(game);
+        App.setCurrentMenu(Menu.GameMenu);
+        for (User u : users)
+        {
+            u.setCurrentGame(game);
+            u.addToNumberOfGames();
+        }
 
         PreGameMenu.println("New Game created.\n\n" +
                 "Welcome to Stardew Valley!");
@@ -223,7 +243,7 @@ public class PreGameController
         }
     }
 
-    private User getUser(String username)
+    public User getUser(String username)
     {
         for (User user : App.getUsers())
         {

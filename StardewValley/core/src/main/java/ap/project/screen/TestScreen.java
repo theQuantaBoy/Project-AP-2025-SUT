@@ -3,7 +3,6 @@ package ap.project.screen;
 import ap.project.control.CharacterController;
 import ap.project.model.App.App;
 import ap.project.model.enums.Season;
-import ap.project.model.game.Game;
 import ap.project.util.MapAssetLoader;
 import ap.project.visual.CharacterRenderer;
 import ap.project.model.enums.CharacterType;
@@ -11,8 +10,9 @@ import ap.project.model.enums.MapTypes;
 import ap.project.model.game.*;
 import ap.project.visual.MapVisual;
 import ap.project.visual.UIRenderer;
-import com.badlogic.gdx.*;
-import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
+import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.*;
@@ -22,11 +22,11 @@ import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 
-public final class TestScreen implements Screen, InputProcessor
+public final class TestScreen implements Screen
 {
-    public static final float MAP_SCALE = 1.0f;
+    public static final float MAP_SCALE  = 1.0f;
     private static final float CHAR_SCALE = 1f;
-    private static final float TILE_SIZE = 24f * MAP_SCALE;
+    private static final float TILE_SIZE  = 24f * MAP_SCALE;
     private static final float PLAYER_SPEED = 50f * MAP_SCALE;
 
     private final Game game;
@@ -52,9 +52,6 @@ public final class TestScreen implements Screen, InputProcessor
 
     private final Time time;
     private Season currentSeason;
-
-    private final TerminalScreen terminal = TerminalScreen.getInstance();
-    private boolean terminalVisible = false;
 
     public TestScreen()
     {
@@ -88,22 +85,17 @@ public final class TestScreen implements Screen, InputProcessor
         ShaderProgram.pedantic = false;
 
         uiRenderer = new UIRenderer(time);
-
-        terminal.setOverlayMode(true);
-        Gdx.input.setInputProcessor(new InputMultiplexer(terminal, this));
     }
 
     @Override
-    public void render(float dt)
+    public void render (float dt)
     {
-        if (!terminalVisible)
-        {
-            update(dt);
-            cam.update();
-        }
-
         Gdx.gl.glClearColor(0f, 0f, 0f, 1f);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+
+        update(dt);
+
+        cam.update();
 
         farm.getMapVisual().render(cam);
 
@@ -121,8 +113,7 @@ public final class TestScreen implements Screen, InputProcessor
 
         uiRenderer.renderDarkOverlay(uiCam);
 
-        if (hoveredTile != null)
-        {
+        if (hoveredTile != null) {
             Gdx.gl.glEnable(GL20.GL_BLEND);
             Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA); // ← add this
 
@@ -142,40 +133,7 @@ public final class TestScreen implements Screen, InputProcessor
             shapeRenderer.end();
             Gdx.gl.glDisable(GL20.GL_BLEND);
         }
-
-        if (terminalVisible)
-        {
-            shapeRenderer.setProjectionMatrix(uiCam.combined);
-            shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-            shapeRenderer.setColor(0, 0, 0, 0.35f);
-            shapeRenderer.rect(0, 0, uiCam.viewportWidth, uiCam.viewportHeight);
-            shapeRenderer.end();
-
-            terminal.render(dt);  // ← draws the CLI on top
-        }
     }
-
-    @Override
-    public boolean keyDown(int key) {
-        if (key == Input.Keys.TAB) {
-            terminalVisible = !terminalVisible;
-            if (terminalVisible)
-                Gdx.input.setInputProcessor(new InputMultiplexer(terminal, this));
-            return true;
-        }
-        return false;
-    }
-
-    /* ---- required no‑op stubs ---- */
-    @Override public boolean keyUp(int keycode)            { return false; }
-    @Override public boolean keyTyped(char character)      { return false; }
-    @Override public boolean touchDown(int x,int y,int p,int b){ return false; }
-    @Override public boolean touchUp(int x,int y,int p,int b){ return false; }
-    @Override public boolean touchCancelled(int screenX, int screenY, int pointer, int button) { return false; }
-
-    @Override public boolean touchDragged(int x,int y,int p){ return false; }
-    @Override public boolean mouseMoved(int x,int y)       { return false; }
-    @Override public boolean scrolled(float amountX,float amountY){ return false; }
 
     private void update(float dt)
     {
@@ -184,78 +142,51 @@ public final class TestScreen implements Screen, InputProcessor
 
         updateSeason();
 
-        cam.position.set(player.getPosition().x + TILE_SIZE / 2, player.getPosition().y + TILE_SIZE / 2, 0);
+        cam.position.set(player.getPosition().x + TILE_SIZE/2, player.getPosition().y + TILE_SIZE/2, 0);
 
-        float mapPixelW = farm.getWIDTH() * TILE_SIZE;
+        float mapPixelW = farm.getWIDTH()  * TILE_SIZE;
         float mapPixelH = farm.getHEIGHT() * TILE_SIZE;
 
         cam.position.x = MathUtils.clamp(cam.position.x,
-                cam.viewportWidth / 2, mapPixelW - cam.viewportWidth / 2);
+            cam.viewportWidth  /2, mapPixelW  - cam.viewportWidth /2);
         cam.position.y = MathUtils.clamp(cam.position.y,
-                cam.viewportHeight / 2, mapPixelH - cam.viewportHeight / 2);
+            cam.viewportHeight /2, mapPixelH - cam.viewportHeight/2);
 
-        if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT))
-        {
+        if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
             float mouseX = Gdx.input.getX();
             float mouseY = Gdx.input.getY() + (60); // Hard-Coded
 
             hoveredTile = farm.screenToTile(mouseX, mouseY, cam);
             Tile tile = farm.getTile(hoveredTile.getX(), hoveredTile.getY());
 
-            if (tile != null)
-            {
+            if (tile != null) {
                 System.out.println("Clicked Tile (x: " + tile.getX() + ", y: " + tile.getY() + ") - " + tile.getTexture());
             }
         }
     }
 
     @Override
-    public void resize(int w, int h)
-    {
+    public void resize(int w, int h) {
         // keep a 4:3 virtual viewport (letter‑box if needed)
         float targetRatio = 4f / 3f;
         float currentRatio = (float) w / h;
 
-        if (currentRatio > targetRatio)
-        {             // too wide → pillarbox
+        if (currentRatio > targetRatio) {             // too wide → pillarbox
             cam.viewportHeight = 15 * TILE_SIZE;
-            cam.viewportWidth = cam.viewportHeight * currentRatio;
-        } else
-        {                                      // too tall → letterbox
-            cam.viewportWidth = 20 * TILE_SIZE;
+            cam.viewportWidth  = cam.viewportHeight * currentRatio;
+        } else {                                      // too tall → letterbox
+            cam.viewportWidth  = 20 * TILE_SIZE;
             cam.viewportHeight = cam.viewportWidth / currentRatio;
         }
 
         // --- UI camera uses raw screen pixels (0,0 bottom-left)
         uiCam.setToOrtho(false, w, h);
         uiCam.update();
-
-        terminal.resize(w,h);
     }
 
-    @Override
-    public void pause()
-    {
-    }
-
-    @Override
-    public void resume()
-    {
-    }
-
-    @Override
-    public void show()
-    {
-    }
-
-    @Override
-    public void hide()
-    {
-    }
-
-    @Override
-    public void dispose()
-    {
+    @Override public void pause(){}  @Override public void resume(){}
+    @Override public void show(){}   @Override public void hide(){}
+    @Override public void dispose(){
         farm.getMapVisual().dispose();
         uiRenderer.dispose();
         shapeRenderer.dispose();
@@ -268,7 +199,8 @@ public final class TestScreen implements Screen, InputProcessor
             MapAssetLoader.LoadedMap loaded = MapAssetLoader.loadFromTmx(farm.getMapType().getName(), time.getSeason());
             TiledMap tiledMap = loaded.tiledMap;
             farm.setVisual(new MapVisual(tiledMap));
-            currentSeason = time.getSeason();
         }
+
+        currentSeason = time.getSeason();
     }
 }

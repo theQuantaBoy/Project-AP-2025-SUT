@@ -2,7 +2,7 @@ package ap.project.screen;
 
 import ap.project.model.App.CommandInput;
 import ap.project.model.App.TerminalEntry;
-import ap.project.view_test.AppView;
+import ap.project.view.AppView;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
