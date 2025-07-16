@@ -1,5 +1,6 @@
 package ap.project.control;
 
+import ap.project.model.App.App;
 import ap.project.model.enums.TileTexture;
 import ap.project.model.game.AbstractCharacter;
 import ap.project.model.game.Farm;
@@ -84,7 +85,7 @@ public class CharacterController
         if (!blocked)
         {
             pos.set(nextX, nextY);
-            character.decreaseEnergy(0.8f * delta);
+            App.getCurrentGame().getCurrentPlayer().increaseEnergy(-0.8f * delta);
             character.updateAnimation(delta);
 
             // set animation

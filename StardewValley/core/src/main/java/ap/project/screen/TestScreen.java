@@ -87,8 +87,8 @@ public final class TestScreen implements Screen
 
         ShaderProgram.pedantic = false;
 
+
         uiRenderer = new UIRenderer(time);
-        uiRenderer = new UIRenderer(new Time(), player);
         stage = new Stage(new ScreenViewport());
         inventoryWindow = new InventoryWindow(stage);
     }
@@ -104,10 +104,6 @@ public final class TestScreen implements Screen
                     inventoryWindow.toggleVisibility();
                     return true;
                 }
-                if (keycode == Input.Keys.NUM_1) changeSeason(Season.Spring);
-                if (keycode == Input.Keys.NUM_2) changeSeason(Season.Summer);
-                if (keycode == Input.Keys.NUM_3) changeSeason(Season.Fall);
-                if (keycode == Input.Keys.NUM_4) changeSeason(Season.Winter);
                 return false;
             }
         });
@@ -224,7 +220,6 @@ public final class TestScreen implements Screen
         uiRenderer.dispose();
         shapeRenderer.dispose();
         stage.dispose();
-        autumnShader.dispose();
     }
 
     private void updateSeason()

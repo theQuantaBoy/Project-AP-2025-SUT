@@ -337,7 +337,7 @@ public class GeneralController
         Map map = player.getCurrentMap();
 
         int requiredEnergy = map.calculateEnergy(player.getLocation(), destination);
-        int energy = player.getTurnEnergy();
+        float energy = player.getTurnEnergy();
 
         if (requiredEnergy == -1)
         {
@@ -367,7 +367,7 @@ public class GeneralController
         Map map = player.getCurrentMap();
 
         int requiredEnergy = map.calculateEnergy(player.getLocation(), destination);
-        int energy = player.getTurnEnergy();
+        float energy = player.getTurnEnergy();
 
         if (requiredEnergy == -1)
         {

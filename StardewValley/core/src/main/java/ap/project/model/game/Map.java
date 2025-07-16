@@ -306,7 +306,7 @@ public abstract class Map
         return turns;
     }
 
-    public Point findFurthestAvailablePoint(Point origin, Point destination, int availableEnergy)
+    public Point findFurthestAvailablePoint(Point origin, Point destination, float availableEnergy)
     {
         ArrayList<Point> path = findShortestPath(origin, destination);
 

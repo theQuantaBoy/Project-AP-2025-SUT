@@ -34,9 +34,9 @@ public class Player {
     private Point location = null;
     private Map currentMap = null;
 
-    private int energy;
-    private int maxEnergy = 200;
-    private int turnEnergy = 50;
+    private float energy;
+    private float maxEnergy = 200f;
+    private float turnEnergy = 50f;
     private boolean fainted = false;
 
     private Skill farmingSkill = new Skill(SkillType.Farming);
@@ -123,8 +123,8 @@ public class Player {
         this.cabin = new Cabin();
         this.greenHouse = new GreenHouse();
 //        this.currentMap = this.farm;
-        this.energy = 200;
-        this.turnEnergy = 50;
+        this.energy = 200f;
+        this.turnEnergy = 50f;
         this.fainted = false;
         this.money = 0;
         this.addToInventory(new Axe());
@@ -148,8 +148,8 @@ public class Player {
         this.cabin = new Cabin();
         this.greenHouse = new GreenHouse();
         this.currentMap = this.farm;
-        this.energy = 200;
-        this.turnEnergy = 50;
+        this.energy = 200f;
+        this.turnEnergy = 50f;
         this.fainted = false;
         this.money = 0;
         this.addToInventory(new Axe());
@@ -185,15 +185,15 @@ public class Player {
         this.friendships.put(player, data);
     }
 
-    public int getEnergy() {
+    public float getEnergy() {
         return energy;
     }
 
-    public void setEnergy(int energy) {
+    public void setEnergy(float energy) {
         this.energy = energy;
     }
 
-    public void increaseEnergy(int energy)
+    public void increaseEnergy(float energy)
     {
         if (energy != -1)
         {
@@ -203,15 +203,15 @@ public class Player {
         // TODO: add faint check mechanism
     }
 
-    public int getTurnEnergy() {
+    public float getTurnEnergy() {
         return turnEnergy;
     }
 
-    public void setTurnEnergy(int turnEnergy) {
+    public void setTurnEnergy(float turnEnergy) {
         this.turnEnergy = turnEnergy;
     }
 
-    public void increaseTurnEnergy(int turnEnergy)
+    public void increaseTurnEnergy(float turnEnergy)
     {
         if (this.turnEnergy != -1)
         {
@@ -219,11 +219,11 @@ public class Player {
         }
     }
 
-    public int getMaxEnergy() {
+    public float getMaxEnergy() {
         return this.maxEnergy;
     }
 
-    public void setMaxEnergy(int maxEnergy) {
+    public void setMaxEnergy(float maxEnergy) {
         this.maxEnergy = maxEnergy;
     }
 
@@ -425,6 +425,10 @@ public class Player {
         if (this.turnEnergy < 1) {
             this.setFainted(true);
         }
+    }
+
+    public float getEnergyPercentage() {
+        return this.energy / this.maxEnergy;
     }
 
     public Tool getTool(ToolType type)

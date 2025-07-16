@@ -1,6 +1,8 @@
 package ap.project.visual;
 
+import ap.project.model.App.App;
 import ap.project.model.enums.DayOfWeek;
+import ap.project.model.game.Player;
 import ap.project.model.game.PlayerCharacter;
 import ap.project.model.game.Time;
 import com.badlogic.gdx.Gdx;
@@ -25,9 +27,9 @@ public class UIRenderer {
     private final Time time;
 
     private final ShapeRenderer shapeRenderer = new ShapeRenderer();;
-    PlayerCharacter player;
+    Player player;
 
-    public UIRenderer(Time time, PlayerCharacter player) {
+    public UIRenderer(Time time) {
         this.time = time;
         shapeRenderer.setAutoShapeType(true);
         clockTexture = new Texture(Gdx.files.internal("clock/clock.png"));
@@ -55,7 +57,7 @@ public class UIRenderer {
 
         font = new BitmapFont(Gdx.files.internal("fonts/Stardew_Valley.fnt"));
         font.getRegion().getTexture().setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
-        this.player = player;
+        this.player = App.getCurrentGame().getCurrentPlayer();
 
     }
 
@@ -163,7 +165,7 @@ public class UIRenderer {
         batch.begin();
         font.getData().setScale(1.0f);
         font.setColor(Color.WHITE);
-        String energyText = Math.round(player.getCurrentEnergy()) + "/100";
+        String energyText = Math.round(player.getEnergy()) + "/" + Math.round(player.getMaxEnergy());
         int textX = barX - 100;
         int textY = barY + barHeight/2 + 5;
         font.draw(batch, energyText, textX, textY);
