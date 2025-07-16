@@ -35,6 +35,16 @@ public enum MapTypes
         return name;
     }
 
+    public static ArrayList<MapTypes> getFarms()
+    {
+        ArrayList<MapTypes> mapNames = new ArrayList<>();
+        mapNames.add(STANDARD);
+        mapNames.add(FOREST);
+//        mapNames.add(HILL_TOP.getName());
+//        mapNames.add(BEACH.getName());
+        return mapNames;
+    }
+
     public String getMapPath()
     {
         return mapPath;

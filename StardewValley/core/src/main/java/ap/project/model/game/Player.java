@@ -102,6 +102,11 @@ public class Player {
 
     private MapTypes mapType;
 
+    public void setMapType(MapTypes mapType)
+    {
+        this.mapType = mapType;
+    }
+
     public MapTypes getMapType()
     {
         return mapType;
