@@ -2,6 +2,8 @@ package ap.project.screen;
 
 import ap.project.control.CharacterController;
 import ap.project.model.App.App;
+import ap.project.model.App.User;
+import ap.project.model.enums.Gender;
 import ap.project.model.enums.Season;
 import ap.project.util.MapAssetLoader;
 import ap.project.visual.CharacterRenderer;
@@ -21,6 +23,10 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
+
+import javax.sound.midi.Soundbank;
+import java.util.ArrayList;
+import java.util.List;
 
 public final class TestScreen implements Screen
 {
@@ -58,7 +64,9 @@ public final class TestScreen implements Screen
         cam = new OrthographicCamera(20 * TILE_SIZE, 15 * TILE_SIZE);
         cam.setToOrtho(false);
 
-        this.game = App.getCurrentGame();
+        this.game = new Game(new ArrayList<>(List.of(new Player(new User("","","","", Gender.FEMALE, "", ""), MapTypes.STANDARD, 0))));
+
+//        this.game = App.getCurrentGame();
         for (Player p : game.getPlayers())
         {
             Farm f = new Farm(p.getMapType());
@@ -122,12 +130,12 @@ public final class TestScreen implements Screen
             shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
             shapeRenderer.setColor(1f, 0f, 0f, 0.3f);
 
-            Tile tile = farm.getTile(hoveredTile.getX(), hoveredTile.getY());
+            Tile tile = farm.getTile(hoveredTile.getX(), hoveredTile.getY() - 1);
             Vector2 location = farm.tileToWorld(tile);
 
             if (location != null)
             {
-                shapeRenderer.rect(location.x, location.y, TILE_SIZE, TILE_SIZE);
+                shapeRenderer.rect(location.x, location.y - (16f * MAP_SCALE), (16f * MAP_SCALE), (16f * MAP_SCALE));
             }
 
             shapeRenderer.end();
@@ -152,15 +160,24 @@ public final class TestScreen implements Screen
         cam.position.y = MathUtils.clamp(cam.position.y,
             cam.viewportHeight /2, mapPixelH - cam.viewportHeight/2);
 
-        if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
-            float mouseX = Gdx.input.getX();
-            float mouseY = Gdx.input.getY() + (60); // Hard-Coded
+        if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT))
+        {
+            Tile tile = cursorToTile();
 
-            hoveredTile = farm.screenToTile(mouseX, mouseY, cam);
-            Tile tile = farm.getTile(hoveredTile.getX(), hoveredTile.getY());
-
-            if (tile != null) {
+            if (tile != null)
+            {
                 System.out.println("Clicked Tile (x: " + tile.getX() + ", y: " + tile.getY() + ") - " + tile.getTexture());
+                for (int i = 0; i < farm.getDepth(); i++)
+                {
+                    Tile layerTile = farm.getLayerTiles()[i][tile.getY()][tile.getX()];
+                    if (layerTile != null)
+                    {
+                        System.out.println("Layer " + i + ": " + layerTile.getTypeName());
+                    } else
+                    {
+                        System.out.println("Layer " + i + ": null");
+                    }
+                }
             }
         }
     }
@@ -198,9 +215,20 @@ public final class TestScreen implements Screen
         {
             MapAssetLoader.LoadedMap loaded = MapAssetLoader.loadFromTmx(farm.getMapType().getName(), time.getSeason());
             TiledMap tiledMap = loaded.tiledMap;
-            farm.setVisual(new MapVisual(tiledMap));
+            farm.setVisual(new MapVisual(farm, tiledMap));
         }
 
         currentSeason = time.getSeason();
+    }
+
+    private Tile cursorToTile()
+    {
+        float mouseX = Gdx.input.getX();
+        float mouseY = Gdx.input.getY() + (60); // Hard-Coded
+
+        hoveredTile = farm.screenToTile(mouseX, mouseY, cam);
+        Tile tile = farm.getTile(hoveredTile.getX(), hoveredTile.getY() - 1);
+
+        return tile;
     }
 }

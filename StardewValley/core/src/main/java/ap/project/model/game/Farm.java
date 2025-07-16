@@ -32,8 +32,10 @@ public class Farm extends Map
         this.HEIGHT = loaded.height;
         this.tiledMap = loaded.tiledMap;
         this.tiles = loaded.tiles;
+        this.layerTiles = loaded.layerTiles;
+        this.depth = loaded.depth;
 
-        this.visual = new MapVisual(loaded.tiledMap);
+        this.visual = new MapVisual(this, loaded.tiledMap);
 
 //        applyMap();
 //        setRandomItems();

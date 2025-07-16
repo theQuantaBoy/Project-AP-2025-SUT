@@ -6,6 +6,7 @@ import ap.project.model.game.Point;
 import ap.project.model.game.Tile;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.maps.MapLayer;
+import com.badlogic.gdx.maps.MapLayers;
 import com.badlogic.gdx.maps.MapProperties;
 import com.badlogic.gdx.maps.tiled.*;
 
@@ -21,8 +22,10 @@ public final class MapAssetLoader
     {
         public final int width;
         public final int height;
+        public final int depth;
         public final TiledMap tiledMap;
         public final Tile[][] tiles;
+        public final Tile[][][] layerTiles;
 
         public LoadedMap(String tmxPath)
         {
@@ -30,11 +33,14 @@ public final class MapAssetLoader
 
             width = tiledMap.getProperties().get("width", Integer.class);
             height = tiledMap.getProperties().get("height", Integer.class);
+            depth = tiledMap.getLayers().size();
 
             tiles = new Tile[height][width]; // [y][x]
+            layerTiles = new Tile[depth][height][width];
 
-            for (MapLayer layer : tiledMap.getLayers())
+            for (int i = 0; i < tiledMap.getLayers().size(); i++)
             {
+                MapLayer layer = tiledMap.getLayers().get(i);
                 if (!(layer instanceof TiledMapTileLayer tiledLayer)) continue;
 
                 for (int x = 0; x < width; x++)
@@ -48,6 +54,8 @@ public final class MapAssetLoader
                         String typeName = props.get("type", String.class);
 
                         int flippedY = height - 1 - y;
+
+                        layerTiles[i][flippedY][x] = new Tile(new Point(x, flippedY), typeName);
 
                         if (typeName == null)
                         {

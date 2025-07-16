@@ -25,7 +25,20 @@ public abstract class Map
     protected MapVisual visual;
     protected TiledMap tiledMap;
 
+    protected Tile[][][] layerTiles;
+    protected int depth;
+
     public static final float TILE_SIZE = 16f * TestScreen.MAP_SCALE;
+
+    public int getDepth()
+    {
+        return depth;
+    }
+
+    public Tile[][][] getLayerTiles()
+    {
+        return layerTiles;
+    }
 
     public void setVisual(MapVisual visual)
     {

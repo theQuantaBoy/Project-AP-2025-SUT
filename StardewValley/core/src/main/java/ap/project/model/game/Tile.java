@@ -29,9 +29,22 @@ public class Tile
     private boolean isInCity = false;
     private Fish fish = null;
 
+    private String typeName;
+
     public void setInCity()
     {
         isInCity = true;
+    }
+
+    public Tile(Point point, String typeName)
+    {
+        this.point = point;
+        this.typeName = typeName;
+    }
+
+    public String getTypeName()
+    {
+        return typeName;
     }
 
     public Tile(TileTexture texture, Point point)

@@ -71,7 +71,7 @@
   </tile>
  </tileset>
  <tileset firstgid="65" name="Paths" tilewidth="16" tileheight="16" tilecount="64" columns="4">
-  <image source="paths" width="64" height="256"/>
+  <image source="../../tilesets/fall/paths.png" width="64" height="256"/>
  </tileset>
  <tileset firstgid="129" name="untitled tile sheet" tilewidth="16" tileheight="16" tilecount="1975" columns="25">
   <image source="../../tilesets/fall/fall_outdoorsTileSheet.png" width="400" height="1264"/>
@@ -2322,7 +2322,7 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 </data>
  </layer>
- <layer id="3" name="../../tilesets/fall/Paths.png" width="80" height="65" visible="0">
+ <layer id="3" name="Paths" width="80" height="65" visible="0">
   <data encoding="csv">
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -2601,7 +2601,7 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 </data>
  </layer>
- <objectgroup id="7" name="Back" visible="0">
+ <objectgroup id="7" name="Back">
   <object id="1" name="TileData" x="640" y="0" width="16" height="16">
    <properties>
     <property name="NoSpawn" value="All"/>
@@ -2911,14 +2911,14 @@
    </properties>
   </object>
  </objectgroup>
- <objectgroup id="8" name="Buildings" visible="0">
+ <objectgroup id="8" name="Buildings">
   <object id="61" name="TileData" x="128" y="112" width="16" height="16">
    <properties>
     <property name="Action" value="Message &quot;Farm.1&quot;"/>
    </properties>
   </object>
  </objectgroup>
- <objectgroup id="9" name="Paths" visible="0">
+ <objectgroup id="9" name="Paths">
   <object id="62" name="TileData" x="272" y="160" width="16" height="16">
    <properties>
     <property name="Order" type="int" value="3"/>

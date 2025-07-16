@@ -32,7 +32,9 @@ public class Main extends com.badlogic.gdx.Game
         Gdx.graphics.setCursor(Gdx.graphics.newCursor(cursorPixmap, hotspotX, hotspotY));
         cursorPixmap.dispose();
 
-        app.setScreen(new RegisterScreen(new RegisterController()));
+        app.setScreen(new TestScreen());
+
+//        app.setScreen(new RegisterScreen(new RegisterController()));
 
 //        TerminalScreen.run(); // start first input
 //        setScreen(TerminalScreen.getInstance());
