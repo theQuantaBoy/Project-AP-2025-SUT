@@ -24,7 +24,7 @@ public class GameController
     public Result toolsEquip(Matcher matcher) {
         String toolName = matcher.group("name");
         Player currentPlayer = App.getCurrentGame().getCurrentPlayer();
-        for (GameObject object : currentPlayer.getCurrentBackPack().getInventory()) {
+        for (GameObject object : currentPlayer.getCurrentBackPack().getSlots()) {
             if (object instanceof Tool) {
                 if (((Tool)object).getName().equalsIgnoreCase(toolName)) {
                     currentPlayer.setCurrentTool((Tool) object);
@@ -49,7 +49,7 @@ public class GameController
     public void toolsShowAvailable() {
         Player currentPlayer = App.getCurrentGame().getCurrentPlayer();
         System.out.println("your tools: ");
-        for (GameObject object : currentPlayer.getCurrentBackPack().getInventory()) {
+        for (GameObject object : currentPlayer.getCurrentBackPack().getSlots()) {
             if (object instanceof Tool) {
                 System.out.println("tool: " + ((Tool) object).getName());
             }
@@ -61,7 +61,7 @@ public class GameController
         String toolName = matcher.group("toolName");
         //check if in blacksmith
 
-        for (GameObject object : currentPlayer.getCurrentBackPack().getInventory()) {
+        for (GameObject object : currentPlayer.getCurrentBackPack().getSlots()) {
             if (object.getObjectType().toString().equalsIgnoreCase(toolName)) {
                 if (object instanceof Tool) {
                     if (object instanceof Axe) {
