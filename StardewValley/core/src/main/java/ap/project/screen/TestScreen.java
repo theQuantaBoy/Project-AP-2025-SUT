@@ -1,7 +1,10 @@
 package ap.project.screen;
 
 import ap.project.control.CharacterController;
+import ap.project.model.App.GameAssetsManager;
+import ap.project.model.animal.Animal;
 import ap.project.model.enums.Season;
+import ap.project.model.enums.animal_enums.FarmAnimalsType;
 import ap.project.visual.CharacterRenderer;
 import ap.project.model.enums.CharacterType;
 import ap.project.model.enums.MapTypes;
@@ -18,6 +21,7 @@ import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.utils.viewport.FitViewport;
 
 public final class TestScreen implements Screen
 {
@@ -30,11 +34,14 @@ public final class TestScreen implements Screen
     private final OrthographicCamera cam;
     private MapVisual mapVisual;
 
-    private final OrthographicCamera uiCam = new OrthographicCamera();
+    private final FitViewport uiViewport;
+    private final OrthographicCamera uiCam;
+
 
     private final PlayerCharacter player;
     private CharacterController characterController;
     private final CharacterRenderer characterRenderer;
+    private AnimalInteractionScreen animalUI;
 
     private Farm farm;
     private final UIRenderer uiRenderer;
@@ -59,10 +66,15 @@ public final class TestScreen implements Screen
         farm = new Farm(MapTypes.FOREST, season);
         mapVisual = farm.getMapVisual();
 
+        uiCam = new OrthographicCamera();
+        uiViewport = new FitViewport(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), uiCam);
+
         Vector2 spawn = new Vector2(60 * TILE_SIZE, 60 * TILE_SIZE);
         player = new PlayerCharacter(CharacterType.ABIGAIL, spawn);
         characterController = new CharacterController(player, farm, PLAYER_SPEED, TILE_SIZE);
         characterRenderer = new CharacterRenderer();
+
+        animalUI = new AnimalInteractionScreen(uiViewport, GameAssetsManager.getGameAssetsManager().getSkin());
 
         if (SECOND_PLAYER)
         {
@@ -94,13 +106,18 @@ public final class TestScreen implements Screen
         Batch batch = mapVisual.getRenderer().getBatch();
         batch.setProjectionMatrix(cam.combined);
         batch.begin();
+
+
+
         characterRenderer.render(batch, player, CHAR_SCALE);
+
         if (SECOND_PLAYER) characterRenderer.render(batch, player2, CHAR_SCALE);
         batch.end();
 
         batch.setProjectionMatrix(uiCam.combined);
         batch.begin();
         uiRenderer.renderUI(batch, uiCam);
+        animalUI.render();
         batch.end();
 
         if (hoveredTile != null) {
@@ -153,6 +170,24 @@ public final class TestScreen implements Screen
             }
         }
 
+        animalUI.update(dt);
+
+        // show UI on right-click
+        if (Gdx.input.isButtonJustPressed(Input.Buttons.RIGHT)) {
+            float mouseX = Gdx.input.getX();
+            float mouseY = Gdx.input.getY();
+            Tile tile = farm.getTile((int) mouseX, (int) mouseY);
+
+            Animal animal = new Animal("test", FarmAnimalsType.CHICKEN); //TODO : check for player's animals
+            animal.setTile(new Tile(new Point(89, 34)));
+            if (tile != null && tile.equals(animal.getTile())) {
+                Vector2 pos = farm.tileToWorld(tile);
+                animalUI.show(animal, pos.x, pos.y + TILE_SIZE);
+            }
+        }
+
+
+
         if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_1)) changeSeason(Season.Spring);
         if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_2)) changeSeason(Season.Summer);
         if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_3)) changeSeason(Season.Fall);
@@ -176,6 +211,7 @@ public final class TestScreen implements Screen
         // --- UI camera uses raw screen pixels (0,0 bottom-left)
         uiCam.setToOrtho(false, w, h);  // use true if you want (0,0) to be top-left
         uiCam.update();
+        uiViewport.update(w, h, true);
     }
 
     @Override public void pause(){}  @Override public void resume(){}

@@ -4,6 +4,7 @@ import ap.project.model.game.GameObject;
 import ap.project.model.game.Tile;
 import ap.project.model.enums.animal_enums.FarmAnimalsType;
 import ap.project.view.GameMenu;
+import com.badlogic.gdx.graphics.Texture;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -18,6 +19,7 @@ public class Animal extends GameObject {
     private boolean isPet = false;
     private final ArrayList<GameObject> products;
     private Tile tile = null;
+    private Texture texture;
 
     private boolean hasProduct = false;
     private boolean secondProduct = false;
@@ -34,6 +36,7 @@ public class Animal extends GameObject {
         this.isIn = true;
         this.isPet = false;
         this.products = (ArrayList<GameObject>) animalType.getProducts();
+        this.texture = animalType.getAnimalTexture();
     }
 
     public void feed()
