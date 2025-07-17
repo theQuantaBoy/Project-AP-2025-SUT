@@ -24,6 +24,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
  */
 public class InventoryWindow {
     private final Window popup;
+    private final Stage stage;
     private final Table inventoryTable;
     private final Table skillsTable;
     private final Table socialTable;
@@ -44,7 +45,7 @@ public class InventoryWindow {
         this.player = App.getCurrentGame().getCurrentPlayer();
         this.backpack = player.getCurrentBackPack();
         this.skin = GameAssetsManager.getGameAssetsManager().getSkin();
-
+        this.stage = stage;
         // Create popup Window
         popup = new Window("Menu", skin);
         popup.setVisible(false);
@@ -202,15 +203,40 @@ public class InventoryWindow {
     private Table buildSkillsTable() {
         Table table = new Table(skin);
         table.defaults().pad(4);
+        TooltipManager tooltipManager = TooltipManager.getInstance();
+        tooltipManager.initialTime = 0.5f; // Delay before tooltip shows
+        tooltipManager.subsequentTime = 0.1f;
+        Drawable tooltipBg = createColoredDrawable(1, 1, new Color(0f, 0f, 0f, 0.7f));
+
         for (Skill s : player.getSkills()) {
-            table.add(new Label(s.getName(), skin));
+            Label skillLabel = new Label(s.getName(), skin);
             ProgressBar bar = new ProgressBar(0, s.getThresholdForLevel(s.getLevel()), 1, false, skin);
             bar.setValue((float) s.getUnit());
+
+            // Tooltip content (can be customized)
+            String tooltipText = s.getName() + " (Level " + s.getLevel() + ")\n" +
+                "XP: " + s.getUnit() + "/" + s.getThresholdForLevel(s.getLevel());
+
+            Label tooltipLabel = new Label(tooltipText, skin);
+            Tooltip<Label> tooltip = new Tooltip<>(tooltipLabel, tooltipManager);
+
+            tooltip.getContainer().setBackground(tooltipBg);
+            tooltip.getContainer().pad(8);            // add some padding around the text
+
+            // Add tooltip listener to label and progress bar
+            skillLabel.addListener(tooltip);
+            bar.addListener(tooltip);
+
+            // Ensure tooltips work properly
+            stage.addActor(tooltip.getContainer());
+
+            table.add(skillLabel);
             table.add(bar).width(120);
             table.row();
         }
         return table;
     }
+
 
     private Table buildSocialTable() {
         Table table = new Table(skin);
