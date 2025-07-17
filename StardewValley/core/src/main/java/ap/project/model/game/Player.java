@@ -23,10 +23,10 @@ import com.badlogic.gdx.math.Vector2;
 import java.util.*;
 
 public class Player {
-    private final PlayerCharacter character;
+    private PlayerCharacter character;
 
     private final User user;
-    private final Farm farm;
+    private Farm farm;
     private final Cabin cabin;
     private final GreenHouse greenHouse;
 
@@ -34,9 +34,9 @@ public class Player {
     private Point location = null;
     private Map currentMap = null;
 
-    private int energy;
-    private int maxEnergy = 200;
-    private int turnEnergy = 50;
+    private float energy;
+    private float maxEnergy = 200f;
+    private float turnEnergy = 50f;
     private boolean fainted = false;
 
     private Skill farmingSkill = new Skill(SkillType.Farming);
@@ -100,14 +100,57 @@ public class Player {
 
     private ArrayList<Fish> fishes = new ArrayList<>();
 
+    private MapTypes mapType;
+
+    public void setMapType(MapTypes mapType)
+    {
+        this.mapType = mapType;
+    }
+
+    public MapTypes getMapType()
+    {
+        return mapType;
+    }
+
+    public void setFarm(Farm farm)
+    {
+        this.farm = farm;
+    }
+
+    public Player(User user, MapTypes currentMapType, int number) {
+        this.user = user;
+        this.mapType = currentMapType;
+        this.cabin = new Cabin();
+        this.greenHouse = new GreenHouse();
+//        this.currentMap = this.farm;
+        this.energy = 200f;
+        this.turnEnergy = 50f;
+        this.fainted = false;
+        this.money = 0;
+        this.addToInventory(new Axe());
+        this.addToInventory(new Hoe());
+        this.addToInventory(new Pickaxe());
+        this.addToInventory(new WateringCan());
+        this.addToInventory(new Seythe());
+        this.addToInventory(new TrashCan());
+
+        this.zeidy = null;
+//        this.location = farm.getStartingPoint();
+        this.newMessage = false;
+        this.apperance = appearences.get(number);
+
+
+//        this.character = new PlayerCharacter(CharacterType.ABIGAIL, new Vector2(60 * 24, 60 * 24));
+    }
+
     public Player(User user, Farm farm, int number) {
         this.user = user;
         this.farm = farm;
         this.cabin = new Cabin();
         this.greenHouse = new GreenHouse();
         this.currentMap = this.farm;
-        this.energy = 200;
-        this.turnEnergy = 50;
+        this.energy = 200f;
+        this.turnEnergy = 50f;
         this.fainted = false;
         this.money = 0;
         this.addToInventory(new Axe());
@@ -143,15 +186,15 @@ public class Player {
         this.friendships.put(player, data);
     }
 
-    public int getEnergy() {
+    public float getEnergy() {
         return energy;
     }
 
-    public void setEnergy(int energy) {
+    public void setEnergy(float energy) {
         this.energy = energy;
     }
 
-    public void increaseEnergy(int energy)
+    public void increaseEnergy(float energy)
     {
         if (energy != -1)
         {
@@ -161,15 +204,15 @@ public class Player {
         // TODO: add faint check mechanism
     }
 
-    public int getTurnEnergy() {
+    public float getTurnEnergy() {
         return turnEnergy;
     }
 
-    public void setTurnEnergy(int turnEnergy) {
+    public void setTurnEnergy(float turnEnergy) {
         this.turnEnergy = turnEnergy;
     }
 
-    public void increaseTurnEnergy(int turnEnergy)
+    public void increaseTurnEnergy(float turnEnergy)
     {
         if (this.turnEnergy != -1)
         {
@@ -177,11 +220,11 @@ public class Player {
         }
     }
 
-    public int getMaxEnergy() {
+    public float getMaxEnergy() {
         return this.maxEnergy;
     }
 
-    public void setMaxEnergy(int maxEnergy) {
+    public void setMaxEnergy(float maxEnergy) {
         this.maxEnergy = maxEnergy;
     }
 
@@ -233,7 +276,7 @@ public class Player {
     }
 
     public ArrayList<GameObject> getInventory() {
-        return currentBackPack.getInventory();
+        return new ArrayList<>(currentBackPack.getNonEmptyItems());
     }
 
     public HashMap<Player, FriendshipData> getFriendships() {
@@ -332,7 +375,7 @@ public class Player {
 
     public GameObject findObjectType(Enum<?> type)
     {
-        for (GameObject obj : currentBackPack.getInventory())
+        for (GameObject obj : currentBackPack.getSlots())
         {
             Enum<?> inventoryItemType = obj.getObjectType();
 
@@ -354,7 +397,7 @@ public class Player {
     }
 
     public GameObject getItemInInventory(GameObjectType objectType) {
-        for (GameObject object : this.currentBackPack.getInventory()) {
+        for (GameObject object : getInventory()) {
             if (object.getObjectType().equals(objectType)) {
                 return object;
             }
@@ -362,12 +405,8 @@ public class Player {
         return null;
     }
 
-    public void removeFromInventory(GameObject object)
-    {
-        if (this.currentBackPack.getInventory().contains(object))
-        {
-            this.currentBackPack.getInventory().remove(object);
-        }
+    public void removeFromInventory(GameObject object) {
+        currentBackPack.removeItem(object);
     }
 
     public Gift getGiftById(int id) {
@@ -385,9 +424,13 @@ public class Player {
         }
     }
 
+    public float getEnergyPercentage() {
+        return this.energy / this.maxEnergy;
+    }
+
     public Tool getTool(ToolType type)
     {
-        for (GameObject object : currentBackPack.getInventory())
+        for (GameObject object : currentBackPack.getSlots())
         {
             if (object instanceof Tool tool)
             {
@@ -400,21 +443,18 @@ public class Player {
         return null;
     }
 
-    public void addToInventory(GameObject object)
-    {
-        GameObject o = getItemInInventory(object.getObjectType());
-        if (o != null)
-        {
-            addToInventory(object.getObjectType(), object.getNumber());
-        } else
-        {
-            currentBackPack.getInventory().add(object);
+    public void addToInventory(GameObject object) {
+        // First try to stack with existing items
+        for (GameObject item : getInventory()) {
+            if (item.getObjectType().equals(object.getObjectType())) {
+                item.addNumber(object.getNumber());
+                return;
+            }
         }
 
-        GameObject inInventory = getItemInInventory(object.getObjectType());
-        if (inInventory != null && inInventory.getNumber() <= 0)
-        {
-            this.currentBackPack.getInventory().remove(inInventory);
+        // If no stack available, add to empty slot
+        if (currentBackPack.hasEmptySlot()) {
+            currentBackPack.addItem(object);
         }
     }
 
@@ -424,61 +464,31 @@ public class Player {
         return craftingRecipes;
     }
 
-    public boolean hasEnoughInInventory(GameObjectType objectType, int amount)
-    {
-        for (GameObject object : currentBackPack.getInventory())
-        {
-            if (object.getObjectType().equals(objectType) && object.getNumber() >= amount)
-            {
-                return true;
-            }
-        }
-        return false;
+    public boolean hasEnoughInInventory(GameObjectType objectType, int amount) {
+        GameObject item = getItemInInventory(objectType);
+        return item != null && item.getNumber() >= amount;
     }
 
-    public int howManyInInventory(GameObjectType objectType)
-    {
-        for (GameObject object : currentBackPack.getInventory())
-        {
-            if (object.getObjectType().equals(objectType))
-            {
-                return object.getNumber();
-            }
-        }
-        return 0;
+    public int howManyInInventory(GameObjectType objectType) {
+        GameObject item = getItemInInventory(objectType);
+        return item != null ? item.getNumber() : 0;
     }
 
-    public void removeAmountFromInventory(GameObjectType objectType, int amount)
-    {
-        for (GameObject object : currentBackPack.getInventory())
-        {
-            if (object.getObjectType().equals(objectType))
-            {
-                object.addNumber(-amount);
-                if (object.number <= 0)
-                {
-                    this.currentBackPack.getInventory().remove(object);
+    public void removeAmountFromInventory(GameObjectType objectType, int amount) {
+        for (int i = 0; i < currentBackPack.getSlots().size(); i++) {
+            GameObject item = currentBackPack.getSlots().get(i);
+            if (item != null && item.getObjectType().equals(objectType)) {
+                item.addNumber(-amount);
+                if (item.getNumber() <= 0) {
+                    currentBackPack.removeItem(i);
                 }
-                break;
+                return;
             }
         }
     }
 
-    public boolean inventoryHasCapacity()
-    {
-       int capacity = currentBackPack.getCapacity();
-
-       if (capacity == -1) // unlimited
-       {
-           return true;
-       }
-
-       if (capacity > currentBackPack.getSize())
-       {
-           return true;
-       }
-
-       return false;
+    public boolean inventoryHasCapacity() {
+        return currentBackPack.hasEmptySlot();
     }
 
     public BackPack getCurrentBackPack()
@@ -486,34 +496,27 @@ public class Player {
         return currentBackPack;
     }
 
-    public void addToInventory(GameObjectType objectType, int amount)
-    {
-        boolean added = false;
-        GameObject object = getItemInInventory(objectType);
-        if (object != null)
-        {
-            object.addNumber(amount);
-            added = true;
-        } else
-        {
-            if (inventoryHasCapacity())
-            {
-                GameObject newObject = new GameObject(objectType, amount);
-                currentBackPack.getInventory().add(newObject);
+    public void addToInventory(GameObjectType objectType, int amount) {
+        // First try to stack with existing items
+        for (GameObject item : getInventory()) {
+            if (item.getObjectType().equals(objectType)) {
+                item.addNumber(amount);
+                return;
             }
+        }
+
+        // If no stack available, add to empty slot
+        if (currentBackPack.hasEmptySlot()) {
+            currentBackPack.addItem(new GameObject(objectType, amount));
         }
     }
 
-    public int getInventoryCapacity()
-    {
-        int capacity = currentBackPack.getCapacity();
+    public int getInventoryCapacity() {
+        return currentBackPack.getEmptySlotCount();
+    }
 
-        if (capacity == -1) // unlimited
-        {
-            return -1;
-        }
-
-        return capacity - currentBackPack.getSize();
+    public int getTotalInventoryCapacity() {
+        return currentBackPack.getCapacity();
     }
 
     public FriendshipWithNpcData getSebastianFriendship() {
@@ -994,7 +997,7 @@ public class Player {
 
     public boolean hasFishingPole()
     {
-        for (GameObject object : currentBackPack.getInventory())
+        for (GameObject object : currentBackPack.getSlots())
         {
             if (object instanceof FishingPole)
             {

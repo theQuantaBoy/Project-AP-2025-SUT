@@ -155,7 +155,7 @@ public class CommunicateController
                     Gift newGift = new Gift(item, currentPlayer, player, amount);
 
                     if (player.getItemInInventory(item) == null) {
-                        player.getCurrentBackPack().getInventory().add(new GameObject(item, amount));
+                        player.getCurrentBackPack().getSlots().add(new GameObject(item, amount));
                     } else {
                         player.getItemInInventory(item).addNumber(amount);
                     }
@@ -283,14 +283,14 @@ public class CommunicateController
                     if (currentPlayer.getItemInInventory(GameObjectType.BOUQUET) != null) {
                         currentPlayer.getItemInInventory(GameObjectType.BOUQUET).addNumber(-1);
                         if (currentPlayer.getItemInInventory(GameObjectType.BOUQUET).getNumber() < 1) {
-                            currentPlayer.getCurrentBackPack().getInventory().
+                            currentPlayer.getCurrentBackPack().getSlots().
                                     remove(currentPlayer.getItemInInventory(GameObjectType.BOUQUET));
                         }
 
                         if (player.getItemInInventory(GameObjectType.BOUQUET) != null) {
                             player.getItemInInventory(GameObjectType.BOUQUET).addNumber(1);
                         } else {
-                            player.getCurrentBackPack().getInventory().add(new GameObject(GameObjectType.BOUQUET, 1));
+                            player.getCurrentBackPack().getSlots().add(new GameObject(GameObjectType.BOUQUET, 1));
                         }
 
                         if (!currentPlayer.getFriendships().get(player).isIntrcatedToday()) {
@@ -367,8 +367,8 @@ public class CommunicateController
         GameObject ring = player.getItemInInventory(currentPlayer.getPurposeList().get(player));
 
         if (answer) {
-            player.getCurrentBackPack().getInventory().remove(ring);
-            currentPlayer.getCurrentBackPack().getInventory().add(ring);
+            player.getCurrentBackPack().getSlots().remove(ring);
+            currentPlayer.getCurrentBackPack().getSlots().add(ring);
             player.setZeidy(currentPlayer);
             currentPlayer.setZeidy(player);
             player.getFriendships().get(currentPlayer).setMarried(true);

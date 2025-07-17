@@ -58,11 +58,11 @@ public class FishShop extends Shop{
     {
         if (gameObject.getObjectType().equals(GameObjectType.FISHING_POLE))
         {
-            for (GameObject inventoryItem : App.getCurrentGame().getCurrentPlayer().getCurrentBackPack().getInventory())
+            for (GameObject inventoryItem : App.getCurrentGame().getCurrentPlayer().getCurrentBackPack().getSlots())
             {
                 if (inventoryItem.getObjectType().equals(GameObjectType.FISHING_POLE))
                 {
-                    App.getCurrentGame().getCurrentPlayer().getCurrentBackPack().getInventory().remove(inventoryItem);
+                    App.getCurrentGame().getCurrentPlayer().getCurrentBackPack().getSlots().remove(inventoryItem);
                 }
             }
         }
@@ -76,7 +76,7 @@ public class FishShop extends Shop{
                 {
                     App.getCurrentGame().getCurrentPlayer().decreaseMoney
                             (FishShopStock.FISH_SMOKER_RECIPE.getPrice() * gameObject.getNumber());
-                    App.getCurrentGame().getCurrentPlayer().getCurrentBackPack().getInventory().add(fishSmoker);
+                    App.getCurrentGame().getCurrentPlayer().getCurrentBackPack().getSlots().add(fishSmoker);
                     FishShopStock.FISH_SMOKER_RECIPE.decreaseDailyLimit();
                     fishShopStocks.remove(FishShopStock.FISH_SMOKER_RECIPE);
                 }

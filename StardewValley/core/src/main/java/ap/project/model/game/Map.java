@@ -5,7 +5,7 @@ import ap.project.model.enums.TileTexture;
 import ap.project.model.resources.ForagingCrop;
 import ap.project.model.resources.ForagingTree;
 import ap.project.model.resources.Tree;
-import ap.project.screen.TestScreen;
+import ap.project.screen.WorldScreen;
 import ap.project.visual.MapVisual;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.maps.tiled.TiledMap;
@@ -14,7 +14,7 @@ import com.badlogic.gdx.math.Vector3;
 
 import java.util.*;
 
-public abstract class Map
+public abstract class   Map
 {
     protected MapTypes mapType;
     protected Tile[][] tiles;
@@ -25,7 +25,30 @@ public abstract class Map
     protected MapVisual visual;
     protected TiledMap tiledMap;
 
-    public static final float TILE_SIZE = 16f * TestScreen.MAP_SCALE;
+    protected Tile[][][] layerTiles;
+    protected int depth;
+
+    public static final float TILE_SIZE = 16f * WorldScreen.MAP_SCALE;
+
+    public int getDepth()
+    {
+        return depth;
+    }
+
+    public Tile[][][] getLayerTiles()
+    {
+        return layerTiles;
+    }
+
+    public void setVisual(MapVisual visual)
+    {
+        this.visual = visual;
+    }
+
+    public MapTypes getMapType()
+    {
+        return mapType;
+    }
 
     public Vector2 screenToWorld(float screenX, float screenY, OrthographicCamera cam)
     {
@@ -156,6 +179,7 @@ public abstract class Map
             case FLOWER:
             case FLOOR:
             case BED_TILE:
+            case EMPTY:
                 return true;
 
             case LAKE:
@@ -167,7 +191,7 @@ public abstract class Map
             case BUILDING:
             case CITY_BOARD:
             case TREE:
-            case EMPTY:
+//            case EMPTY:
             case BOOK:
             case LAMP:
             case TABLE:
@@ -296,7 +320,7 @@ public abstract class Map
         return turns;
     }
 
-    public Point findFurthestAvailablePoint(Point origin, Point destination, int availableEnergy)
+    public Point findFurthestAvailablePoint(Point origin, Point destination, float availableEnergy)
     {
         ArrayList<Point> path = findShortestPath(origin, destination);
 

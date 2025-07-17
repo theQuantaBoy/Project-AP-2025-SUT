@@ -13,6 +13,7 @@ public class CommandInput
 
     public static Scanner getScanner()
     {
+
         return new Scanner(currentCommand);
     }
 }
