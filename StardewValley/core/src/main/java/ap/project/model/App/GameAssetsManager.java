@@ -5,10 +5,18 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator.FreeTypeFontParameter;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
+
+import java.util.HashSet;
+import java.util.Random;
+import java.util.Set;
 
 public class GameAssetsManager {
     private static GameAssetsManager gameAssetsManager;
@@ -18,16 +26,27 @@ public class GameAssetsManager {
     private BitmapFont shadowFont;
     private BitmapFont largeTitleFont;
     private FreeTypeFontGenerator generator;
+    private Sprite sprite;
     private Skin skin;
+    private Array<AvatarOptions> avatars;
 
     public GameAssetsManager() {
         skin = new Skin(Gdx.files.internal("czyzby gdx-skins master pixthulhu/skin/pixthulhu-ui.json"));
         this.registerBackground = new Texture(Gdx.files.internal("menu/Panorama.png"));
         this.logo = new Texture(Gdx.files.internal("menu/Logo No Background.png"));
+        avatars = new Array<>();
+        avatars.add(new AvatarOptions("Alex", new Texture(Gdx.files.internal("avatars/Alex-26.png"))));
+        avatars.add(new AvatarOptions("Evelin", new Texture(Gdx.files.internal("avatars/Evelyn-3.png"))));
+        avatars.add(new AvatarOptions("Leo", new Texture(Gdx.files.internal("avatars/Leo-19.png"))));
+        avatars.add(new AvatarOptions("Lewis", new Texture(Gdx.files.internal("avatars/Lewis-21.png"))));
+        avatars.add(new AvatarOptions("Linus", new Texture(Gdx.files.internal("avatars/Linus-26.png"))));
+        avatars.add(new AvatarOptions("Pam", new Texture(Gdx.files.internal("avatars/Pam-36.png"))));
+        avatars.add(new AvatarOptions("Penny", new Texture(Gdx.files.internal("avatars/Penny-79.png"))));
+        avatars.add(new AvatarOptions("Sandy", new Texture(Gdx.files.internal("avatars/Sandy-8.png"))));
 
         // Initialize font generator
         this.generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/Stardew-Valley-Regular.ttf"));
-
+        this.sprite = new Sprite(new Texture(Gdx.files.internal("menu/Title Screen.png")));
         // Create different font styles
         createFonts();
 
@@ -98,6 +117,14 @@ public class GameAssetsManager {
 
     public FreeTypeFontGenerator getGenerator() {
         return generator;
+    }
+
+    public Sprite getSprite() {
+        return sprite;
+    }
+
+    public Array<AvatarOptions> getAvatars() {
+        return avatars;
     }
 
     public Skin getSkin() {

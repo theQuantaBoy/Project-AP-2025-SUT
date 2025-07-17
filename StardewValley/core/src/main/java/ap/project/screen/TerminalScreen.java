@@ -52,8 +52,14 @@ public final class TerminalScreen implements Screen, InputProcessor
     private boolean cursorVisible = true;
 
     private static final BlockingQueue<String> inputQueue =
-            new LinkedBlockingQueue<>();
+        new LinkedBlockingQueue<>();
     private static volatile boolean awaitingNestedInput = false;
+
+    private boolean asOverlay = false;
+
+    public void setOverlayMode(boolean overlay) {
+        this.asOverlay = overlay;
+    }
 
     /** Blocks the calling THREAD (Command-Thread) until the user hits ENTER. */
     public static String readLine() {
@@ -91,8 +97,13 @@ public final class TerminalScreen implements Screen, InputProcessor
     @Override
     public void render(float delta)
     {
-        Gdx.gl.glClearColor(0x17 / 255f, 0x14 / 255f, 0x21 / 255f, 1f);
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        if (!asOverlay) {
+            Gdx.gl.glClearColor(0x17 / 255f, 0x14 / 255f, 0x21 / 255f, 1f);
+            Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        }
+
+//        Gdx.gl.glClearColor(0x17 / 255f, 0x14 / 255f, 0x21 / 255f, 1f);
+//        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         // Make sure camera & viewport are in sync
         camera.update();
@@ -175,7 +186,7 @@ public final class TerminalScreen implements Screen, InputProcessor
                             layout.setText(font, currentEntry.prompt);
                             font.setColor(1,1,1,1);
                             font.draw(batch, currentEntry.input,
-                                    20 + layout.width, y);
+                                20 + layout.width, y);
                             y -= lineHeight;
                         } else skipped++;
 
@@ -362,7 +373,7 @@ public final class TerminalScreen implements Screen, InputProcessor
 
             currentLine.setLength(0);
             CommandInput.setCommand(cmd);
-            AppView.run();                   // Run logic in background thread
+            AppView.run();
             return true;
         }
 

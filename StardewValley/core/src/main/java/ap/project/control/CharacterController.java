@@ -1,5 +1,6 @@
 package ap.project.control;
 
+import ap.project.model.App.App;
 import ap.project.model.enums.TileTexture;
 import ap.project.model.game.AbstractCharacter;
 import ap.project.model.game.Farm;
@@ -10,6 +11,8 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
+
+import java.util.ArrayList;
 
 public class CharacterController
 {
@@ -24,6 +27,9 @@ public class CharacterController
         leftKey = Input.Keys.A,
         rightKey =  Input.Keys.D;
 
+    private ArrayList<Point> path = null;
+    private int pathIndex = 0;
+
     public CharacterController(AbstractCharacter character, Farm farm, float speed, float tileSize)
     {
         this.character = character;
@@ -32,38 +38,108 @@ public class CharacterController
         this.tileSize = tileSize;
     }
 
-    public void update(float delta) {
-        float dx = (Gdx.input.isKeyPressed(rightKey) ? 1 : 0)
-            - (Gdx.input.isKeyPressed(leftKey)  ? 1 : 0);
-        float dy = (Gdx.input.isKeyPressed(upKey)    ? 1 : 0)
-            - (Gdx.input.isKeyPressed(downKey)  ? 1 : 0);
+    public void update(float delta)
+    {
+        if (Gdx.input.isKeyPressed(rightKey) ||
+            Gdx.input.isKeyPressed(leftKey) ||
+            Gdx.input.isKeyPressed(upKey) ||
+            Gdx.input.isKeyPressed(downKey))
+        {
+            endWalk();
+        }
 
-        Vector2 pos = character.getPosition();
+        if (path != null && pathIndex < path.size())
+        {
+            Point point = path.get(pathIndex);
+            Vector2 targetWorld = farm.tileToWorld(farm.getTile(point.getX(), point.getY()));
+            Vector2 pos = character.getPosition();
 
-        if (dx != 0 || dy != 0) {
-            float len = (float) Math.sqrt(dx * dx + dy * dy);
-            dx = dx / len * speed * delta;
-            dy = dy / len * speed * delta;
+            float dx = targetWorld.x - pos.x;
+            float dy = targetWorld.y - pos.y;
 
-            float nextX = pos.x + dx;
-            float nextY = pos.y + dy;
+            float dist = (float)Math.sqrt(dx * dx + dy * dy);
 
-            Point tilePos = farm.worldToTile(nextX, nextY);
-            Tile target   = farm.getTile(tilePos.getX(), tilePos.getY());
-
-            if (target == null) return;
-            TileTexture texture = target.getTexture();
-
-            if (!Gdx.input.isKeyPressed(Input.Keys.SHIFT_RIGHT) && !Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT))
+            if (dist < 2f)
             {
-                if (texture == TileTexture.LAKE || texture == TileTexture.UNPASSABLE
-                    || texture == TileTexture.BUILDING || texture == TileTexture.OBJECT)
+                pathIndex += 1;
+                if (pathIndex >= path.size())
                 {
-                    return; // blocked
+                    path = null;
                 }
+                return;
             }
 
+            // Direction & animation
+            if (Math.abs(dx) > Math.abs(dy))
+                character.setDirection(dx > 0 ? AbstractCharacter.Direction.RIGHT : AbstractCharacter.Direction.LEFT);
+            else
+                character.setDirection(dy > 0 ? AbstractCharacter.Direction.UP : AbstractCharacter.Direction.DOWN);
+
+            character.updateAnimation(delta);
+
+            float nx = dx / dist;
+            float ny = dy / dist;
+
+            float moveSpeed = speed;
+            pos.x += nx * moveSpeed * delta;
+            pos.y += ny * moveSpeed * delta;
+
+            App.getCurrentGame().getCurrentPlayer().increaseEnergy(-0.8f * delta);
+
+            return;
+        }
+
+        float rawDx = (Gdx.input.isKeyPressed(rightKey) ? 1 : 0)
+                - (Gdx.input.isKeyPressed(leftKey)  ? 1 : 0);
+        float rawDy = (Gdx.input.isKeyPressed(upKey)    ? 1 : 0)
+                - (Gdx.input.isKeyPressed(downKey)  ? 1 : 0);
+
+        if (rawDx == 0 && rawDy == 0)
+        {
+            character.resetAnimation();
+            return;
+        }
+
+        if (Math.abs(rawDx) > Math.abs(rawDy))
+            character.setDirection(rawDx > 0 ? AbstractCharacter.Direction.RIGHT
+                    : AbstractCharacter.Direction.LEFT);
+        else
+            character.setDirection(rawDy > 0 ? AbstractCharacter.Direction.UP
+                    : AbstractCharacter.Direction.DOWN);
+
+        character.updateAnimation(delta);
+
+        float len = (float)Math.sqrt(rawDx*rawDx + rawDy*rawDy);
+        float nx  = rawDx / len;
+        float ny  = rawDy / len;
+
+        boolean shift = Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT)
+                || Gdx.input.isKeyPressed(Input.Keys.SHIFT_RIGHT);
+
+        float moveSpeed = speed * (shift ? 2f : 1f);
+        float dx = nx * moveSpeed * delta;
+        float dy = ny * moveSpeed * delta;
+
+        Vector2 pos = character.getPosition();
+        float nextX = pos.x + dx;
+        float nextY = pos.y + dy;
+
+        Point tilePos = farm.worldToTile(nextX, nextY);
+        Tile  target  = farm.getTile(tilePos.getX(), tilePos.getY());
+
+        boolean ctrl = Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT)
+                || Gdx.input.isKeyPressed(Input.Keys.CONTROL_RIGHT);
+
+        boolean blocked = target == null ||
+                (!ctrl && switch (target.getTexture()) {
+                    case LAKE, UNPASSABLE, BUILDING, OBJECT -> true;
+                    default -> false;
+                });
+
+        if (!blocked)
+        {
             pos.set(nextX, nextY);
+            App.getCurrentGame().getCurrentPlayer().increaseEnergy(-0.8f * delta);
             character.updateAnimation(delta);
 
             // set animation
@@ -98,5 +174,21 @@ public class CharacterController
         downKey = down;
         leftKey = left;
         rightKey = right;
+    }
+
+    public void moveToPath(ArrayList<Point> path)
+    {
+        if (path == null || path.size() < 2) {
+            return;
+        }
+
+        this.path = path;
+        this.pathIndex = 1;
+    }
+
+    public void endWalk()
+    {
+        this.path = null;
+        this.pathIndex = 0;
     }
 }

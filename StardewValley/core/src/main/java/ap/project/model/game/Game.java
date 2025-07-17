@@ -652,7 +652,7 @@ public class Game
     {
         for (Player player : players)
         {
-            int diff = 50 - player.getTurnEnergy();
+            float diff = 50 - player.getTurnEnergy();
             if (player.getEnergy() >= diff)
             {
                 player.increaseEnergy(-diff);

@@ -256,7 +256,7 @@ public class RegisterScreen implements Screen {
         float tableWidth = table.getPrefWidth();
         float tableHeight = table.getPrefHeight();
         float x = (stage.getWidth())  / 2;
-        float y = (stage.getHeight()) / 2 - 70;
+        float y = (stage.getHeight()) - tableHeight/2 - 140;
         table.setPosition(x, y);
 
     }

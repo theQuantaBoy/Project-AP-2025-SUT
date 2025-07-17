@@ -18,6 +18,8 @@ public abstract class AbstractCharacter
     protected final EnumMap<Direction, Animation<TextureRegion>> animations;
     protected Animation<TextureRegion> currentAnimation;
     protected float stateTime = 0f;
+    protected float maxEnergy = 100f;
+    protected float currentEnergy = maxEnergy;
 
     public AbstractCharacter(CharacterType type, Vector2 spawnPoint)
     {
@@ -46,7 +48,7 @@ public abstract class AbstractCharacter
         {
             frames.add(atlas.findRegion(base + i));
         }
-        return new Animation<>(0.16f, frames, Animation.PlayMode.LOOP);
+        return new Animation<>(0.24f, frames, Animation.PlayMode.LOOP);
     }
 
     public void setDirection(Direction dir)
@@ -77,6 +79,22 @@ public abstract class AbstractCharacter
     public Texture getShadow()
     {
         return shadow;
+    }
+
+    public void decreaseEnergy(float amount) {
+        currentEnergy = Math.max(0, currentEnergy - amount);
+    }
+
+    public void restoreEnergy(float amount) {
+        currentEnergy = Math.min(maxEnergy, currentEnergy + amount);
+    }
+
+    public float getEnergyPercentage() {
+        return currentEnergy / maxEnergy;
+    }
+
+    public float getCurrentEnergy() {
+        return currentEnergy;
     }
 
     public enum Direction

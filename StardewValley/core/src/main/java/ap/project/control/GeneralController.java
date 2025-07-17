@@ -31,7 +31,7 @@ public class GeneralController
     public void inventoryShow()
     {
         Player currentPlayer = App.getCurrentGame().getCurrentPlayer();
-        ArrayList<GameObject> inventory = new ArrayList<>(currentPlayer.getCurrentBackPack().getInventory());
+        ArrayList<GameObject> inventory = new ArrayList<>(currentPlayer.getCurrentBackPack().getSlots());
         System.out.println("your items:");
         System.out.println("----");
         for (GameObject object : inventory) {
@@ -45,7 +45,7 @@ public class GeneralController
         String name = matcher.group("name");
         Player currentPlayer = App.getCurrentGame().getCurrentPlayer();
         GameObject object = null;
-        for (GameObject gameObject : currentPlayer.getCurrentBackPack().getInventory()) {
+        for (GameObject gameObject : currentPlayer.getCurrentBackPack().getSlots()) {
             if (gameObject.getObjectType().name().equalsIgnoreCase(name)) {
                 object = gameObject;
             }
@@ -77,14 +77,14 @@ public class GeneralController
         int price = (int)(temp.getPrice() * can.getPercentage());
         currentPlayer.increaseMoney(price);
         object.addNumber(-number);
-        if (object.getNumber() < 1) currentPlayer.getCurrentBackPack().getInventory().remove(object);
+        if (object.getNumber() < 1) currentPlayer.getCurrentBackPack().getSlots().remove(object);
         return new Result(true, "item deleted successfully");
     }
 
     public Result toolsEquip(Matcher matcher) {
         String toolName = matcher.group("name");
         Player currentPlayer = App.getCurrentGame().getCurrentPlayer();
-        for (GameObject object : currentPlayer.getCurrentBackPack().getInventory()) {
+        for (GameObject object : currentPlayer.getCurrentBackPack().getSlots()) {
             if (object.getObjectType().name().equals(toolName)) {
                 if (object instanceof Tool) {
                     currentPlayer.setCurrentTool((Tool) object);
@@ -114,7 +114,7 @@ public class GeneralController
     public void toolsShowAvailable()
     {
         Player currentPlayer = App.getCurrentGame().getCurrentPlayer();
-        for (GameObject object : currentPlayer.getCurrentBackPack().getInventory()) {
+        for (GameObject object : currentPlayer.getCurrentBackPack().getSlots()) {
             System.out.println(object.getObjectType().name());
         }
     }
@@ -337,7 +337,7 @@ public class GeneralController
         Map map = player.getCurrentMap();
 
         int requiredEnergy = map.calculateEnergy(player.getLocation(), destination);
-        int energy = player.getTurnEnergy();
+        float energy = player.getTurnEnergy();
 
         if (requiredEnergy == -1)
         {
@@ -367,7 +367,7 @@ public class GeneralController
         Map map = player.getCurrentMap();
 
         int requiredEnergy = map.calculateEnergy(player.getLocation(), destination);
-        int energy = player.getTurnEnergy();
+        float energy = player.getTurnEnergy();
 
         if (requiredEnergy == -1)
         {

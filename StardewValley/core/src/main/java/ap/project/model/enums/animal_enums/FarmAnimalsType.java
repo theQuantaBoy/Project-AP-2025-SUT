@@ -15,7 +15,7 @@ public enum FarmAnimalsType {
             ),
             "Lives in a coop with a capacity of 4. Produces daily if well cared for. Can also live in upgraded coops.",
             AnimalType.COOP, List.of(FarmBuildingType.COOP, FarmBuildingType.BIG_COOP, FarmBuildingType.DELUXE_COOP),
-            new Texture("StardewValley/core/assets/animals/chicken.png")),
+            new Texture("C:\\Users\\ArmanPC\\IdeaProjects\\advanced-programming-phase-1-group-26\\StardewValley\\core\\assets\\animals\\chicken.png")),
 
     DUCK(GameObjectType.DUCK, "Duck", 1200,
             List.of(
@@ -24,7 +24,7 @@ public enum FarmAnimalsType {
             ),
             "Needs a Big Coop (capacity 8). Produces every 2 days. Happier ducks are more likely to produce Duck Feathers. Can also live in Deluxe Coop.",
             AnimalType.COOP, List.of(FarmBuildingType.BIG_COOP, FarmBuildingType.DELUXE_COOP),
-            new Texture("StardewValley/core/assets/animals/Duck.png")),
+            new Texture("C:\\Users\\ArmanPC\\IdeaProjects\\advanced-programming-phase-1-group-26\\StardewValley\\core\\assets\\animals\\Duck.png")),
 
     RABBIT(GameObjectType.RABBIT, "Rabbit", 8000,
             List.of(
@@ -33,7 +33,7 @@ public enum FarmAnimalsType {
             ),
             "Needs a Deluxe Coop (capacity 12). Produces every 4 days. Happier rabbits have a higher chance of producing Rabbit’s Foot.",
             AnimalType.COOP, List.of(FarmBuildingType.DELUXE_COOP),
-            new Texture("StardewValley/core/assets/animals/Rabbit.png")),
+            new Texture("C:\\Users\\ArmanPC\\IdeaProjects\\advanced-programming-phase-1-group-26\\StardewValley\\core\\assets\\animals\\Rabbit.png")),
 
     DINOSAUR(GameObjectType.DINOSAUR, "Dinosaur", 14000,
             List.of(
@@ -41,7 +41,7 @@ public enum FarmAnimalsType {
             ),
             "Needs a Big Coop (capacity 8). Produces every 7 days.",
             AnimalType.COOP, List.of(FarmBuildingType.BIG_COOP),
-            new Texture("StardewValley/core/assets/animals/Dinosaur.png")),
+            new Texture("C:\\Users\\ArmanPC\\IdeaProjects\\advanced-programming-phase-1-group-26\\StardewValley\\core\\assets\\animals\\Dinosaur.png")),
 
     COW(GameObjectType.COW, "Cow", 1500,
             List.of(
@@ -50,7 +50,7 @@ public enum FarmAnimalsType {
             ),
             "Produces milk daily if fed. Requires a milk pail to collect. Lives in a barn with a capacity of 4. Can also live in upgraded barns.",
             AnimalType.BARN, List.of(FarmBuildingType.BARN, FarmBuildingType.BIG_BARN, FarmBuildingType.DELUXE_BARN),
-            new Texture("StardewValley/core/assets/animals/Cow.png")),
+            new Texture("C:\\Users\\ArmanPC\\IdeaProjects\\advanced-programming-phase-1-group-26\\StardewValley\\core\\assets\\animals\\Cow.png")),
 
     GOAT(GameObjectType.GOAT, "Goat", 4000,
             List.of(
@@ -59,7 +59,7 @@ public enum FarmAnimalsType {
             ),
             "Fed goats produce milk every 2 days. Requires a milk pail. Needs a Big Barn (capacity 8). Can also live in Deluxe Barn.",
             AnimalType.BARN, List.of(FarmBuildingType.BIG_BARN, FarmBuildingType.DELUXE_BARN),
-            new Texture("StardewValley/core/assets/animals/Goat.png")),
+            new Texture("C:\\Users\\ArmanPC\\IdeaProjects\\advanced-programming-phase-1-group-26\\StardewValley\\core\\assets\\animals\\Goat.png")),
 
     SHEEP(GameObjectType.SHEEP, "Sheep", 8000,
             List.of(
@@ -67,7 +67,7 @@ public enum FarmAnimalsType {
             ),
             "A fed sheep with at least 70 happiness produces wool every 3 days. Requires shears. Needs a Deluxe Barn (capacity 12).",
             AnimalType.BARN, List.of(FarmBuildingType.DELUXE_BARN),
-            new Texture("StardewValley/core/assets/animals/Sheep.png")),
+            new Texture("C:\\Users\\ArmanPC\\IdeaProjects\\advanced-programming-phase-1-group-26\\StardewValley\\core\\assets\\animals\\Sheep.png")),
 
     PIG(GameObjectType.PIG, "Pig", 16000,
             List.of(
@@ -75,7 +75,7 @@ public enum FarmAnimalsType {
             ),
             "Finds truffles after leaving the barn. Does not produce during winter since they stay indoors. Needs a Deluxe Barn.",
             AnimalType.BARN, List.of(FarmBuildingType.DELUXE_BARN),
-            new Texture("StardewValley/core/assets/animals/Pig.png")),;
+            new Texture("C:\\Users\\ArmanPC\\IdeaProjects\\advanced-programming-phase-1-group-26\\StardewValley\\core\\assets\\animals\\Pig.png")),;
 
     private final GameObjectType type;
     private final String name;

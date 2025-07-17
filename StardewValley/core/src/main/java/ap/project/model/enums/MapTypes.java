@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 public enum MapTypes
 {
-    STANDARD("standard", "map/standard.json", ""),
+//    STANDARD("standard", "map/standard.json", ""),
     RIVERLAND("riverland", "map/river.json", ""),
     HILL_TOP("hilltop", "map/hilltop.json", ""),
     BEACH("four_corners", "map/beach.json", ""),
@@ -15,6 +15,8 @@ public enum MapTypes
     SHOP("shop", "map/shop.json", ""),
 
     FOREST("forest", "", "maps/Forest.tmx"),
+
+    STANDARD("standard", "", ""),
     ;
 
     private final String name;
@@ -31,6 +33,16 @@ public enum MapTypes
     public String getName()
     {
         return name;
+    }
+
+    public static ArrayList<MapTypes> getFarms()
+    {
+        ArrayList<MapTypes> mapNames = new ArrayList<>();
+        mapNames.add(STANDARD);
+        mapNames.add(FOREST);
+//        mapNames.add(HILL_TOP.getName());
+//        mapNames.add(BEACH.getName());
+        return mapNames;
     }
 
     public String getMapPath()
