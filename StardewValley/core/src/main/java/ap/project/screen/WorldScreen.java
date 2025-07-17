@@ -6,6 +6,7 @@ import ap.project.model.App.GameAssetsManager;
 import ap.project.model.App.User;
 import ap.project.model.enums.Gender;
 import ap.project.model.enums.Season;
+import ap.project.model.game.Game;
 import ap.project.screen.input.WorldScreenInputProcessor;
 import ap.project.util.MapAssetLoader;
 import ap.project.view.GameMenu;
@@ -15,10 +16,7 @@ import ap.project.model.enums.MapTypes;
 import ap.project.model.game.*;
 import ap.project.visual.MapVisual;
 import ap.project.visual.UIRenderer;
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
-import com.badlogic.gdx.InputMultiplexer;
-import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.*;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.*;
@@ -73,6 +71,7 @@ public final class WorldScreen implements Screen
     private TextField userInputField;
     private static StringBuilder dialogTextBuffer = new StringBuilder();
     private static Label dialogContentLabel;
+    private InventoryWindow inventoryWindow;
 
     public WorldScreen()
     {
@@ -112,8 +111,25 @@ public final class WorldScreen implements Screen
 
         gameInputProcessor = new WorldScreenInputProcessor(farm, player, characterController, cam, this);
         Gdx.input.setInputProcessor(gameInputProcessor);
-
+        inventoryWindow = new InventoryWindow(uiStage);
         createTestDialog();
+    }
+
+    @Override
+    public void show() {
+        InputMultiplexer multiplexer = new InputMultiplexer();
+        multiplexer.addProcessor(uiStage);
+        multiplexer.addProcessor(new InputAdapter() {
+            @Override
+            public boolean keyDown(int keycode) {
+                if (keycode == Input.Keys.E || keycode == Input.Keys.ESCAPE) {
+                    inventoryWindow.toggleVisibility();
+                    return true;
+                }
+                return false;
+            }
+        });
+        Gdx.input.setInputProcessor(multiplexer);
     }
 
     @Override
@@ -209,7 +225,7 @@ public final class WorldScreen implements Screen
     }
 
     @Override public void pause(){}  @Override public void resume(){}
-    @Override public void show(){}   @Override public void hide(){}
+    @Override public void hide(){}
     @Override public void dispose(){
         farm.getMapVisual().dispose();
         uiRenderer.dispose();
