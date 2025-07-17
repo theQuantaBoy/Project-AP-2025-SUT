@@ -28,7 +28,6 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
-import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 
 import java.util.ArrayList;
@@ -67,7 +66,7 @@ public final class WorldScreen implements Screen
     private final Skin skin = GameAssetsManager.getGameAssetsManager().getSkin();
 
     private WorldScreenInputProcessor gameInputProcessor;
-    private Dialog testDialog;
+    private Dialog terminalDialog;
     private TextField userInputField;
     private static StringBuilder dialogTextBuffer = new StringBuilder();
     private static Label dialogContentLabel;
@@ -112,13 +111,14 @@ public final class WorldScreen implements Screen
         gameInputProcessor = new WorldScreenInputProcessor(farm, player, characterController, cam, this);
         Gdx.input.setInputProcessor(gameInputProcessor);
         inventoryWindow = new InventoryWindow(uiStage);
-        createTestDialog();
+        createTerminalDialog();
     }
 
     @Override
     public void show() {
         InputMultiplexer multiplexer = new InputMultiplexer();
         multiplexer.addProcessor(uiStage);
+        multiplexer.addProcessor(gameInputProcessor);
         multiplexer.addProcessor(new InputAdapter() {
             @Override
             public boolean keyDown(int keycode) {
@@ -138,7 +138,7 @@ public final class WorldScreen implements Screen
         Gdx.gl.glClearColor(0f, 0f, 0f, 1f);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        if (!testDialog.isVisible())
+        if (!terminalDialog.isVisible())
         {
             update(dt);
             cam.update();
@@ -255,12 +255,13 @@ public final class WorldScreen implements Screen
         return tile;
     }
 
-    private void createTestDialog() {
-        testDialog = new Dialog("Game Console", skin) {
+    private void createTerminalDialog() {
+        terminalDialog = new Dialog("Game Console", skin) {
             @Override
-            protected void result(Object object) {
-                // Only process if submit was clicked
-                if (object != null && object.equals("SUBMIT")) {
+            protected void result(Object object)
+            {
+                if (object != null && object.equals("SUBMIT"))
+                {
                     processUserInput();
                 }
                 closeDialog();
@@ -283,7 +284,7 @@ public final class WorldScreen implements Screen
         userInputField.setMessageText("Enter command here...");
 
         // Layout components - WIDER dimensions
-        Table contentTable = testDialog.getContentTable();
+        Table contentTable = terminalDialog.getContentTable();
         contentTable.add(scrollPane).grow().width(1000).height(350).pad(10); // Wider and taller
         contentTable.row();
         contentTable.add(userInputField).growX().width(1000).pad(10); // Wider input field
@@ -332,15 +333,15 @@ public final class WorldScreen implements Screen
         contentTable.add(buttonTable).padTop(10).right();
 
         // Keyboard shortcuts
-        testDialog.key(Input.Keys.ENTER, "SUBMIT"); // Press Enter to submit
-        testDialog.key(Input.Keys.ESCAPE, "CLOSE"); // Press ESC to close
+        terminalDialog.key(Input.Keys.ENTER, "SUBMIT"); // Press Enter to submit
+        terminalDialog.key(Input.Keys.ESCAPE, "CLOSE"); // Press ESC to close
 
         // Configure dialog window
-        testDialog.setModal(true);
-        testDialog.setMovable(true);
-        testDialog.setResizable(true);
-        testDialog.setSize(700, 500); // Larger initial size (wider and taller)
-        testDialog.setVisible(false);
+        terminalDialog.setModal(true);
+        terminalDialog.setMovable(true);
+        terminalDialog.setResizable(true);
+        terminalDialog.setSize(700, 500); // Larger initial size (wider and taller)
+        terminalDialog.setVisible(false);
     }
 
     private void processUserInput() {
@@ -352,19 +353,19 @@ public final class WorldScreen implements Screen
         }
     }
 
-    public void showTestDialog() {
-        if (testDialog.isVisible()) return;
+    public void toggleTerminalDialog() {
+        if (terminalDialog.isVisible()) return;
 
         // Reset input field
         userInputField.setText("");
 
-        testDialog.show(uiStage);
-        testDialog.setVisible(true);
+        terminalDialog.show(uiStage);
+        terminalDialog.setVisible(true);
 
         // Center dialog on screen
-        testDialog.setPosition(
-            (uiStage.getWidth() - testDialog.getWidth()) / 2,
-            (uiStage.getHeight() - testDialog.getHeight()) / 2
+        terminalDialog.setPosition(
+            (uiStage.getWidth() - terminalDialog.getWidth()) / 2,
+            (uiStage.getHeight() - terminalDialog.getHeight()) / 2
         );
 
         // Update display with current buffer content
@@ -395,13 +396,26 @@ public final class WorldScreen implements Screen
     }
 
     public void closeDialog() {
-        testDialog.hide();
-        testDialog.setVisible(false);
-        Gdx.input.setInputProcessor(gameInputProcessor); // Restore game input
+        terminalDialog.hide();
+        terminalDialog.setVisible(false);
+
+        InputMultiplexer multiplexer = new InputMultiplexer();
+        multiplexer.addProcessor(uiStage);
+        multiplexer.addProcessor(gameInputProcessor);
+
+        Gdx.input.setInputProcessor(multiplexer);
     }
 
     public boolean isDialogVisible() {
-        return testDialog.isVisible();
+        return terminalDialog.isVisible();
     }
 
+    public boolean isInventoryVisible() {
+        return inventoryWindow.isVisible();
+    }
+
+    public void toggleInventoryWindow()
+    {
+        inventoryWindow.toggleVisibility();
+    }
 }

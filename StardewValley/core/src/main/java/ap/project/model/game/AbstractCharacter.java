@@ -48,7 +48,7 @@ public abstract class AbstractCharacter
         {
             frames.add(atlas.findRegion(base + i));
         }
-        return new Animation<>(0.16f, frames, Animation.PlayMode.LOOP);
+        return new Animation<>(0.24f, frames, Animation.PlayMode.LOOP);
     }
 
     public void setDirection(Direction dir)

@@ -35,6 +35,11 @@ public class WorldScreenInputProcessor implements InputProcessor
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button)
     {
+        if (worldScreen.isDialogVisible() || worldScreen.isInventoryVisible())
+        {
+            return false;
+        }
+
         if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT))
         {
             Tile tile = worldScreen.cursorToTile();
@@ -79,16 +84,32 @@ public class WorldScreenInputProcessor implements InputProcessor
     @Override
     public boolean keyDown(int keycode)
     {
-        if (!worldScreen.isDialogVisible() && Gdx.input.isKeyJustPressed(Input.Keys.T))
+        if (worldScreen.isDialogVisible() || worldScreen.isInventoryVisible())
         {
-            worldScreen.showTestDialog();
+            return false;
+        }
+
+        if (keycode == Input.Keys.E || keycode == Input.Keys.ESCAPE)
+        {
+            worldScreen.toggleInventoryWindow();
+            return true;
+        }
+
+        return false;
+    }
+
+    @Override
+    public boolean keyTyped(char character)
+    {
+        if (!worldScreen.isDialogVisible() && (character=='t' || character=='T'))
+        {
+            worldScreen.toggleTerminalDialog();
             return true;
         }
         return false;
     }
 
     @Override public boolean keyUp(int keycode)    { return false; }
-    @Override public boolean keyTyped(char character) { return false; }
     @Override public boolean touchUp(int x, int y, int p, int b) { return false; }
 
     @Override
