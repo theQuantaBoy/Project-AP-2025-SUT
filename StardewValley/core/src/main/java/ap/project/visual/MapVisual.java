@@ -25,10 +25,10 @@ public class MapVisual
         this.tiledMap = tiledMap;
         this.renderer = new OrthogonalTiledMapRenderer(tiledMap, 1.0f);
 
-        woodTexture = new Texture(Gdx.files.internal(GameObjectType.WOOD.getSpritePath()));
+        woodTexture = new Texture(Gdx.files.internal(GameObjectType.WOOD.getPath()));
         woodTexture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
 
-        stoneTexture = new Texture(Gdx.files.internal(GameObjectType.STONE.getSpritePath()));
+        stoneTexture = new Texture(Gdx.files.internal(GameObjectType.STONE.getPath()));
         stoneTexture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
     }
 
@@ -75,7 +75,7 @@ public class MapVisual
     private void drawTile(Tile tile)
     {
         Vector2 location = map.tileToWorld(tile);
-        renderer.getBatch().draw(new Texture(Gdx.files.internal(tile.getObject().getObjectType().getSpritePath())),
+        renderer.getBatch().draw(new Texture(Gdx.files.internal(tile.getObject().getObjectType().getPath())),
             location.x, location.y - (16 * MAP_SCALE), (16 * MAP_SCALE), (16 * MAP_SCALE));
     }
 
