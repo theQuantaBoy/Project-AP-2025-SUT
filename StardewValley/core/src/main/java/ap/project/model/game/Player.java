@@ -41,7 +41,7 @@ public class Player {
 
     private Skill farmingSkill = new Skill(SkillType.Farming);
     private Skill miningSkill = new Skill(SkillType.Mining);
-    private Skill gashtogozarSkill = new Skill(SkillType.Gashtogozar);
+    private Skill foragingSkill = new Skill(SkillType.Foraging);
     private Skill fishingSkill = new Skill(SkillType.Fishing);
 
     BackPack currentBackPack = new BackPack();
@@ -49,6 +49,7 @@ public class Player {
     private ArrayList<Trade> sentTrades = new ArrayList<>();
     private ArrayList<Trade> receivedTrades = new ArrayList<>();
     private ArrayList<Trade> archiveTrades = new ArrayList<>();
+    private List<Skill> skills = new LinkedList<>();
 
     private boolean newMessage;
 
@@ -138,7 +139,8 @@ public class Player {
 //        this.location = farm.getStartingPoint();
         this.newMessage = false;
         this.apperance = appearences.get(number);
-
+        this.skills.add(farmingSkill); this.skills.add(miningSkill);
+        this.skills.add(foragingSkill); this.skills.add(fishingSkill);
 
 //        this.character = new PlayerCharacter(CharacterType.ABIGAIL, new Vector2(60 * 24, 60 * 24));
     }
@@ -166,6 +168,8 @@ public class Player {
         this.apperance = appearences.get(number);
 
         this.character = new PlayerCharacter(CharacterType.ABIGAIL, new Vector2(60 * 24, 60 * 24));
+        this.skills.add(farmingSkill); this.skills.add(miningSkill);
+        this.skills.add(foragingSkill); this.skills.add(fishingSkill);
     }
 
     public PlayerCharacter getCharacter()
@@ -244,8 +248,12 @@ public class Player {
         return miningSkill;
     }
 
-    public Skill getGashtogozarSkill() {
-        return gashtogozarSkill;
+    public Skill getForagingSkill() {
+        return foragingSkill;
+    }
+
+    public List<Skill> getSkills() {
+        return skills;
     }
 
     public Skill getFishingSkill() {

@@ -1,6 +1,8 @@
 package ap.project.screen;
 
 import ap.project.model.App.App;
+import ap.project.model.game.Player;
+import ap.project.model.player_data.Skill;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
@@ -33,12 +35,14 @@ public class InventoryWindow {
     private static final int COLS = 8;
     private Drawable slotBackground; // For inventory slot backgrounds
     private Drawable slotHighlight;
+    private Player player;
 
     /**
      * @param stage    the Stage to which this window will be added
      */
     public InventoryWindow(Stage stage) {
-        this.backpack = App.getCurrentGame().getCurrentPlayer().getCurrentBackPack();
+        this.player = App.getCurrentGame().getCurrentPlayer();
+        this.backpack = player.getCurrentBackPack();
         this.skin = GameAssetsManager.getGameAssetsManager().getSkin();
 
         // Create popup Window
@@ -198,11 +202,10 @@ public class InventoryWindow {
     private Table buildSkillsTable() {
         Table table = new Table(skin);
         table.defaults().pad(4);
-        String[] skills = {"Farming", "Mining", "Foraging", "Fishing", "Combat"};
-        for (String s : skills) {
-            table.add(new Label(s, skin));
-            ProgressBar bar = new ProgressBar(0, 100, 1, false, skin);
-            bar.setValue((float) Math.random() * 100f);
+        for (Skill s : player.getSkills()) {
+            table.add(new Label(s.getName(), skin));
+            ProgressBar bar = new ProgressBar(0, s.getThresholdForLevel(s.getLevel()), 1, false, skin);
+            bar.setValue((float) s.getUnit());
             table.add(bar).width(120);
             table.row();
         }

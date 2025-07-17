@@ -185,7 +185,7 @@ public class GameController
                     }
                     currentPlayer.addToInventory(targetTile.getObject());
                     currentPlayer.increaseTurnEnergy(-((Pickaxe) tool).getLevel().getBaseEnergyUsage());
-                    currentPlayer.getGashtogozarSkill().changeUnit(5);
+                    currentPlayer.getForagingSkill().changeUnit(5);
                     targetTile.setObject(null);
                     return new Result(true, "pickaxe used on mineral");
                 } else if (targetTile.getTexture().equals(TileTexture.QUARRY) &&
