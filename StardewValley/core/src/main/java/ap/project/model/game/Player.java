@@ -128,12 +128,11 @@ public class Player {
         this.turnEnergy = 50f;
         this.fainted = false;
         this.money = 0;
-        this.addToInventory(new Axe());
-        this.addToInventory(new Hoe());
-        this.addToInventory(new Pickaxe());
-        this.addToInventory(new WateringCan());
-        this.addToInventory(new Seythe());
-        this.addToInventory(new TrashCan());
+        addTool(new Axe());
+        addTool(new Hoe());
+        addTool(new Pickaxe());
+        addTool(new WateringCan());
+        addTool(new Seythe());
 
         this.zeidy = null;
 //        this.location = farm.getStartingPoint();
@@ -467,6 +466,7 @@ public class Player {
     }
 
 
+
     public ArrayList<CraftingRecipeEnums> getCraftingRecipes()
     {
         return craftingRecipes;
@@ -517,6 +517,10 @@ public class Player {
         if (currentBackPack.hasEmptySlot()) {
             currentBackPack.addItem(new GameObject(objectType, amount));
         }
+    }
+
+    public void addTool(Tool tool) {
+        currentBackPack.getTools().add(tool);
     }
 
     public int getInventoryCapacity() {

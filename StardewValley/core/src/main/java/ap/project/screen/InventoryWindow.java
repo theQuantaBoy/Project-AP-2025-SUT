@@ -3,6 +3,7 @@ package ap.project.screen;
 import ap.project.model.App.App;
 import ap.project.model.game.Player;
 import ap.project.model.player_data.Skill;
+import ap.project.model.tools.Tool;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
@@ -29,6 +30,7 @@ public class InventoryWindow {
     private final Table skillsTable;
     private final Table socialTable;
     private final Table mapTable;
+    private final Table toolsTable;
     private final Stack contentStack;
     private final BackPack backpack;
     private final Skin skin;
@@ -57,6 +59,7 @@ public class InventoryWindow {
         TextButton skillsTab = new TextButton("Skills", skin);
         TextButton socialTab = new TextButton("Social", skin);
         TextButton mapTab = new TextButton("Map", skin);
+        TextButton toolsTab = new TextButton("Tools", skin);
         this.slotBackground = createColoredDrawable(32, 32, new Color(0.3f, 0.3f, 0.3f, 0.7f));
         this.slotHighlight = createColoredDrawable(32, 32, new Color(0.5f, 0.5f, 0.5f, 0.9f));
 
@@ -65,12 +68,14 @@ public class InventoryWindow {
         skillsTable    = buildSkillsTable();
         socialTable    = buildSocialTable();
         mapTable       = buildMapTable();
+        toolsTable     = new Table(skin);
 
         // Stack panels and hide non-inventory
-        contentStack = new Stack(inventoryTable, skillsTable, socialTable, mapTable);
+        contentStack = new Stack(inventoryTable, skillsTable, socialTable, mapTable, toolsTable);
         skillsTable.setVisible(false);
         socialTable.setVisible(false);
         mapTable.setVisible(false);
+        toolsTable.setVisible(false);
 
         // Tab switching with inventory refresh
         invTab.addListener(new ChangeListener() {
@@ -81,6 +86,7 @@ public class InventoryWindow {
                 skillsTable.setVisible(false);
                 socialTable.setVisible(false);
                 mapTable.setVisible(false);
+                toolsTable.setVisible(false);
                 popup.pack();
                 center(stage);
             }
@@ -92,6 +98,7 @@ public class InventoryWindow {
                 skillsTable.setVisible(true);
                 socialTable.setVisible(false);
                 mapTable.setVisible(false);
+                toolsTable.setVisible(false);
                 popup.pack();
                 center(stage);
             }
@@ -103,6 +110,7 @@ public class InventoryWindow {
                 skillsTable.setVisible(false);
                 socialTable.setVisible(true);
                 mapTable.setVisible(false);
+                toolsTable.setVisible(false);
                 popup.pack();
                 center(stage);
             }
@@ -114,6 +122,20 @@ public class InventoryWindow {
                 skillsTable.setVisible(false);
                 socialTable.setVisible(false);
                 mapTable.setVisible(true);
+                toolsTable.setVisible(false);
+                popup.pack();
+                center(stage);
+            }
+        });
+        toolsTab.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                inventoryTable.setVisible(false);
+                skillsTable.setVisible(false);
+                socialTable.setVisible(false);
+                mapTable.setVisible(false);
+                toolsTable.setVisible(true);
+                refreshToolTable();
                 popup.pack();
                 center(stage);
             }
@@ -125,6 +147,7 @@ public class InventoryWindow {
         popup.add(skillsTab).expandX().fillX();
         popup.add(socialTab).expandX().fillX();
         popup.add(mapTab).expandX().fillX();
+        popup.add(toolsTab).expandX().fillX();
         popup.row();
         popup.add(contentStack).colspan(4).expand().fill();
         popup.pack();
@@ -188,6 +211,48 @@ public class InventoryWindow {
             if ((slot + 1) % COLS == 0) {
                 inventoryTable.row();
             }
+        }
+    }
+
+    private void refreshToolTable() {
+        toolsTable.clear();
+        toolsTable.defaults().size(32).pad(2);
+
+        // Get all slots from backpack
+        java.util.List<Tool> slots = backpack.getTools();
+        int capacity = slots.size();
+
+        for (int slot = 0; slot < capacity; slot++) {
+            GameObject obj = slots.get(slot);
+
+            // Create slot container with background
+            Table slotContainer = new Table();
+            slotContainer.setBackground(slotBackground);
+            slotContainer.setSize(32, 32);
+
+            if (obj != null) {
+                // Get item icon
+                Drawable icon = null;
+                try {
+                    icon = getIconForGameObject(obj);
+                } catch (Exception e) {
+                    icon = new Image(new Texture(Gdx.files.internal("game_objects/crops/Rice.png"))).getDrawable();
+                }
+
+                // Create stack for item and count
+                Stack itemStack = new Stack();
+                itemStack.add(new Image(icon));
+
+                // Add count label if more than 1
+                if (obj.getNumber() > 1) {
+                    Label countLabel = new Label(String.valueOf(obj.getNumber()), skin);
+                    itemStack.add(countLabel);
+                }
+
+                slotContainer.add(itemStack).expand().fill();
+            }
+
+            toolsTable.add(slotContainer).size(32, 32).pad(2);
         }
     }
 
