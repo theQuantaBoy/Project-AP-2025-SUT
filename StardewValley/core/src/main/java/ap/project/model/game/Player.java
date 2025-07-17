@@ -7,6 +7,7 @@ import ap.project.model.animal.Animal;
 import ap.project.model.animal.AnimalBuilding;
 import ap.project.model.animal.Fish;
 import ap.project.model.enums.*;
+import ap.project.model.enums.animal_enums.FarmAnimalsType;
 import ap.project.model.tools.*;
 import ap.project.model.enums.building_enums.ArtisanGoodsType;
 import ap.project.model.enums.building_enums.CraftingRecipeEnums;
@@ -1026,6 +1027,7 @@ public class Player {
             {
                 animals.add(animal);
             }
+            animals.add(new Animal("test", FarmAnimalsType.CHICKEN)); //TEST
         }
         return animals;
     }
