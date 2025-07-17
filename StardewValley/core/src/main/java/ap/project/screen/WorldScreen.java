@@ -4,15 +4,12 @@ import ap.project.control.CharacterController;
 import ap.project.model.App.App;
 import ap.project.model.App.GameAssetsManager;
 import ap.project.model.App.User;
-import ap.project.model.enums.Gender;
-import ap.project.model.enums.Season;
+import ap.project.model.enums.*;
 import ap.project.model.game.Game;
 import ap.project.screen.input.WorldScreenInputProcessor;
 import ap.project.util.MapAssetLoader;
 import ap.project.view.GameMenu;
 import ap.project.visual.CharacterRenderer;
-import ap.project.model.enums.CharacterType;
-import ap.project.model.enums.MapTypes;
 import ap.project.model.game.*;
 import ap.project.visual.MapVisual;
 import ap.project.visual.UIRenderer;
@@ -45,9 +42,10 @@ public final class WorldScreen implements Screen
     private final OrthographicCamera cam;
     private final OrthographicCamera uiCam = new OrthographicCamera();
 
-    private final PlayerCharacter player;
+    private Player player;
+    private PlayerCharacter character;
     private CharacterController characterController;
-    private final CharacterRenderer characterRenderer;
+    private CharacterRenderer characterRenderer;
 
     private Farm farm;
     private final UIRenderer uiRenderer;
@@ -77,11 +75,19 @@ public final class WorldScreen implements Screen
         cam = new OrthographicCamera(20 * TILE_SIZE, 15 * TILE_SIZE);
         cam.setToOrtho(false);
 
-        this.game = new Game(new ArrayList<>(List.of(new Player(new User("","","","", Gender.FEMALE, "", ""), MapTypes.STANDARD, 0))));
+        this.game = new Game(new ArrayList<>(List.of(
+            new Player(new User("mohsen","","mohsen","", Gender.FEMALE, "", ""), MapTypes.STANDARD, 0),
+            new Player(new User("arash","","arash","", Gender.FEMALE, "", ""), MapTypes.STANDARD, 0),
+            new Player(new User("moshtagh","","moshtagh","", Gender.FEMALE, "", ""), MapTypes.STANDARD, 0)
+            )));
+
         App.setCurrentGame(game);
+        App.setCurrentMenu(Menu.GameMenu);
+        App.setCurrentUser(game.getPlayers().get(0).getUser());
         game.setCurrentPlayer(game.getPlayers().get(0));
 
 //        this.game = App.getCurrentGame();
+
         for (Player p : game.getPlayers())
         {
             Farm f = new Farm(p.getMapType());
@@ -92,9 +98,6 @@ public final class WorldScreen implements Screen
         time = game.getCurrentTime();
         currentSeason = time.getSeason();
 
-        Vector2 spawn = new Vector2(10 * TILE_SIZE, 10 * TILE_SIZE);
-        player = new PlayerCharacter(CharacterType.ABIGAIL, spawn);
-        characterController = new CharacterController(player, farm, PLAYER_SPEED, TILE_SIZE);
         characterRenderer = new CharacterRenderer();
 
         if (SECOND_PLAYER)
@@ -108,10 +111,27 @@ public final class WorldScreen implements Screen
         ShaderProgram.pedantic = false;
         uiRenderer = new UIRenderer(time);
 
-        gameInputProcessor = new WorldScreenInputProcessor(farm, player, characterController, cam, this);
-        Gdx.input.setInputProcessor(gameInputProcessor);
         inventoryWindow = new InventoryWindow(uiStage);
         createTerminalDialog();
+
+        updateGameInfo();
+    }
+
+    public void updateGameInfo()
+    {
+        if (player == null || !App.getCurrentGame().getCurrentPlayer().equals(player))
+        {
+            this.player = App.getCurrentGame().getCurrentPlayer();
+            this.character = player.getCharacter();
+            this.farm = player.getFarm();
+
+            characterController = new CharacterController(character, farm, PLAYER_SPEED, TILE_SIZE);
+
+            gameInputProcessor = new WorldScreenInputProcessor(farm, character, characterController, cam, this);
+            Gdx.input.setInputProcessor(gameInputProcessor);
+
+            uiRenderer.updatePlayer();
+        }
     }
 
     @Override
@@ -149,7 +169,7 @@ public final class WorldScreen implements Screen
         Batch batch = farm.getMapVisual().getRenderer().getBatch();
         batch.setProjectionMatrix(cam.combined);
         batch.begin();
-        characterRenderer.render(batch, player, CHAR_SCALE);
+        characterRenderer.render(batch, character, CHAR_SCALE);
         if (SECOND_PLAYER) characterRenderer.render(batch, player2, CHAR_SCALE);
         batch.end();
 
@@ -190,9 +210,10 @@ public final class WorldScreen implements Screen
         characterController.update(dt);
         if (SECOND_PLAYER) controller2.update(dt);
 
+        updateGameInfo();
         updateSeason();
 
-        cam.position.set(player.getPosition().x + TILE_SIZE/2, player.getPosition().y + TILE_SIZE/2, 0);
+        cam.position.set(character.getPosition().x + TILE_SIZE/2, character.getPosition().y + TILE_SIZE/2, 0);
 
         float mapPixelW = farm.getWIDTH()  * TILE_SIZE;
         float mapPixelH = farm.getHEIGHT() * TILE_SIZE;

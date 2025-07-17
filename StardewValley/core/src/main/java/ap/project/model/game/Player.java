@@ -22,6 +22,8 @@ import com.badlogic.gdx.math.Vector2;
 
 import java.util.*;
 
+import static ap.project.model.game.Map.TILE_SIZE;
+
 public class Player {
     private PlayerCharacter character;
 
@@ -140,7 +142,7 @@ public class Player {
         this.apperance = appearences.get(number);
 
 
-//        this.character = new PlayerCharacter(CharacterType.ABIGAIL, new Vector2(60 * 24, 60 * 24));
+        this.character = new PlayerCharacter(CharacterType.ABIGAIL, new Vector2(10 * TILE_SIZE, 10 * TILE_SIZE));
     }
 
     public Player(User user, Farm farm, int number) {

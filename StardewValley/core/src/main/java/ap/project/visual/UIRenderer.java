@@ -61,6 +61,11 @@ public class UIRenderer {
 
     }
 
+    public void updatePlayer()
+    {
+        this.player = App.getCurrentGame().getCurrentPlayer();
+    }
+
     /** Entry point for rendering all UI elements */
     public void renderUI(Batch batch, OrthographicCamera uiCam) {
         int screenW = (int) uiCam.viewportWidth;
@@ -111,7 +116,7 @@ public class UIRenderer {
 
         String dayText = DayOfWeek.getShortDayOfWeek((time.getDay() - 1) % 7) + " " + time.getDay();
         String timeText = time.getHour() + ":00" + ((time.getHour() >= 12) ? " pm" : " am");
-        String moneyText = "500000"; // Placeholder — can become dynamic
+        String moneyText = String.format("%d", (int) player.getMoney());
 
         font.setColor(Color.BLACK);
         font.draw(batch, dayText, x + 130, y + 210);
