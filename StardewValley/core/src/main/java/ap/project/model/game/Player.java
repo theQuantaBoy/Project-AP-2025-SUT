@@ -133,6 +133,7 @@ public class Player {
         addTool(new Pickaxe());
         addTool(new WateringCan());
         addTool(new Seythe());
+        addToInventory(GameObjectType.MILK, 2);
 
         this.zeidy = null;
 //        this.location = farm.getStartingPoint();

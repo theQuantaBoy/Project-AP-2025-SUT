@@ -374,7 +374,7 @@ public enum GameObjectType
     FISHING_POLE("Fishing Pole", "game_objects/Fishing_Pole/Iridium_Rod.png"),
     HOE("Hoe", "game_objects/Tools/Hoe/Iridium_Hoe.png"),
     PICKAXE("Pickaxe", "game_objects/Tools/Pickaxe/Pickaxe.png"),
-    SEYTHE("Seythe", "game_objects/Tools/Scythe.png"),
+    SCYTHE("Scythe", "game_objects/Tools/Scythe.png"),
     SHEAR("Shear", "game_objects/Tools/Shears.png"),
     TRASH_CAN("Trash Can", "game_objects/Tools/Trash_Can_Iridium.png"),
     WATERING_CAN("Watering Can", "game_objects/Watering_Can/Watering_Can.png"),
