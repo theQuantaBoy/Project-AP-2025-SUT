@@ -1,6 +1,7 @@
 package ap.project.screen.input;
 
 import ap.project.control.CharacterController;
+import ap.project.model.App.App;
 import ap.project.model.game.*;
 import ap.project.screen.WorldScreen;
 import com.badlogic.gdx.Gdx;
@@ -89,6 +90,12 @@ public class WorldScreenInputProcessor implements InputProcessor
         if (keycode == Input.Keys.E || keycode == Input.Keys.ESCAPE)
         {
             worldScreen.toggleInventoryWindow();
+            return true;
+        }
+
+        if (Gdx.input.isKeyJustPressed(Input.Keys.C))
+        {
+            App.getCurrentGame().getCurrentPlayer().goToFarm();
             return true;
         }
 

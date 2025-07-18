@@ -32,6 +32,8 @@ import java.util.List;
 
 public final class WorldScreen implements Screen
 {
+    private static WorldScreen INSTANCE;
+
     public static final float MAP_SCALE  = 1.0f;
     private static final float CHAR_SCALE = 1f;
     private static final float TILE_SIZE  = 24f * MAP_SCALE;
@@ -75,6 +77,8 @@ public final class WorldScreen implements Screen
 
     public WorldScreen()
     {
+        INSTANCE = this;
+
         this.shapeRenderer = new ShapeRenderer();
         cam = new OrthographicCamera(20 * TILE_SIZE, 15 * TILE_SIZE);
         cam.setToOrtho(false);
@@ -120,31 +124,37 @@ public final class WorldScreen implements Screen
         createTerminalDialog();
 
         inputMultiplexer = new InputMultiplexer();
-        updateGameInfo();
+        checkGameInfo();
+    }
+
+    public void checkGameInfo()
+    {
+        if (player == null || !App.getCurrentGame().getCurrentPlayer().equals(player))
+        {
+            updateGameInfo();
+        }
     }
 
     public void updateGameInfo()
     {
-        if (player == null || !App.getCurrentGame().getCurrentPlayer().equals(player))
+        this.player = App.getCurrentGame().getCurrentPlayer();
+        this.character = player.getCharacter();
+        this.map = player.getCurrentMap();
+
+        updateMap();
+
+        characterController = new CharacterController(character, map, PLAYER_SPEED, TILE_SIZE);
+
+        gameInputProcessor = new WorldScreenInputProcessor(map, character, characterController, cam, this);
+
+        if (inputMultiplexer != null && inputMultiplexerHadSetUp)
         {
-            this.player = App.getCurrentGame().getCurrentPlayer();
-            this.character = player.getCharacter();
-            this.map = player.getCurrentMap();
-
-            updateSeason();
-
-            characterController = new CharacterController(character, map, PLAYER_SPEED, TILE_SIZE);
-
-            gameInputProcessor = new WorldScreenInputProcessor(map, character, characterController, cam, this);
-
-            if (inputMultiplexer != null && inputMultiplexerHadSetUp)
-            {
-                inputMultiplexer.removeProcessor(1);
-                inputMultiplexer.addProcessor(1, gameInputProcessor);
-            }
-
-            uiRenderer.updatePlayer();
+            inputMultiplexer.removeProcessor(1);
+            inputMultiplexer.addProcessor(1, gameInputProcessor);
         }
+
+        uiRenderer.updatePlayer();
+
     }
 
     @Override
@@ -226,8 +236,8 @@ public final class WorldScreen implements Screen
         characterController.update(dt);
         if (SECOND_PLAYER) controller2.update(dt);
 
-        updateGameInfo();
-        checkSeason();
+        checkGameInfo();
+        checkMapSeason();
 
         cam.position.set(character.getPosition().x + TILE_SIZE/2, character.getPosition().y + TILE_SIZE/2, 0);
 
@@ -269,19 +279,19 @@ public final class WorldScreen implements Screen
         shapeRenderer.dispose();
     }
 
-    private void checkSeason()
+    private void checkMapSeason()
     {
         if (time.getSeason() != currentSeason)
         {
-            updateSeason();
+            updateMap();
         }
 
         currentSeason = time.getSeason();
     }
 
-    private void updateSeason()
+    private void updateMap()
     {
-        MapAssetLoader.LoadedMap loaded = MapAssetLoader.loadFromTmx(map.getMapType().getName(), time.getSeason());
+        MapAssetLoader.LoadedMap loaded = MapAssetLoader.loadFromTmx(map.getMapType().getName(), time.getSeason(), map.getMapType().getMapKind());
         TiledMap tiledMap = loaded.tiledMap;
         map.setVisual(new MapVisual(map, tiledMap));
     }
@@ -459,5 +469,10 @@ public final class WorldScreen implements Screen
     public void toggleInventoryWindow()
     {
         inventoryWindow.toggleVisibility();
+    }
+
+    public static WorldScreen getInstance()
+    {
+        return INSTANCE;
     }
 }

@@ -41,6 +41,8 @@ public class Game
 
         for (Player player : players)
         {
+            player.getUser().setCurrentGame(this);
+
             for (Player other : players)
             {
                 if (!player.equals(other))
@@ -51,7 +53,7 @@ public class Game
             }
         }
 
-        setNPCs();
+//        setNPCs();
 
         for (NPC npc : NPCs)
         {

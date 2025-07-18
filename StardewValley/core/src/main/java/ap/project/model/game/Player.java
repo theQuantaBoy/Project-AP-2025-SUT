@@ -17,6 +17,7 @@ import ap.project.model.player_data.FriendshipWithNpcData;
 import ap.project.model.player_data.Skill;
 import ap.project.model.player_data.Trade;
 import ap.project.model.resources.Plant;
+import ap.project.screen.WorldScreen;
 import ap.project.view.CityMenu;
 import com.badlogic.gdx.math.Vector2;
 
@@ -660,6 +661,7 @@ public class Player {
         this.isInZeidiesHome = false;
         this.currentMap = this.farm;
         this.location = farm.getStartingPoint();
+        WorldScreen.getInstance().updateGameInfo();
     }
 
     public void goToZeidyFarm()
@@ -712,6 +714,7 @@ public class Player {
         this.currentMap = this.user.getCurrentGame().getCity();
         this.location = this.user.getCurrentGame().getCity().findFreeStartingPoint();
         city.getPlayerPoints()[App.getCurrentGame().getPlayerIndex()] = this.location;
+        WorldScreen.getInstance().updateGameInfo();
     }
 
     public void setEnergyToMax()

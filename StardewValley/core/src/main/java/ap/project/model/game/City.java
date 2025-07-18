@@ -1,6 +1,7 @@
 package ap.project.model.game;
 
 import ap.project.model.App.App;
+import ap.project.model.enums.MapKind;
 import ap.project.model.enums.MapTypes;
 import ap.project.model.enums.ShopType;
 import ap.project.model.enums.TileTexture;
@@ -17,11 +18,13 @@ public class City extends Map
 
     public City()
     {
-        this.mapType = MapTypes.CITY;
+        super(MapTypes.TOWN);
+
+        this.mapType = MapTypes.TOWN;
         this.mapPath = mapType.getMapPath();
 
-        initialize();
-        initializeShops();
+//        initialize();
+//        initializeShops();
     }
 
     private void initialize()

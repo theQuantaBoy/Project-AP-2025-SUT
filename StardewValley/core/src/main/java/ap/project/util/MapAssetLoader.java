@@ -1,5 +1,6 @@
 package ap.project.util;
 
+import ap.project.model.enums.MapKind;
 import ap.project.model.enums.Season;
 import ap.project.model.enums.TileTexture;
 import ap.project.model.game.Point;
@@ -12,9 +13,16 @@ import com.badlogic.gdx.maps.tiled.*;
 
 public final class MapAssetLoader
 {
-    public static LoadedMap loadFromTmx(String baseMapName, Season season)
+    public static LoadedMap loadFromTmx(String baseMapName, Season season, MapKind mapKind)
     {
-        String fileName = String.format("maps/farm/%s/%s_%s.tmx", baseMapName, baseMapName, season.getName());
+        String fileName = "";
+
+        switch (mapKind)
+        {
+            case FARM -> fileName = String.format("maps/farm/%s/%s_%s.tmx", baseMapName, baseMapName, season.getName());
+            case TOWN -> fileName = String.format("maps/general/town/town_%s.tmx", season.getName());
+        }
+
         return new LoadedMap(fileName);
     }
 

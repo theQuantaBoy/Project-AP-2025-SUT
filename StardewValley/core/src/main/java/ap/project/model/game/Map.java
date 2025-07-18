@@ -1,5 +1,6 @@
 package ap.project.model.game;
 
+import ap.project.model.enums.MapKind;
 import ap.project.model.enums.MapTypes;
 import ap.project.model.enums.Season;
 import ap.project.model.enums.TileTexture;
@@ -38,7 +39,7 @@ public abstract class Map
     {
         this.mapType = mapType;
 
-        MapAssetLoader.LoadedMap loaded = MapAssetLoader.loadFromTmx(mapType.getName(), Season.Spring);
+        MapAssetLoader.LoadedMap loaded = MapAssetLoader.loadFromTmx(mapType.getName(), Season.Spring, mapType.getMapKind());
 
         this.WIDTH = loaded.width;
         this.HEIGHT = loaded.height;
@@ -521,6 +522,13 @@ public abstract class Map
     public Tile[][] getTiles()
     {
         return tiles;
+    }
+
+    @Override
+    public boolean equals(Object o)
+    {
+        if (!(o instanceof Map map)) return false;
+        return WIDTH == map.WIDTH && HEIGHT == map.HEIGHT && depth == map.depth && mapType == map.mapType;
     }
 }
 

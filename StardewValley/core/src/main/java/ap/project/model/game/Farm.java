@@ -4,6 +4,7 @@ import ap.project.model.App.App;
 import ap.project.model.animal.Animal;
 import ap.project.model.animal.AnimalBuilding;
 import ap.project.model.animal.Fish;
+import ap.project.model.enums.MapKind;
 import ap.project.model.enums.MapTypes;
 import ap.project.model.enums.Season;
 import ap.project.model.enums.TileTexture;

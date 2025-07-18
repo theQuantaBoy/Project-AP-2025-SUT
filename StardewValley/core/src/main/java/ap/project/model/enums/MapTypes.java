@@ -5,29 +5,32 @@ import java.util.ArrayList;
 public enum MapTypes
 {
 //    STANDARD("standard", "map/standard.json", ""),
-    RIVERLAND("riverland", "map/river.json", ""),
-    HILL_TOP("hilltop", "map/hilltop.json", ""),
-    BEACH("four_corners", "map/beach.json", ""),
+    RIVERLAND("riverland", "map/river.json", "", null),
+    HILL_TOP("hilltop", "map/hilltop.json", "", null),
+    BEACH("four_corners", "map/beach.json", "", null),
 
-    CABIN("cabin", "map/cabin.json", ""),
-    GREEN_HOUSE("greenhouse", "map/greenhouse.json", ""),
-    CITY("city", "map/city.json", ""),
-    SHOP("shop", "map/shop.json", ""),
+    CABIN("cabin", "map/cabin.json", "", null),
+    GREEN_HOUSE("greenhouse", "map/greenhouse.json", "", null),
+    CITY("city", "map/city.json", "", null),
+    SHOP("shop", "map/shop.json", "", null),
 
-    FOREST("forest", "", "maps/Forest.tmx"),
+    FOREST("forest", "", "maps/Forest.tmx", null),
 
-    STANDARD("standard", "", ""),
+    STANDARD("standard", "", "", MapKind.FARM),
+    TOWN("town", "", "", MapKind.TOWN)
     ;
 
     private final String name;
     private final String mapPath;
     private final String tmxPath;
+    private final MapKind mapKind;
 
-    MapTypes(String name, String mapPath, String tmxPath)
+    MapTypes(String name, String mapPath, String tmxPath, MapKind mapKind)
     {
         this.name = name;
         this.mapPath = mapPath;
         this.tmxPath = tmxPath;
+        this.mapKind = mapKind;
     }
 
     public String getName()
@@ -105,5 +108,10 @@ public enum MapTypes
     public String getTmxPath()
     {
         return tmxPath;
+    }
+
+    public MapKind getMapKind()
+    {
+        return mapKind;
     }
 }

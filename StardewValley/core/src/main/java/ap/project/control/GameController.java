@@ -625,17 +625,17 @@ public class GameController
             return new Result(false, "Going to green house...");
         } else if (placeName.equalsIgnoreCase("city"))
         {
-            Point cabinDoor = player.getCabin().getStartingPoint();
-            int requiredEnergy = player.getCurrentMap().calculateEnergy(player.getLocation(), cabinDoor);
-
-            if (!player.hasEnoughEnergy(requiredEnergy))
-            {
-                return new Result(false, "You don't have enough energy, you're stuck here.");
-            }
+//            Point cabinDoor = player.getCabin().getStartingPoint();
+//            int requiredEnergy = player.getCurrentMap().calculateEnergy(player.getLocation(), cabinDoor);
+//
+//            if (!player.hasEnoughEnergy(requiredEnergy))
+//            {
+//                return new Result(false, "You don't have enough energy, you're stuck here.");
+//            }
 
             player.goToCity();
             App.setCurrentMenu(Menu.CityMenu);
-            player.increaseTurnEnergy(-1 * requiredEnergy);
+//            player.increaseTurnEnergy(-1 * requiredEnergy);
             return new Result(true, "Going to city...");
         }
 
