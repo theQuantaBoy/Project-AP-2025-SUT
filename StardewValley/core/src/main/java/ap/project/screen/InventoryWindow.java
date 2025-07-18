@@ -45,6 +45,7 @@ public class InventoryWindow {
     TooltipManager tooltipManager = TooltipManager.getInstance();
     Drawable tooltipBg;
     TextButton toolsTab;
+    TextButton mapTab;
 
     /**
      * @param stage    the Stage to which this window will be added
@@ -64,7 +65,7 @@ public class InventoryWindow {
         TextButton invTab = new TextButton("Inventory", skin);
         TextButton skillsTab = new TextButton("Skills", skin);
         TextButton socialTab = new TextButton("Social", skin);
-        TextButton mapTab = new TextButton("Map", skin);
+        mapTab = new TextButton("Map", skin);
         toolsTab = new TextButton("Tools", skin);
         this.slotBackground = createColoredDrawable(SLOTS_SIZE, SLOTS_SIZE, new Color(0.3f, 0.3f, 0.3f, 0.7f));
         this.slotHighlight = createColoredDrawable(SLOTS_SIZE, SLOTS_SIZE, new Color(0.5f, 0.5f, 0.5f, 0.9f));
@@ -392,5 +393,9 @@ public class InventoryWindow {
 
     public TextButton getToolsTab() {
         return toolsTab;
+    }
+
+    public TextButton getMapTab() {
+        return mapTab;
     }
 }

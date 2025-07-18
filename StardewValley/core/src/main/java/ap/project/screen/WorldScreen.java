@@ -129,6 +129,12 @@ public final class WorldScreen implements Screen
                 else if (keycode == Input.Keys.TAB) {
                     inventoryWindow.toggleVisibility();
                     inventoryWindow.getToolsTab().setChecked(true);
+                    return true;
+                }
+                else if (keycode == Input.Keys.M) {
+                    inventoryWindow.toggleVisibility();
+                    inventoryWindow.getMapTab().setChecked(true);
+                    return true;
                 }
                 return false;
             }
