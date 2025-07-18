@@ -51,7 +51,7 @@ public final class WorldScreen implements Screen
     private final UIRenderer uiRenderer;
 
     private Point hoveredTile = null;
-    private final ShapeRenderer shapeRenderer = new ShapeRenderer();
+    private final ShapeRenderer shapeRenderer;
 
     private final boolean SECOND_PLAYER = false;
     private PlayerCharacter player2;
@@ -72,6 +72,7 @@ public final class WorldScreen implements Screen
 
     public WorldScreen()
     {
+        this.shapeRenderer = new ShapeRenderer();
         cam = new OrthographicCamera(20 * TILE_SIZE, 15 * TILE_SIZE);
         cam.setToOrtho(false);
 
@@ -98,12 +99,12 @@ public final class WorldScreen implements Screen
         time = game.getCurrentTime();
         currentSeason = time.getSeason();
 
-        characterRenderer = new CharacterRenderer();
+        this.characterRenderer = new CharacterRenderer(shapeRenderer);
 
         if (SECOND_PLAYER)
         {
             Vector2 spawn2 = new Vector2(62 * TILE_SIZE, 60 * TILE_SIZE);
-            player2 = new PlayerCharacter(CharacterType.ABIGAIL, spawn2); // or any other character
+            player2 = new PlayerCharacter(CharacterType.ABIGAIL, spawn2, "Player 456");
             controller2 = new CharacterController(player2, farm, PLAYER_SPEED, TILE_SIZE);
             controller2.chnageMoveKeys(Input.Keys.UP, Input.Keys.LEFT, Input.Keys.DOWN, Input.Keys.RIGHT);
         }
@@ -168,6 +169,7 @@ public final class WorldScreen implements Screen
 
         Batch batch = farm.getMapVisual().getRenderer().getBatch();
         batch.setProjectionMatrix(cam.combined);
+        shapeRenderer.setProjectionMatrix(cam.combined);
         batch.begin();
         characterRenderer.render(batch, character, CHAR_SCALE);
         if (SECOND_PLAYER) characterRenderer.render(batch, player2, CHAR_SCALE);

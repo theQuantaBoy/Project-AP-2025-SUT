@@ -21,7 +21,11 @@ public abstract class AbstractCharacter
     protected float maxEnergy = 100f;
     protected float currentEnergy = maxEnergy;
 
-    public AbstractCharacter(CharacterType type, Vector2 spawnPoint)
+    protected final String nickName;
+    protected float maxWidth;
+    protected float maxHeight;
+
+    public AbstractCharacter(CharacterType type, Vector2 spawnPoint, String nickName)
     {
         this.type = type;
         this.position = new Vector2(spawnPoint);
@@ -39,6 +43,10 @@ public abstract class AbstractCharacter
         animations.put(Direction.RIGHT, createAnim(atlas, type.getName() + "_0_walk_right_"));
 
         this.currentAnimation = animations.get(Direction.DOWN);
+        this.nickName = nickName;
+
+        maxHeight = 0;
+        maxWidth = 0;
     }
 
     private Animation<TextureRegion> createAnim(TextureAtlas atlas, String base)
@@ -46,7 +54,12 @@ public abstract class AbstractCharacter
         Array<TextureRegion> frames = new Array<>(4);
         for (int i = 0; i < 4; i++)
         {
-            frames.add(atlas.findRegion(base + i));
+            TextureRegion frame = atlas.findRegion(base + i);
+            if (frame != null) {
+                frames.add(frame);
+                maxWidth = Math.max(maxWidth, frame.getRegionWidth());
+                maxHeight = Math.max(maxHeight, frame.getRegionHeight());
+            }
         }
         return new Animation<>(0.24f, frames, Animation.PlayMode.LOOP);
     }
@@ -100,5 +113,20 @@ public abstract class AbstractCharacter
     public enum Direction
     {
         UP, DOWN, LEFT, RIGHT
+    }
+
+    public String getNickName()
+    {
+        return nickName;
+    }
+
+    public float getMaxWidth()
+    {
+        return maxWidth;
+    }
+
+    public float getMaxHeight()
+    {
+        return maxHeight;
     }
 }

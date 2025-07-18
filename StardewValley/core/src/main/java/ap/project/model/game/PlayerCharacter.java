@@ -5,9 +5,9 @@ import com.badlogic.gdx.math.Vector2;
 
 public class PlayerCharacter extends AbstractCharacter
 {
-    public PlayerCharacter(CharacterType type, Vector2 spawnPoint)
+    public PlayerCharacter(CharacterType type, Vector2 spawnPoint, String nickName)
     {
-        super(type, spawnPoint);
+        super(type, spawnPoint,  nickName);
     }
 }
 

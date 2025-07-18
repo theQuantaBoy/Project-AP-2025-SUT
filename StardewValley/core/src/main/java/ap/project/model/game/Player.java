@@ -142,7 +142,8 @@ public class Player {
         this.apperance = appearences.get(number);
 
 
-        this.character = new PlayerCharacter(CharacterType.ABIGAIL, new Vector2(10 * TILE_SIZE, 10 * TILE_SIZE));
+        this.character = new PlayerCharacter(CharacterType.ABIGAIL, new Vector2(10 * TILE_SIZE, 10 * TILE_SIZE),
+            user.getNickname());
     }
 
     public Player(User user, Farm farm, int number) {
@@ -167,7 +168,8 @@ public class Player {
         this.newMessage = false;
         this.apperance = appearences.get(number);
 
-        this.character = new PlayerCharacter(CharacterType.ABIGAIL, new Vector2(60 * 24, 60 * 24));
+        this.character = new PlayerCharacter(CharacterType.ABIGAIL, new Vector2(60 * 24, 60 * 24),
+            user.getNickname());
     }
 
     public PlayerCharacter getCharacter()
