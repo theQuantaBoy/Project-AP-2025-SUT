@@ -55,7 +55,7 @@ public final class WorldScreen implements Screen
     private Point hoveredTile = null;
     private final ShapeRenderer shapeRenderer = new ShapeRenderer();
 
-    private final boolean SECOND_PLAYER = false;
+    private final boolean SECOND_PLAYER = true;
     private PlayerCharacter player2;
     private CharacterController controller2;
 
@@ -99,7 +99,7 @@ public final class WorldScreen implements Screen
 
         if (SECOND_PLAYER)
         {
-            Vector2 spawn2 = new Vector2(62 * TILE_SIZE, 60 * TILE_SIZE);
+            Vector2 spawn2 = new Vector2(12 * TILE_SIZE, 12 * TILE_SIZE);
             player2 = new PlayerCharacter(CharacterType.ABIGAIL, spawn2); // or any other character
             controller2 = new CharacterController(player2, farm, PLAYER_SPEED, TILE_SIZE);
             controller2.chnageMoveKeys(Input.Keys.UP, Input.Keys.LEFT, Input.Keys.DOWN, Input.Keys.RIGHT);
@@ -125,6 +125,10 @@ public final class WorldScreen implements Screen
                 if (keycode == Input.Keys.E || keycode == Input.Keys.ESCAPE) {
                     inventoryWindow.toggleVisibility();
                     return true;
+                }
+                else if (keycode == Input.Keys.TAB) {
+                    inventoryWindow.toggleVisibility();
+                    inventoryWindow.getToolsTab().setChecked(true);
                 }
                 return false;
             }
@@ -418,4 +422,6 @@ public final class WorldScreen implements Screen
     {
         inventoryWindow.toggleVisibility();
     }
+
+
 }

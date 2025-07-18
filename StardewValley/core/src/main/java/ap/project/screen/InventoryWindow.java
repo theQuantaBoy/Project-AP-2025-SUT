@@ -44,7 +44,7 @@ public class InventoryWindow {
     private Player player;
     TooltipManager tooltipManager = TooltipManager.getInstance();
     Drawable tooltipBg;
-
+    TextButton toolsTab;
 
     /**
      * @param stage    the Stage to which this window will be added
@@ -65,7 +65,7 @@ public class InventoryWindow {
         TextButton skillsTab = new TextButton("Skills", skin);
         TextButton socialTab = new TextButton("Social", skin);
         TextButton mapTab = new TextButton("Map", skin);
-        TextButton toolsTab = new TextButton("Tools", skin);
+        toolsTab = new TextButton("Tools", skin);
         this.slotBackground = createColoredDrawable(SLOTS_SIZE, SLOTS_SIZE, new Color(0.3f, 0.3f, 0.3f, 0.7f));
         this.slotHighlight = createColoredDrawable(SLOTS_SIZE, SLOTS_SIZE, new Color(0.5f, 0.5f, 0.5f, 0.9f));
 
@@ -388,5 +388,9 @@ public class InventoryWindow {
 
     public void dispose() {
         popup.remove();
+    }
+
+    public TextButton getToolsTab() {
+        return toolsTab;
     }
 }
