@@ -47,7 +47,7 @@ public final class WorldScreen implements Screen
     private CharacterController characterController;
     private CharacterRenderer characterRenderer;
 
-    private Farm farm;
+    private Map map;
     private final UIRenderer uiRenderer;
 
     private Point hoveredTile = null;
@@ -69,6 +69,9 @@ public final class WorldScreen implements Screen
     private static StringBuilder dialogTextBuffer = new StringBuilder();
     private static Label dialogContentLabel;
     private InventoryWindow inventoryWindow;
+
+    private InputMultiplexer inputMultiplexer;
+    private boolean inputMultiplexerHadSetUp = false;
 
     public WorldScreen()
     {
@@ -93,9 +96,10 @@ public final class WorldScreen implements Screen
         {
             Farm f = new Farm(p.getMapType());
             p.setFarm(f);
+            p.setCurrentMap(f);
         }
 
-        farm = game.getPlayers().get(0).getFarm();
+        this.map = game.getCurrentPlayer().getCurrentMap();
         time = game.getCurrentTime();
         currentSeason = time.getSeason();
 
@@ -105,7 +109,7 @@ public final class WorldScreen implements Screen
         {
             Vector2 spawn2 = new Vector2(62 * TILE_SIZE, 60 * TILE_SIZE);
             player2 = new PlayerCharacter(CharacterType.ABIGAIL, spawn2, "Player 456");
-            controller2 = new CharacterController(player2, farm, PLAYER_SPEED, TILE_SIZE);
+            controller2 = new CharacterController(player2, map, PLAYER_SPEED, TILE_SIZE);
             controller2.chnageMoveKeys(Input.Keys.UP, Input.Keys.LEFT, Input.Keys.DOWN, Input.Keys.RIGHT);
         }
 
@@ -115,6 +119,7 @@ public final class WorldScreen implements Screen
         inventoryWindow = new InventoryWindow(uiStage);
         createTerminalDialog();
 
+        inputMultiplexer = new InputMultiplexer();
         updateGameInfo();
     }
 
@@ -124,23 +129,31 @@ public final class WorldScreen implements Screen
         {
             this.player = App.getCurrentGame().getCurrentPlayer();
             this.character = player.getCharacter();
-            this.farm = player.getFarm();
+            this.map = player.getCurrentMap();
 
-            characterController = new CharacterController(character, farm, PLAYER_SPEED, TILE_SIZE);
+            updateSeason();
 
-            gameInputProcessor = new WorldScreenInputProcessor(farm, character, characterController, cam, this);
-            Gdx.input.setInputProcessor(gameInputProcessor);
+            characterController = new CharacterController(character, map, PLAYER_SPEED, TILE_SIZE);
+
+            gameInputProcessor = new WorldScreenInputProcessor(map, character, characterController, cam, this);
+
+            if (inputMultiplexer != null && inputMultiplexerHadSetUp)
+            {
+                inputMultiplexer.removeProcessor(1);
+                inputMultiplexer.addProcessor(1, gameInputProcessor);
+            }
 
             uiRenderer.updatePlayer();
         }
     }
 
     @Override
-    public void show() {
-        InputMultiplexer multiplexer = new InputMultiplexer();
-        multiplexer.addProcessor(uiStage);
-        multiplexer.addProcessor(gameInputProcessor);
-        multiplexer.addProcessor(new InputAdapter() {
+    public void show()
+    {
+        inputMultiplexer.clear();
+        inputMultiplexer.addProcessor(uiStage);
+        inputMultiplexer.addProcessor(gameInputProcessor);
+        inputMultiplexer.addProcessor(new InputAdapter() {
             @Override
             public boolean keyDown(int keycode) {
                 if (keycode == Input.Keys.E || keycode == Input.Keys.ESCAPE) {
@@ -150,7 +163,8 @@ public final class WorldScreen implements Screen
                 return false;
             }
         });
-        Gdx.input.setInputProcessor(multiplexer);
+        Gdx.input.setInputProcessor(inputMultiplexer);
+        inputMultiplexerHadSetUp = true;
     }
 
     @Override
@@ -159,15 +173,15 @@ public final class WorldScreen implements Screen
         Gdx.gl.glClearColor(0f, 0f, 0f, 1f);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        if (!terminalDialog.isVisible())
+        if (!terminalDialog.isVisible() && !isInventoryVisible())
         {
             update(dt);
             cam.update();
         }
 
-        farm.getMapVisual().render(cam);
+        map.getMapVisual().render(cam);
 
-        Batch batch = farm.getMapVisual().getRenderer().getBatch();
+        Batch batch = map.getMapVisual().getRenderer().getBatch();
         batch.setProjectionMatrix(cam.combined);
         shapeRenderer.setProjectionMatrix(cam.combined);
         batch.begin();
@@ -191,8 +205,8 @@ public final class WorldScreen implements Screen
             shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
             shapeRenderer.setColor(1f, 0f, 0f, 0.3f);
 
-            Tile tile = farm.getTile(hoveredTile.getX(), hoveredTile.getY() - 1);
-            Vector2 location = farm.tileToWorld(tile);
+            Tile tile = map.getTile(hoveredTile.getX(), hoveredTile.getY() - 1);
+            Vector2 location = map.tileToWorld(tile);
 
             if (location != null)
             {
@@ -213,12 +227,12 @@ public final class WorldScreen implements Screen
         if (SECOND_PLAYER) controller2.update(dt);
 
         updateGameInfo();
-        updateSeason();
+        checkSeason();
 
         cam.position.set(character.getPosition().x + TILE_SIZE/2, character.getPosition().y + TILE_SIZE/2, 0);
 
-        float mapPixelW = farm.getWIDTH()  * TILE_SIZE;
-        float mapPixelH = farm.getHEIGHT() * TILE_SIZE;
+        float mapPixelW = map.getWidth()  * TILE_SIZE;
+        float mapPixelH = map.getHeight() * TILE_SIZE;
 
         cam.position.x = MathUtils.clamp(cam.position.x,
             cam.viewportWidth  /2, mapPixelW  - cam.viewportWidth /2);
@@ -250,21 +264,26 @@ public final class WorldScreen implements Screen
     @Override public void pause(){}  @Override public void resume(){}
     @Override public void hide(){}
     @Override public void dispose(){
-        farm.getMapVisual().dispose();
+        map.getMapVisual().dispose();
         uiRenderer.dispose();
         shapeRenderer.dispose();
     }
 
-    private void updateSeason()
+    private void checkSeason()
     {
         if (time.getSeason() != currentSeason)
         {
-            MapAssetLoader.LoadedMap loaded = MapAssetLoader.loadFromTmx(farm.getMapType().getName(), time.getSeason());
-            TiledMap tiledMap = loaded.tiledMap;
-            farm.setVisual(new MapVisual(farm, tiledMap));
+            updateSeason();
         }
 
         currentSeason = time.getSeason();
+    }
+
+    private void updateSeason()
+    {
+        MapAssetLoader.LoadedMap loaded = MapAssetLoader.loadFromTmx(map.getMapType().getName(), time.getSeason());
+        TiledMap tiledMap = loaded.tiledMap;
+        map.setVisual(new MapVisual(map, tiledMap));
     }
 
     public Tile cursorToTile()
@@ -272,8 +291,8 @@ public final class WorldScreen implements Screen
         float mouseX = Gdx.input.getX();
         float mouseY = Gdx.input.getY() + (60); // Hard-Coded
 
-        hoveredTile = farm.screenToTile(mouseX, mouseY, cam);
-        Tile tile = farm.getTile(hoveredTile.getX(), hoveredTile.getY() - 1);
+        hoveredTile = map.screenToTile(mouseX, mouseY, cam);
+        Tile tile = map.getTile(hoveredTile.getX(), hoveredTile.getY() - 1);
 
         return tile;
     }
@@ -426,7 +445,7 @@ public final class WorldScreen implements Screen
         multiplexer.addProcessor(uiStage);
         multiplexer.addProcessor(gameInputProcessor);
 
-        Gdx.input.setInputProcessor(multiplexer);
+        Gdx.input.setInputProcessor(inputMultiplexer);
     }
 
     public boolean isDialogVisible() {

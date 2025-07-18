@@ -29,18 +29,7 @@ public class Farm extends Map
     private ArrayList<Tile> tilesWithResources = new ArrayList<>();
 
     public Farm(MapTypes farmType) {
-        this.mapType = farmType;
-
-        MapAssetLoader.LoadedMap loaded = MapAssetLoader.loadFromTmx(farmType.getName(), Season.Spring);
-
-        this.WIDTH = loaded.width;
-        this.HEIGHT = loaded.height;
-        this.tiledMap = loaded.tiledMap;
-        this.tiles = loaded.tiles;
-        this.layerTiles = loaded.layerTiles;
-        this.depth = loaded.depth;
-
-        this.visual = new MapVisual(this, loaded.tiledMap);
+        super(farmType);
 
 //        applyMap();
         setRandomItems();

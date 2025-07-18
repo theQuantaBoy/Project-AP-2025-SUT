@@ -320,7 +320,7 @@ public class GeneralController
         Map map = player.getCurrentMap();
         return new Result(true,
                 "\n" +
-                        map.getMapString(player.getLocation(), new Point(0,0), map.getHEIGHT(), map.getWIDTH()).trim()
+                        map.getMapString(player.getLocation(), new Point(0,0), map.getHeight(), map.getWidth()).trim()
         + "\n");
     }
 

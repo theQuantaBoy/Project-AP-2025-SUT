@@ -410,7 +410,7 @@ public class HomeController
         Player player = App.getCurrentGame().getCurrentPlayer();
         Map map = player.getCurrentMap();
         return new Result(true,
-                map.getMapString(player.getLocation(), new Point(0,0), map.getHEIGHT(), map.getWIDTH()).trim());
+                map.getMapString(player.getLocation(), new Point(0,0), map.getHeight(), map.getWidth()).trim());
     }
 
     public Result goOut()
