@@ -21,11 +21,11 @@ public class GeneralController
     /* player commands */
     public Result energyShow() {
         Player currentPlayer = App.getCurrentGame().getCurrentPlayer();
-        if (currentPlayer.getTurnEnergy() == -1)
+        if (currentPlayer.getEnergy() == -1)
             return new Result(true, "Your Energy is unlimited!");
         return new Result(true,
                 "Your Energy: " + currentPlayer.getEnergy() +
-                        "\nthis turn energy: " + currentPlayer.getTurnEnergy());
+                        "\nthis turn energy: " + currentPlayer.getEnergy());
     }
 
     public void inventoryShow()
@@ -123,18 +123,18 @@ public class GeneralController
     public Result energySet(Matcher matcher) {
         int value = Integer.parseInt(matcher.group("value"));
         Player currentPlayer = App.getCurrentGame().getCurrentPlayer();
-        if (currentPlayer.getTurnEnergy() == -1) {
+        if (currentPlayer.getEnergy() == -1) {
             return new Result(false, "your energy is unlimited yohahahahaha");
         } else if (value < 1) {
             return new Result(false,"you should set your energy to a positive number!");
         }
-        currentPlayer.setTurnEnergy(value);
-        return new Result(true,"your energy set to : " + currentPlayer.getTurnEnergy());
+        currentPlayer.setEnergy(value);
+        return new Result(true,"your energy set to : " + currentPlayer.getEnergy());
     }
 
     public Result energyUnlimited() {
         Player currentPlayer = App.getCurrentGame().getCurrentPlayer();
-        currentPlayer.setTurnEnergy(-1); //might change later
+        currentPlayer.setEnergy(-1); //might change later
         return new Result(true,"your energy is now unlimited eshghohal");
 
     }
@@ -337,7 +337,7 @@ public class GeneralController
         Map map = player.getCurrentMap();
 
         int requiredEnergy = map.calculateEnergy(player.getLocation(), destination);
-        float energy = player.getTurnEnergy();
+        float energy = player.getEnergy();
 
         if (requiredEnergy == -1)
         {
@@ -367,7 +367,7 @@ public class GeneralController
         Map map = player.getCurrentMap();
 
         int requiredEnergy = map.calculateEnergy(player.getLocation(), destination);
-        float energy = player.getTurnEnergy();
+        float energy = player.getEnergy();
 
         if (requiredEnergy == -1)
         {
@@ -394,7 +394,7 @@ public class GeneralController
             if (input.equals("1"))
             {
                 player.setLocation(destination);
-                player.increaseTurnEnergy(-1 * player.getTurnEnergy());
+                player.increaseEnergy(-1 * player.getEnergy());
                 player.faint();
                 GameMenu.println("You have reached your destination.");
                 GameMenu.println("But you fainted. I'll see you tomorrow morning.");
@@ -406,7 +406,7 @@ public class GeneralController
             {
                 requiredEnergy = map.calculateEnergy(player.getLocation(), canGetTo);
                 player.setLocation(canGetTo);
-                player.increaseTurnEnergy(-1 * requiredEnergy);
+                player.increaseEnergy(-1 * requiredEnergy);
                 GameMenu.println("You have reached your destination.");
                 return;
             }
@@ -422,7 +422,7 @@ public class GeneralController
         }
 
         player.setLocation(destination);
-        player.increaseTurnEnergy(-1 * requiredEnergy);
+        player.increaseEnergy(-1 * requiredEnergy);
         GameMenu.println("You have successfully reached your destination.");
     }
 

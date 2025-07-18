@@ -36,7 +36,6 @@ public class Player {
 
     private float energy;
     private float maxEnergy = 200f;
-    private float turnEnergy = 50f;
     private boolean fainted = false;
 
     private Skill farmingSkill = new Skill(SkillType.Farming);
@@ -125,7 +124,6 @@ public class Player {
         this.greenHouse = new GreenHouse();
 //        this.currentMap = this.farm;
         this.energy = 200f;
-        this.turnEnergy = 50f;
         this.fainted = false;
         this.money = 0;
         addTool(new Axe());
@@ -152,7 +150,6 @@ public class Player {
         this.greenHouse = new GreenHouse();
         this.currentMap = this.farm;
         this.energy = 200f;
-        this.turnEnergy = 50f;
         this.fainted = false;
         this.money = 0;
         this.addToInventory(new Axe());
@@ -208,21 +205,6 @@ public class Player {
         // TODO: add faint check mechanism
     }
 
-    public float getTurnEnergy() {
-        return turnEnergy;
-    }
-
-    public void setTurnEnergy(float turnEnergy) {
-        this.turnEnergy = turnEnergy;
-    }
-
-    public void increaseTurnEnergy(float turnEnergy)
-    {
-        if (this.turnEnergy != -1)
-        {
-            this.turnEnergy += turnEnergy;
-        }
-    }
 
     public float getMaxEnergy() {
         return this.maxEnergy;
@@ -231,6 +213,8 @@ public class Player {
     public void setMaxEnergy(float maxEnergy) {
         this.maxEnergy = maxEnergy;
     }
+
+
 
     public boolean isFainted() {
         return fainted;
@@ -427,7 +411,7 @@ public class Player {
     }
 
     public void checkEnergy() {
-        if (this.turnEnergy < 1) {
+        if (this.energy < 1) {
             this.setFainted(true);
         }
     }
@@ -749,12 +733,12 @@ public class Player {
 
     public boolean hasEnoughEnergy(int required)
     {
-        if (turnEnergy == -1)
+        if (energy == -1)
         {
             return true;
         }
 
-        return turnEnergy > required;
+        return energy > required;
     }
 
     public ArrayList<Tile> getFarmPlants()
@@ -842,11 +826,6 @@ public class Player {
 
     public void resetEnergy()
     {
-        if (turnEnergy != -1) // not unlimited
-        {
-            turnEnergy = 50;
-        }
-
         if (energy != -1) // not unlimited
         {
             // TODO

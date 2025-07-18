@@ -231,7 +231,6 @@ public class InventoryWindow {
 
             inventoryTable.add(slotContainer).size(SLOTS_SIZE, SLOTS_SIZE).pad(2);
 
-            // Start new row after every COLS items
             if ((slot + 1) % COLS == 0) {
                 inventoryTable.row();
             }
