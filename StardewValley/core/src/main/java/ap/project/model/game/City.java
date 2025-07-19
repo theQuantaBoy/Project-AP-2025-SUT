@@ -24,7 +24,7 @@ public class City extends Map
         this.mapPath = mapType.getMapPath();
 
 //        initialize();
-//        initializeShops();
+        initializeShops();
     }
 
     private void initialize()

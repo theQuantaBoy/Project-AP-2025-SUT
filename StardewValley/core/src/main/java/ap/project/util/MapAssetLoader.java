@@ -23,6 +23,7 @@ public final class MapAssetLoader
             case TOWN -> fileName = String.format("maps/general/town/town_%s.tmx", season.getName());
             case HOUSE -> fileName = "maps/general/house/house_interior.tmx";
             case GREEN_HOUSE -> fileName = "maps/general/greenhouse/green_house.tmx";
+            case SHOP -> fileName = String.format("maps/general/shops/%s.tmx", baseMapName);
         }
 
         return new LoadedMap(fileName);

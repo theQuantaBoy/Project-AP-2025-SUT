@@ -7,6 +7,7 @@ import ap.project.model.animal.Animal;
 import ap.project.model.animal.AnimalBuilding;
 import ap.project.model.animal.Fish;
 import ap.project.model.enums.*;
+import ap.project.model.shops.Shop;
 import ap.project.model.tools.*;
 import ap.project.model.enums.building_enums.ArtisanGoodsType;
 import ap.project.model.enums.building_enums.CraftingRecipeEnums;
@@ -687,6 +688,14 @@ public class Player {
         this.currentMap = this.farm;
 //        this.location = farm.getStartingPoint();
         setLocation(farm.getStartingPoint());
+        WorldScreen.getInstance().updateGameInfo();
+    }
+
+    public void goToShop(Shop shop)
+    {
+        this.isInCity = false;
+        this.currentMap = shop;
+        setLocation(shop.getStartingPoint());
         WorldScreen.getInstance().updateGameInfo();
     }
 

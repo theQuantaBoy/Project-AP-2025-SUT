@@ -21,7 +21,13 @@ public enum MapTypes
     HOUSE("house", "", "", MapKind.HOUSE),
     GREEN_HOUSE("greenhouse", "", "", MapKind.GREEN_HOUSE),
 
-
+    MARNIE_RANCH("animal_shop", "", "", MapKind.SHOP),
+    BLACK_SMITH("blacksmith", "", "", MapKind.SHOP),
+    CARPENTER_SHOP("carpenter_shop", "", "", MapKind.SHOP),
+    FISH_SHOP("fish_shop", "", "", MapKind.SHOP),
+    JOJA_MART("joja_mart", "", "", MapKind.SHOP),
+    PIERRE_GENERAL_STORE("pierre_store", "", "", MapKind.SHOP),
+    SALOON("saloon", "", "", MapKind.SHOP)
     ;
 
     private final String name;

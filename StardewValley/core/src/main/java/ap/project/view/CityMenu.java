@@ -4,9 +4,6 @@ import ap.project.control.GeneralController;
 import ap.project.control.game.activities.*;
 import ap.project.model.App.Result;
 import ap.project.model.enums.regex_enums.*;
-import ap.project.control.game.activities.*;
-import ap.project.model.enums.regex_enums.*;
-import ap.project.screen.TerminalScreen;
 import ap.project.screen.WorldScreen;
 
 import java.util.Scanner;
@@ -164,9 +161,10 @@ public class CityMenu implements AppMenu
             println(generalController.deleteGame(scanner));
         }
 
-        else if ((matcher = CityCommands.CD_FARM.getMatcher(input)) != null)
+        else if ((matcher = CityCommands.CD_PLACE.getMatcher(input)) != null)
         {
-            println(cityController.goOut());
+            String place = matcher.group("place");
+            println(cityController.goToPlace(place));
         }else if (CommunicateCommands.FRIENDSHIP.getMatcher(input) != null) {
             comController.friendships();
         } else if ((matcher = CommunicateCommands.TALK.getMatcher(input)) != null) {
@@ -403,9 +401,10 @@ public class CityMenu implements AppMenu
 //            println(generalController.deleteGame(scanner));
         }
 
-        else if ((matcher = CityCommands.CD_FARM.getMatcher(input)) != null)
+        else if ((matcher = CityCommands.CD_PLACE.getMatcher(input)) != null)
         {
-            println(cityController.goOut());
+            String place = matcher.group("place");
+            println(cityController.goToPlace(place));
         }else if (CommunicateCommands.FRIENDSHIP.getMatcher(input) != null) {
             comController.friendships();
         } else if ((matcher = CommunicateCommands.TALK.getMatcher(input)) != null) {

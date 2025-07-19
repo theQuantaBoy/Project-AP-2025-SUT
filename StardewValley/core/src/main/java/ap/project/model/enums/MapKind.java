@@ -4,7 +4,7 @@ public enum MapKind
 {
     FARM,
     TOWN,
-    SHOP,
     HOUSE,
     GREEN_HOUSE,
+    SHOP;
 }
