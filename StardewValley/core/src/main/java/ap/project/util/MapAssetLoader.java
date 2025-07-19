@@ -21,6 +21,8 @@ public final class MapAssetLoader
         {
             case FARM -> fileName = String.format("maps/farm/%s/%s_%s.tmx", baseMapName, baseMapName, season.getName());
             case TOWN -> fileName = String.format("maps/general/town/town_%s.tmx", season.getName());
+            case HOUSE -> fileName = "maps/general/house/house_interior.tmx";
+            case GREEN_HOUSE -> fileName = "maps/general/greenhouse/green_house.tmx";
         }
 
         return new LoadedMap(fileName);

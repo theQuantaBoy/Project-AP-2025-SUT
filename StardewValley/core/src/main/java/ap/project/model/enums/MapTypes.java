@@ -4,20 +4,24 @@ import java.util.ArrayList;
 
 public enum MapTypes
 {
-//    STANDARD("standard", "map/standard.json", ""),
+    //    STANDARD("standard", "map/standard.json", ""),
     RIVERLAND("riverland", "map/river.json", "", null),
     HILL_TOP("hilltop", "map/hilltop.json", "", null),
     BEACH("four_corners", "map/beach.json", "", null),
 
-    CABIN("cabin", "map/cabin.json", "", null),
-    GREEN_HOUSE("greenhouse", "map/greenhouse.json", "", null),
+    //    HOUSE("cabin", "map/cabin.json", "", null),
+//    GREEN_HOUSE("greenhouse", "map/greenhouse.json", "", null),
     CITY("city", "map/city.json", "", null),
     SHOP("shop", "map/shop.json", "", null),
 
     FOREST("forest", "", "maps/Forest.tmx", null),
 
     STANDARD("standard", "", "", MapKind.FARM),
-    TOWN("town", "", "", MapKind.TOWN)
+    TOWN("town", "", "", MapKind.TOWN),
+    HOUSE("house", "", "", MapKind.HOUSE),
+    GREEN_HOUSE("greenhouse", "", "", MapKind.GREEN_HOUSE),
+
+
     ;
 
     private final String name;

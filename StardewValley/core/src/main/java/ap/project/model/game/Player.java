@@ -31,7 +31,7 @@ public class Player {
     private final User user;
     private Farm farm;
     private final Cabin cabin;
-    private final GreenHouse greenHouse;
+    private GreenHouse greenHouse;
 
     private Gender gender;
     private Point location = null;
@@ -718,6 +718,7 @@ public class Player {
         this.currentMap = this.cabin;
 //        this.location = cabin.getStartingPoint();
         setLocation(cabin.getStartingPoint());
+        WorldScreen.getInstance().updateGameInfo();
     }
 
     public void goToGreenHouse()
@@ -730,6 +731,7 @@ public class Player {
         this.currentMap = this.greenHouse;
 //        this.location = greenHouse.getStartingPoint();
         setLocation(greenHouse.getStartingPoint());
+        WorldScreen.getInstance().updateGameInfo();
     }
 
     public void goToCity()

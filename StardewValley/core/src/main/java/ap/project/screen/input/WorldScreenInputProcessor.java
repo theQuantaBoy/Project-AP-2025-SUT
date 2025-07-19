@@ -93,12 +93,6 @@ public class WorldScreenInputProcessor implements InputProcessor
             return true;
         }
 
-        if (Gdx.input.isKeyJustPressed(Input.Keys.C))
-        {
-            App.getCurrentGame().getCurrentPlayer().goToFarm();
-            return true;
-        }
-
         return false;
     }
 

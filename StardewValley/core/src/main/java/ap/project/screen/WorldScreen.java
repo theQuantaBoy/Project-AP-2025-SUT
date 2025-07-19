@@ -75,6 +75,8 @@ public final class WorldScreen implements Screen
     private InputMultiplexer inputMultiplexer;
     private boolean inputMultiplexerHadSetUp = false;
 
+    private boolean cameraFixed = false;
+
     public WorldScreen()
     {
         INSTANCE = this;
@@ -259,15 +261,38 @@ public final class WorldScreen implements Screen
         checkGameInfo();
         checkMapSeason();
 
-        cam.position.set(character.getPosition().x + TILE_SIZE/2, character.getPosition().y + TILE_SIZE/2, 0);
+        if (!cameraFixed)
+        {
+            float playerX = character.getPosition().x + TILE_SIZE / 2;
+            float playerY = character.getPosition().y + TILE_SIZE / 2;
 
-        float mapPixelW = map.getWidth()  * TILE_SIZE;
-        float mapPixelH = map.getHeight() * TILE_SIZE;
+            float camX = playerX;
+            float camY = playerY;
 
-        cam.position.x = MathUtils.clamp(cam.position.x,
-            cam.viewportWidth  /2, mapPixelW  - cam.viewportWidth /2);
-        cam.position.y = MathUtils.clamp(cam.position.y,
-            cam.viewportHeight /2, mapPixelH - cam.viewportHeight/2);
+            float halfViewportW = cam.viewportWidth / 2;
+            float halfViewportH = cam.viewportHeight / 2;
+
+            float rightEdgeSize = (map.getWidth() * MAP_SCALE * 16) - (cam.viewportWidth / 2);
+            float upEdgeSize = (map.getHeight() * MAP_SCALE * 16) - (cam.viewportHeight / 2);
+
+            if (playerX < halfViewportW)
+            {
+                camX = halfViewportW;
+            } else if (playerX >= rightEdgeSize)
+            {
+                camX = rightEdgeSize;
+            }
+
+            if (playerY <  halfViewportH)
+            {
+                camY = halfViewportH;
+            } else if (playerY >= upEdgeSize)
+            {
+                camY = upEdgeSize;
+            }
+
+            cam.position.set(camX, camY, 0);
+        }
     }
 
     @Override
@@ -314,6 +339,25 @@ public final class WorldScreen implements Screen
         MapAssetLoader.LoadedMap loaded = MapAssetLoader.loadFromTmx(map.getMapType().getName(), time.getSeason(), map.getMapType().getMapKind());
         TiledMap tiledMap = loaded.tiledMap;
         map.setVisual(new MapVisual(map, tiledMap));
+
+        float mapPixelWidth = map.getWidth() * TILE_SIZE;
+        float mapPixelHeight = map.getHeight() * TILE_SIZE;
+
+        if (mapPixelWidth <= cam.viewportWidth || mapPixelHeight <= cam.viewportHeight)
+        {
+            setCameraFixed(true);
+
+            float centerX = (map.getWidth() * MAP_SCALE * 16) / 2;
+            float centerY = (map.getHeight() * MAP_SCALE * 16) / 2;
+
+            cam.position.set(centerX, centerY, 0);
+            cam.update();
+
+            map.getMapVisual().getRenderer().setView(cam);
+        } else
+        {
+            setCameraFixed(false);
+        }
     }
 
     public Tile cursorToTile()
@@ -494,5 +538,16 @@ public final class WorldScreen implements Screen
     public static WorldScreen getInstance()
     {
         return INSTANCE;
+    }
+
+    public void setCameraFixed(boolean cameraFixed)
+    {
+        this.cameraFixed = cameraFixed;
+
+        if (cameraFixed)
+        {
+            cam.position.set(character.getPosition().x + TILE_SIZE/2, character.getPosition().y + TILE_SIZE/2, 0);
+            cam.update();
+        }
     }
 }
