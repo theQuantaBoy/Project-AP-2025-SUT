@@ -34,6 +34,7 @@ public final class MapAssetLoader
         public final TiledMap tiledMap;
         public final Tile[][] tiles;
         public final Tile[][][] layerTiles;
+        public final Point startingPoint;
 
         public LoadedMap(String tmxPath)
         {
@@ -42,6 +43,11 @@ public final class MapAssetLoader
             width = tiledMap.getProperties().get("width", Integer.class);
             height = tiledMap.getProperties().get("height", Integer.class);
             depth = tiledMap.getLayers().size();
+
+            int startingPointX = tiledMap.getProperties().get("starting_point_x", Integer.class);
+            int startingPointY = tiledMap.getProperties().get("starting_point_y", Integer.class);
+
+            startingPoint = new Point(startingPointX, startingPointY);
 
             tiles = new Tile[height][width]; // [y][x]
             layerTiles = new Tile[depth][height][width];

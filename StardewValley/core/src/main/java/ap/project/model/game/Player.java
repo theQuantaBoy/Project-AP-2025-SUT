@@ -142,9 +142,19 @@ public class Player {
         this.newMessage = false;
         this.apperance = appearences.get(number);
 
+//        Point spawn = currentMap.getStartingPoint();
+//        Vector2 spawnPoint = currentMap.tileToWorld(currentMap.getTile(spawn.getX(), spawn.getY()));
+//
+//        this.character = new PlayerCharacter(CharacterType.ABIGAIL, spawnPoint, user.getNickname());
+    }
 
-        this.character = new PlayerCharacter(CharacterType.ABIGAIL, new Vector2(10 * TILE_SIZE, 10 * TILE_SIZE),
-            user.getNickname());
+    public void spawn()
+    {
+        this.currentMap = this.farm;
+        Point spawn = currentMap.getStartingPoint();
+        Vector2 spawnPoint = currentMap.tileToWorld(currentMap.getTile(spawn.getX(), spawn.getY()));
+
+        this.character = new PlayerCharacter(CharacterType.ABIGAIL, spawnPoint, user.getNickname());
     }
 
     public Player(User user, Farm farm, int number) {
@@ -165,7 +175,8 @@ public class Player {
         this.addToInventory(new TrashCan());
 
         this.zeidy = null;
-        this.location = farm.getStartingPoint();
+//        this.location = farm.getStartingPoint();
+        setLocation(farm.getStartingPoint());
         this.newMessage = false;
         this.apperance = appearences.get(number);
 
@@ -347,7 +358,9 @@ public class Player {
 
     public Point getLocation()
     {
-        return location;
+//        return location;
+        Vector2 pos = character.getPosition();
+        return currentMap.worldToTile(pos.x, pos.y);
     }
 
     public Map getCurrentMap()
@@ -357,20 +370,22 @@ public class Player {
 
     public void setLocation(Point location)
     {
-        this.location = location;
-        if (isInCity)
-        {
-            int index = App.getCurrentGame().getPlayerIndex();
-            City city = App.getCurrentGame().getCity();
-            city.getPlayerPoints()[index] = location;
-        }
-        if (isInCity)
-        {
-            int index = App.getCurrentGame().getPlayerIndex();
-            City city = App.getCurrentGame().getCity();
-            city.getPlayerPoints()[index] = location;
-        }
+//        this.location = location;
 
+        character.setPosition(currentMap.tileToWorld(currentMap.getTile(location.getX(), location.getY())));
+//
+//        if (isInCity)
+//        {
+//            int index = App.getCurrentGame().getPlayerIndex();
+//            City city = App.getCurrentGame().getCity();
+//            city.getPlayerPoints()[index] = location;
+//        }
+//        if (isInCity)
+//        {
+//            int index = App.getCurrentGame().getPlayerIndex();
+//            City city = App.getCurrentGame().getCity();
+//            city.getPlayerPoints()[index] = location;
+//        }
     }
 
     public void setCurrentMap(Map currentMap)
@@ -577,11 +592,21 @@ public class Player {
     public boolean isNear(Point otherLocation)
     {
 
-        Point location = this.location;
+        Point location = getLocation();
         int dx = Math.abs(location.getX() - otherLocation.getX());
         int dy = Math.abs(location.getY() - otherLocation.getY());
 
-        return (dx <= 1 && dy <= 1) && !(dx == 0 && dy == 0);
+        return (dx <= 2 && dy <= 2) && !(dx == 0 && dy == 0);
+    }
+
+    public boolean isNearOrOn(Point otherLocation)
+    {
+
+        Point location = getLocation();
+        int dx = Math.abs(location.getX() - otherLocation.getX());
+        int dy = Math.abs(location.getY() - otherLocation.getY());
+
+        return (dx <= 2 && dy <= 2);
     }
 
     public GameObject getFromRefrigerator (GameObjectType type)
@@ -660,7 +685,8 @@ public class Player {
         this.isInZeidiesFarm = false;
         this.isInZeidiesHome = false;
         this.currentMap = this.farm;
-        this.location = farm.getStartingPoint();
+//        this.location = farm.getStartingPoint();
+        setLocation(farm.getStartingPoint());
         WorldScreen.getInstance().updateGameInfo();
     }
 
@@ -679,7 +705,8 @@ public class Player {
         this.isInZeidiesFarm = true;
         this.isInZeidiesHome = false;
         this.currentMap = zeidy.getFarm();
-        this.location = zeidy.getFarm().getStartingPoint();
+//        this.location = zeidy.getFarm().getStartingPoint();
+        setLocation(zeidy.getFarm().getStartingPoint());
     }
 
     public void goToCabin()
@@ -689,7 +716,8 @@ public class Player {
         this.isInZeidiesHome = false;
         this.isInFarm = false;
         this.currentMap = this.cabin;
-        this.location = cabin.getStartingPoint();
+//        this.location = cabin.getStartingPoint();
+        setLocation(cabin.getStartingPoint());
     }
 
     public void goToGreenHouse()
@@ -700,7 +728,8 @@ public class Player {
         this.isInFarm = false;
         this.isInGreenHouse = true;
         this.currentMap = this.greenHouse;
-        this.location = greenHouse.getStartingPoint();
+//        this.location = greenHouse.getStartingPoint();
+        setLocation(greenHouse.getStartingPoint());
     }
 
     public void goToCity()
@@ -712,8 +741,10 @@ public class Player {
         this.isInFarm = false;
         this.isInCity = true;
         this.currentMap = this.user.getCurrentGame().getCity();
-        this.location = this.user.getCurrentGame().getCity().findFreeStartingPoint();
-        city.getPlayerPoints()[App.getCurrentGame().getPlayerIndex()] = this.location;
+//        this.location = this.user.getCurrentGame().getCity().findFreeStartingPoint();
+//        setLocation(this.user.getCurrentGame().getCity().findFreeStartingPoint());
+        setLocation(this.user.getCurrentGame().getCity().getStartingPoint());
+//        city.getPlayerPoints()[App.getCurrentGame().getPlayerIndex()] = this.location;
         WorldScreen.getInstance().updateGameInfo();
     }
 
@@ -880,7 +911,8 @@ public class Player {
 
         this.isInHome = true;
         this.currentMap = cabin;
-        this.location = cabin.getBedPoint();
+//        this.location = cabin.getBedPoint();
+        setLocation(cabin.getBedPoint());
         App.setCurrentMenu(Menu.HomeMenu);
     }
 

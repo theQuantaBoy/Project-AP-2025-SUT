@@ -103,6 +103,11 @@ public final class WorldScreen implements Screen
             p.setCurrentMap(f);
         }
 
+        for (Player p : game.getPlayers())
+        {
+            p.spawn();
+        }
+
         this.map = game.getCurrentPlayer().getCurrentMap();
         time = game.getCurrentTime();
         currentSeason = time.getSeason();
@@ -195,7 +200,22 @@ public final class WorldScreen implements Screen
         batch.setProjectionMatrix(cam.combined);
         shapeRenderer.setProjectionMatrix(cam.combined);
         batch.begin();
-        characterRenderer.render(batch, character, CHAR_SCALE);
+
+        if (map.getMapType().getMapKind() == MapKind.TOWN)
+        {
+            for (Player p : game.getPlayers())
+            {
+                if (p.isInCity())
+                {
+                    characterRenderer.render(batch, p.getCharacter(), CHAR_SCALE);
+                }
+            }
+        } else
+        {
+            characterRenderer.render(batch, character, CHAR_SCALE);
+        }
+
+
         if (SECOND_PLAYER) characterRenderer.render(batch, player2, CHAR_SCALE);
         batch.end();
 
@@ -401,7 +421,7 @@ public final class WorldScreen implements Screen
 
         if (!input.isEmpty()) {
             appendToDialog("> " + input);
-            GameMenu.check(input);
+            App.getCurrentMenu().check(input);
         }
     }
 

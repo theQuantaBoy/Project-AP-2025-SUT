@@ -47,6 +47,7 @@ public abstract class Map
         this.tiles = loaded.tiles;
         this.layerTiles = loaded.layerTiles;
         this.depth = loaded.depth;
+        this.startingPoint = loaded.startingPoint;
 
         this.visual = new MapVisual(this, loaded.tiledMap);
     }

@@ -7,4 +7,10 @@ public class ExitMenu implements AppMenu {
     public void check(Scanner scanner) {
         System.exit(0);
     }
+
+    @Override
+    public void check(String input)
+    {
+
+    }
 }

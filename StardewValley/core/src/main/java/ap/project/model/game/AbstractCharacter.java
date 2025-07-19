@@ -129,4 +129,9 @@ public abstract class AbstractCharacter
     {
         return maxHeight;
     }
+
+    public void setPosition(Vector2 position)
+    {
+        this.position.set(position);
+    }
 }
