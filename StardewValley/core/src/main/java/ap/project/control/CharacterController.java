@@ -2,10 +2,7 @@ package ap.project.control;
 
 import ap.project.model.App.App;
 import ap.project.model.enums.TileTexture;
-import ap.project.model.game.AbstractCharacter;
-import ap.project.model.game.Farm;
-import ap.project.model.game.Point;
-import ap.project.model.game.Tile;
+import ap.project.model.game.*;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.g2d.Batch;
@@ -18,7 +15,7 @@ public class CharacterController
 {
 
     private final AbstractCharacter character;
-    private final Farm farm;
+    private final Map map;
     private final float speed;
     private final float tileSize;
 
@@ -30,10 +27,10 @@ public class CharacterController
     private ArrayList<Point> path = null;
     private int pathIndex = 0;
 
-    public CharacterController(AbstractCharacter character, Farm farm, float speed, float tileSize)
+    public CharacterController(AbstractCharacter character, Map map, float speed, float tileSize)
     {
         this.character = character;
-        this.farm = farm;
+        this.map = map;
         this.speed = speed;
         this.tileSize = tileSize;
     }
@@ -51,7 +48,7 @@ public class CharacterController
         if (path != null && pathIndex < path.size())
         {
             Point point = path.get(pathIndex);
-            Vector2 targetWorld = farm.tileToWorld(farm.getTile(point.getX(), point.getY()));
+            Vector2 targetWorld = map.tileToWorld(map.getTile(point.getX(), point.getY()));
             Vector2 pos = character.getPosition();
 
             float dx = targetWorld.x - pos.x;
@@ -124,8 +121,8 @@ public class CharacterController
         float nextX = pos.x + dx;
         float nextY = pos.y + dy;
 
-        Point tilePos = farm.worldToTile(nextX, nextY);
-        Tile  target  = farm.getTile(tilePos.getX(), tilePos.getY());
+        Point tilePos = map.worldToTile(nextX, nextY);
+        Tile  target  = map.getTile(tilePos.getX(), tilePos.getY());
 
         boolean ctrl = Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT)
                 || Gdx.input.isKeyPressed(Input.Keys.CONTROL_RIGHT);

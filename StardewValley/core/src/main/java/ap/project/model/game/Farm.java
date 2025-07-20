@@ -4,6 +4,7 @@ import ap.project.model.App.App;
 import ap.project.model.animal.Animal;
 import ap.project.model.animal.AnimalBuilding;
 import ap.project.model.animal.Fish;
+import ap.project.model.enums.MapKind;
 import ap.project.model.enums.MapTypes;
 import ap.project.model.enums.Season;
 import ap.project.model.enums.TileTexture;
@@ -24,23 +25,14 @@ import java.util.*;
 public class Farm extends Map
 {
     private Point homePoint;
+    private Point greenhousePoint;
+    private Point exitPoint;
     private ArrayList<Tile> lakeTiles = new ArrayList<>();
     private ArrayList<AnimalBuilding> animalBuildings = new ArrayList<>();
     private ArrayList<Tile> tilesWithResources = new ArrayList<>();
 
     public Farm(MapTypes farmType) {
-        this.mapType = farmType;
-
-        MapAssetLoader.LoadedMap loaded = MapAssetLoader.loadFromTmx(farmType.getName(), Season.Spring);
-
-        this.WIDTH = loaded.width;
-        this.HEIGHT = loaded.height;
-        this.tiledMap = loaded.tiledMap;
-        this.tiles = loaded.tiles;
-        this.layerTiles = loaded.layerTiles;
-        this.depth = loaded.depth;
-
-        this.visual = new MapVisual(this, loaded.tiledMap);
+        super(farmType);
 
 //        applyMap();
         setRandomItems();
@@ -482,5 +474,30 @@ public class Farm extends Map
         }
 
         return tilesForThunder;
+    }
+
+    public void setHomePoint(Point homePoint)
+    {
+        this.homePoint = homePoint;
+    }
+
+    public void setGreenhousePoint(Point greenhousePoint)
+    {
+        this.greenhousePoint = greenhousePoint;
+    }
+
+    public void setExitPoint(Point exitPoint)
+    {
+        this.exitPoint = exitPoint;
+    }
+
+    public Point getGreenhousePoint()
+    {
+        return greenhousePoint;
+    }
+
+    public Point getExitPoint()
+    {
+        return exitPoint;
     }
 }

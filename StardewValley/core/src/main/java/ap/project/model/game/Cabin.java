@@ -10,9 +10,12 @@ public class Cabin extends Map
 
     public Cabin()
     {
-        this.mapType = MapTypes.CABIN;
+        super(MapTypes.HOUSE);
+
+        this.mapType = MapTypes.HOUSE;
         this.mapPath = mapType.getMapPath();
-        initialize();
+
+        //        initialize();
     }
 
     private void initialize()

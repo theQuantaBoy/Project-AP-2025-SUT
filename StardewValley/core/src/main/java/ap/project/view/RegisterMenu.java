@@ -69,4 +69,10 @@ public class RegisterMenu implements AppMenu
 //        System.out.print(output);
 //        TerminalScreen.appendOutput(output);
     }
+
+    @Override
+    public void check(String input)
+    {
+
+    }
 }

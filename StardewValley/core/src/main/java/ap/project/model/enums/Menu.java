@@ -43,4 +43,9 @@ public enum Menu
     {
         return name;
     }
+
+    public void check(String input)
+    {
+        this.menu.check(input);
+    }
 }

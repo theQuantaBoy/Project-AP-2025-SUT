@@ -2,16 +2,15 @@ package ap.project.visual;
 
 import ap.project.model.App.App;
 import ap.project.model.enums.DayOfWeek;
+import ap.project.model.enums.Weather;
+import ap.project.model.game.Game;
 import ap.project.model.game.Player;
 import ap.project.model.game.PlayerCharacter;
 import ap.project.model.game.Time;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
@@ -28,6 +27,8 @@ public class UIRenderer {
 
     private final ShapeRenderer shapeRenderer = new ShapeRenderer();;
     Player player;
+
+    private final Texture weatherOverlay;
 
     public UIRenderer(Time time) {
         this.time = time;
@@ -59,6 +60,16 @@ public class UIRenderer {
         font.getRegion().getTexture().setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
         this.player = App.getCurrentGame().getCurrentPlayer();
 
+        Pixmap overlayPixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
+        overlayPixmap.setColor(0.7f, 0.7f, 0.7f, 0.4f);
+        overlayPixmap.fill();
+        weatherOverlay = new Texture(overlayPixmap);
+        overlayPixmap.dispose();
+    }
+
+    public void updatePlayer()
+    {
+        this.player = App.getCurrentGame().getCurrentPlayer();
     }
 
     /** Entry point for rendering all UI elements */
@@ -68,9 +79,6 @@ public class UIRenderer {
 
         renderClock(batch, screenW, screenH);
         renderEnergyBar(uiCam, screenW, screenH);
-        // In the future:
-        // renderEnergyBar(batch, screenW, screenH);
-        // renderInventoryBar(batch, screenW, screenH);
     }
 
     /** Draw the entire clock UI section */
@@ -111,7 +119,7 @@ public class UIRenderer {
 
         String dayText = DayOfWeek.getShortDayOfWeek((time.getDay() - 1) % 7) + " " + time.getDay();
         String timeText = time.getHour() + ":00" + ((time.getHour() >= 12) ? " pm" : " am");
-        String moneyText = "500000"; // Placeholder — can become dynamic
+        String moneyText = String.format("%d", (int) player.getMoney());
 
         font.setColor(Color.BLACK);
         font.draw(batch, dayText, x + 130, y + 210);
@@ -209,7 +217,7 @@ public class UIRenderer {
 
         if (time.getHour() >= 18)
         {
-            darknessLevel = (time.getHour() - 17) * 0.15f;
+            darknessLevel = (time.getHour() - 17) * 0.08f;
         }
 
         Gdx.gl.glEnable(GL20.GL_BLEND);
@@ -219,6 +227,19 @@ public class UIRenderer {
         shapeRenderer.rect(0, 0, uiCam.viewportWidth, uiCam.viewportHeight);
         shapeRenderer.end();
         Gdx.gl.glDisable(GL20.GL_BLEND);
+    }
+
+    public void renderWeatherOverlay(Batch batch, OrthographicCamera worldCam)
+    {
+        if (shouldRain() || shouldSnow())
+        {
+            batch.setColor(1, 1, 1, 0.4f); // 40% opacity
+            batch.draw(weatherOverlay,
+                worldCam.position.x - worldCam.viewportWidth/2,
+                worldCam.position.y - worldCam.viewportHeight/2,
+                worldCam.viewportWidth, worldCam.viewportHeight);
+            batch.setColor(Color.WHITE);
+        }
     }
 
     public void dispose() {
@@ -241,5 +262,23 @@ public class UIRenderer {
 
         font.dispose();
         shapeRenderer.dispose();
+    }
+
+    public boolean shouldRain()
+    {
+        Game game = App.getCurrentGame();
+        Time time = game.getCurrentTime();
+        Player player = game.getCurrentPlayer();
+
+        return ((time.getCurrentWeather() == Weather.Rain) && (player.isInCity() || player.isInFarm()));
+    }
+
+    public boolean shouldSnow()
+    {
+        Game game = App.getCurrentGame();
+        Time time = game.getCurrentTime();
+        Player player = game.getCurrentPlayer();
+
+        return ((time.getCurrentWeather() == Weather.Snow) && (player.isInCity() || player.isInFarm()));
     }
 }

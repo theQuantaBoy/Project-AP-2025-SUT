@@ -4,6 +4,7 @@ import ap.project.control.ProfileController;
 import ap.project.model.App.Result;
 import ap.project.model.enums.regex_enums.ProfileCommands;
 import ap.project.screen.TerminalScreen;
+import ap.project.screen.WorldScreen;
 
 import java.util.Scanner;
 import java.util.regex.Matcher;
@@ -68,6 +69,12 @@ public class ProfileMenu implements AppMenu
         }
     }
 
+    @Override
+    public void check(String input)
+    {
+
+    }
+
     public static String scan()
     {
         return null;
@@ -77,24 +84,24 @@ public class ProfileMenu implements AppMenu
     public static void println(Result result)
     {
         System.out.println(result.toString());
-        TerminalScreen.appendOutputLn(result.toString());
+        WorldScreen.appendToDialog(result.toString() + "\n");
     }
 
     public static void print(Result result)
     {
         System.out.print(result.toString());
-        TerminalScreen.appendOutput(result.toString());
+        WorldScreen.appendToDialog(result.toString());
     }
 
     public static void println(String output)
     {
         System.out.println(output);
-        TerminalScreen.appendOutputLn(output);
+        WorldScreen.appendToDialog(output + "\n");
     }
 
     public static void print(String output)
     {
         System.out.print(output);
-        TerminalScreen.appendOutput(output);
+        WorldScreen.appendToDialog(output);
     }
 }

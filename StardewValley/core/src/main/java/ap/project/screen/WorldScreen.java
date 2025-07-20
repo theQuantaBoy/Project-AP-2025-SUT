@@ -4,15 +4,12 @@ import ap.project.control.CharacterController;
 import ap.project.model.App.App;
 import ap.project.model.App.GameAssetsManager;
 import ap.project.model.App.User;
-import ap.project.model.enums.Gender;
-import ap.project.model.enums.Season;
+import ap.project.model.enums.*;
 import ap.project.model.game.Game;
 import ap.project.screen.input.WorldScreenInputProcessor;
 import ap.project.util.MapAssetLoader;
 import ap.project.view.GameMenu;
 import ap.project.visual.CharacterRenderer;
-import ap.project.model.enums.CharacterType;
-import ap.project.model.enums.MapTypes;
 import ap.project.model.game.*;
 import ap.project.visual.MapVisual;
 import ap.project.visual.UIRenderer;
@@ -35,6 +32,8 @@ import java.util.List;
 
 public final class WorldScreen implements Screen
 {
+    private static WorldScreen INSTANCE;
+
     public static final float MAP_SCALE  = 1.0f;
     private static final float CHAR_SCALE = 1f;
     private static final float TILE_SIZE  = 24f * MAP_SCALE;
@@ -45,17 +44,18 @@ public final class WorldScreen implements Screen
     private final OrthographicCamera cam;
     private final OrthographicCamera uiCam = new OrthographicCamera();
 
-    private final PlayerCharacter player;
+    private Player player;
+    private PlayerCharacter character;
     private CharacterController characterController;
-    private final CharacterRenderer characterRenderer;
+    private CharacterRenderer characterRenderer;
 
-    private Farm farm;
+    private Map map;
     private final UIRenderer uiRenderer;
 
     private Point hoveredTile = null;
-    private final ShapeRenderer shapeRenderer = new ShapeRenderer();
+    private final ShapeRenderer shapeRenderer;
 
-    private final boolean SECOND_PLAYER = true;
+    private final boolean SECOND_PLAYER = false;
     private PlayerCharacter player2;
     private CharacterController controller2;
 
@@ -72,54 +72,106 @@ public final class WorldScreen implements Screen
     private static Label dialogContentLabel;
     private InventoryWindow inventoryWindow;
 
+    private InputMultiplexer inputMultiplexer;
+    private boolean inputMultiplexerHadSetUp = false;
+
+    private boolean cameraFixed = false;
+
     public WorldScreen()
     {
+        INSTANCE = this;
+
+        this.shapeRenderer = new ShapeRenderer();
         cam = new OrthographicCamera(20 * TILE_SIZE, 15 * TILE_SIZE);
         cam.setToOrtho(false);
 
-        this.game = new Game(new ArrayList<>(List.of(new Player(new User("","","","", Gender.FEMALE, "", ""), MapTypes.STANDARD, 0))));
+        this.game = new Game(new ArrayList<>(List.of(
+            new Player(new User("mohsen","","mohsen","", Gender.FEMALE, "", ""), MapTypes.MINING, 0),
+            new Player(new User("arash","","arash","", Gender.FEMALE, "", ""), MapTypes.FISHING, 0),
+            new Player(new User("moshtagh","","moshtagh","", Gender.FEMALE, "", ""), MapTypes.FORAGING, 0),
+            new Player(new User("ottie","","ottie","", Gender.FEMALE, "", ""), MapTypes.COMBAT, 0)
+            )));
+
         App.setCurrentGame(game);
+        App.setCurrentMenu(Menu.GameMenu);
+        App.setCurrentUser(game.getPlayers().get(0).getUser());
         game.setCurrentPlayer(game.getPlayers().get(0));
 
 //        this.game = App.getCurrentGame();
+
         for (Player p : game.getPlayers())
         {
             Farm f = new Farm(p.getMapType());
             p.setFarm(f);
+            p.setCurrentMap(f);
         }
 
-        farm = game.getPlayers().get(0).getFarm();
+        for (Player p : game.getPlayers())
+        {
+            p.spawn();
+        }
+
+        this.map = game.getCurrentPlayer().getCurrentMap();
         time = game.getCurrentTime();
         currentSeason = time.getSeason();
 
-        Vector2 spawn = new Vector2(10 * TILE_SIZE, 10 * TILE_SIZE);
-        player = new PlayerCharacter(CharacterType.ABIGAIL, spawn);
-        characterController = new CharacterController(player, farm, PLAYER_SPEED, TILE_SIZE);
-        characterRenderer = new CharacterRenderer();
+        this.characterRenderer = new CharacterRenderer(shapeRenderer);
 
         if (SECOND_PLAYER)
         {
-            Vector2 spawn2 = new Vector2(12 * TILE_SIZE, 12 * TILE_SIZE);
-            player2 = new PlayerCharacter(CharacterType.ABIGAIL, spawn2); // or any other character
-            controller2 = new CharacterController(player2, farm, PLAYER_SPEED, TILE_SIZE);
+            Vector2 spawn2 = new Vector2(62 * TILE_SIZE, 60 * TILE_SIZE);
+            player2 = new PlayerCharacter(CharacterType.ABIGAIL, spawn2, "Player 456");
+            controller2 = new CharacterController(player2, map, PLAYER_SPEED, TILE_SIZE);
             controller2.chnageMoveKeys(Input.Keys.UP, Input.Keys.LEFT, Input.Keys.DOWN, Input.Keys.RIGHT);
         }
 
         ShaderProgram.pedantic = false;
         uiRenderer = new UIRenderer(time);
 
-        gameInputProcessor = new WorldScreenInputProcessor(farm, player, characterController, cam, this);
-        Gdx.input.setInputProcessor(gameInputProcessor);
         inventoryWindow = new InventoryWindow(uiStage);
         createTerminalDialog();
+
+        inputMultiplexer = new InputMultiplexer();
+        checkGameInfo();
+    }
+
+    public void checkGameInfo()
+    {
+        if (player == null || !App.getCurrentGame().getCurrentPlayer().equals(player))
+        {
+            updateGameInfo();
+        }
+    }
+
+    public void updateGameInfo()
+    {
+        this.player = App.getCurrentGame().getCurrentPlayer();
+        this.character = player.getCharacter();
+        this.map = player.getCurrentMap();
+
+        updateMap();
+
+        characterController = new CharacterController(character, map, PLAYER_SPEED, TILE_SIZE);
+
+        gameInputProcessor = new WorldScreenInputProcessor(map, character, characterController, cam, this);
+
+        if (inputMultiplexer != null && inputMultiplexerHadSetUp)
+        {
+            inputMultiplexer.removeProcessor(1);
+            inputMultiplexer.addProcessor(1, gameInputProcessor);
+        }
+
+        uiRenderer.updatePlayer();
+
     }
 
     @Override
-    public void show() {
-        InputMultiplexer multiplexer = new InputMultiplexer();
-        multiplexer.addProcessor(uiStage);
-        multiplexer.addProcessor(gameInputProcessor);
-        multiplexer.addProcessor(new InputAdapter() {
+    public void show()
+    {
+        inputMultiplexer.clear();
+        inputMultiplexer.addProcessor(uiStage);
+        inputMultiplexer.addProcessor(gameInputProcessor);
+        inputMultiplexer.addProcessor(new InputAdapter() {
             @Override
             public boolean keyDown(int keycode) {
                 if (keycode == Input.Keys.E || keycode == Input.Keys.ESCAPE) {
@@ -139,7 +191,8 @@ public final class WorldScreen implements Screen
                 return false;
             }
         });
-        Gdx.input.setInputProcessor(multiplexer);
+        Gdx.input.setInputProcessor(inputMultiplexer);
+        inputMultiplexerHadSetUp = true;
     }
 
     @Override
@@ -148,24 +201,41 @@ public final class WorldScreen implements Screen
         Gdx.gl.glClearColor(0f, 0f, 0f, 1f);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        if (!terminalDialog.isVisible())
+        if (!terminalDialog.isVisible() && !isInventoryVisible())
         {
             update(dt);
             cam.update();
         }
 
-        farm.getMapVisual().render(cam);
+        map.getMapVisual().render(cam);
 
-        Batch batch = farm.getMapVisual().getRenderer().getBatch();
+        Batch batch = map.getMapVisual().getRenderer().getBatch();
         batch.setProjectionMatrix(cam.combined);
+        shapeRenderer.setProjectionMatrix(cam.combined);
         batch.begin();
-        characterRenderer.render(batch, player, CHAR_SCALE);
+
+        if (map.getMapType().getMapKind() == MapKind.TOWN)
+        {
+            for (Player p : game.getPlayers())
+            {
+                if (p.isInCity())
+                {
+                    characterRenderer.render(batch, p.getCharacter(), CHAR_SCALE);
+                }
+            }
+        } else
+        {
+            characterRenderer.render(batch, character, CHAR_SCALE);
+        }
+
+
         if (SECOND_PLAYER) characterRenderer.render(batch, player2, CHAR_SCALE);
         batch.end();
 
         batch.setProjectionMatrix(uiCam.combined);
         batch.begin();
         uiRenderer.renderUI(batch, uiCam);
+        uiRenderer.renderWeatherOverlay(batch, uiCam);
         batch.end();
 
         uiRenderer.renderDarkOverlay(uiCam);
@@ -179,8 +249,8 @@ public final class WorldScreen implements Screen
             shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
             shapeRenderer.setColor(1f, 0f, 0f, 0.3f);
 
-            Tile tile = farm.getTile(hoveredTile.getX(), hoveredTile.getY() - 1);
-            Vector2 location = farm.tileToWorld(tile);
+            Tile tile = map.getTile(hoveredTile.getX(), hoveredTile.getY() - 1);
+            Vector2 location = map.tileToWorld(tile);
 
             if (location != null)
             {
@@ -200,17 +270,69 @@ public final class WorldScreen implements Screen
         characterController.update(dt);
         if (SECOND_PLAYER) controller2.update(dt);
 
-        updateSeason();
+        checkGameInfo();
+        checkMapSeason();
+        map.getMapVisual().update(dt);
 
-        cam.position.set(player.getPosition().x + TILE_SIZE/2, player.getPosition().y + TILE_SIZE/2, 0);
+        if ( map.getMapType() == MapTypes.GREEN_HOUSE || map.getMapType() == MapTypes.CARPENTER_SHOP ||
+        map.getMapType() == MapTypes.MARNIE_RANCH)
+        {
+            cameraFixed = false;
+        }
 
-        float mapPixelW = farm.getWIDTH()  * TILE_SIZE;
-        float mapPixelH = farm.getHEIGHT() * TILE_SIZE;
+        if (!cameraFixed)
+        {
+            float playerX = character.getPosition().x + TILE_SIZE / 2;
+            float playerY = character.getPosition().y + TILE_SIZE / 2;
 
-        cam.position.x = MathUtils.clamp(cam.position.x,
-            cam.viewportWidth  /2, mapPixelW  - cam.viewportWidth /2);
-        cam.position.y = MathUtils.clamp(cam.position.y,
-            cam.viewportHeight /2, mapPixelH - cam.viewportHeight/2);
+            float camX = playerX;
+            float camY = playerY;
+
+            float halfViewportW = cam.viewportWidth / 2;
+            float halfViewportH = cam.viewportHeight / 2;
+
+            float rightEdgeSize = (map.getWidth() * MAP_SCALE * 16) - (cam.viewportWidth / 2);
+            float upEdgeSize = (map.getHeight() * MAP_SCALE * 16) - (cam.viewportHeight / 2);
+
+            if (playerX < halfViewportW)
+            {
+                camX = halfViewportW;
+            } else if (playerX >= rightEdgeSize)
+            {
+                camX = rightEdgeSize;
+            }
+
+            if (playerY <  halfViewportH)
+            {
+                camY = halfViewportH;
+            } else if (playerY >= upEdgeSize)
+            {
+                camY = upEdgeSize;
+            }
+
+            if (map.getMapType() == MapTypes.JOJA_MART)
+            {
+                camX = (map.getWidth() * MAP_SCALE * 16) / 2;
+            }
+
+            if (map.getMapType() == MapTypes.GREEN_HOUSE)
+            {
+                camX = (map.getWidth() * MAP_SCALE * 16) / 2;
+            }
+
+            if (map.getMapType() == MapTypes.CARPENTER_SHOP)
+            {
+                camX = (map.getWidth() * MAP_SCALE * 16) / 2;
+            }
+
+            if (map.getMapType() == MapTypes.MARNIE_RANCH)
+            {
+                camX = (map.getWidth() * MAP_SCALE * 16) / 2;
+                camY = (map.getHeight() * MAP_SCALE * 16) / 2;
+            }
+
+            cam.position.set(camX, camY, 0);
+        }
     }
 
     @Override
@@ -237,21 +359,45 @@ public final class WorldScreen implements Screen
     @Override public void pause(){}  @Override public void resume(){}
     @Override public void hide(){}
     @Override public void dispose(){
-        farm.getMapVisual().dispose();
+        map.getMapVisual().dispose();
         uiRenderer.dispose();
         shapeRenderer.dispose();
     }
 
-    private void updateSeason()
+    private void checkMapSeason()
     {
         if (time.getSeason() != currentSeason)
         {
-            MapAssetLoader.LoadedMap loaded = MapAssetLoader.loadFromTmx(farm.getMapType().getName(), time.getSeason());
-            TiledMap tiledMap = loaded.tiledMap;
-            farm.setVisual(new MapVisual(farm, tiledMap));
+            updateMap();
         }
 
         currentSeason = time.getSeason();
+    }
+
+    private void updateMap()
+    {
+        MapAssetLoader.LoadedMap loaded = MapAssetLoader.loadFromTmx(map.getMapType().getName(), time.getSeason(), map.getMapType().getMapKind());
+        TiledMap tiledMap = loaded.tiledMap;
+        map.setVisual(new MapVisual(map, tiledMap));
+
+        float mapPixelWidth = map.getWidth() * TILE_SIZE;
+        float mapPixelHeight = map.getHeight() * TILE_SIZE;
+
+        if (mapPixelWidth <= cam.viewportWidth || mapPixelHeight <= cam.viewportHeight)
+        {
+            setCameraFixed(true);
+
+            float centerX = (map.getWidth() * MAP_SCALE * 16) / 2;
+            float centerY = (map.getHeight() * MAP_SCALE * 16) / 2;
+
+            cam.position.set(centerX, centerY, 0);
+            cam.update();
+
+            map.getMapVisual().getRenderer().setView(cam);
+        } else
+        {
+            setCameraFixed(false);
+        }
     }
 
     public Tile cursorToTile()
@@ -259,8 +405,8 @@ public final class WorldScreen implements Screen
         float mouseX = Gdx.input.getX();
         float mouseY = Gdx.input.getY() + (60); // Hard-Coded
 
-        hoveredTile = farm.screenToTile(mouseX, mouseY, cam);
-        Tile tile = farm.getTile(hoveredTile.getX(), hoveredTile.getY() - 1);
+        hoveredTile = map.screenToTile(mouseX, mouseY, cam);
+        Tile tile = map.getTile(hoveredTile.getX(), hoveredTile.getY() - 1);
 
         return tile;
     }
@@ -359,7 +505,7 @@ public final class WorldScreen implements Screen
 
         if (!input.isEmpty()) {
             appendToDialog("> " + input);
-            GameMenu.check(input);
+            App.getCurrentMenu().check(input);
         }
     }
 
@@ -413,7 +559,7 @@ public final class WorldScreen implements Screen
         multiplexer.addProcessor(uiStage);
         multiplexer.addProcessor(gameInputProcessor);
 
-        Gdx.input.setInputProcessor(multiplexer);
+        Gdx.input.setInputProcessor(inputMultiplexer);
     }
 
     public boolean isDialogVisible() {
@@ -427,6 +573,22 @@ public final class WorldScreen implements Screen
     public void toggleInventoryWindow()
     {
         inventoryWindow.toggleVisibility();
+    }
+
+    public static WorldScreen getInstance()
+    {
+        return INSTANCE;
+    }
+
+    public void setCameraFixed(boolean cameraFixed)
+    {
+        this.cameraFixed = cameraFixed;
+
+        if (cameraFixed)
+        {
+            cam.position.set(character.getPosition().x + TILE_SIZE/2, character.getPosition().y + TILE_SIZE/2, 0);
+            cam.update();
+        }
     }
 
 

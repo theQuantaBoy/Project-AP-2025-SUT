@@ -13,6 +13,12 @@ public class LoginMenu implements AppMenu {
     public void check(Scanner scanner) {
 
     }
+
+    @Override
+    public void check(String input)
+    {
+
+    }
 //    LoginController controller = new LoginController();
 //    @Override
 //    public void check(Scanner scanner) {
