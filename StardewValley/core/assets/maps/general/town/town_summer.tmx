@@ -11,6 +11,22 @@
   <property name="Summer_Objects" value="T"/>
   <property name="Warp" value="-1 53 BusStop 42 23 -1 54 BusStop 42 23 -1 55 BusStop 42 24 79 -1 Mountain 15 40 80 -1 Mountain 15 40 81 -1 Mountain 15 40 82 -1 Mountain 15 40 83 -1 Mountain 15 40 -1 89 Forest 118 25 -1 90 Forest 118 25 -1 91 Forest 118 25 -1 92 Forest 118 25 -1 93 Forest 118 26 53 110 Beach 38 0 54 110 Beach 38 0 55 110 Beach 38 0 90 -1 Mountain 57 40 98 -1 Mountain 85 40 94 110 Beach 67 0"/>
   <property name="Winter_Objects" value="T"/>
+  <property name="blacksmith_door_x" type="int" value="94"/>
+  <property name="blacksmith_door_y" type="int" value="82"/>
+  <property name="carpenter_door_x" type="int" value="57"/>
+  <property name="carpenter_door_y" type="int" value="64"/>
+  <property name="fishshop_door_x" type="int" value="10"/>
+  <property name="fishshop_door_y" type="int" value="86"/>
+  <property name="jojamart_door_x" type="int" value="95"/>
+  <property name="jojamart_door_y" type="int" value="51"/>
+  <property name="marnie_door_x" type="int" value="58"/>
+  <property name="marnie_door_y" type="int" value="86"/>
+  <property name="pierre_door_x" type="int" value="43"/>
+  <property name="pierre_door_y" type="int" value="57"/>
+  <property name="saloon_door_x" type="int" value="45"/>
+  <property name="saloon_door_y" type="int" value="71"/>
+  <property name="starting_point_x" type="int" value="1"/>
+  <property name="starting_point_y" type="int" value="55"/>
  </properties>
  <tileset firstgid="1" name="Landscape" tilewidth="16" tileheight="16" tilecount="1975" columns="25">
   <image source="../../tilesets/summer/summer_outdoorsTileSheet.png" width="400" height="1264"/>

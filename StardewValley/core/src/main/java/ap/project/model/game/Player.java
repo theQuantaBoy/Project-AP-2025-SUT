@@ -90,6 +90,7 @@ public class Player {
     private boolean isInHome = false;
     private boolean isInZeidiesFarm = false;
     private boolean isInZeidiesHome = false;
+    private boolean isInShop = false;
 
     private final String apperance;
     private boolean shouldBeSkipped = false;
@@ -694,6 +695,7 @@ public class Player {
     public void goToShop(Shop shop)
     {
         this.isInCity = false;
+        this.isInShop = true;
         this.currentMap = shop;
         setLocation(shop.getStartingPoint());
         WorldScreen.getInstance().updateGameInfo();
@@ -748,6 +750,7 @@ public class Player {
         this.isInHome = false;
         this.isInZeidiesFarm = false;
         this.isInZeidiesHome = false;
+        this.isInShop =  false;
         City city = App.getCurrentGame().getCity();
         this.isInFarm = false;
         this.isInCity = true;
@@ -757,6 +760,24 @@ public class Player {
         setLocation(this.user.getCurrentGame().getCity().getStartingPoint());
 //        city.getPlayerPoints()[App.getCurrentGame().getPlayerIndex()] = this.location;
         WorldScreen.getInstance().updateGameInfo();
+    }
+
+    public void goToCity(Point door)
+    {
+        this.isInHome = false;
+        this.isInZeidiesFarm = false;
+        this.isInZeidiesHome = false;
+        this.isInShop =  false;
+        this.isInFarm = false;
+        this.isInCity = true;
+        this.currentMap = this.user.getCurrentGame().getCity();
+        setLocation(door);
+        WorldScreen.getInstance().updateGameInfo();
+    }
+
+    public boolean isInShop()
+    {
+        return isInShop;
     }
 
     public void setEnergyToMax()

@@ -25,7 +25,7 @@ public class CityController
             return new Result(true, "Going to farm...");
         }
 
-        if (!player.isInCity() && place.equalsIgnoreCase("city"))
+        if (player.isInShop() && place.equalsIgnoreCase("city"))
         {
             player.goToCity();
             return new Result(true, "Going back to city...");

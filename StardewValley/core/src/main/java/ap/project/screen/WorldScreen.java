@@ -291,6 +291,11 @@ public final class WorldScreen implements Screen
                 camY = upEdgeSize;
             }
 
+            if (map.getMapType() == MapTypes.JOJA_MART)
+            {
+                camX = (map.getWidth() * MAP_SCALE * 16) / 2;
+            }
+
             cam.position.set(camX, camY, 0);
         }
     }

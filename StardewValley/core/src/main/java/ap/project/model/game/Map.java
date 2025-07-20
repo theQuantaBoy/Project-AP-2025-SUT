@@ -7,6 +7,7 @@ import ap.project.model.enums.TileTexture;
 import ap.project.model.resources.ForagingCrop;
 import ap.project.model.resources.ForagingTree;
 import ap.project.model.resources.Tree;
+import ap.project.model.shops.Shop;
 import ap.project.screen.WorldScreen;
 import ap.project.util.MapAssetLoader;
 import ap.project.visual.MapVisual;
@@ -48,6 +49,20 @@ public abstract class Map
         this.layerTiles = loaded.layerTiles;
         this.depth = loaded.depth;
         this.startingPoint = loaded.startingPoint;
+
+        if (this instanceof Farm)
+        {
+            Farm farm = (Farm)this;
+            farm.setHomePoint(loaded.cabinDoor);
+            farm.setGreenhousePoint(loaded.greenhouseDoor);
+            farm.setExitPoint(loaded.exitPoint);
+        }
+
+        if (this instanceof Shop)
+        {
+            Shop shop = (Shop)this;
+            shop.setExteriorDoor(startingPoint);
+        }
 
         this.visual = new MapVisual(this, loaded.tiledMap);
     }
@@ -530,6 +545,23 @@ public abstract class Map
     {
         if (!(o instanceof Map map)) return false;
         return WIDTH == map.WIDTH && HEIGHT == map.HEIGHT && depth == map.depth && mapType == map.mapType;
+    }
+
+    public static boolean isNear(Point point, Point other)
+    {
+
+        int dx = Math.abs(point.getX() - other.getX());
+        int dy = Math.abs(point.getY() - other.getY());
+
+        return (dx <= 2 && dy <= 2) && !(dx == 0 && dy == 0);
+    }
+
+    public static boolean isNearOrOn(Point point, Point other)
+    {
+        int dx = Math.abs(point.getX() - other.getX());
+        int dy = Math.abs(point.getY() - other.getY());
+
+        return (dx <= 2 && dy <= 2);
     }
 }
 

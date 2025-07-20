@@ -1,6 +1,7 @@
 package ap.project.screen.input;
 
 import ap.project.control.CharacterController;
+import ap.project.control.WorldController;
 import ap.project.model.App.App;
 import ap.project.model.game.*;
 import ap.project.screen.WorldScreen;
@@ -57,6 +58,8 @@ public class WorldScreenInputProcessor implements InputProcessor
 //                    }
 //                }
             }
+
+            WorldController.processClickLeft(tile);
         }
 
         if (Gdx.input.isButtonJustPressed(Input.Buttons.RIGHT))

@@ -3,6 +3,7 @@ package ap.project.util;
 import ap.project.model.enums.MapKind;
 import ap.project.model.enums.Season;
 import ap.project.model.enums.TileTexture;
+import ap.project.model.game.Map;
 import ap.project.model.game.Point;
 import ap.project.model.game.Tile;
 import com.badlogic.gdx.Gdx;
@@ -26,7 +27,7 @@ public final class MapAssetLoader
             case SHOP -> fileName = String.format("maps/general/shops/%s.tmx", baseMapName);
         }
 
-        return new LoadedMap(fileName);
+        return new LoadedMap(fileName, mapKind);
     }
 
     public static class LoadedMap
@@ -38,8 +39,11 @@ public final class MapAssetLoader
         public final Tile[][] tiles;
         public final Tile[][][] layerTiles;
         public final Point startingPoint;
+        public Point cabinDoor;
+        public Point greenhouseDoor;
+        public Point exitPoint;
 
-        public LoadedMap(String tmxPath)
+        public LoadedMap(String tmxPath, MapKind mapKind)
         {
             tiledMap = new TmxMapLoader().load(tmxPath);
 
@@ -49,8 +53,22 @@ public final class MapAssetLoader
 
             int startingPointX = tiledMap.getProperties().get("starting_point_x", Integer.class);
             int startingPointY = tiledMap.getProperties().get("starting_point_y", Integer.class);
-
             startingPoint = new Point(startingPointX, startingPointY);
+
+            if (mapKind == MapKind.FARM)
+            {
+                int cabinDoorX = tiledMap.getProperties().get("cabin_door_x", Integer.class);
+                int cabinDoorY = tiledMap.getProperties().get("cabin_door_y", Integer.class);
+                cabinDoor = new Point(cabinDoorX, cabinDoorY);
+
+                int greenhouseDoorX = tiledMap.getProperties().get("greenhouse_door_x", Integer.class);
+                int greenhouseDoorY = tiledMap.getProperties().get("greenhouse_door_y", Integer.class);
+                greenhouseDoor = new Point(greenhouseDoorX, greenhouseDoorY);
+
+                int exitPointX = tiledMap.getProperties().get("exit_x", Integer.class);
+                int exitPointY = tiledMap.getProperties().get("exit_y", Integer.class);
+                exitPoint = new Point(exitPointX, exitPointY);
+            }
 
             tiles = new Tile[height][width]; // [y][x]
             layerTiles = new Tile[depth][height][width];

@@ -13,8 +13,14 @@
   <property name="Winter_Objects" value="T"/>
   <property name="blacksmith_door_x" type="int" value="94"/>
   <property name="blacksmith_door_y" type="int" value="82"/>
+  <property name="carpenter_door_x" type="int" value="57"/>
+  <property name="carpenter_door_y" type="int" value="64"/>
+  <property name="fishshop_door_x" type="int" value="10"/>
+  <property name="fishshop_door_y" type="int" value="86"/>
   <property name="jojamart_door_x" type="int" value="95"/>
   <property name="jojamart_door_y" type="int" value="51"/>
+  <property name="marnie_door_x" type="int" value="58"/>
+  <property name="marnie_door_y" type="int" value="86"/>
   <property name="pierre_door_x" type="int" value="43"/>
   <property name="pierre_door_y" type="int" value="57"/>
   <property name="saloon_door_x" type="int" value="45"/>

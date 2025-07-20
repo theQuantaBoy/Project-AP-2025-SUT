@@ -3,6 +3,7 @@ package ap.project.model.shops;
 import ap.project.model.enums.MapTypes;
 import ap.project.model.game.GameObject;
 import ap.project.model.game.Map;
+import ap.project.model.game.Point;
 import ap.project.model.game.Time;
 import ap.project.model.enums.ShopType;
 
@@ -14,6 +15,8 @@ public abstract class Shop extends Map
     private final String salesManName;
     private final int startWork;
     private final int endWork;
+    private Point exteriorDoor;
+    private Point interiorDoor;
 
     public String showProducts()
     {
@@ -42,6 +45,7 @@ public abstract class Shop extends Map
         this.salesManName = salesManName;
         this.startWork = startWork;
         this.endWork = endWork;
+        this.exteriorDoor = type.getExteriorDoor();
     }
 
     public boolean isOpen(Time currentTime)
@@ -52,5 +56,25 @@ public abstract class Shop extends Map
     public ShopType getType()
     {
         return type;
+    }
+
+    public Point getExteriorDoor()
+    {
+        return exteriorDoor;
+    }
+
+    public Point getInteriorDoor()
+    {
+        return interiorDoor;
+    }
+
+    public void setExteriorDoor(Point exteriorDoor)
+    {
+        this.exteriorDoor = exteriorDoor;
+    }
+
+    public void setInteriorDoor(Point interiorDoor)
+    {
+        this.interiorDoor = interiorDoor;
     }
 }

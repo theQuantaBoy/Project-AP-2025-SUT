@@ -25,6 +25,8 @@ import java.util.*;
 public class Farm extends Map
 {
     private Point homePoint;
+    private Point greenhousePoint;
+    private Point exitPoint;
     private ArrayList<Tile> lakeTiles = new ArrayList<>();
     private ArrayList<AnimalBuilding> animalBuildings = new ArrayList<>();
     private ArrayList<Tile> tilesWithResources = new ArrayList<>();
@@ -472,5 +474,30 @@ public class Farm extends Map
         }
 
         return tilesForThunder;
+    }
+
+    public void setHomePoint(Point homePoint)
+    {
+        this.homePoint = homePoint;
+    }
+
+    public void setGreenhousePoint(Point greenhousePoint)
+    {
+        this.greenhousePoint = greenhousePoint;
+    }
+
+    public void setExitPoint(Point exitPoint)
+    {
+        this.exitPoint = exitPoint;
+    }
+
+    public Point getGreenhousePoint()
+    {
+        return greenhousePoint;
+    }
+
+    public Point getExitPoint()
+    {
+        return exitPoint;
     }
 }
