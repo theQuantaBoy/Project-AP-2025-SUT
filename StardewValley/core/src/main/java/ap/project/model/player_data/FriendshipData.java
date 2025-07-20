@@ -133,7 +133,7 @@ public class FriendshipData {
         newLevel = true;
     }
 
-    private int getThresholdForLevel(int level) {
+    public int getThresholdForLevel(int level) {
         return switch (level) {
             case 0 -> 100;
             case 1 -> 200;

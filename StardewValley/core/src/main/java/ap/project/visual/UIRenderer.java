@@ -1,10 +1,15 @@
 package ap.project.visual;
 
+import ap.project.Main;
 import ap.project.model.App.App;
+import ap.project.model.App.GameAssetsManager;
 import ap.project.model.enums.DayOfWeek;
 import ap.project.model.game.Player;
 import ap.project.model.game.PlayerCharacter;
 import ap.project.model.game.Time;
+import ap.project.model.tools.Tool;
+import ap.project.screen.InventoryWindow;
+import ap.project.screen.WorldScreen;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
@@ -15,6 +20,12 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+
+import java.awt.*;
 
 public class UIRenderer {
     private final Texture clockTexture;
@@ -26,8 +37,11 @@ public class UIRenderer {
     private final BitmapFont font;
     private final Time time;
 
-    private final ShapeRenderer shapeRenderer = new ShapeRenderer();;
-    Player player;
+    private final ShapeRenderer shapeRenderer = new ShapeRenderer();
+    private final Player player;
+
+    private final TextButton friends;
+
 
     public UIRenderer(Time time) {
         this.time = time;
@@ -59,6 +73,9 @@ public class UIRenderer {
         font.getRegion().getTexture().setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
         this.player = App.getCurrentGame().getCurrentPlayer();
 
+        this.friends = new TextButton("friends", GameAssetsManager.getGameAssetsManager().getSkin());
+
+
     }
 
     /** Entry point for rendering all UI elements */
@@ -68,10 +85,23 @@ public class UIRenderer {
 
         renderClock(batch, screenW, screenH);
         renderEnergyBar(uiCam, screenW, screenH);
+        renderFriendsButton(uiCam, screenW, screenH);
         // In the future:
         // renderEnergyBar(batch, screenW, screenH);
         // renderInventoryBar(batch, screenW, screenH);
     }
+
+    private void renderFriendsButton(OrthographicCamera uiCam, int screenW, int screenH) {
+        float buttonX = screenW - 250f; // Fixed width position from right
+        float buttonY = screenH - 320f; // Adjust based on clock height
+
+        friends.setPosition(buttonX, buttonY);
+        friends.setSize(220f, 60f); // Set width and height explicitly if needed
+        Main.getApp().getBatch().begin();
+        friends.draw(Main.getApp().getBatch(), 1f); // Assuming you're using a shared batch
+        Main.getApp().getBatch().end();
+    }
+
 
     /** Draw the entire clock UI section */
     private void renderClock(Batch batch, int screenW, int screenH) {
@@ -241,5 +271,9 @@ public class UIRenderer {
 
         font.dispose();
         shapeRenderer.dispose();
+    }
+
+    public TextButton getFriends() {
+        return friends;
     }
 }

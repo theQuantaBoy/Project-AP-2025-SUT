@@ -141,6 +141,7 @@ public class Player {
         this.skills.add(foragingSkill); this.skills.add(fishingSkill);
 
 //        this.character = new PlayerCharacter(CharacterType.ABIGAIL, new Vector2(60 * 24, 60 * 24));
+
     }
 
     public Player(User user, Farm farm, int number) {
