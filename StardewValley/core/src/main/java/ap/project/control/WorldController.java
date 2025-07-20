@@ -30,7 +30,7 @@ public class WorldController
             }
         }
 
-        if (player.isInHome())
+        if (player.isInGreenHouse())
         {
             Point door = player.getGreenHouse().getStartingPoint();
 

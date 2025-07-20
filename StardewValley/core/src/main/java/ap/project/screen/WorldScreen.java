@@ -86,9 +86,10 @@ public final class WorldScreen implements Screen
         cam.setToOrtho(false);
 
         this.game = new Game(new ArrayList<>(List.of(
-            new Player(new User("mohsen","","mohsen","", Gender.FEMALE, "", ""), MapTypes.STANDARD, 0),
-            new Player(new User("arash","","arash","", Gender.FEMALE, "", ""), MapTypes.STANDARD, 0),
-            new Player(new User("moshtagh","","moshtagh","", Gender.FEMALE, "", ""), MapTypes.STANDARD, 0)
+            new Player(new User("mohsen","","mohsen","", Gender.FEMALE, "", ""), MapTypes.MINING, 0),
+            new Player(new User("arash","","arash","", Gender.FEMALE, "", ""), MapTypes.FISHING, 0),
+            new Player(new User("moshtagh","","moshtagh","", Gender.FEMALE, "", ""), MapTypes.FORAGING, 0),
+            new Player(new User("ottie","","ottie","", Gender.FEMALE, "", ""), MapTypes.COMBAT, 0)
             )));
 
         App.setCurrentGame(game);
@@ -261,6 +262,12 @@ public final class WorldScreen implements Screen
         checkGameInfo();
         checkMapSeason();
 
+        if ( map.getMapType() == MapTypes.GREEN_HOUSE || map.getMapType() == MapTypes.CARPENTER_SHOP ||
+        map.getMapType() == MapTypes.MARNIE_RANCH)
+        {
+            cameraFixed = false;
+        }
+
         if (!cameraFixed)
         {
             float playerX = character.getPosition().x + TILE_SIZE / 2;
@@ -294,6 +301,22 @@ public final class WorldScreen implements Screen
             if (map.getMapType() == MapTypes.JOJA_MART)
             {
                 camX = (map.getWidth() * MAP_SCALE * 16) / 2;
+            }
+
+            if (map.getMapType() == MapTypes.GREEN_HOUSE)
+            {
+                camX = (map.getWidth() * MAP_SCALE * 16) / 2;
+            }
+
+            if (map.getMapType() == MapTypes.CARPENTER_SHOP)
+            {
+                camX = (map.getWidth() * MAP_SCALE * 16) / 2;
+            }
+
+            if (map.getMapType() == MapTypes.MARNIE_RANCH)
+            {
+                camX = (map.getWidth() * MAP_SCALE * 16) / 2;
+                camY = (map.getHeight() * MAP_SCALE * 16) / 2;
             }
 
             cam.position.set(camX, camY, 0);

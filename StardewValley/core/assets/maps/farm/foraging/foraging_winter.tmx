@@ -14,10 +14,10 @@
   <property name="starting_point_y" type="int" value="17"/>
  </properties>
  <tileset firstgid="1" name="Paths" tilewidth="16" tileheight="16" tilecount="64" columns="4">
-  <image source="../../tilesets/spring/paths.png" width="64" height="256"/>
+  <image source="../../tilesets/winter/paths.png" width="64" height="256"/>
  </tileset>
- <tileset firstgid="65" name="spring_outdoorTileSheet_extra" tilewidth="16" tileheight="16" tilecount="64" columns="8">
-  <image source="../../tilesets/spring/spring_outdoorTileSheet_extra.png" width="128" height="128"/>
+ <tileset firstgid="65" name="winter_outdoorTileSheet_extra" tilewidth="16" tileheight="16" tilecount="64" columns="8">
+  <image source="../../tilesets/winter/winter_outdoorTileSheet_extra.png" width="128" height="128"/>
   <tile id="0">
    <properties>
     <property name="Buildable" type="bool" value="true"/>
@@ -80,7 +80,7 @@
   </tile>
  </tileset>
  <tileset firstgid="129" name="untitled tile sheet" tilewidth="16" tileheight="16" tilecount="1975" columns="25">
-  <image source="../../tilesets/spring/spring_outdoorsTileSheet.png" width="400" height="1264"/>
+  <image source="../../tilesets/winter/winter_outdoorsTileSheet.png" width="400" height="1264"/>
   <tile id="150">
    <properties>
     <property name="Buildable" type="bool" value="true"/>
@@ -1798,7 +1798,7 @@
   </tile>
  </tileset>
  <tileset firstgid="2104" name="v16_Outdoors2" tilewidth="16" tileheight="16" tilecount="1120" columns="16">
-  <image source="../../tilesets/spring/spring_outdoorsTileSheet2.png" width="256" height="1120"/>
+  <image source="../../tilesets/winter/winter_outdoorsTileSheet2.png" width="256" height="1120"/>
   <tile id="740">
    <properties>
     <property name="Buildable" type="bool" value="true"/>
@@ -2113,7 +2113,7 @@
   </tile>
  </tileset>
  <tileset firstgid="3224" name="v16_Shadows" tilewidth="16" tileheight="16" tilecount="475" columns="19">
-  <image source="../../tilesets/spring/spring_Shadows.png" width="304" height="400"/>
+  <image source="../../tilesets/winter/winter_Shadows.png" width="304" height="400"/>
  </tileset>
  <layer id="1" name="Back" width="80" height="65">
   <data encoding="csv">

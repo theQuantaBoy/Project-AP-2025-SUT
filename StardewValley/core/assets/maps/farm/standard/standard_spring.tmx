@@ -5,7 +5,7 @@
   <property name="Outdoors" value="T"/>
   <property name="Warp" value="80 15 BusStop 11 23 80 18 BusStop 11 24 80 16 BusStop 11 23 80 17 BusStop 11 23 40 65 Forest 68 0 41 65 Forest 68 0 42 65 Forest 68 0 40 -1 Backwoods 14 39 41 -1 Backwoods 14 39 34 5 FarmCave 8 11"/>
   <property name="cabin_door_x" type="int" value="63"/>
-  <property name="cabin_door_y" type="int" value="17"/>
+  <property name="cabin_door_y" type="int" value="16"/>
   <property name="exit_x" type="int" value="78"/>
   <property name="exit_y" type="int" value="17"/>
   <property name="greenhouse_door_x" type="int" value="13"/>
@@ -11334,7 +11334,7 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 </data>
  </layer>
- <objectgroup id="7" name="Back">
+ <objectgroup id="7" name="Back" visible="0">
   <object id="1" name="TileData" x="640" y="0" width="16" height="16">
    <properties>
     <property name="NoSpawn" value="All"/>
@@ -11644,14 +11644,14 @@
    </properties>
   </object>
  </objectgroup>
- <objectgroup id="8" name="Buildings">
+ <objectgroup id="8" name="Buildings" visible="0">
   <object id="61" name="TileData" x="128" y="112" width="16" height="16">
    <properties>
     <property name="Action" value="Message &quot;Farm.1&quot;"/>
    </properties>
   </object>
  </objectgroup>
- <objectgroup id="9" name="Paths">
+ <objectgroup id="9" name="Paths" visible="0">
   <object id="62" name="TileData" x="272" y="160" width="16" height="16">
    <properties>
     <property name="Order" type="int" value="3"/>

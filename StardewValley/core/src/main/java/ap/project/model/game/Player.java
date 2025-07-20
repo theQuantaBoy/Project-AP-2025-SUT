@@ -680,15 +680,30 @@ public class Player {
             City city = App.getCurrentGame().getCity();
             city.getPlayerPoints()[App.getCurrentGame().getPlayerIndex()] = null;
         }
+
+        this.currentMap = this.farm;
+
+        if (isInCity)
+        {
+            setLocation(farm.getExitPoint());
+        } else if (isInHome)
+        {
+            setLocation(farm.getHomePoint());
+        } else if (isInGreenHouse)
+        {
+            setLocation(farm.getGreenhousePoint());
+        } else
+        {
+            setLocation(farm.getStartingPoint());
+        }
+
         this.isInCity = false;
         this.isInGreenHouse = false;
         this.isInFarm = true;
         this.isInHome = false;
         this.isInZeidiesFarm = false;
         this.isInZeidiesHome = false;
-        this.currentMap = this.farm;
-//        this.location = farm.getStartingPoint();
-        setLocation(farm.getStartingPoint());
+
         WorldScreen.getInstance().updateGameInfo();
     }
 

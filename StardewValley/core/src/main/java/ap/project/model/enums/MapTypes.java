@@ -9,13 +9,11 @@ public enum MapTypes
     HILL_TOP("hilltop", "map/hilltop.json", "", null),
     BEACH("four_corners", "map/beach.json", "", null),
 
-    //    HOUSE("cabin", "map/cabin.json", "", null),
-//    GREEN_HOUSE("greenhouse", "map/greenhouse.json", "", null),
-    CITY("city", "map/city.json", "", null),
-    SHOP("shop", "map/shop.json", "", null),
 
-    FOREST("forest", "", "maps/Forest.tmx", null),
-
+    COMBAT("combat", "", "", MapKind.FARM),
+    FISHING("fishing", "", "", MapKind.FARM),
+    FORAGING("foraging", "", "", MapKind.FARM),
+    MINING("mining", "", "", MapKind.FARM),
     STANDARD("standard", "", "", MapKind.FARM),
     TOWN("town", "", "", MapKind.TOWN),
     HOUSE("house", "", "", MapKind.HOUSE),
@@ -27,8 +25,7 @@ public enum MapTypes
     FISH_SHOP("fish_shop", "", "", MapKind.SHOP),
     JOJA_MART("joja_mart", "", "", MapKind.SHOP),
     PIERRE_GENERAL_STORE("pierre_store", "", "", MapKind.SHOP),
-    SALOON("saloon", "", "", MapKind.SHOP)
-    ;
+    SALOON("saloon", "", "", MapKind.SHOP);
 
     private final String name;
     private final String mapPath;
@@ -52,9 +49,10 @@ public enum MapTypes
     {
         ArrayList<MapTypes> mapNames = new ArrayList<>();
         mapNames.add(STANDARD);
-        mapNames.add(FOREST);
-//        mapNames.add(HILL_TOP.getName());
-//        mapNames.add(BEACH.getName());
+        mapNames.add(MINING);
+        mapNames.add(FISHING);
+        mapNames.add(FISHING);
+        mapNames.add(COMBAT);
         return mapNames;
     }
 
