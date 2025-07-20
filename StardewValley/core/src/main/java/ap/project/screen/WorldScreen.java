@@ -225,6 +225,7 @@ public final class WorldScreen implements Screen
         batch.setProjectionMatrix(uiCam.combined);
         batch.begin();
         uiRenderer.renderUI(batch, uiCam);
+        uiRenderer.renderWeatherOverlay(batch, uiCam);
         batch.end();
 
         uiRenderer.renderDarkOverlay(uiCam);
@@ -261,6 +262,7 @@ public final class WorldScreen implements Screen
 
         checkGameInfo();
         checkMapSeason();
+        map.getMapVisual().update(dt);
 
         if ( map.getMapType() == MapTypes.GREEN_HOUSE || map.getMapType() == MapTypes.CARPENTER_SHOP ||
         map.getMapType() == MapTypes.MARNIE_RANCH)
