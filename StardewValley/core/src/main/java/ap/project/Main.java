@@ -10,6 +10,7 @@ import ap.project.screen.MainScreen;
 import ap.project.screen.RegisterScreen;
 import ap.project.screen.TerminalScreen;
 import ap.project.screen.WorldScreen;
+import ap.project.util.GameObjectAssetLoader;
 import ap.project.view.AppView;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
@@ -30,6 +31,10 @@ public class Main extends com.badlogic.gdx.Game
     {
         app = this;
         batch = new SpriteBatch();
+
+        GameObjectAssetLoader.queueAllTextures();
+        // optionally show a loading screen here...
+        GameObjectAssetLoader.finishLoadingAndAssign();
 
         // --- Set custom cursor ---
         Pixmap cursorPixmap = new Pixmap(Gdx.files.internal("general/cursor/cursor.png")); // put it in assets
@@ -62,6 +67,7 @@ public class Main extends com.badlogic.gdx.Game
     public void dispose()
     {
        super.dispose();
+       GameObjectAssetLoader.dispose();
     }
 
     public static Main getApp()

@@ -599,7 +599,7 @@ public class GameController
                 return new Result(false, "You don't have enough energy, you're stuck here.");
             }
 
-            player.goToCabin();
+            player.goHome();
             App.setCurrentMenu(Menu.HomeMenu);
             player.increaseEnergy(-1 * requiredEnergy);
             return new Result(true, "Going to cabin...");

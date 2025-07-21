@@ -731,18 +731,6 @@ public class Player {
         setLocation(zeidy.getFarm().getStartingPoint());
     }
 
-    public void goToCabin()
-    {
-        this.isInHome = true;
-        this.isInZeidiesFarm = false;
-        this.isInZeidiesHome = false;
-        this.isInFarm = false;
-        this.currentMap = this.cabin;
-//        this.location = cabin.getStartingPoint();
-        setLocation(cabin.getStartingPoint());
-        WorldScreen.getInstance().updateGameInfo();
-    }
-
     public void goToGreenHouse()
     {
         this.isInHome = false;
@@ -945,12 +933,14 @@ public class Player {
         this.isInCity = false;
         this.isInGreenHouse = false;
         this.isInZeidiesFarm = false;
-        this.isInZeidiesHome = false; // TODO: add feature to wake up at zeidy's home [?]
+        this.isInZeidiesHome = false;
 
         this.isInHome = true;
         this.currentMap = cabin;
-//        this.location = cabin.getBedPoint();
-        setLocation(cabin.getBedPoint());
+
+        setLocation(cabin.getStartingPoint());
+        WorldScreen.getInstance().updateGameInfo();
+
         App.setCurrentMenu(Menu.HomeMenu);
     }
 

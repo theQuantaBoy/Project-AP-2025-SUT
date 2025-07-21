@@ -50,7 +50,7 @@ public class WorldController
 
             if (Map.isNearOrOn(homeDoor, clicked))
             {
-                player.goToCabin();
+                player.goHome();
                 return;
             }
 

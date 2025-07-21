@@ -214,7 +214,11 @@ public class MapVisual
     private void drawTile(Tile tile, Texture texture)
     {
         Vector2 location = map.tileToWorld(tile);
-        renderer.getBatch().draw(texture, location.x, location.y - (16 * MAP_SCALE), (16 * MAP_SCALE), (16 * MAP_SCALE));
+//        renderer.getBatch().draw(texture, location.x, location.y - (16 * MAP_SCALE), (16 * MAP_SCALE), (16 * MAP_SCALE));
+        if (tile.getObject() != null)
+        {
+            renderer.getBatch().draw(tile.getObject().getObjectType().getTexture(), location.x, location.y - (16 * MAP_SCALE), (16 * MAP_SCALE), (16 * MAP_SCALE));
+        }
     }
 
     public TiledMap getTiledMap()
