@@ -1,9 +1,5 @@
 package ap.project.model.animal;
 
-// PlayerBarModel.java
-// Represents the player-controlled bar. Handles its own physics.
-// This code is also largely unchanged.
-
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 
@@ -14,9 +10,9 @@ public class PlayerBarModel {
     private final float height;
     private final float trackHeight;
 
-    // Physics constants
-    private static final float GRAVITY = 1800.0f;
-    private static final float FLAP_STRENGTH = -600.0f;
+    // --- NEW: Updated physics for better control ---
+    private static final float GRAVITY = -2800f; // Constant downward pull
+    private static final float LIFT_FORCE = 5000f; // Upward force when key is pressed
 
     public PlayerBarModel(float trackHeight) {
         this.trackHeight = trackHeight;
@@ -28,16 +24,24 @@ public class PlayerBarModel {
     /**
      * Updates the bar's position based on physics.
      * @param delta The time elapsed since the last frame.
-     * @param isFlapping True if the player is holding the button.
+     * @param isLifting True if the player is holding the button to go up.
      */
-    public void update(float delta, boolean isFlapping) {
-        if (isFlapping) {
-            velocityY -= GRAVITY * 2.5f * delta;
-        }
-        velocityY += GRAVITY * delta;
-        y += velocityY * delta;
+    public void update(float delta, boolean isLifting) {
+        // By default, only gravity is acting on the bar
+        float acceleration = GRAVITY;
 
-        // Clamp position and velocity to stay within the track
+        // If the player is holding the key, add the lift force
+        if (isLifting) {
+            acceleration += LIFT_FORCE;
+        }
+
+        // Apply acceleration to velocity
+        this.velocityY += acceleration * delta;
+
+        // Apply velocity to position
+        this.y += this.velocityY * delta;
+
+        // Clamp position to stay within the track and reset velocity at the boundaries
         if (y < 0) {
             y = 0;
             velocityY = 0;
@@ -48,18 +52,14 @@ public class PlayerBarModel {
         }
     }
 
+    /** The flap() method is no longer used in this control scheme. */
     public void flap() {
-        velocityY = FLAP_STRENGTH;
+        // This method is now empty.
     }
 
     public float getY() { return y; }
 
-    /**
-     * Gets the bounding box of the player bar.
-     * @return A libGDX Rectangle representing the bar's position and size.
-     */
     public Rectangle getBounds() {
         return new Rectangle(0, y, MiniGameState.TRACK_WIDTH, height);
     }
 }
-

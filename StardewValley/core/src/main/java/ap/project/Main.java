@@ -6,10 +6,7 @@ import ap.project.model.App.App;
 import ap.project.model.App.User;
 import ap.project.model.enums.Gender;
 import ap.project.model.enums.SecurityQuestionType;
-import ap.project.screen.MainScreen;
-import ap.project.screen.RegisterScreen;
-import ap.project.screen.TerminalScreen;
-import ap.project.screen.WorldScreen;
+import ap.project.screen.*;
 import ap.project.view.AppView;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
@@ -22,12 +19,14 @@ import com.badlogic.gdx.backends.headless.HeadlessApplicationConfiguration;
 /** {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms. */
 public class Main extends com.badlogic.gdx.Game
 {
+    private static Main instance;
     private static Main app;
     private SpriteBatch batch;
 
     @Override
     public void create()
     {
+        instance = this;
         app = this;
         batch = new SpriteBatch();
 
@@ -44,6 +43,7 @@ public class Main extends com.badlogic.gdx.Game
 //        app.setScreen(new RegisterScreen(new RegisterController()));
 
         app.setScreen(new WorldScreen());
+        //setScreen(new FishingMinigameScreen(this));
     }
 
     @Override

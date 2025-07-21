@@ -4,12 +4,15 @@ import ap.project.control.CharacterController;
 import ap.project.model.App.App;
 import ap.project.model.App.GameAssetsManager;
 import ap.project.model.App.User;
+import ap.project.model.animal.Animal;
 import ap.project.model.enums.Gender;
 import ap.project.model.enums.Season;
+import ap.project.model.enums.animal_enums.FarmAnimalsType;
 import ap.project.model.game.Game;
 import ap.project.screen.input.WorldScreenInputProcessor;
 import ap.project.util.MapAssetLoader;
 import ap.project.view.GameMenu;
+import ap.project.visual.AnimalActor;
 import ap.project.visual.CharacterRenderer;
 import ap.project.model.enums.CharacterType;
 import ap.project.model.enums.MapTypes;
@@ -25,16 +28,28 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.viewport.ExtendViewport;
+import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public final class WorldScreen implements Screen
 {
+
+    private final com.badlogic.gdx.Game miniGame;
+
+    private final Stage gameStage;
+    private final Array<AnimalActor> animalActors;
+    private final AnimalInteractionScreen animalInteractionScreen;
+    private float animalMoveTimer = 0f;
+
     public static final float MAP_SCALE  = 1.0f;
     private static final float CHAR_SCALE = 1f;
     private static final float TILE_SIZE  = 24f * MAP_SCALE;
@@ -74,12 +89,25 @@ public final class WorldScreen implements Screen
 
     public WorldScreen()
     {
+        this.miniGame = new FishingGame();
         cam = new OrthographicCamera(20 * TILE_SIZE, 15 * TILE_SIZE);
         cam.setToOrtho(false);
 
         this.game = new Game(new ArrayList<>(List.of(new Player(new User("","","","", Gender.FEMALE, "", ""), MapTypes.STANDARD, 0))));
         App.setCurrentGame(game);
         game.setCurrentPlayer(game.getPlayers().get(0));
+
+        gameStage = new Stage(new ExtendViewport(20 * TILE_SIZE, 15 * TILE_SIZE, cam));
+        animalActors = new Array<>();
+        animalInteractionScreen = new AnimalInteractionScreen(uiStage.getViewport(), skin);
+
+        Animal testChicken = new Animal("Clucky", FarmAnimalsType.CHICKEN);
+        testChicken.setX(20 * TILE_SIZE);
+        testChicken.setY(15 * TILE_SIZE);
+        testChicken.goOut(); // Make sure it's set to be outside
+        AnimalActor chickenActor = new AnimalActor(testChicken, animalInteractionScreen);
+        animalActors.add(chickenActor);
+        gameStage.addActor(chickenActor);
 
 //        this.game = App.getCurrentGame();
         for (Player p : game.getPlayers())
@@ -117,7 +145,9 @@ public final class WorldScreen implements Screen
     @Override
     public void show() {
         InputMultiplexer multiplexer = new InputMultiplexer();
+        multiplexer.addProcessor(animalInteractionScreen.getStage());
         multiplexer.addProcessor(uiStage);
+        multiplexer.addProcessor(gameStage);
         multiplexer.addProcessor(gameInputProcessor);
         multiplexer.addProcessor(new InputAdapter() {
             @Override
@@ -126,6 +156,24 @@ public final class WorldScreen implements Screen
                     inventoryWindow.toggleVisibility();
                     return true;
                 }
+                return false;
+            }
+        });
+        multiplexer.addProcessor(new InputAdapter() {
+            @Override
+            public boolean keyDown(int keycode) {
+                if (keycode == Input.Keys.E || keycode == Input.Keys.ESCAPE) {
+                    inventoryWindow.toggleVisibility();
+                    return true;
+                }
+
+                // ADD THIS BLOCK TO TEST THE MINIGAME
+                if (keycode == Input.Keys.F) {
+                    // Switch to the fishing screen
+                    //(miniGame).setScreen(((FishingGame) miniGame).fishingMinigameScreen);
+                    return true; // Mark the input as handled
+                }
+
                 return false;
             }
         });
@@ -146,12 +194,17 @@ public final class WorldScreen implements Screen
 
         farm.getMapVisual().render(cam);
 
+
+
         Batch batch = farm.getMapVisual().getRenderer().getBatch();
         batch.setProjectionMatrix(cam.combined);
         batch.begin();
         characterRenderer.render(batch, player, CHAR_SCALE);
         if (SECOND_PLAYER) characterRenderer.render(batch, player2, CHAR_SCALE);
         batch.end();
+
+        gameStage.getViewport().apply();
+        gameStage.draw();
 
         batch.setProjectionMatrix(uiCam.combined);
         batch.begin();
@@ -183,6 +236,7 @@ public final class WorldScreen implements Screen
 
         uiStage.act(dt);
         uiStage.draw();
+        animalInteractionScreen.render();
     }
 
     private void update(float dt)
@@ -190,7 +244,17 @@ public final class WorldScreen implements Screen
         characterController.update(dt);
         if (SECOND_PLAYER) controller2.update(dt);
 
+        gameStage.act(dt);
+        updateAnimalMovement(dt);
         updateSeason();
+
+
+        Vector2 targetPos = new Vector2(
+            player.getPosition().x + TILE_SIZE/2,
+            player.getPosition().y + TILE_SIZE/2
+        );
+
+        cam.position.lerp(new Vector3(targetPos.x, targetPos.y, 0), 5f * dt);
 
         cam.position.set(player.getPosition().x + TILE_SIZE/2, player.getPosition().y + TILE_SIZE/2, 0);
 
@@ -201,6 +265,8 @@ public final class WorldScreen implements Screen
             cam.viewportWidth  /2, mapPixelW  - cam.viewportWidth /2);
         cam.position.y = MathUtils.clamp(cam.position.y,
             cam.viewportHeight /2, mapPixelH - cam.viewportHeight/2);
+
+        gameStage.getViewport().apply();
     }
 
     @Override
@@ -221,6 +287,9 @@ public final class WorldScreen implements Screen
         uiCam.setToOrtho(false, w, h);
         uiCam.update();
 
+        //gameStage.getViewport().update(w, h, false); // <-- Update game stage viewport
+        animalInteractionScreen.getStage().getViewport().update(w,h,true);
+
         uiStage.getViewport().update(w, h, true);
     }
 
@@ -230,6 +299,7 @@ public final class WorldScreen implements Screen
         farm.getMapVisual().dispose();
         uiRenderer.dispose();
         shapeRenderer.dispose();
+        gameStage.dispose();
     }
 
     private void updateSeason()
@@ -417,5 +487,26 @@ public final class WorldScreen implements Screen
     public void toggleInventoryWindow()
     {
         inventoryWindow.toggleVisibility();
+    }
+
+    private void updateAnimalMovement(float dt) {
+        animalMoveTimer += dt;
+        if (animalMoveTimer > 3f) { // Check to move every 3 seconds
+            animalMoveTimer = 0;
+            for (AnimalActor actor : animalActors) {
+                Animal animal = actor.getAnimal();
+                if (!animal.isIn() && animal.getCurrentState() == Animal.State.IDLE && MathUtils.randomBoolean(0.5f)) {
+                    float moveDist = 50f; // Max move distance in pixels
+                    float targetX = actor.getX() + MathUtils.random(-moveDist, moveDist);
+                    float targetY = actor.getY() + MathUtils.random(-moveDist, moveDist);
+
+                    // Clamp to stay within map bounds (example bounds)
+                    targetX = MathUtils.clamp(targetX, 0, farm.getWIDTH() * TILE_SIZE - actor.getWidth());
+                    targetY = MathUtils.clamp(targetY, 0, farm.getHEIGHT() * TILE_SIZE - actor.getHeight());
+
+                    actor.moveTo(targetX, targetY);
+                }
+            }
+        }
     }
 }

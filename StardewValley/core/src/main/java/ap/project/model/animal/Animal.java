@@ -1,5 +1,6 @@
 package ap.project.model.animal;
 
+import ap.project.model.enums.animal_enums.Direction;
 import ap.project.model.game.GameObject;
 import ap.project.model.game.Tile;
 import ap.project.model.enums.animal_enums.FarmAnimalsType;
@@ -19,10 +20,18 @@ public class Animal extends GameObject {
     private boolean isPet = false;
     private final ArrayList<GameObject> products;
     private Tile tile = null;
-    private Texture texture;
 
     private boolean hasProduct = false;
     private boolean secondProduct = false;
+
+    private float x, y;
+    private float targetX, targetY;
+    private State currentState = State.IDLE;
+    private Direction direction = Direction.DOWN;
+
+    public enum State {
+        IDLE, WALKING
+    }
 
     private double quality = 0;
 
@@ -36,7 +45,6 @@ public class Animal extends GameObject {
         this.isIn = true;
         this.isPet = false;
         this.products = (ArrayList<GameObject>) animalType.getProducts();
-        this.texture = animalType.getAnimalTexture();
     }
 
     public void feed()
@@ -212,5 +220,57 @@ public class Animal extends GameObject {
     public int getPrice()
     {
         return (int) (animalType.getPurchaseCost() * (((double) friendship / 1000) + 0.3));
+    }
+
+    public float getX() {
+        return x;
+    }
+
+    public void setX(float x) {
+        this.x = x;
+    }
+
+    public float getY() {
+        return y;
+    }
+
+    public void setY(float y) {
+        this.y = y;
+    }
+
+    public float getTargetX() {
+        return targetX;
+    }
+
+    public void setTargetX(float targetX) {
+        this.targetX = targetX;
+    }
+
+    public float getTargetY() {
+        return targetY;
+    }
+
+    public void setTargetY(float targetY) {
+        this.targetY = targetY;
+    }
+
+    public State getCurrentState() {
+        return currentState;
+    }
+
+    public void setCurrentState(State currentState) {
+        this.currentState = currentState;
+    }
+
+    public Direction getDirection() {
+        return direction;
+    }
+
+    public void setDirection(Direction direction) {
+        this.direction = direction;
+    }
+
+    public void setQuality(double quality) {
+        this.quality = quality;
     }
 }
