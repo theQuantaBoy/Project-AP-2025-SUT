@@ -1,7 +1,9 @@
 package ap.project.util;
 
+import ap.project.model.enums.MapKind;
 import ap.project.model.enums.Season;
 import ap.project.model.enums.TileTexture;
+import ap.project.model.game.Map;
 import ap.project.model.game.Point;
 import ap.project.model.game.Tile;
 import com.badlogic.gdx.Gdx;
@@ -12,10 +14,20 @@ import com.badlogic.gdx.maps.tiled.*;
 
 public final class MapAssetLoader
 {
-    public static LoadedMap loadFromTmx(String baseMapName, Season season)
+    public static LoadedMap loadFromTmx(String baseMapName, Season season, MapKind mapKind)
     {
-        String fileName = String.format("maps/farm/%s/%s_%s.tmx", baseMapName, baseMapName, season.getName());
-        return new LoadedMap(fileName);
+        String fileName = "";
+
+        switch (mapKind)
+        {
+            case FARM -> fileName = String.format("maps/farm/%s/%s_%s.tmx", baseMapName, baseMapName, season.getName());
+            case TOWN -> fileName = String.format("maps/general/town/town_%s.tmx", season.getName());
+            case HOUSE -> fileName = "maps/general/house/house_interior.tmx";
+            case GREEN_HOUSE -> fileName = "maps/general/greenhouse/green_house.tmx";
+            case SHOP -> fileName = String.format("maps/general/shops/%s.tmx", baseMapName);
+        }
+
+        return new LoadedMap(fileName, mapKind);
     }
 
     public static class LoadedMap
@@ -26,14 +38,37 @@ public final class MapAssetLoader
         public final TiledMap tiledMap;
         public final Tile[][] tiles;
         public final Tile[][][] layerTiles;
+        public final Point startingPoint;
+        public Point cabinDoor;
+        public Point greenhouseDoor;
+        public Point exitPoint;
 
-        public LoadedMap(String tmxPath)
+        public LoadedMap(String tmxPath, MapKind mapKind)
         {
             tiledMap = new TmxMapLoader().load(tmxPath);
 
             width = tiledMap.getProperties().get("width", Integer.class);
             height = tiledMap.getProperties().get("height", Integer.class);
             depth = tiledMap.getLayers().size();
+
+            int startingPointX = tiledMap.getProperties().get("starting_point_x", Integer.class);
+            int startingPointY = tiledMap.getProperties().get("starting_point_y", Integer.class);
+            startingPoint = new Point(startingPointX, startingPointY);
+
+            if (mapKind == MapKind.FARM)
+            {
+                int cabinDoorX = tiledMap.getProperties().get("cabin_door_x", Integer.class);
+                int cabinDoorY = tiledMap.getProperties().get("cabin_door_y", Integer.class);
+                cabinDoor = new Point(cabinDoorX, cabinDoorY);
+
+                int greenhouseDoorX = tiledMap.getProperties().get("greenhouse_door_x", Integer.class);
+                int greenhouseDoorY = tiledMap.getProperties().get("greenhouse_door_y", Integer.class);
+                greenhouseDoor = new Point(greenhouseDoorX, greenhouseDoorY);
+
+                int exitPointX = tiledMap.getProperties().get("exit_x", Integer.class);
+                int exitPointY = tiledMap.getProperties().get("exit_y", Integer.class);
+                exitPoint = new Point(exitPointX, exitPointY);
+            }
 
             tiles = new Tile[height][width]; // [y][x]
             layerTiles = new Tile[depth][height][width];

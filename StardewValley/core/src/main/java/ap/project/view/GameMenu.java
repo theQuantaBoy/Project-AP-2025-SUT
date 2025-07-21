@@ -144,7 +144,7 @@ public class GameMenu implements AppMenu
         {
             String x = matcher.group("x");
             String y = matcher.group("y");
-            generalController.walk(x,y, scanner);
+//            generalController.walk(x,y, scanner);
         } else if ((matcher = GeneralCommands.SHOW_PATH.getMatcher(input)) != null)
         {
             String x = matcher.group("x").trim();
@@ -322,7 +322,7 @@ public class GameMenu implements AppMenu
         }
     }
 
-    public static void check(String input)
+    public void check(String input)
     {
         Matcher matcher;
 
@@ -433,7 +433,7 @@ public class GameMenu implements AppMenu
         {
             String x = matcher.group("x");
             String y = matcher.group("y");
-//            generalController.walk(x,y, scanner);
+            generalController.walk(x,y);
         } else if ((matcher = GeneralCommands.SHOW_PATH.getMatcher(input)) != null)
         {
             String x = matcher.group("x").trim();
@@ -621,27 +621,23 @@ public class GameMenu implements AppMenu
     {
         System.out.println(result.toString());
         WorldScreen.appendToDialog(result.toString() + "\n");
-//        TerminalScreen.appendOutputLn(result.toString());
     }
 
     public static void print(Result result)
     {
         System.out.print(result.toString());
         WorldScreen.appendToDialog(result.toString());
-//        TerminalScreen.appendOutput(result.toString());
     }
 
     public static void println(String output)
     {
         System.out.println(output);
         WorldScreen.appendToDialog(output + "\n");
-//        TerminalScreen.appendOutputLn(output);
     }
 
     public static void print(String output)
     {
         System.out.print(output);
         WorldScreen.appendToDialog(output);
-//        TerminalScreen.appendOutput(output);
     }
 }

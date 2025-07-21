@@ -1,26 +1,31 @@
 package ap.project.model.game;
 
 import ap.project.model.App.App;
+import ap.project.model.enums.MapKind;
 import ap.project.model.enums.MapTypes;
 import ap.project.model.enums.ShopType;
 import ap.project.model.enums.TileTexture;
 import ap.project.model.shops.*;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class City extends Map
 {
     private final String mapPath;
     Point[] playerPoints = new Point[4];
+    HashMap<Point, Shop> shopDoors = new HashMap<>();
 
     private final ArrayList<Shop> shops = new ArrayList<>();
 
     public City()
     {
-        this.mapType = MapTypes.CITY;
+        super(MapTypes.TOWN);
+
+        this.mapType = MapTypes.TOWN;
         this.mapPath = mapType.getMapPath();
 
-        initialize();
+//        initialize();
         initializeShops();
     }
 
@@ -217,6 +222,11 @@ public class City extends Map
         shops.add (new FishShop());
         shops.add (new MarniesRanch());
         shops.add (new CarpentersShop());
+
+        for(Shop shop : shops)
+        {
+            shopDoors.put(shop.getExteriorDoor(), shop);
+        }
     }
 
     public Shop getShop(ShopType type)
@@ -226,6 +236,24 @@ public class City extends Map
             if (shop.getType() == type)
             {
                 return shop;
+            }
+        }
+
+        return null;
+    }
+
+    public HashMap<Point, Shop> getShopDoors()
+    {
+        return shopDoors;
+    }
+
+    public Point getExteriorDoor(ShopType type)
+    {
+        for (java.util.Map.Entry<Point, Shop> entry : shopDoors.entrySet())
+        {
+            if (entry.getValue().getType() == type)
+            {
+                return entry.getKey();
             }
         }
 

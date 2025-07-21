@@ -5,7 +5,7 @@ import java.util.regex.Pattern;
 
 public enum CityCommands implements Command
 {
-    CD_FARM("cd\\s+farm"),
+    CD_PLACE("cd\\s+(?<place>.+)"),
 
     MEET_NPC("meet\\s+NPC\\s+(?<NPCname>\\S+)"),
     GIFT_NPC("gift\\s+NPC\\s+(?<NPCname>\\S+)\\s+-i\\s+(?<item>\\S+)"),

@@ -4,30 +4,40 @@ import java.util.ArrayList;
 
 public enum MapTypes
 {
-//    STANDARD("standard", "map/standard.json", ""),
-    RIVERLAND("riverland", "map/river.json", ""),
-    HILL_TOP("hilltop", "map/hilltop.json", ""),
-    BEACH("four_corners", "map/beach.json", ""),
+    //    STANDARD("standard", "map/standard.json", ""),
+    RIVERLAND("riverland", "map/river.json", "", null),
+    HILL_TOP("hilltop", "map/hilltop.json", "", null),
+    BEACH("four_corners", "map/beach.json", "", null),
 
-    CABIN("cabin", "map/cabin.json", ""),
-    GREEN_HOUSE("greenhouse", "map/greenhouse.json", ""),
-    CITY("city", "map/city.json", ""),
-    SHOP("shop", "map/shop.json", ""),
 
-    FOREST("forest", "", "maps/Forest.tmx"),
+    COMBAT("combat", "", "", MapKind.FARM),
+    FISHING("fishing", "", "", MapKind.FARM),
+    FORAGING("foraging", "", "", MapKind.FARM),
+    MINING("mining", "", "", MapKind.FARM),
+    STANDARD("standard", "", "", MapKind.FARM),
+    TOWN("town", "", "", MapKind.TOWN),
+    HOUSE("house", "", "", MapKind.HOUSE),
+    GREEN_HOUSE("greenhouse", "", "", MapKind.GREEN_HOUSE),
 
-    STANDARD("standard", "", ""),
-    ;
+    MARNIE_RANCH("animal_shop", "", "", MapKind.SHOP),
+    BLACK_SMITH("blacksmith", "", "", MapKind.SHOP),
+    CARPENTER_SHOP("carpenter_shop", "", "", MapKind.SHOP),
+    FISH_SHOP("fish_shop", "", "", MapKind.SHOP),
+    JOJA_MART("joja_mart", "", "", MapKind.SHOP),
+    PIERRE_GENERAL_STORE("pierre_store", "", "", MapKind.SHOP),
+    SALOON("saloon", "", "", MapKind.SHOP);
 
     private final String name;
     private final String mapPath;
     private final String tmxPath;
+    private final MapKind mapKind;
 
-    MapTypes(String name, String mapPath, String tmxPath)
+    MapTypes(String name, String mapPath, String tmxPath, MapKind mapKind)
     {
         this.name = name;
         this.mapPath = mapPath;
         this.tmxPath = tmxPath;
+        this.mapKind = mapKind;
     }
 
     public String getName()
@@ -39,9 +49,10 @@ public enum MapTypes
     {
         ArrayList<MapTypes> mapNames = new ArrayList<>();
         mapNames.add(STANDARD);
-        mapNames.add(FOREST);
-//        mapNames.add(HILL_TOP.getName());
-//        mapNames.add(BEACH.getName());
+        mapNames.add(MINING);
+        mapNames.add(FISHING);
+        mapNames.add(FISHING);
+        mapNames.add(COMBAT);
         return mapNames;
     }
 
@@ -105,5 +116,10 @@ public enum MapTypes
     public String getTmxPath()
     {
         return tmxPath;
+    }
+
+    public MapKind getMapKind()
+    {
+        return mapKind;
     }
 }

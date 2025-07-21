@@ -1,11 +1,15 @@
 package ap.project.model.game;
 
+import ap.project.model.enums.MapKind;
 import ap.project.model.enums.MapTypes;
+import ap.project.model.enums.Season;
 import ap.project.model.enums.TileTexture;
 import ap.project.model.resources.ForagingCrop;
 import ap.project.model.resources.ForagingTree;
 import ap.project.model.resources.Tree;
+import ap.project.model.shops.Shop;
 import ap.project.screen.WorldScreen;
+import ap.project.util.MapAssetLoader;
 import ap.project.visual.MapVisual;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.maps.tiled.TiledMap;
@@ -14,7 +18,7 @@ import com.badlogic.gdx.math.Vector3;
 
 import java.util.*;
 
-public abstract class   Map
+public abstract class Map
 {
     protected MapTypes mapType;
     protected Tile[][] tiles;
@@ -29,6 +33,39 @@ public abstract class   Map
     protected int depth;
 
     public static final float TILE_SIZE = 16f * WorldScreen.MAP_SCALE;
+
+    public Map() {}
+
+    public Map(MapTypes mapType)
+    {
+        this.mapType = mapType;
+
+        MapAssetLoader.LoadedMap loaded = MapAssetLoader.loadFromTmx(mapType.getName(), Season.Spring, mapType.getMapKind());
+
+        this.WIDTH = loaded.width;
+        this.HEIGHT = loaded.height;
+        this.tiledMap = loaded.tiledMap;
+        this.tiles = loaded.tiles;
+        this.layerTiles = loaded.layerTiles;
+        this.depth = loaded.depth;
+        this.startingPoint = loaded.startingPoint;
+
+        if (this instanceof Farm)
+        {
+            Farm farm = (Farm)this;
+            farm.setHomePoint(loaded.cabinDoor);
+            farm.setGreenhousePoint(loaded.greenhouseDoor);
+            farm.setExitPoint(loaded.exitPoint);
+        }
+
+        if (this instanceof Shop)
+        {
+            Shop shop = (Shop)this;
+            shop.setExteriorDoor(startingPoint);
+        }
+
+        this.visual = new MapVisual(this, loaded.tiledMap);
+    }
 
     public int getDepth()
     {
@@ -428,12 +465,12 @@ public abstract class   Map
     }
 
 
-    public int getWIDTH()
+    public int getWidth()
     {
         return WIDTH;
     }
 
-    public int getHEIGHT()
+    public int getHeight()
     {
         return HEIGHT;
     }
@@ -501,6 +538,30 @@ public abstract class   Map
     public Tile[][] getTiles()
     {
         return tiles;
+    }
+
+    @Override
+    public boolean equals(Object o)
+    {
+        if (!(o instanceof Map map)) return false;
+        return WIDTH == map.WIDTH && HEIGHT == map.HEIGHT && depth == map.depth && mapType == map.mapType;
+    }
+
+    public static boolean isNear(Point point, Point other)
+    {
+
+        int dx = Math.abs(point.getX() - other.getX());
+        int dy = Math.abs(point.getY() - other.getY());
+
+        return (dx <= 2 && dy <= 2) && !(dx == 0 && dy == 0);
+    }
+
+    public static boolean isNearOrOn(Point point, Point other)
+    {
+        int dx = Math.abs(point.getX() - other.getX());
+        int dy = Math.abs(point.getY() - other.getY());
+
+        return (dx <= 2 && dy <= 2);
     }
 }
 

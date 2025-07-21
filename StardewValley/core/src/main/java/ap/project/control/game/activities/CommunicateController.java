@@ -109,8 +109,8 @@ public class CommunicateController
                 data2.setIntrcatedToday(true);
             }
             if (player.equals(currentPlayer.getZeidy())) {
-                player.increaseTurnEnergy(50);
-                currentPlayer.increaseTurnEnergy(50);
+                player.increaseEnergy(50);
+                currentPlayer.increaseEnergy(50);
             }
             return new Result(true, "you talked to " + player.getUser().getNickname());
         }
@@ -210,8 +210,8 @@ public class CommunicateController
             }
         }
         if (giver.equals(currentPlayer.getZeidy())) {
-            giver.increaseTurnEnergy(50);
-            currentPlayer.increaseTurnEnergy(50);
+            giver.increaseEnergy(50);
+            currentPlayer.increaseEnergy(50);
         }
         return new Result(true, "gift rated successfully");
     }
@@ -260,8 +260,8 @@ public class CommunicateController
                     player.getFriendships().get(currentPlayer).setIntrcatedToday(true);
                 }
                 if (player.equals(currentPlayer.getZeidy())) {
-                    player.increaseTurnEnergy(50);
-                    currentPlayer.increaseTurnEnergy(50);
+                    player.increaseEnergy(50);
+                    currentPlayer.increaseEnergy(50);
                 }
                 return new Result(true, "you gave " + player.getUser().getNickname() + " a hug");
             } else {
@@ -307,8 +307,8 @@ public class CommunicateController
                             }
                         }
                         if (player.equals(currentPlayer.getZeidy())) {
-                            player.increaseTurnEnergy(50);
-                            currentPlayer.increaseTurnEnergy(50);
+                            player.increaseEnergy(50);
+                            currentPlayer.increaseEnergy(50);
                         }
                         return new Result(true, "you gave " + player.getNickName() + " a flower");
 
