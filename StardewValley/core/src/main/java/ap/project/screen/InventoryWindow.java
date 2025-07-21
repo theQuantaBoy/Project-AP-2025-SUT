@@ -42,10 +42,10 @@ public class InventoryWindow {
     private Drawable slotBackground; // For inventory slot backgrounds
     private Drawable slotHighlight;
     private Player player;
-    TooltipManager tooltipManager = TooltipManager.getInstance();
-    Drawable tooltipBg;
-    TextButton toolsTab;
-    TextButton mapTab;
+    private TooltipManager tooltipManager = TooltipManager.getInstance();
+    private Drawable tooltipBg;
+    private TextButton toolsTab;
+    private TextButton mapTab;
 
     /**
      * @param stage    the Stage to which this window will be added
@@ -67,12 +67,12 @@ public class InventoryWindow {
         TextButton socialTab = new TextButton("Social", skin);
         mapTab = new TextButton("Map", skin);
         toolsTab = new TextButton("Tools", skin);
-        this.slotBackground = createColoredDrawable(SLOTS_SIZE, SLOTS_SIZE, new Color(0.3f, 0.3f, 0.3f, 0.7f));
-        this.slotHighlight = createColoredDrawable(SLOTS_SIZE, SLOTS_SIZE, new Color(0.5f, 0.5f, 0.5f, 0.9f));
+        this.slotBackground = GameAssetsManager.getGameAssetsManager().createColoredDrawable(SLOTS_SIZE, SLOTS_SIZE, new Color(0.3f, 0.3f, 0.3f, 0.7f));
+        this.slotHighlight = GameAssetsManager.getGameAssetsManager().createColoredDrawable(SLOTS_SIZE, SLOTS_SIZE, new Color(0.5f, 0.5f, 0.5f, 0.9f));
 
         tooltipManager.initialTime = 0.5f; // Delay before tooltip shows
         tooltipManager.subsequentTime = 0.1f;
-        tooltipBg = createColoredDrawable(1, 1, new Color(0f, 0f, 0f, 0.7f));
+        tooltipBg = GameAssetsManager.getGameAssetsManager().createColoredDrawable(1, 1, new Color(0f, 0f, 0f, 0.7f));
 
         // Create content tables
         inventoryTable = new Table(skin);
@@ -164,15 +164,6 @@ public class InventoryWindow {
         popup.pack();
         center(stage);
         stage.addActor(popup);
-    }
-
-    private Drawable createColoredDrawable(int width, int height, Color color) {
-        Pixmap pixmap = new Pixmap(width, height, Pixmap.Format.RGBA8888);
-        pixmap.setColor(color);
-        pixmap.fill();
-        Texture texture = new Texture(pixmap);
-        pixmap.dispose();
-        return new TextureRegionDrawable(new TextureRegion(texture));
     }
 
     /**

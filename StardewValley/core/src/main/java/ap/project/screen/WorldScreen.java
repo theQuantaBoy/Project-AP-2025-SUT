@@ -6,6 +6,7 @@ import ap.project.model.App.GameAssetsManager;
 import ap.project.model.App.User;
 import ap.project.model.enums.*;
 import ap.project.model.game.Game;
+import ap.project.model.player_data.FriendshipData;
 import ap.project.screen.input.WorldScreenInputProcessor;
 import ap.project.util.MapAssetLoader;
 import ap.project.view.GameMenu;
@@ -71,6 +72,7 @@ public final class WorldScreen implements Screen
     private static StringBuilder dialogTextBuffer = new StringBuilder();
     private static Label dialogContentLabel;
     private InventoryWindow inventoryWindow;
+    private FriendsWindow friendsWindow;
 
     private InputMultiplexer inputMultiplexer;
     private boolean inputMultiplexerHadSetUp = false;
@@ -96,6 +98,8 @@ public final class WorldScreen implements Screen
         App.setCurrentMenu(Menu.GameMenu);
         App.setCurrentUser(game.getPlayers().get(0).getUser());
         game.setCurrentPlayer(game.getPlayers().get(0));
+
+        game.getPlayers().get(0).addFriendship(game.getPlayers().get(1), new FriendshipData(2, 50, false));
 
 //        this.game = App.getCurrentGame();
 
@@ -129,7 +133,9 @@ public final class WorldScreen implements Screen
         uiRenderer = new UIRenderer(time);
 
         inventoryWindow = new InventoryWindow(uiStage);
+        friendsWindow = new FriendsWindow(uiStage);
         createTerminalDialog();
+
 
         inputMultiplexer = new InputMultiplexer();
         checkGameInfo();
@@ -193,6 +199,14 @@ public final class WorldScreen implements Screen
         });
         Gdx.input.setInputProcessor(inputMultiplexer);
         inputMultiplexerHadSetUp = true;
+        TextButton friends = uiRenderer.getFriends();
+        uiStage.addActor(friends);
+        friends.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                toggleFriendsWindow();
+            }
+        });
     }
 
     @Override
@@ -573,6 +587,10 @@ public final class WorldScreen implements Screen
     public void toggleInventoryWindow()
     {
         inventoryWindow.toggleVisibility();
+    }
+
+    public void toggleFriendsWindow() {
+        friendsWindow.toggleVisibility();
     }
 
     public static WorldScreen getInstance()
