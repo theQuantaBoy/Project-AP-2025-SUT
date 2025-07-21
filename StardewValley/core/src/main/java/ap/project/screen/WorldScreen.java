@@ -120,7 +120,8 @@ public final class WorldScreen implements Screen
         if (SECOND_PLAYER)
         {
             Vector2 spawn2 = new Vector2(62 * TILE_SIZE, 60 * TILE_SIZE);
-            player2 = new PlayerCharacter(CharacterType.ABIGAIL, spawn2, "Player 456");
+            Player player2p = new Player(new User("arash","","arash","", Gender.FEMALE, "", ""), MapTypes.FISHING, 0);
+            player2 = new PlayerCharacter(CharacterType.ABIGAIL, spawn2, "Player 456", player2p);
             controller2 = new CharacterController(player2, map, PLAYER_SPEED, TILE_SIZE);
             controller2.chnageMoveKeys(Input.Keys.UP, Input.Keys.LEFT, Input.Keys.DOWN, Input.Keys.RIGHT);
         }

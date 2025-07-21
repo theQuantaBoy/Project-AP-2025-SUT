@@ -1,6 +1,10 @@
 package ap.project.visual;
 //
 import ap.project.model.game.AbstractCharacter;
+import ap.project.model.game.GameObject;
+import ap.project.model.game.Player;
+import ap.project.model.game.PlayerCharacter;
+import ap.project.model.tools.Tool;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
@@ -12,6 +16,8 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
+
+import static ap.project.model.game.Map.TILE_SIZE;
 
 public class CharacterRenderer
 {
@@ -42,6 +48,26 @@ public class CharacterRenderer
         batch.draw(frame, pos.x, pos.y, 0, 0,
             frame.getRegionWidth(), frame.getRegionHeight(),
             scale, scale, 0);
+
+        if (character instanceof PlayerCharacter)
+        {
+            PlayerCharacter playerCharacter = (PlayerCharacter) character;
+            Player player = playerCharacter.getPlayer();
+
+            if (player.getCurrentTool() != null)
+            {
+                Tool tool = player.getCurrentTool();
+                Texture toolTexture = tool.getObjectType().getTexture();
+                batch.draw(toolTexture, pos.x + 12, pos.y + 5, (TILE_SIZE * 2) / 3, (TILE_SIZE * 2) / 3);
+            }
+
+            if (player.getCurrentObject() != null)
+            {
+                GameObject object = player.getCurrentObject();
+                Texture objectTexture = object.getObjectType().getTexture();
+                batch.draw(objectTexture, pos.x + 12, pos.y + 5, (TILE_SIZE * 2) / 3, (TILE_SIZE * 2) / 3);
+            }
+        }
 
         String name = character.getNickName();
         if (name == null || name.isEmpty()) return;

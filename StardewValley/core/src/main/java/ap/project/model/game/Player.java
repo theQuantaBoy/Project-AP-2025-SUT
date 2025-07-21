@@ -70,6 +70,7 @@ public class Player {
     private Player zeidy;
 
     private Tool currentTool;
+    private GameObject currentObject;
     private double money;
 
     private ArrayList<AnimalBuilding> animalBuildings = new ArrayList<>();
@@ -157,7 +158,7 @@ public class Player {
         Point spawn = currentMap.getStartingPoint();
         Vector2 spawnPoint = currentMap.tileToWorld(currentMap.getTile(spawn.getX(), spawn.getY()));
 
-        this.character = new PlayerCharacter(CharacterType.ABIGAIL, spawnPoint, user.getNickname());
+        this.character = new PlayerCharacter(CharacterType.ABIGAIL, spawnPoint, user.getNickname(), this);
     }
 
     public Player(User user, Farm farm, int number) {
@@ -183,7 +184,7 @@ public class Player {
         this.apperance = appearences.get(number);
 
         this.character = new PlayerCharacter(CharacterType.ABIGAIL, new Vector2(60 * 24, 60 * 24),
-            user.getNickname());
+            user.getNickname(), this);
         this.skills.add(farmingSkill); this.skills.add(miningSkill);
         this.skills.add(foragingSkill); this.skills.add(fishingSkill);
     }
@@ -265,8 +266,21 @@ public class Player {
         return currentTool;
     }
 
-    public void setCurrentTool(Tool currentTool) {
+    public GameObject getCurrentObject()
+    {
+        return currentObject;
+    }
+
+    public void setCurrentTool(Tool currentTool)
+    {
+        currentObject = null;
         this.currentTool = currentTool;
+    }
+
+    public void setCurrentObject(GameObject currentObject)
+    {
+        currentTool = null;
+        this.currentObject = currentObject;
     }
 
     public double getMoney() {
