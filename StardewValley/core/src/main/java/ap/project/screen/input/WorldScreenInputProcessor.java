@@ -1,10 +1,9 @@
 package ap.project.screen.input;
 
 import ap.project.control.CharacterController;
-import ap.project.model.game.Farm;
-import ap.project.model.game.PlayerCharacter;
-import ap.project.model.game.Point;
-import ap.project.model.game.Tile;
+import ap.project.control.WorldController;
+import ap.project.model.App.App;
+import ap.project.model.game.*;
 import ap.project.screen.WorldScreen;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
@@ -16,16 +15,16 @@ import java.util.ArrayList;
 
 public class WorldScreenInputProcessor implements InputProcessor
 {
-    private final Farm farm;
+    private final Map map;
     private final PlayerCharacter player;
     private final CharacterController characterController;
     private final OrthographicCamera cam;
     private final WorldScreen worldScreen;
 
-    public WorldScreenInputProcessor(Farm farm, PlayerCharacter player, CharacterController controller,
+    public WorldScreenInputProcessor(Map map, PlayerCharacter player, CharacterController controller,
                                      OrthographicCamera cam, WorldScreen worldScreen)
     {
-        this.farm = farm;
+        this.map = map;
         this.player = player;
         this.characterController = controller;
         this.cam = cam;
@@ -59,18 +58,20 @@ public class WorldScreenInputProcessor implements InputProcessor
 //                    }
 //                }
             }
+
+            WorldController.processClickLeft(tile);
         }
 
         if (Gdx.input.isButtonJustPressed(Input.Buttons.RIGHT))
         {
-            Point clicked = farm.screenToTile(Gdx.input.getX(), Gdx.input.getY(), cam);
+            Point clicked = map.screenToTile(Gdx.input.getX(), Gdx.input.getY(), cam);
 
             if (clicked != null)
             {
                 Vector2 playerPos = player.getPosition();
-                Point playerTile = farm.worldToTile(playerPos.x, playerPos.y);
+                Point playerTile = map.worldToTile(playerPos.x, playerPos.y);
 
-                ArrayList<Point> path = farm.findShortestPath(playerTile, clicked);
+                ArrayList<Point> path = map.findShortestPath(playerTile, clicked);
 
                 if (path != null)
                 {

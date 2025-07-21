@@ -625,17 +625,17 @@ public class GameController
             return new Result(false, "Going to green house...");
         } else if (placeName.equalsIgnoreCase("city"))
         {
-            Point cabinDoor = player.getCabin().getStartingPoint();
-            int requiredEnergy = player.getCurrentMap().calculateEnergy(player.getLocation(), cabinDoor);
-
-            if (!player.hasEnoughEnergy(requiredEnergy))
-            {
-                return new Result(false, "You don't have enough energy, you're stuck here.");
-            }
+//            Point cabinDoor = player.getCabin().getStartingPoint();
+//            int requiredEnergy = player.getCurrentMap().calculateEnergy(player.getLocation(), cabinDoor);
+//
+//            if (!player.hasEnoughEnergy(requiredEnergy))
+//            {
+//                return new Result(false, "You don't have enough energy, you're stuck here.");
+//            }
 
             player.goToCity();
             App.setCurrentMenu(Menu.CityMenu);
-            player.increaseEnergy(-1 * requiredEnergy);
+//            player.increaseTurnEnergy(-1 * requiredEnergy);
             return new Result(true, "Going to city...");
         }
 
@@ -697,11 +697,11 @@ public class GameController
                     """);
         }
 
-        if (!player.canAffordGreenhouse())
-        {
-            return new Result(false, "You can't afford the greenhouse.\n" +
-                    "You are poor :(");
-        }
+//        if (!player.canAffordGreenhouse())
+//        {
+//            return new Result(false, "You can't afford the greenhouse.\n" +
+//                    "You are poor :(");
+//        }
 
         greenhouse.build();
         return new Result(true, "Yippee! You successfully built a greenhouse.");

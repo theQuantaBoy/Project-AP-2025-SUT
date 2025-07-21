@@ -15,9 +15,11 @@ public class GreenHouse extends Map
 
     public GreenHouse()
     {
+        super(MapTypes.GREEN_HOUSE);
+
         this.mapType = MapTypes.GREEN_HOUSE;
         this.mapPath = mapType.getMapPath();
-        initialize();
+//        initialize();
     }
 
     private void initialize()
@@ -66,8 +68,8 @@ public class GreenHouse extends Map
     public void build()
     {
         Player player = App.getCurrentGame().getCurrentPlayer();
-        player.increaseMoney(-1 * moneyCost);
-        player.removeAmountFromInventory(GameObjectType.WOOD, woodCost);
+//        player.increaseMoney(-1 * moneyCost);
+//        player.removeAmountFromInventory(GameObjectType.WOOD, woodCost);
         isBuilt = true;
     }
 
