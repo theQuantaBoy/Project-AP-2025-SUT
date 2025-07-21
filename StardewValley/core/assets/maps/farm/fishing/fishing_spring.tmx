@@ -4,12 +4,20 @@
   <property name="AllowGrassSurviveInWinter" value="T"/>
   <property name="Outdoors" value="T"/>
   <property name="Warp" value="80 15 BusStop 11 23 80 18 BusStop 11 24 80 16 BusStop 11 23 80 17 BusStop 11 23 40 65 Forest 68 0 41 65 Forest 68 0 42 65 Forest 68 0 40 -1 Backwoods 14 39 41 -1 Backwoods 14 39 34 5 FarmCave 8 11"/>
+  <property name="cabin_door_x" type="int" value="63"/>
+  <property name="cabin_door_y" type="int" value="16"/>
+  <property name="exit_x" type="int" value="78"/>
+  <property name="exit_y" type="int" value="17"/>
+  <property name="greenhouse_door_x" type="int" value="24"/>
+  <property name="greenhouse_door_y" type="int" value="36"/>
+  <property name="starting_point_x" type="int" value="63"/>
+  <property name="starting_point_y" type="int" value="17"/>
  </properties>
  <tileset firstgid="1" name="Paths" tilewidth="16" tileheight="16" tilecount="64" columns="4">
-  <image source="paths" width="64" height="256"/>
+  <image source="../../tilesets/spring/paths.png" width="64" height="256"/>
  </tileset>
  <tileset firstgid="65" name="spring_outdoorTileSheet_extra" tilewidth="16" tileheight="16" tilecount="64" columns="8">
-  <image source="spring_outdoorTileSheet_extra" width="128" height="128"/>
+  <image source="../../tilesets/spring/spring_outdoorTileSheet_extra.png" width="128" height="128"/>
   <tile id="0">
    <properties>
     <property name="Buildable" type="bool" value="true"/>
@@ -72,7 +80,7 @@
   </tile>
  </tileset>
  <tileset firstgid="129" name="untitled tile sheet" tilewidth="16" tileheight="16" tilecount="1975" columns="25">
-  <image source="spring_outdoorsTileSheet" width="400" height="1264"/>
+  <image source="../../tilesets/spring/spring_outdoorsTileSheet.png" width="400" height="1264"/>
   <tile id="150">
    <properties>
     <property name="Buildable" type="bool" value="true"/>
@@ -1809,7 +1817,7 @@
   </tile>
  </tileset>
  <tileset firstgid="2104" name="v16_Outdoors2" tilewidth="16" tileheight="16" tilecount="1120" columns="16">
-  <image source="spring_outdoorsTileSheet2" width="256" height="1120"/>
+  <image source="../../tilesets/spring/spring_outdoorsTileSheet2.png" width="256" height="1120"/>
   <tile id="740">
    <properties>
     <property name="Buildable" type="bool" value="true"/>
@@ -2130,7 +2138,7 @@
   </tile>
  </tileset>
  <tileset firstgid="3224" name="v16_Shadows" tilewidth="16" tileheight="16" tilecount="475" columns="19">
-  <image source="spring_Shadows" width="304" height="400"/>
+  <image source="../../tilesets/spring/spring_Shadows.png" width="304" height="400"/>
  </tileset>
  <layer id="1" name="Back" width="80" height="65">
   <data encoding="csv">

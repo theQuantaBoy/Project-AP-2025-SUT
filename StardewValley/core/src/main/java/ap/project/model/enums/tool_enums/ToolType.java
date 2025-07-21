@@ -6,7 +6,7 @@ public enum ToolType {
     Axe ("Axe"),
     WateringCan ("Watering Can"),
     FishingPole ("Fishing Pole"),
-    Seythe ("Seythe"),
+    Scythe("Scythe"),
     MilkPail ("Milk Pail"),
     Shear ("Shear"),
     BackPack ("Back Pack"),

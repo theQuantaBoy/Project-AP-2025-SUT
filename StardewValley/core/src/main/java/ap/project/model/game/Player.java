@@ -7,7 +7,7 @@ import ap.project.model.animal.Animal;
 import ap.project.model.animal.AnimalBuilding;
 import ap.project.model.animal.Fish;
 import ap.project.model.enums.*;
-import ap.project.model.enums.animal_enums.FarmAnimalsType;
+import ap.project.model.shops.Shop;
 import ap.project.model.tools.*;
 import ap.project.model.enums.building_enums.ArtisanGoodsType;
 import ap.project.model.enums.building_enums.CraftingRecipeEnums;
@@ -18,10 +18,13 @@ import ap.project.model.player_data.FriendshipWithNpcData;
 import ap.project.model.player_data.Skill;
 import ap.project.model.player_data.Trade;
 import ap.project.model.resources.Plant;
+import ap.project.screen.WorldScreen;
 import ap.project.view.CityMenu;
 import com.badlogic.gdx.math.Vector2;
 
 import java.util.*;
+
+import static ap.project.model.game.Map.TILE_SIZE;
 
 public class Player {
     private PlayerCharacter character;
@@ -29,7 +32,7 @@ public class Player {
     private final User user;
     private Farm farm;
     private final Cabin cabin;
-    private final GreenHouse greenHouse;
+    private GreenHouse greenHouse;
 
     private Gender gender;
     private Point location = null;
@@ -37,12 +40,11 @@ public class Player {
 
     private float energy;
     private float maxEnergy = 200f;
-    private float turnEnergy = 50f;
     private boolean fainted = false;
 
     private Skill farmingSkill = new Skill(SkillType.Farming);
     private Skill miningSkill = new Skill(SkillType.Mining);
-    private Skill gashtogozarSkill = new Skill(SkillType.Gashtogozar);
+    private Skill foragingSkill = new Skill(SkillType.Foraging);
     private Skill fishingSkill = new Skill(SkillType.Fishing);
 
     BackPack currentBackPack = new BackPack();
@@ -50,6 +52,7 @@ public class Player {
     private ArrayList<Trade> sentTrades = new ArrayList<>();
     private ArrayList<Trade> receivedTrades = new ArrayList<>();
     private ArrayList<Trade> archiveTrades = new ArrayList<>();
+    private List<Skill> skills = new LinkedList<>();
 
     private boolean newMessage;
 
@@ -87,6 +90,7 @@ public class Player {
     private boolean isInHome = false;
     private boolean isInZeidiesFarm = false;
     private boolean isInZeidiesHome = false;
+    private boolean isInShop = false;
 
     private final String apperance;
     private boolean shouldBeSkipped = false;
@@ -125,7 +129,44 @@ public class Player {
         this.greenHouse = new GreenHouse();
 //        this.currentMap = this.farm;
         this.energy = 200f;
-        this.turnEnergy = 50f;
+        this.fainted = false;
+        this.money = 0;
+        addTool(new Axe());
+        addTool(new Hoe());
+        addTool(new Pickaxe());
+        addTool(new WateringCan());
+        addTool(new Seythe());
+        addToInventory(GameObjectType.MILK, 2);
+
+        this.zeidy = null;
+//        this.location = farm.getStartingPoint();
+        this.newMessage = false;
+        this.apperance = appearences.get(number);
+        this.skills.add(farmingSkill); this.skills.add(miningSkill);
+        this.skills.add(foragingSkill); this.skills.add(fishingSkill);
+
+//        Point spawn = currentMap.getStartingPoint();
+//        Vector2 spawnPoint = currentMap.tileToWorld(currentMap.getTile(spawn.getX(), spawn.getY()));
+//
+//        this.character = new PlayerCharacter(CharacterType.ABIGAIL, spawnPoint, user.getNickname());
+    }
+
+    public void spawn()
+    {
+        this.currentMap = this.farm;
+        Point spawn = currentMap.getStartingPoint();
+        Vector2 spawnPoint = currentMap.tileToWorld(currentMap.getTile(spawn.getX(), spawn.getY()));
+
+        this.character = new PlayerCharacter(CharacterType.ABIGAIL, spawnPoint, user.getNickname());
+    }
+
+    public Player(User user, Farm farm, int number) {
+        this.user = user;
+        this.farm = farm;
+        this.cabin = new Cabin();
+        this.greenHouse = new GreenHouse();
+        this.currentMap = this.farm;
+        this.energy = 200f;
         this.fainted = false;
         this.money = 0;
         this.addToInventory(new Axe());
@@ -137,36 +178,14 @@ public class Player {
 
         this.zeidy = null;
 //        this.location = farm.getStartingPoint();
+        setLocation(farm.getStartingPoint());
         this.newMessage = false;
         this.apperance = appearences.get(number);
 
-
-//        this.character = new PlayerCharacter(CharacterType.ABIGAIL, new Vector2(60 * 24, 60 * 24));
-    }
-
-    public Player(User user, Farm farm, int number) {
-        this.user = user;
-        this.farm = farm;
-        this.cabin = new Cabin();
-        this.greenHouse = new GreenHouse();
-        this.currentMap = this.farm;
-        this.energy = 200f;
-        this.turnEnergy = 50f;
-        this.fainted = false;
-        this.money = 0;
-        this.addToInventory(new Axe());
-        this.addToInventory(new Hoe());
-        this.addToInventory(new Pickaxe());
-        this.addToInventory(new WateringCan());
-        this.addToInventory(new Seythe());
-        this.addToInventory(new TrashCan());
-
-        this.zeidy = null;
-        this.location = farm.getStartingPoint();
-        this.newMessage = false;
-        this.apperance = appearences.get(number);
-
-        this.character = new PlayerCharacter(CharacterType.ABIGAIL, new Vector2(60 * 24, 60 * 24));
+        this.character = new PlayerCharacter(CharacterType.ABIGAIL, new Vector2(60 * 24, 60 * 24),
+            user.getNickname());
+        this.skills.add(farmingSkill); this.skills.add(miningSkill);
+        this.skills.add(foragingSkill); this.skills.add(fishingSkill);
     }
 
     public PlayerCharacter getCharacter()
@@ -205,21 +224,6 @@ public class Player {
         // TODO: add faint check mechanism
     }
 
-    public float getTurnEnergy() {
-        return turnEnergy;
-    }
-
-    public void setTurnEnergy(float turnEnergy) {
-        this.turnEnergy = turnEnergy;
-    }
-
-    public void increaseTurnEnergy(float turnEnergy)
-    {
-        if (this.turnEnergy != -1)
-        {
-            this.turnEnergy += turnEnergy;
-        }
-    }
 
     public float getMaxEnergy() {
         return this.maxEnergy;
@@ -245,8 +249,12 @@ public class Player {
         return miningSkill;
     }
 
-    public Skill getGashtogozarSkill() {
-        return gashtogozarSkill;
+    public Skill getForagingSkill() {
+        return foragingSkill;
+    }
+
+    public List<Skill> getSkills() {
+        return skills;
     }
 
     public Skill getFishingSkill() {
@@ -343,7 +351,9 @@ public class Player {
 
     public Point getLocation()
     {
-        return location;
+//        return location;
+        Vector2 pos = character.getPosition();
+        return currentMap.worldToTile(pos.x, pos.y);
     }
 
     public Map getCurrentMap()
@@ -353,20 +363,22 @@ public class Player {
 
     public void setLocation(Point location)
     {
-        this.location = location;
-        if (isInCity)
-        {
-            int index = App.getCurrentGame().getPlayerIndex();
-            City city = App.getCurrentGame().getCity();
-            city.getPlayerPoints()[index] = location;
-        }
-        if (isInCity)
-        {
-            int index = App.getCurrentGame().getPlayerIndex();
-            City city = App.getCurrentGame().getCity();
-            city.getPlayerPoints()[index] = location;
-        }
+//        this.location = location;
 
+        character.setPosition(currentMap.tileToWorld(currentMap.getTile(location.getX(), location.getY())));
+//
+//        if (isInCity)
+//        {
+//            int index = App.getCurrentGame().getPlayerIndex();
+//            City city = App.getCurrentGame().getCity();
+//            city.getPlayerPoints()[index] = location;
+//        }
+//        if (isInCity)
+//        {
+//            int index = App.getCurrentGame().getPlayerIndex();
+//            City city = App.getCurrentGame().getCity();
+//            city.getPlayerPoints()[index] = location;
+//        }
     }
 
     public void setCurrentMap(Map currentMap)
@@ -420,7 +432,7 @@ public class Player {
     }
 
     public void checkEnergy() {
-        if (this.turnEnergy < 1) {
+        if (this.energy < 1) {
             this.setFainted(true);
         }
     }
@@ -458,6 +470,7 @@ public class Player {
             currentBackPack.addItem(object);
         }
     }
+
 
 
     public ArrayList<CraftingRecipeEnums> getCraftingRecipes()
@@ -510,6 +523,10 @@ public class Player {
         if (currentBackPack.hasEmptySlot()) {
             currentBackPack.addItem(new GameObject(objectType, amount));
         }
+    }
+
+    public void addTool(Tool tool) {
+        currentBackPack.getTools().add(tool);
     }
 
     public int getInventoryCapacity() {
@@ -573,11 +590,21 @@ public class Player {
     public boolean isNear(Point otherLocation)
     {
 
-        Point location = this.location;
+        Point location = getLocation();
         int dx = Math.abs(location.getX() - otherLocation.getX());
         int dy = Math.abs(location.getY() - otherLocation.getY());
 
-        return (dx <= 1 && dy <= 1) && !(dx == 0 && dy == 0);
+        return (dx <= 2 && dy <= 2) && !(dx == 0 && dy == 0);
+    }
+
+    public boolean isNearOrOn(Point otherLocation)
+    {
+
+        Point location = getLocation();
+        int dx = Math.abs(location.getX() - otherLocation.getX());
+        int dy = Math.abs(location.getY() - otherLocation.getY());
+
+        return (dx <= 2 && dy <= 2);
     }
 
     public GameObject getFromRefrigerator (GameObjectType type)
@@ -649,14 +676,40 @@ public class Player {
             City city = App.getCurrentGame().getCity();
             city.getPlayerPoints()[App.getCurrentGame().getPlayerIndex()] = null;
         }
+
+        this.currentMap = this.farm;
+
+        if (isInCity)
+        {
+            setLocation(farm.getExitPoint());
+        } else if (isInHome)
+        {
+            setLocation(farm.getHomePoint());
+        } else if (isInGreenHouse)
+        {
+            setLocation(farm.getGreenhousePoint());
+        } else
+        {
+            setLocation(farm.getStartingPoint());
+        }
+
         this.isInCity = false;
         this.isInGreenHouse = false;
         this.isInFarm = true;
         this.isInHome = false;
         this.isInZeidiesFarm = false;
         this.isInZeidiesHome = false;
-        this.currentMap = this.farm;
-        this.location = farm.getStartingPoint();
+
+        WorldScreen.getInstance().updateGameInfo();
+    }
+
+    public void goToShop(Shop shop)
+    {
+        this.isInCity = false;
+        this.isInShop = true;
+        this.currentMap = shop;
+        setLocation(shop.getStartingPoint());
+        WorldScreen.getInstance().updateGameInfo();
     }
 
     public void goToZeidyFarm()
@@ -674,7 +727,8 @@ public class Player {
         this.isInZeidiesFarm = true;
         this.isInZeidiesHome = false;
         this.currentMap = zeidy.getFarm();
-        this.location = zeidy.getFarm().getStartingPoint();
+//        this.location = zeidy.getFarm().getStartingPoint();
+        setLocation(zeidy.getFarm().getStartingPoint());
     }
 
     public void goToCabin()
@@ -684,7 +738,9 @@ public class Player {
         this.isInZeidiesHome = false;
         this.isInFarm = false;
         this.currentMap = this.cabin;
-        this.location = cabin.getStartingPoint();
+//        this.location = cabin.getStartingPoint();
+        setLocation(cabin.getStartingPoint());
+        WorldScreen.getInstance().updateGameInfo();
     }
 
     public void goToGreenHouse()
@@ -695,7 +751,9 @@ public class Player {
         this.isInFarm = false;
         this.isInGreenHouse = true;
         this.currentMap = this.greenHouse;
-        this.location = greenHouse.getStartingPoint();
+//        this.location = greenHouse.getStartingPoint();
+        setLocation(greenHouse.getStartingPoint());
+        WorldScreen.getInstance().updateGameInfo();
     }
 
     public void goToCity()
@@ -703,12 +761,34 @@ public class Player {
         this.isInHome = false;
         this.isInZeidiesFarm = false;
         this.isInZeidiesHome = false;
+        this.isInShop =  false;
         City city = App.getCurrentGame().getCity();
         this.isInFarm = false;
         this.isInCity = true;
         this.currentMap = this.user.getCurrentGame().getCity();
-        this.location = this.user.getCurrentGame().getCity().findFreeStartingPoint();
-        city.getPlayerPoints()[App.getCurrentGame().getPlayerIndex()] = this.location;
+//        this.location = this.user.getCurrentGame().getCity().findFreeStartingPoint();
+//        setLocation(this.user.getCurrentGame().getCity().findFreeStartingPoint());
+        setLocation(this.user.getCurrentGame().getCity().getStartingPoint());
+//        city.getPlayerPoints()[App.getCurrentGame().getPlayerIndex()] = this.location;
+        WorldScreen.getInstance().updateGameInfo();
+    }
+
+    public void goToCity(Point door)
+    {
+        this.isInHome = false;
+        this.isInZeidiesFarm = false;
+        this.isInZeidiesHome = false;
+        this.isInShop =  false;
+        this.isInFarm = false;
+        this.isInCity = true;
+        this.currentMap = this.user.getCurrentGame().getCity();
+        setLocation(door);
+        WorldScreen.getInstance().updateGameInfo();
+    }
+
+    public boolean isInShop()
+    {
+        return isInShop;
     }
 
     public void setEnergyToMax()
@@ -737,12 +817,12 @@ public class Player {
 
     public boolean hasEnoughEnergy(int required)
     {
-        if (turnEnergy == -1)
+        if (energy == -1)
         {
             return true;
         }
 
-        return turnEnergy > required;
+        return energy > required;
     }
 
     public ArrayList<Tile> getFarmPlants()
@@ -830,11 +910,6 @@ public class Player {
 
     public void resetEnergy()
     {
-        if (turnEnergy != -1) // not unlimited
-        {
-            turnEnergy = 50;
-        }
-
         if (energy != -1) // not unlimited
         {
             // TODO
@@ -874,7 +949,8 @@ public class Player {
 
         this.isInHome = true;
         this.currentMap = cabin;
-        this.location = cabin.getBedPoint();
+//        this.location = cabin.getBedPoint();
+        setLocation(cabin.getBedPoint());
         App.setCurrentMenu(Menu.HomeMenu);
     }
 
@@ -1027,7 +1103,6 @@ public class Player {
             {
                 animals.add(animal);
             }
-            animals.add(new Animal("test", FarmAnimalsType.CHICKEN)); //TEST
         }
         return animals;
     }

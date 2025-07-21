@@ -117,7 +117,7 @@ public class Skill {
         this.unit -= threshold;
     }
 
-    private int getThresholdForLevel(int level) {
+    public int getThresholdForLevel(int level) {
         return switch (level) {
             case 0 -> 50;
             case 1 -> 150;
@@ -163,5 +163,9 @@ public class Skill {
                 }
             }
         }
+    }
+
+    public String getName() {
+        return type.getName();
     }
 }

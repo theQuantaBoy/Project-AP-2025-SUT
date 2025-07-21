@@ -21,11 +21,11 @@ public class GeneralController
     /* player commands */
     public Result energyShow() {
         Player currentPlayer = App.getCurrentGame().getCurrentPlayer();
-        if (currentPlayer.getTurnEnergy() == -1)
+        if (currentPlayer.getEnergy() == -1)
             return new Result(true, "Your Energy is unlimited!");
         return new Result(true,
                 "Your Energy: " + currentPlayer.getEnergy() +
-                        "\nthis turn energy: " + currentPlayer.getTurnEnergy());
+                        "\nthis turn energy: " + currentPlayer.getEnergy());
     }
 
     public void inventoryShow()
@@ -123,18 +123,18 @@ public class GeneralController
     public Result energySet(Matcher matcher) {
         int value = Integer.parseInt(matcher.group("value"));
         Player currentPlayer = App.getCurrentGame().getCurrentPlayer();
-        if (currentPlayer.getTurnEnergy() == -1) {
+        if (currentPlayer.getEnergy() == -1) {
             return new Result(false, "your energy is unlimited yohahahahaha");
         } else if (value < 1) {
             return new Result(false,"you should set your energy to a positive number!");
         }
-        currentPlayer.setTurnEnergy(value);
-        return new Result(true,"your energy set to : " + currentPlayer.getTurnEnergy());
+        currentPlayer.setEnergy(value);
+        return new Result(true,"your energy set to : " + currentPlayer.getEnergy());
     }
 
     public Result energyUnlimited() {
         Player currentPlayer = App.getCurrentGame().getCurrentPlayer();
-        currentPlayer.setTurnEnergy(-1); //might change later
+        currentPlayer.setEnergy(-1); //might change later
         return new Result(true,"your energy is now unlimited eshghohal");
 
     }
@@ -320,7 +320,7 @@ public class GeneralController
         Map map = player.getCurrentMap();
         return new Result(true,
                 "\n" +
-                        map.getMapString(player.getLocation(), new Point(0,0), map.getHEIGHT(), map.getWIDTH()).trim()
+                        map.getMapString(player.getLocation(), new Point(0,0), map.getHeight(), map.getWidth()).trim()
         + "\n");
     }
 
@@ -337,7 +337,7 @@ public class GeneralController
         Map map = player.getCurrentMap();
 
         int requiredEnergy = map.calculateEnergy(player.getLocation(), destination);
-        float energy = player.getTurnEnergy();
+        float energy = player.getEnergy();
 
         if (requiredEnergy == -1)
         {
@@ -355,7 +355,78 @@ public class GeneralController
                 "\tRequired energy: " + requiredEnergy + "\n\tEnergy: " + energy);
     }
 
-    public void walk(String inputX, String inputY, Scanner scanner)
+//    public void walk(String inputX, String inputY, Scanner scanner)
+//    {
+//        int x = Integer.parseInt(inputX);
+//        int y = Integer.parseInt(inputY);
+//
+//        Point destination = new Point(x, y);
+//
+//        Game game = App.getCurrentGame();
+//        Player player = game.getCurrentPlayer();
+//        Map map = player.getCurrentMap();
+//
+//        int requiredEnergy = map.calculateEnergy(player.getLocation(), destination);
+//        float energy = player.getTurnEnergy();
+//
+//        if (requiredEnergy == -1)
+//        {
+//            GameMenu.println("You shall not pass!\n" + "Choose your destination wisely.");
+//            return;
+//        }
+//
+//        if (!player.hasEnoughEnergy(requiredEnergy))
+//        {
+//            Point canGetTo = map.findFurthestAvailablePoint(player.getLocation(), destination, energy);
+//
+//            GameMenu.println("You can't go all the way. Actually you can, but you would faint.");
+//            GameMenu.println("But we have a special offer for you: ");
+//            GameMenu.println("You can walk as much as you can, you would get closer to the destination.");
+//            GameMenu.println("Your new location will be (" + canGetTo.getX() + ", " + canGetTo.getY() + ").");
+//            GameMenu.println("Do you want to:");
+//            GameMenu.println("\t[1] Go to original destination. (and faint)");
+//            GameMenu.println("\t[2] Go to this new destination.");
+//            GameMenu.println("\t[3] Do nothing.");
+//            GameMenu.print("Which one? ");
+//
+//            String input = GameMenu.scan();
+//
+//            if (input.equals("1"))
+//            {
+//                player.setLocation(destination);
+//                player.increaseTurnEnergy(-1 * player.getTurnEnergy());
+//                player.faint();
+//                GameMenu.println("You have reached your destination.");
+//                GameMenu.println("But you fainted. I'll see you tomorrow morning.");
+//                game.nextTurn();
+//                return;
+//            }
+//
+//            else if (input.equals("2"))
+//            {
+//                requiredEnergy = map.calculateEnergy(player.getLocation(), canGetTo);
+//                player.setLocation(canGetTo);
+//                player.increaseTurnEnergy(-1 * requiredEnergy);
+//                GameMenu.println("You have reached your destination.");
+//                return;
+//            }
+//
+//            else if (input.equals("3"))
+//            {
+//                GameMenu.println("OK");
+//                return;
+//            }
+//
+//            GameMenu.println("Dalghak");
+//            return;
+//        }
+//
+//        player.setLocation(destination);
+//        player.increaseTurnEnergy(-1 * requiredEnergy);
+//        GameMenu.println("You have successfully reached your destination.");
+//    }
+
+    public void walk(String inputX, String inputY)
     {
         int x = Integer.parseInt(inputX);
         int y = Integer.parseInt(inputY);
@@ -367,7 +438,7 @@ public class GeneralController
         Map map = player.getCurrentMap();
 
         int requiredEnergy = map.calculateEnergy(player.getLocation(), destination);
-        float energy = player.getTurnEnergy();
+        float energy = player.getEnergy();
 
         if (requiredEnergy == -1)
         {
@@ -379,50 +450,15 @@ public class GeneralController
         {
             Point canGetTo = map.findFurthestAvailablePoint(player.getLocation(), destination, energy);
 
-            GameMenu.println("You can't go all the way. Actually you can, but you would faint.");
-            GameMenu.println("But we have a special offer for you: ");
-            GameMenu.println("You can walk as much as you can, you would get closer to the destination.");
-            GameMenu.println("Your new location will be (" + canGetTo.getX() + ", " + canGetTo.getY() + ").");
-            GameMenu.println("Do you want to:");
-            GameMenu.println("\t[1] Go to original destination. (and faint)");
-            GameMenu.println("\t[2] Go to this new destination.");
-            GameMenu.println("\t[3] Do nothing.");
-            GameMenu.print("Which one? ");
-
-            String input = GameMenu.scan();
-
-            if (input.equals("1"))
-            {
-                player.setLocation(destination);
-                player.increaseTurnEnergy(-1 * player.getTurnEnergy());
-                player.faint();
-                GameMenu.println("You have reached your destination.");
-                GameMenu.println("But you fainted. I'll see you tomorrow morning.");
-                game.nextTurn();
-                return;
-            }
-
-            else if (input.equals("2"))
-            {
-                requiredEnergy = map.calculateEnergy(player.getLocation(), canGetTo);
-                player.setLocation(canGetTo);
-                player.increaseTurnEnergy(-1 * requiredEnergy);
-                GameMenu.println("You have reached your destination.");
-                return;
-            }
-
-            else if (input.equals("3"))
-            {
-                GameMenu.println("OK");
-                return;
-            }
-
-            GameMenu.println("Dalghak");
+            requiredEnergy = map.calculateEnergy(player.getLocation(), canGetTo);
+            player.setLocation(canGetTo);
+            player.increaseEnergy(-1 * requiredEnergy);
+            GameMenu.println("You have reached your destination.");
             return;
         }
 
         player.setLocation(destination);
-        player.increaseTurnEnergy(-1 * requiredEnergy);
+        player.increaseEnergy(-1 * requiredEnergy);
         GameMenu.println("You have successfully reached your destination.");
     }
 

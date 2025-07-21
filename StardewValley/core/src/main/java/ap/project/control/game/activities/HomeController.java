@@ -104,7 +104,7 @@ public class HomeController
             player.removeAmountFromInventory(type, ingredients.get(type));
         }
 
-        player.increaseTurnEnergy(-2);
+        player.increaseEnergy(-2);
         CraftingItem product = CraftingItemCreator.create(recipe);
 
         player.addToInventory(product);
@@ -346,7 +346,7 @@ public class HomeController
             }
         }
 
-        player.increaseTurnEnergy(-3);
+        player.increaseEnergy(-3);
 
         GameObject food = new GameObject(recipe.getType(), 1);
         player.addToInventory(food);
@@ -383,7 +383,7 @@ public class HomeController
         }
 
         player.removeAmountFromInventory(type, 1);
-        player.increaseTurnEnergy(food.getEnergy());
+        player.increaseEnergy(food.getEnergy());
 
         return new Result(true, "Yum Yum, you just ate " + food.getType());
     }
@@ -410,7 +410,7 @@ public class HomeController
         Player player = App.getCurrentGame().getCurrentPlayer();
         Map map = player.getCurrentMap();
         return new Result(true,
-                map.getMapString(player.getLocation(), new Point(0,0), map.getHEIGHT(), map.getWIDTH()).trim());
+                map.getMapString(player.getLocation(), new Point(0,0), map.getHeight(), map.getWidth()).trim());
     }
 
     public Result goOut()

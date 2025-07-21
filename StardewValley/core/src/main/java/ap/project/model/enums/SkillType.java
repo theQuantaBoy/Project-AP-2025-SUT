@@ -7,7 +7,7 @@ import java.util.HashMap;
 
 public enum SkillType
 {
-    Farming(new HashMap<>() {{
+    Farming("Farming Skill", new HashMap<>() {{
         put(CraftingRecipeEnums.SPRINKLER_RECIPE, 1);
         put(CraftingRecipeEnums.QUALITY_SPRINKLER_RECIPE, 2);
         put(CraftingRecipeEnums.IRIDIUM_SPRINKLER_RECIPE, 3);
@@ -21,32 +21,35 @@ public enum SkillType
     }}, new HashMap<>() {{
         put(KitchenRecipe.FARMERS_LUNCH, 1);
     }}),
-    Mining(new HashMap<>() {{
+    Mining("Mining Skill",new HashMap<>() {{
         put(CraftingRecipeEnums.CHERRY_BOMB_RECIPE, 1);
         put(CraftingRecipeEnums.BOMB_RECIPE, 2);
         put(CraftingRecipeEnums.MEGA_BOMB_RECIPE, 3);
     }}, new HashMap<>() {{
         put(KitchenRecipe.MINERS_TREAT, 1);
     }}),
-    Gashtogozar(new HashMap<>() {{}}, new HashMap<>() {{}}),
-    Fishing(new HashMap<>() {{}}, new HashMap<>() {{
+    //Gashtogozar(new HashMap<>() {{}}, new HashMap<>() {{}}),
+    Fishing("Fishing Skill", new HashMap<>() {{}}, new HashMap<>() {{
         put(KitchenRecipe.DISH_O_THE_SEA, 2);
         put(KitchenRecipe.SEAFOAM_PUDDING, 3);
     }}),
-    Foraging(new HashMap<>() {{
+    Foraging("Foraging Skill", new HashMap<>() {{
         put(CraftingRecipeEnums.CHARCOAL_KILN_RECIPE, 1);
         put(CraftingRecipeEnums.MYSTIC_TREE_SEED_RECIPE, 4);
     }}, new HashMap<>() {{
         put(KitchenRecipe.VEGETABLE_MEDLEY, 2);
         put(KitchenRecipe.SURVIVAL_BURGER, 3);
     }}),
-    Max_Energy(new HashMap<>() {{}}, new HashMap<>() {{}});
+    ;
+    //Max_Energy(new HashMap<>() {{}}, new HashMap<>() {{}});
 
+    private final String name;
     private final HashMap<CraftingRecipeEnums, Integer> craftingRecipes;
     private final HashMap<KitchenRecipe, Integer> cookingRecipes;
 
-    SkillType(HashMap<CraftingRecipeEnums, Integer> craftingRecipes, HashMap<KitchenRecipe, Integer> cookingRecipes)
+    SkillType(String name, HashMap<CraftingRecipeEnums, Integer> craftingRecipes, HashMap<KitchenRecipe, Integer> cookingRecipes)
     {
+        this.name = name;
         this.craftingRecipes = craftingRecipes;
         this.cookingRecipes = cookingRecipes;
     }
@@ -59,5 +62,9 @@ public enum SkillType
     public HashMap<KitchenRecipe, Integer> getCookingRecipes()
     {
         return cookingRecipes;
+    }
+
+    public String getName() {
+        return name;
     }
 }
