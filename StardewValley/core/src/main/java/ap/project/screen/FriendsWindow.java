@@ -19,13 +19,11 @@ public class FriendsWindow {
     private final Table friendsTable;
     private final Skin skin;
     private boolean isVisible = false;
-    private Player player;
     private TooltipManager tooltipManager = TooltipManager.getInstance();
     private Drawable tooltipBg;
 
     public FriendsWindow(Stage stage) {
         this.stage = stage;
-        this.player = App.getCurrentGame().getCurrentPlayer();
         this.skin = GameAssetsManager.getGameAssetsManager().getSkin();
         popup = new Window("Friends", skin);
         popup.setVisible(false);
@@ -36,54 +34,59 @@ public class FriendsWindow {
         tooltipManager.subsequentTime = 0.1f;
         tooltipBg = GameAssetsManager.getGameAssetsManager().createColoredDrawable(1, 1, new Color(0f, 0f, 0f, 0.7f));
 
-        friendsTable = buildFriendsTable();
+        friendsTable = new Table();
 
-        popup.add(friendsTable).colspan(4).expand().center(); popup.row();
-        popup.pack();
+        popup.setSize(700, 400); // Set fixed width and height
+        friendsTable.setFillParent(true); // Make table expand inside popup
+
+        ScrollPane scrollPane = new ScrollPane(friendsTable, skin);
+        scrollPane.setFadeScrollBars(false);
+        scrollPane.setScrollingDisabled(true, false); // Allow vertical scroll
+
+        popup.add(scrollPane).expand().fill().colspan(4);
+        popup.row();
+
         center(stage);
         stage.addActor(popup);
 
     }
 
-    private Table buildFriendsTable() {
-        Table table = new Table(skin);
-        table.defaults().pad(4);
+    private void refreshFriendsTable() {
+        friendsTable.clearChildren(); // Clear old friend entries
+
+        Player player = App.getCurrentGame().getCurrentPlayer();
         HashMap<Player, FriendshipData> friendships = player.getFriendships();
 
         for (Map.Entry<Player, FriendshipData> entry : friendships.entrySet()) {
             Player friend = entry.getKey();
             FriendshipData data = entry.getValue();
 
-            // You can adjust this based on actual FriendshipData structure
             Label nameLabel = new Label("Name: " + friend.getNickName()
                 + " | Level: " + data.getLevel(), skin);
 
             ProgressBar bar = new ProgressBar(0, data.getThresholdForLevel(data.getLevel()), 1, false, skin);
-            bar.setValue(data.getXp());  // or whatever tracks friendship progress
+            bar.setValue(data.getXp());
 
-            // Tooltip (optional)
             String tooltipText = friend.getNickName() + " (Level " + data.getLevel() + ")\n"
                 + "XP: " + data.getXp() + "/" + data.getThresholdForLevel(data.getLevel());
             Label tooltipLabel = new Label(tooltipText, skin);
             Tooltip<Label> tooltip = new Tooltip<>(tooltipLabel, tooltipManager);
+            tooltip.getContainer().setBackground(tooltipBg);
             tooltip.getContainer().pad(8);
             nameLabel.addListener(tooltip);
             bar.addListener(tooltip);
 
-            tooltip.getContainer().setBackground(tooltipBg);
-            tooltip.getContainer().pad(8);
-
-            // Add to table
-            table.add(nameLabel).left();
-            table.add(bar).width(120);
-            table.row();
-
-            // Add tooltip to stage if needed
             stage.addActor(tooltip.getContainer());
+
+            friendsTable.add(nameLabel).left().padRight(30).padBottom(10);
+            friendsTable.add(bar).width(120).padRight(30).padBottom(10);
+            friendsTable.row();
         }
 
-        return table;
+//        popup.pack(); // Resize popup to fit new content
+        center(stage); // Recenter window
     }
+
 
 
     private void center(Stage stage) {
@@ -95,7 +98,7 @@ public class FriendsWindow {
     public void toggleVisibility() {
         isVisible = !isVisible;
         popup.setVisible(isVisible);
-        if (isVisible) buildFriendsTable();
+        if (isVisible) refreshFriendsTable();
     }
 
     public boolean isVisible() {

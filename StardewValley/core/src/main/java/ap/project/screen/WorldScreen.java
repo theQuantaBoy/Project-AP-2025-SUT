@@ -99,7 +99,6 @@ public final class WorldScreen implements Screen
         App.setCurrentUser(game.getPlayers().get(0).getUser());
         game.setCurrentPlayer(game.getPlayers().get(0));
 
-        game.getPlayers().get(0).addFriendship(game.getPlayers().get(1), new FriendshipData(2, 50, false));
 
 //        this.game = App.getCurrentGame();
 
