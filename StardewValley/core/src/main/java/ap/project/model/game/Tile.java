@@ -133,6 +133,13 @@ public class Tile
     public void plough()
     {
         isPloughed = true;
+        Map map = App.getCurrentGame().getCurrentPlayer().getCurrentMap();
+
+        if (map instanceof Farm)
+        {
+            Farm farm = (Farm)map;
+            farm.addPlantingTile(this);
+        }
     }
 
     public boolean isPloughed()

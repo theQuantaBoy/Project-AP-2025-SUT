@@ -5,6 +5,7 @@ import ap.project.control.WorldController;
 import ap.project.model.App.App;
 import ap.project.model.game.*;
 import ap.project.screen.WorldScreen;
+import ap.project.visual.UIRenderer;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;

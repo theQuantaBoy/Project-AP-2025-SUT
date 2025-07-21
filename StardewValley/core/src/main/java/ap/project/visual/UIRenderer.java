@@ -14,8 +14,10 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.utils.Array;
 
-public class UIRenderer {
+public class UIRenderer
+{
     private final Texture clockTexture;
     private final Texture handleUp, handleDown, handleMid;
     private final Texture journalAlert;
@@ -29,6 +31,7 @@ public class UIRenderer {
     Player player;
 
     private final Texture weatherOverlay;
+    private static final Array<TextBox> activeTextBoxes = new Array<>();
 
     public UIRenderer(Time time) {
         this.time = time;
@@ -79,6 +82,7 @@ public class UIRenderer {
 
         renderClock(batch, screenW, screenH);
         renderEnergyBar(uiCam, screenW, screenH);
+        renderTextBoxes(batch);
     }
 
     /** Draw the entire clock UI section */
@@ -280,5 +284,31 @@ public class UIRenderer {
         Player player = game.getCurrentPlayer();
 
         return ((time.getCurrentWeather() == Weather.Snow) && (player.isInCity() || player.isInFarm()));
+    }
+
+    public static void showTextBox(String text)
+    {
+        activeTextBoxes.add(new TextBox(text, 3.5f, Gdx.graphics.getWidth(), Gdx.graphics.getHeight()));
+    }
+
+    public static void updateTextBoxes(float delta)
+    {
+        for (int i = activeTextBoxes.size - 1; i >= 0; i--)
+        {
+            TextBox tb = activeTextBoxes.get(i);
+            tb.update(delta);
+            if (tb.isExpired())
+            {
+                activeTextBoxes.removeIndex(i);
+            }
+        }
+    }
+
+    public static void renderTextBoxes(Batch batch)
+    {
+        for (TextBox tb : activeTextBoxes)
+        {
+            tb.render(batch);
+        }
     }
 }

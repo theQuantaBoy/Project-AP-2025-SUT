@@ -1,5 +1,6 @@
 package ap.project.util;
 
+import ap.project.model.enums.EffectType;
 import ap.project.model.enums.GameObjectType;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Texture;
@@ -11,7 +12,16 @@ public class GameObjectAssetLoader
     public static void queueAllTextures()
     {
         System.out.println("[AssetLoader] Queuing textures...");
+
         for (GameObjectType type : GameObjectType.values()) {
+            if (!type.getPath().equals(""))
+            {
+                System.out.println(" - Loading: " + type.getPath());
+                assetManager.load(type.getPath(), Texture.class);
+            }
+        }
+
+        for (EffectType type : EffectType.values()) {
             if (!type.getPath().equals(""))
             {
                 System.out.println(" - Loading: " + type.getPath());
@@ -31,6 +41,18 @@ public class GameObjectAssetLoader
             if (!type.getPath().equals(""))
             {
                 Texture texture = assetManager.get(type.getPath(), Texture.class);
+                texture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
+                type.setTexture(texture);
+                System.out.println(" ✔ Assigned texture to " + type.toString());
+            }
+        }
+
+        for (EffectType type : EffectType.values())
+        {
+            if (!type.getPath().equals(""))
+            {
+                Texture texture = assetManager.get(type.getPath(), Texture.class);
+                texture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
                 type.setTexture(texture);
                 System.out.println(" ✔ Assigned texture to " + type.toString());
             }

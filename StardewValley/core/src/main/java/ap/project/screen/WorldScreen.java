@@ -162,7 +162,6 @@ public final class WorldScreen implements Screen
         }
 
         uiRenderer.updatePlayer();
-
     }
 
     @Override
@@ -254,7 +253,7 @@ public final class WorldScreen implements Screen
 
             if (location != null)
             {
-                shapeRenderer.rect(location.x, location.y - (16f * MAP_SCALE), (16f * MAP_SCALE), (16f * MAP_SCALE));
+//                shapeRenderer.rect(location.x, location.y - (16f * MAP_SCALE), (16f * MAP_SCALE), (16f * MAP_SCALE));
             }
 
             shapeRenderer.end();
@@ -273,6 +272,7 @@ public final class WorldScreen implements Screen
         checkGameInfo();
         checkMapSeason();
         map.getMapVisual().update(dt);
+        UIRenderer.updateTextBoxes(dt);
 
         if ( map.getMapType() == MapTypes.GREEN_HOUSE || map.getMapType() == MapTypes.CARPENTER_SHOP ||
         map.getMapType() == MapTypes.MARNIE_RANCH)
