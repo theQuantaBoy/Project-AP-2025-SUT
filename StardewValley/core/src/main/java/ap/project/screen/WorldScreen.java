@@ -138,6 +138,10 @@ public final class WorldScreen implements Screen
 
         inputMultiplexer = new InputMultiplexer();
         checkGameInfo();
+
+        Gift newGift = new Gift(GameObjectType.MILK, App.getCurrentGame().getPlayers().get(0), App.getCurrentGame().getPlayers().get(1), 1);
+        App.getCurrentGame().getCurrentPlayer().getGivenGifts().add(newGift);
+        App.getCurrentGame().getPlayers().get(1).getArchiveGifts().add(newGift);
     }
 
     public void checkGameInfo()
