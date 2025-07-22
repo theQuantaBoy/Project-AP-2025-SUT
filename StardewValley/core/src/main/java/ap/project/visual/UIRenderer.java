@@ -100,21 +100,19 @@ public class UIRenderer
         renderClock(batch, screenW, screenH);
         renderEnergyBar(uiCam, screenW, screenH);
         renderTextBoxes(batch);
-        renderFriendsButton(uiCam, screenW, screenH);
+        renderFriendsButton(batch, screenW, screenH);
         // In the future:
         // renderEnergyBar(batch, screenW, screenH);
         // renderInventoryBar(batch, screenW, screenH);
     }
 
-    private void renderFriendsButton(OrthographicCamera uiCam, int screenW, int screenH) {
-        float buttonX = screenW - 250f; // Fixed width position from right
-        float buttonY = screenH - 320f; // Adjust based on clock height
+    private void renderFriendsButton(Batch batch, int screenW, int screenH) {
+        float buttonX = screenW - 250f;
+        float buttonY = screenH - 320f;
 
         friends.setPosition(buttonX, buttonY);
-        friends.setSize(220f, 60f); // Set width and height explicitly if needed
-        Main.getApp().getBatch().begin();
-        friends.draw(Main.getApp().getBatch(), 1f); // Assuming you're using a shared batch
-        Main.getApp().getBatch().end();
+        friends.setSize(220f, 60f);
+        friends.draw(batch, 1f);
     }
 
 
