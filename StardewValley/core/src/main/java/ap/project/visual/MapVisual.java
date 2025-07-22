@@ -3,19 +3,17 @@ package ap.project.visual;
 import ap.project.model.App.App;
 import ap.project.model.enums.EffectType;
 import ap.project.model.enums.GameAnimationType;
-import ap.project.model.enums.GameObjectType;
 import ap.project.model.enums.Weather;
+import ap.project.model.enums.resources_enums.CropType;
 import ap.project.model.game.*;
+import ap.project.model.resources.Crop;
 import ap.project.model.resources.Plant;
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.tools.hiero.unicodefont.effects.Effect;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -86,12 +84,25 @@ public class MapVisual
             {
                 drawTileEffect(tile, EffectType.PLOUGHED_TILE);
 
+                if (tile.isFertilized())
+                {
+                    drawTileEffect(tile, EffectType.FERTILIZED_TILE);
+                }
+
                 if (tile.hasPlants())
                 {
                     Plant plant = (Plant) tile.getObject();
                     if (plant.hasBeenWateredToday())
                     {
                         drawTileEffect(tile, EffectType.WATERED_TILE);
+                    }
+
+                    if (plant instanceof Crop)
+                    {
+                        Crop crop = (Crop) plant;
+                        CropType cropType = crop.getCropType();
+                        Texture currentStage = cropType.getStageTextures().get(crop.getCurrentStage());
+                        drawTileTexture(tile, currentStage);
                     }
                 }
             }
@@ -215,14 +226,14 @@ public class MapVisual
 
             renderer.getBatch().begin();
 
-            for (Tile tile : farm.getTilesWithResources())
-            {
-                switch (tile.getObject().getObjectType())
-                {
-                    case WOOD -> drawTileObject(tile);
-                    case STONE -> drawTileObject(tile);
-                }
-            }
+//            for (Tile tile : farm.getTilesWithResources())
+//            {
+//                switch (tile.getObject().getObjectType())
+//                {
+//                    case WOOD -> drawTileObject(tile);
+//                    case STONE -> drawTileObject(tile);
+//                }
+//            }
 
             renderer.getBatch().end();
         }
@@ -241,6 +252,12 @@ public class MapVisual
     {
         Vector2 location = map.tileToWorld(tile);
         renderer.getBatch().draw(effect.getTexture(), location.x, location.y - (16 * MAP_SCALE), (16 * MAP_SCALE), (16 * MAP_SCALE));
+    }
+
+    public static void drawTileTexture(Tile tile, Texture texture)
+    {
+        Vector2 location = map.tileToWorld(tile);
+        renderer.getBatch().draw(texture, location.x, location.y - (16 * MAP_SCALE), (16 * MAP_SCALE), (16 * MAP_SCALE));
     }
 
     public TiledMap getTiledMap()

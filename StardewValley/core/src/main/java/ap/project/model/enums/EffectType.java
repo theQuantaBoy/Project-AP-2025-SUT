@@ -6,6 +6,7 @@ public enum EffectType
 {
     PLAIN_TILE("plain tile", "effects/plain_tile.png"),
     PLOUGHED_TILE("ploughed tile", "effects/ploughed_tile.png"),
+    FERTILIZED_TILE("fertilized tile", "effects/fertilized_tile.png"),
     WATERED_TILE("watered tile", "effects/watered_tile.png"),
     ;
 

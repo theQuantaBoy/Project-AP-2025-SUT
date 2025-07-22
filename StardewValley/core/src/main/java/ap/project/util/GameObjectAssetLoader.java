@@ -2,8 +2,11 @@ package ap.project.util;
 
 import ap.project.model.enums.EffectType;
 import ap.project.model.enums.GameObjectType;
+import ap.project.model.enums.resources_enums.CropType;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Texture;
+
+import java.util.List;
 
 public class GameObjectAssetLoader
 {
@@ -26,6 +29,14 @@ public class GameObjectAssetLoader
             {
                 System.out.println(" - Loading: " + type.getPath());
                 assetManager.load(type.getPath(), Texture.class);
+            }
+        }
+
+        for (CropType type : CropType.values()) {
+            List<String> paths = type.getStagePaths();
+            for (String path : paths)
+            {
+                assetManager.load(path, Texture.class);
             }
         }
     }
@@ -55,6 +66,17 @@ public class GameObjectAssetLoader
                 texture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
                 type.setTexture(texture);
                 System.out.println(" ✔ Assigned texture to " + type.toString());
+            }
+        }
+
+        for (CropType type : CropType.values())
+        {
+            List<String> paths = type.getStagePaths();
+            for (String path : paths)
+            {
+                Texture texture = assetManager.get(path, Texture.class);
+                texture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
+                type.addStage(texture);
             }
         }
     }

@@ -457,7 +457,7 @@ public class Player {
 
     public Tool getTool(ToolType type)
     {
-        for (GameObject object : currentBackPack.getSlots())
+        for (GameObject object : currentBackPack.getTools())
         {
             if (object instanceof Tool tool)
             {
@@ -714,6 +714,7 @@ public class Player {
         this.isInZeidiesFarm = false;
         this.isInZeidiesHome = false;
 
+        App.setCurrentMenu(Menu.GameMenu);
         WorldScreen.getInstance().updateGameInfo();
     }
 

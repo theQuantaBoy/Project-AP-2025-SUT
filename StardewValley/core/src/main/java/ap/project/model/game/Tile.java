@@ -191,6 +191,7 @@ public class Tile
         unFertilize();
         resetGrowFaster();
         resetWateringChance();
+
     }
 
     public void unFertilize()

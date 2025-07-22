@@ -223,7 +223,7 @@ public class Farm extends Map
         {
             for (int j = 0; j < WIDTH; j++)
             {
-                Tile tile = getTile(i, j);
+                Tile tile = getTile(j, i);
                 if (tile.isHitByThunder())
                 {
                     thunderedTiles.add(tile);
