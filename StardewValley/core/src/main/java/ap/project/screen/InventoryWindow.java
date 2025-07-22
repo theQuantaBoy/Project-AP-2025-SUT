@@ -6,7 +6,6 @@ import ap.project.model.player_data.Skill;
 import ap.project.model.tools.Tool;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Actor;
@@ -46,6 +45,9 @@ public class InventoryWindow {
     private Drawable tooltipBg;
     private TextButton toolsTab;
     private TextButton mapTab;
+    public enum TabType { INVENTORY, SKILL, SOCIAL, MAP, TOOLS}
+
+    private TabType lastTabOpenedByTabKey = TabType.INVENTORY;
 
     /**
      * @param stage    the Stage to which this window will be added
@@ -100,6 +102,7 @@ public class InventoryWindow {
                 toolsTable.setVisible(false);
                 popup.pack();
                 center(stage);
+                lastTabOpenedByTabKey = TabType.INVENTORY;
             }
         });
         skillsTab.addListener(new ChangeListener() {
@@ -136,6 +139,7 @@ public class InventoryWindow {
                 toolsTable.setVisible(false);
                 popup.pack();
                 center(stage);
+                lastTabOpenedByTabKey = TabType.MAP;
             }
         });
         toolsTab.addListener(new ChangeListener() {
@@ -149,6 +153,8 @@ public class InventoryWindow {
                 refreshToolTable();
                 popup.pack();
                 center(stage);
+
+                lastTabOpenedByTabKey = TabType.TOOLS;
             }
         });
 
@@ -166,72 +172,98 @@ public class InventoryWindow {
         stage.addActor(popup);
     }
 
-    /**
-     * Refreshes the inventory grid to match the backpack contents.
-     */
-    private void refreshInventoryTable() {
-        inventoryTable.clear();
-        inventoryTable.defaults().size(32).pad(2);
-        inventoryTable.center();
+    public Table buildInventoryTable() {
+        Table table = new Table(skin);
+        table.defaults().size(32).pad(2);
+        table.center();
 
-        // Get all slots from backpack
         java.util.List<GameObject> slots = backpack.getSlots();
         int capacity = backpack.getCapacity();
 
         for (int slot = 0; slot < capacity; slot++) {
+            final int slotIndex = slot; // needed for use in listener
             GameObject obj = slots.get(slot);
 
-            // Create slot container with background
             Table slotContainer = new Table();
-            slotContainer.setBackground(slotBackground);
+
+            // Use highlight if this is the selected inventory slot
+            slotContainer.setBackground(
+                slotIndex == selectedInventorySlot ? slotHighlight : slotBackground
+            );
             slotContainer.setSize(SLOTS_SIZE, SLOTS_SIZE);
 
             if (obj != null) {
-                // Get item icon
-                Drawable icon = null;
+                Drawable icon;
                 try {
                     icon = getIconForGameObject(obj);
                 } catch (Exception e) {
                     icon = new Image(new Texture(Gdx.files.internal("game_objects/crops/Rice.png"))).getDrawable();
                 }
 
-                // Create stack for item and count
                 Stack itemStack = new Stack();
                 itemStack.add(new Image(icon));
 
-                // Add count label if more than 1
                 if (obj.getNumber() > 1) {
                     Label countLabel = new Label(String.valueOf(obj.getNumber()), skin);
                     itemStack.add(countLabel);
                 }
 
                 slotContainer.add(itemStack).expand().fill();
-                String tooltipText = obj.getObjectType().toString();
 
+                String tooltipText = obj.getObjectType().toString();
                 Label tooltipLabel = new Label(tooltipText, skin);
                 Tooltip<Label> tooltip = new Tooltip<>(tooltipLabel, tooltipManager);
-
                 tooltip.getContainer().setBackground(tooltipBg);
-                tooltip.getContainer().pad(8);            // add some padding around the text
-
-                // Add tooltip listener to label and progress bar
+                tooltip.getContainer().pad(8);
                 slotContainer.addListener(tooltip);
-
-                // Ensure tooltips work properly
                 stage.addActor(tooltip.getContainer());
             }
 
-            inventoryTable.add(slotContainer).size(SLOTS_SIZE, SLOTS_SIZE).pad(2);
+            // ✅ Add click listener to select this inventory slot
+            slotContainer.addListener(new ClickListener() {
+                @Override
+                public void clicked(InputEvent event, float x, float y) {
+                    GameObject clickedObject = slotIndex < slots.size() ? slots.get(slotIndex) : null;
+                    selectedInventorySlot = clickedObject != null ? slotIndex : -1;
+                    refreshInventoryTable(); // re-render with highlight
+                    if (clickedObject != null) {
+                        System.out.println("Selected Inventory Item: " + clickedObject.getObjectType());
+                    }
+                }
+            });
+
+            table.add(slotContainer).size(SLOTS_SIZE, SLOTS_SIZE).pad(2);
 
             if ((slot + 1) % COLS == 0) {
-                inventoryTable.row();
+                table.row();
             }
-
-
         }
+
+        return table;
     }
 
+    public GameObject getSelectedInventoryObject() {
+        int index = selectedInventorySlot;
+        if (index >= 0 && index < backpack.getSlots().size()) {
+            return backpack.getSlots().get(index);
+        }
+        return null;
+    }
+
+
+    /**
+     * Refreshes the inventory grid to match the backpack contents.
+     */
+    private void refreshInventoryTable() {
+        inventoryTable.clearChildren();
+        Table newTable = buildInventoryTable();
+        inventoryTable.add(newTable).expand().center();
+    }
+
+
     private int selectedToolSlot = -1;
+    private int selectedInventorySlot = -1;
+
 
     // Replace your existing method with this:
     private void refreshToolTable() {
@@ -388,5 +420,9 @@ public class InventoryWindow {
 
     public TextButton getMapTab() {
         return mapTab;
+    }
+
+    public TabType getLastTabOpenedByTabKey() {
+        return lastTabOpenedByTabKey;
     }
 }

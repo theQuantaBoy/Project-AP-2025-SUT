@@ -1,7 +1,10 @@
 package ap.project.screen;
 
+import ap.project.control.game.activities.CommunicateController;
 import ap.project.model.App.App;
 import ap.project.model.App.GameAssetsManager;
+import ap.project.model.App.Result;
+import ap.project.model.game.GameObject;
 import ap.project.model.game.Gift;
 import ap.project.model.game.Player;
 import ap.project.model.player_data.FriendshipData;
@@ -11,6 +14,7 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
+import com.badlogic.gdx.utils.Align;
 
 import java.util.HashMap;
 import java.util.List;
@@ -29,6 +33,8 @@ public class FriendsWindow {
     private final TooltipManager tooltipManager = TooltipManager.getInstance();
     private final Drawable tooltipBg;
     private Player selectedFriend;
+    private CommunicateController controller;
+    private InventoryWindow inventoryWindow;
 
     public FriendsWindow(Stage stage) {
         this.stage = stage;
@@ -63,12 +69,14 @@ public class FriendsWindow {
         contentStack.add(giftHistoryTable);
         contentStack.add(newGiftTable);
 
-        popup.setSize(1500, 800);
+        popup.setSize(1000, 700);
         popup.add(contentStack).expand().fill();
         popup.row();
 
         center(stage);
         stage.addActor(popup);
+        this.controller = new  CommunicateController();
+        this.inventoryWindow = new InventoryWindow(stage);
     }
 
     private void refreshFriendsTable() {
@@ -89,7 +97,7 @@ public class FriendsWindow {
 
             String tooltipText = friend.getNickName() + " (Level " + data.getLevel() + ")\n"
                     + "XP: " + data.getXp() + "/" + data.getThresholdForLevel(data.getLevel());
-            Label tooltipLabel = new Label(tooltipText, skin);
+            Label tooltipLabel = new Label(tooltipText, skin, "WhiteText");
             Tooltip<Label> tooltip = new Tooltip<>(tooltipLabel, tooltipManager);
             tooltip.getContainer().setBackground(tooltipBg);
             tooltip.getContainer().pad(8);
@@ -139,7 +147,7 @@ public class FriendsWindow {
         giftHistoryButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                showGiftHistoryUI();
+                showGiftHistoryUI(friend);
             }
         });
 
@@ -167,6 +175,7 @@ public class FriendsWindow {
         giftOptionsTable.setVisible(false);
 
         Label title = new Label("Send Gift to " + selectedFriend.getNickName(), skin);
+        title.setFontScale(1.2f);
 
         // Back button
         TextButton backButton = new TextButton("Back", skin);
@@ -178,40 +187,105 @@ public class FriendsWindow {
             }
         });
 
-        // Placeholder components
-        Label giftLabel = new Label("Select a gift to send:", skin);
-        SelectBox<String> giftSelect = new SelectBox<>(skin);
-        giftSelect.setItems("Small Gift", "Medium Gift", "Large Gift", "Special Gift");
+        // Inventory
+        Table inventoryTable = inventoryWindow.buildInventoryTable();
 
-        TextButton sendButton = new TextButton("Send", skin);
-        sendButton.addListener(new ClickListener() {
+        // Amount input field
+        final TextField amountField = new TextField("1", skin);
+        amountField.setAlignment(Align.center);
+        amountField.setMaxLength(3);
+        amountField.setTextFieldFilter(new TextField.TextFieldFilter.DigitsOnlyFilter());
+        amountField.setMessageText("Amount");
+        amountField.setWidth(60);
+
+        Table amountTable = new Table();
+        amountTable.add(new Label("Amount:", skin)).padRight(10);
+        amountTable.add(amountField);
+
+        // ❗ Initialize error label first
+        final Label errorLabel = new Label("", skin);
+        errorLabel.setColor(Color.RED);
+
+        // Gift button
+        TextButton giftButton = new TextButton("Gift", skin);
+        giftButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                // Placeholder: Implement actual gift sending logic
-                System.out.println("Sending gift: " + giftSelect.getSelected());
-                newGiftTable.setVisible(false);
-                giftOptionsTable.setVisible(true);
+                GameObject selected = inventoryWindow.getSelectedInventoryObject();
+                if (selected == null) {
+                    errorLabel.setText("No item selected.");
+                    errorLabel.setColor(Color.RED);
+                    return;
+                }
+
+                int amount;
+                try {
+                    amount = Integer.parseInt(amountField.getText());
+                    if (amount <= 0 || amount > selected.getNumber()) {
+                        errorLabel.setText("Invalid amount.");
+                        errorLabel.setColor(Color.RED);
+                        return;
+                    }
+                } catch (NumberFormatException e) {
+                    errorLabel.setText("Invalid input.");
+                    errorLabel.setColor(Color.RED);
+                    return;
+                }
+
+                Result result = controller.gift(selectedFriend, selected.getObjectType(), amount);
+                errorLabel.setText(result.message());
+                errorLabel.setColor(result.isSuccessful() ? Color.GREEN : Color.RED);
             }
         });
 
+        // Layout
         newGiftTable.add(title).padBottom(10).row();
-        Table contentTable = new Table();
-        contentTable.add(giftLabel).padRight(5);
-        contentTable.add(giftSelect).width(200).row();
-        contentTable.add(sendButton).colspan(2).padTop(5);
-        newGiftTable.add(contentTable).pad(5);
-        newGiftTable.row();
-        newGiftTable.add(backButton).padTop(5);
+        newGiftTable.add(inventoryTable).padBottom(10).row();
+        newGiftTable.add(amountTable).padBottom(10).row();
+        newGiftTable.add(giftButton).padBottom(10).row();
+        newGiftTable.add(backButton).padTop(10).row();
+        newGiftTable.add(errorLabel).padTop(10).row();
     }
 
-    private void showGiftHistoryUI() {
+
+
+
+
+
+    private void showGiftHistoryUI(Player friend) {
         giftHistoryTable.clear();
         giftHistoryTable.setVisible(true);
         giftOptionsTable.setVisible(false);
 
-        Label title = new Label("Gift History with " + selectedFriend.getNickName(), skin);
+        Label title = new Label("Gift History with: " + friend.getNickName(), skin, "Impact");
+        Table historyContent = new Table();
+        List<Gift> giftList = App.getCurrentGame().getCurrentPlayer().getGiftHistoryWith(friend);
 
-        // Back button
+        if (giftList.isEmpty()) {
+            Label errorLabel = new Label("No gifts send", skin, "Impact");
+            giftHistoryTable.add(errorLabel).pad(10);
+        } else {
+            giftHistoryTable.add(title).padBottom(5).row();
+
+            for (Gift gift : giftList) {
+                Label name = new Label("Gift: " + gift.toString() + " x" + gift.getAmount() + "        ", skin);
+                historyContent.add(name).pad(5);
+                if (gift.isRated()) {
+                    Label rate = new Label("Rate: " + gift.getRate(), skin);
+                    historyContent.add(rate).pad(5);
+                } else {
+                    TextButton rateButton = new TextButton("Rate", skin);
+                    historyContent.add(rateButton).pad(5).row();
+                    rateButton.addListener(new ClickListener() {
+                        @Override
+                        public void clicked(InputEvent event, float x, float y) {
+                            showRatingDialog(gift);
+                        }
+                    });
+                }
+            }
+        }
+
         TextButton backButton = new TextButton("Back", skin);
         backButton.addListener(new ClickListener() {
             @Override
@@ -221,53 +295,11 @@ public class FriendsWindow {
             }
         });
 
-        // Create scrollable history table
-        Table historyContent = new Table();
-        historyContent.defaults().pad(2); // Reduced padding
-        ScrollPane scrollPane = new ScrollPane(historyContent, skin);
-        scrollPane.setFadeScrollBars(false);
 
-        // Get gift history
-        List<Gift> gifts = App.getCurrentGame().getCurrentPlayer().getGiftHistoryWith(selectedFriend);
-
-        if (gifts.isEmpty()) {
-            historyContent.add(new Label("No gift history found", skin)).pad(10);
-        } else {
-            for (Gift gift : gifts) {
-                // Determine sender/receiver relationship
-                String fromTo;
-                if (gift.getGiver().equals(App.getCurrentGame().getCurrentPlayer())) {
-                    fromTo = "You → " + selectedFriend.getNickName();
-                } else {
-                    fromTo = selectedFriend.getNickName() + " → You";
-                }
-
-
-                // Add rate button for received gifts
-                if (gift.getTaker().equals(App.getCurrentGame().getCurrentPlayer()) && !gift.isRated()) {
-                    TextButton rateButton = new TextButton("Rate", skin);
-                    rateButton.addListener(new ClickListener() {
-                        @Override
-                        public void clicked(InputEvent event, float x, float y) {
-                            showRatingDialog(gift);
-                        }
-                    });
-                    historyContent.add(rateButton).width(70);
-                } else if (gift.getTaker().equals(App.getCurrentGame().getCurrentPlayer())) {
-                    // Show existing rating
-                    historyContent.add(new Label("Rated: " + gift.getRate() + "/5", skin)).width(80);
-                } else {
-                    // Empty space for sent gifts
-                    historyContent.add().width(70);
-                }
-                historyContent.row();
-            }
-        }
-
-        giftHistoryTable.add(title).padBottom(5).row();
-        giftHistoryTable.add(scrollPane).expand().fill().pad(5).row();
+        giftHistoryTable.add(historyContent).pad(5).row();
         giftHistoryTable.add(backButton).padTop(5);
     }
+
 
     private void showRatingDialog(Gift gift) {
         Dialog dialog = new Dialog("Rate Gift", skin);
@@ -284,7 +316,7 @@ public class FriendsWindow {
                 int rating = ratingSelect.getSelected();
                 gift.setRate(rating);
                 dialog.hide();
-                showGiftHistoryUI(); // Refresh to show updated rating
+                showGiftHistoryUI(selectedFriend); // Refresh to show updated rating
             }
         });
 

@@ -54,7 +54,7 @@ public class PreGameScreen implements Screen
         this.background = new Image(GameAssetsManager.getGameAssetsManager().getRegisterBackground());
         this.background.setFillParent(true);
         this.logo = new Image(GameAssetsManager.getGameAssetsManager().getLogo());
-        this.menuName = new Label("NEW\nGAME", GameAssetsManager.getGameAssetsManager().getSkin());
+        this.menuName = new Label("NEW\nGAME", GameAssetsManager.getGameAssetsManager().getSkin(), "Impact");
         this.menuName.setAlignment(Align.center);
         this.menuName.setColor(Color.GOLD);
         this.nickname = new Label(App.getCurrentUser().getNickname(), GameAssetsManager.getGameAssetsManager().getSkin());

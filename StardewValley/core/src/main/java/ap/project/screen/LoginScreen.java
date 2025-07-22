@@ -47,7 +47,7 @@ public class LoginScreen implements Screen {
         this.background = new Image(GameAssetsManager.getGameAssetsManager().getRegisterBackground());
         this.background.setFillParent(true);
         this.logo = new Image(GameAssetsManager.getGameAssetsManager().getLogo());
-        this.menuName = new Label("LOGIN\nMENU", GameAssetsManager.getGameAssetsManager().getSkin());
+        this.menuName = new Label("LOGIN\nMENU", GameAssetsManager.getGameAssetsManager().getSkin(), "Impact");
         this.menuName.setAlignment(Align.center);
         this.menuName.setColor(Color.GOLD);
 
@@ -76,8 +76,8 @@ public class LoginScreen implements Screen {
         table.add(username).width(500).height(50).pad(10).row();
         table.add(password).width(500).height(50).pad(10).row();
         Table table1 = new Table();
-        table1.add(enter).width(250).height(50).pad(3);
-        table1.add(stayLoggedIn).width(250).height(50).pad(3).row();
+        table1.add(enter).width(220).height(50).pad(3);
+        table1.add(stayLoggedIn).width(280).height(50).pad(3).row();
         table.add(table1).row();
         table.add(forgotPassword).width(500).height(50).pad(10).row();
         table.add(signup).width(500).height(50).pad(10).row();

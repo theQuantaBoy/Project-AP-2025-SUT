@@ -12,8 +12,7 @@ import ap.project.model.enums.GameObjectType;
 import java.util.Map;
 import java.util.regex.Matcher;
 
-public class CommunicateController
-{
+public class CommunicateController {
 
     /* friendship methods */
 
@@ -57,7 +56,7 @@ public class CommunicateController
         return new Result(true, "xp upgraded cheater");
     }
 
-    public static boolean checkFriendship (Player player1, Player player2, String command) { //TODO: might change string to command
+    public static boolean checkFriendship(Player player1, Player player2, String command) { //TODO: might change string to command
 
         int level = player1.getFriendships().get(player2).getLevel();
 
@@ -65,15 +64,18 @@ public class CommunicateController
             if (command.equals("talk") || command.equals("trade")) {
                 return true;
             }
-        } if (level >= 1) {
+        }
+        if (level >= 1) {
             if (command.equals("gift")) {
                 return true;
             }
-        } if (level >= 2) {
+        }
+        if (level >= 2) {
             if (command.equals("hug") || command.equals("flower")) {
                 return true;
             }
-        } if (level >= 3) {
+        }
+        if (level >= 3) {
             if (command.equals("marriage")) {
                 return true;
             }
@@ -81,7 +83,7 @@ public class CommunicateController
         return false;
     }
 
-    public Result talk (Matcher matcher) {
+    public Result talk(Matcher matcher) {
         Player player = App.getCurrentGame().getPlayerByNickname(matcher.group("username"));
         Player currentPlayer = App.getCurrentGame().getCurrentPlayer();
         if (currentPlayer.equals(player)) {
@@ -101,7 +103,7 @@ public class CommunicateController
                 data2.changeXp(20, currentPlayer, player);
                 if (player.getFriendships().get(currentPlayer).isNewLevel()) {
                     System.out.println("your friendship with " + player.getNickName() +
-                            " changed to " + player.getFriendships().get(currentPlayer).getLevel());
+                        " changed to " + player.getFriendships().get(currentPlayer).getLevel());
                     player.getFriendships().get(currentPlayer).setNewLevel(false);
                     currentPlayer.getFriendships().get(player).setNewLevel(false);
                 }
@@ -128,49 +130,44 @@ public class CommunicateController
 
     //gifting methods
 
-    public void gift (Matcher matcher) {
+    public Result gift(Player player, GameObjectType item, int amount) {
         Player currentPlayer = App.getCurrentGame().getCurrentPlayer();
-        Player player = App.getCurrentGame().getPlayerByNickname(matcher.group("username"));
+        //Player player = App.getCurrentGame().getPlayerByNickname(matcher.group("username"));
         if (currentPlayer.equals(player)) {
-            System.out.println("you can't gift yourself");
-            return;
+            return new Result(false,"you can't gift yourself");
         }
-        String itemName = matcher.group("item");
-        int amount = Integer.parseInt(matcher.group("amount"));
-        GameObjectType item = null;
-        for (GameObjectType type : GameObjectType.values()) {
-            if (type.name().equalsIgnoreCase(itemName)) {
-                item = type;
-            }
-        }
+//        String itemName = matcher.group("item");
+//        int amount = Integer.parseInt(matcher.group("amount"));
+//        GameObjectType item = null;
+//        for (GameObjectType type : GameObjectType.values()) {
+//            if (type.name().equalsIgnoreCase(itemName)) {
+//                item = type;
+//            }
+//        }
 
-        if (currentPlayer.isNear(player.getLocation())) {
-            if (checkFriendship(currentPlayer, player, "gift")) {
-                if (currentPlayer.getItemInInventory(item) == null ||
-                        currentPlayer.getItemInInventory(item).getNumber() < amount) {
-                    System.out.println("you don't have enough number this item in your inventory!");
-                } else {
-                    currentPlayer.removeAmountFromInventory(item, amount);
-
-                    Gift newGift = new Gift(item, currentPlayer, player, amount);
-
-                    if (player.getItemInInventory(item) == null) {
-                        player.getCurrentBackPack().getSlots().add(new GameObject(item, amount));
-                    } else {
-                        player.getItemInInventory(item).addNumber(amount);
-                    }
-                    player.getNewGifts().add(newGift);
-                    player.getArchiveGifts().add(newGift);
-                    currentPlayer.getGivenGifts().add(newGift);
-
-                    System.out.println("gifted successfully");
-                }
-            } else {
-                System.out.println("you can't give each other gifts at this level!");
-            }
+        if (checkFriendship(currentPlayer, player, "gift")) {
+        if (currentPlayer.getItemInInventory(item) == null ||
+            currentPlayer.getItemInInventory(item).getNumber() < amount) {
+            return new Result(false,"you don't have enough number this item in your inventory!");
         } else {
-            System.out.println("you can't give gift to someone who's not near you!");
+            currentPlayer.removeAmountFromInventory(item, amount);
+
+            Gift newGift = new Gift(item, currentPlayer, player, amount);
+
+            if (player.getItemInInventory(item) == null) {
+                player.getCurrentBackPack().getSlots().add(new GameObject(item, amount));
+            } else {
+                player.getItemInInventory(item).addNumber(amount);
+            }
+            player.getNewGifts().add(newGift);
+            player.getArchiveGifts().add(newGift);
+            currentPlayer.getGivenGifts().add(newGift);
+
+            return new Result(true,"gifted successfully");
         }
+        } else {
+            return new Result(false,"you can't give each other gifts at this level!");
+    }
     }
 
 
