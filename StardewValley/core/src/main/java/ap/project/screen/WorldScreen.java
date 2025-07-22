@@ -88,7 +88,7 @@ public final class WorldScreen implements Screen
         cam.setToOrtho(false);
 
         this.game = new Game(new ArrayList<>(List.of(
-            new Player(new User("mohsen","","mohsen","", Gender.FEMALE, "", ""), MapTypes.MINING, 0),
+            new Player(new User("mohsen","","mohsen","", Gender.FEMALE, "", ""), MapTypes.STANDARD, 0),
             new Player(new User("arash","","arash","", Gender.FEMALE, "", ""), MapTypes.FISHING, 0),
             new Player(new User("moshtagh","","moshtagh","", Gender.FEMALE, "", ""), MapTypes.FORAGING, 0),
             new Player(new User("ottie","","ottie","", Gender.FEMALE, "", ""), MapTypes.COMBAT, 0)
@@ -124,7 +124,8 @@ public final class WorldScreen implements Screen
         if (SECOND_PLAYER)
         {
             Vector2 spawn2 = new Vector2(62 * TILE_SIZE, 60 * TILE_SIZE);
-            player2 = new PlayerCharacter(CharacterType.ABIGAIL, spawn2, "Player 456");
+            Player player2p = new Player(new User("arash","","arash","", Gender.FEMALE, "", ""), MapTypes.FISHING, 0);
+            player2 = new PlayerCharacter(CharacterType.ABIGAIL, spawn2, "Player 456", player2p);
             controller2 = new CharacterController(player2, map, PLAYER_SPEED, TILE_SIZE);
             controller2.chnageMoveKeys(Input.Keys.UP, Input.Keys.LEFT, Input.Keys.DOWN, Input.Keys.RIGHT);
         }
@@ -168,7 +169,6 @@ public final class WorldScreen implements Screen
         }
 
         uiRenderer.updatePlayer();
-
     }
 
     @Override
@@ -268,7 +268,7 @@ public final class WorldScreen implements Screen
 
             if (location != null)
             {
-                shapeRenderer.rect(location.x, location.y - (16f * MAP_SCALE), (16f * MAP_SCALE), (16f * MAP_SCALE));
+//                shapeRenderer.rect(location.x, location.y - (16f * MAP_SCALE), (16f * MAP_SCALE), (16f * MAP_SCALE));
             }
 
             shapeRenderer.end();
@@ -287,6 +287,7 @@ public final class WorldScreen implements Screen
         checkGameInfo();
         checkMapSeason();
         map.getMapVisual().update(dt);
+        UIRenderer.updateTextBoxes(dt);
 
         if ( map.getMapType() == MapTypes.GREEN_HOUSE || map.getMapType() == MapTypes.CARPENTER_SHOP ||
         map.getMapType() == MapTypes.MARNIE_RANCH)

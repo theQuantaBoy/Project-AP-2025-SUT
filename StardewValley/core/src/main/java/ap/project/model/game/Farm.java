@@ -29,7 +29,9 @@ public class Farm extends Map
     private Point exitPoint;
     private ArrayList<Tile> lakeTiles = new ArrayList<>();
     private ArrayList<AnimalBuilding> animalBuildings = new ArrayList<>();
+
     private ArrayList<Tile> tilesWithResources = new ArrayList<>();
+    private ArrayList<Tile> plantingTiles = new ArrayList<>();
 
     public Farm(MapTypes farmType) {
         super(farmType);
@@ -108,6 +110,21 @@ public class Farm extends Map
 //            ForagingTreeType type = randomItem(ForagingTreeType.class);
 //            random.setObject(new ForagingTree(type));
 //        }
+    }
+
+    public void addPlantingTile(Tile tile)
+    {
+        plantingTiles.add(tile);
+    }
+
+    public void removePlantingTile(Tile tile)
+    {
+        plantingTiles.remove(tile);
+    }
+
+    public ArrayList<Tile> getPlantingTiles()
+    {
+        return plantingTiles;
     }
 
     public ArrayList<Tile> getTilesWithResources()
@@ -206,7 +223,7 @@ public class Farm extends Map
         {
             for (int j = 0; j < WIDTH; j++)
             {
-                Tile tile = getTile(i, j);
+                Tile tile = getTile(j, i);
                 if (tile.isHitByThunder())
                 {
                     thunderedTiles.add(tile);

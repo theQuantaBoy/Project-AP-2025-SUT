@@ -66,7 +66,7 @@ public class Time
                 App.getCurrentGame().waterAllFarmPlants();
             }
 
-//            App.getCurrentGame().endDay();
+            App.getCurrentGame().endDay();
         }
 
         friendshipUpdate();

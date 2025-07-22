@@ -70,6 +70,7 @@ public class Player {
     private Player zeidy;
 
     private Tool currentTool;
+    private GameObject currentObject;
     private double money;
 
     private ArrayList<AnimalBuilding> animalBuildings = new ArrayList<>();
@@ -157,7 +158,7 @@ public class Player {
         Point spawn = currentMap.getStartingPoint();
         Vector2 spawnPoint = currentMap.tileToWorld(currentMap.getTile(spawn.getX(), spawn.getY()));
 
-        this.character = new PlayerCharacter(CharacterType.ABIGAIL, spawnPoint, user.getNickname());
+        this.character = new PlayerCharacter(CharacterType.ABIGAIL, spawnPoint, user.getNickname(), this);
     }
 
     public Player(User user, Farm farm, int number) {
@@ -183,7 +184,7 @@ public class Player {
         this.apperance = appearences.get(number);
 
         this.character = new PlayerCharacter(CharacterType.ABIGAIL, new Vector2(60 * 24, 60 * 24),
-            user.getNickname());
+            user.getNickname(), this);
         this.skills.add(farmingSkill); this.skills.add(miningSkill);
         this.skills.add(foragingSkill); this.skills.add(fishingSkill);
     }
@@ -265,8 +266,21 @@ public class Player {
         return currentTool;
     }
 
-    public void setCurrentTool(Tool currentTool) {
+    public GameObject getCurrentObject()
+    {
+        return currentObject;
+    }
+
+    public void setCurrentTool(Tool currentTool)
+    {
+        currentObject = null;
         this.currentTool = currentTool;
+    }
+
+    public void setCurrentObject(GameObject currentObject)
+    {
+        currentTool = null;
+        this.currentObject = currentObject;
     }
 
     public double getMoney() {
@@ -443,7 +457,7 @@ public class Player {
 
     public Tool getTool(ToolType type)
     {
-        for (GameObject object : currentBackPack.getSlots())
+        for (GameObject object : currentBackPack.getTools())
         {
             if (object instanceof Tool tool)
             {
@@ -700,6 +714,7 @@ public class Player {
         this.isInZeidiesFarm = false;
         this.isInZeidiesHome = false;
 
+        App.setCurrentMenu(Menu.GameMenu);
         WorldScreen.getInstance().updateGameInfo();
     }
 
@@ -729,18 +744,6 @@ public class Player {
         this.currentMap = zeidy.getFarm();
 //        this.location = zeidy.getFarm().getStartingPoint();
         setLocation(zeidy.getFarm().getStartingPoint());
-    }
-
-    public void goToCabin()
-    {
-        this.isInHome = true;
-        this.isInZeidiesFarm = false;
-        this.isInZeidiesHome = false;
-        this.isInFarm = false;
-        this.currentMap = this.cabin;
-//        this.location = cabin.getStartingPoint();
-        setLocation(cabin.getStartingPoint());
-        WorldScreen.getInstance().updateGameInfo();
     }
 
     public void goToGreenHouse()
@@ -945,12 +948,14 @@ public class Player {
         this.isInCity = false;
         this.isInGreenHouse = false;
         this.isInZeidiesFarm = false;
-        this.isInZeidiesHome = false; // TODO: add feature to wake up at zeidy's home [?]
+        this.isInZeidiesHome = false;
 
         this.isInHome = true;
         this.currentMap = cabin;
-//        this.location = cabin.getBedPoint();
-        setLocation(cabin.getBedPoint());
+
+        setLocation(cabin.getStartingPoint());
+        WorldScreen.getInstance().updateGameInfo();
+
         App.setCurrentMenu(Menu.HomeMenu);
     }
 

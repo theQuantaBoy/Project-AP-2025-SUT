@@ -166,6 +166,18 @@ public class InventoryWindow {
         stage.addActor(popup);
     }
 
+    private Drawable createColoredDrawable(int width, int height, Color color) {
+        Pixmap pixmap = new Pixmap(width, height, Pixmap.Format.RGBA8888);
+        pixmap.setColor(color);
+        pixmap.fill();
+        Texture texture = new Texture(pixmap);
+        pixmap.dispose();
+        return new TextureRegionDrawable(new TextureRegion(texture));
+    }
+
+
+    private int selectedObjectSlot = -1;
+
     /**
      * Refreshes the inventory grid to match the backpack contents.
      */
@@ -183,7 +195,7 @@ public class InventoryWindow {
 
             // Create slot container with background
             Table slotContainer = new Table();
-            slotContainer.setBackground(slotBackground);
+            slotContainer.setBackground(slot == selectedObjectSlot ? slotHighlight : slotBackground);
             slotContainer.setSize(SLOTS_SIZE, SLOTS_SIZE);
 
             if (obj != null) {
@@ -220,6 +232,20 @@ public class InventoryWindow {
                 // Ensure tooltips work properly
                 stage.addActor(tooltip.getContainer());
             }
+
+            final int slotIndex = slot; // Needed for closure
+
+            slotContainer.addListener(new ClickListener() {
+                @Override
+                public void clicked(InputEvent event, float x, float y) {
+                    GameObject clickedObj = slotIndex < slots.size() ? slots.get(slotIndex) : null;
+                    player.setCurrentObject(clickedObj);
+                    selectedObjectSlot = clickedObj != null ? slotIndex : -1;
+                    refreshInventoryTable();
+                    if (clickedObj != null)
+                        System.out.println("[Inventory] Selected Object: " + clickedObj.getObjectType().toString());
+                }
+            });
 
             inventoryTable.add(slotContainer).size(SLOTS_SIZE, SLOTS_SIZE).pad(2);
 

@@ -129,11 +129,6 @@ public class Game
 //
 //        }
 
-        // TODO: add this methods later
-        // resetPlayersEnergy();
-        // growPlants();
-        // respawnPlayers();
-
         distributeForagingItems();
         unleashTheCrows();
 
@@ -154,12 +149,12 @@ public class Game
         killPlants();
 
         takePlayerHome();
-        resetNPCs();
-        npcGiveGift();
+        // resetNPCs();
+        // npcGiveGift();
 
-        distributeFish();
-        updateShippingBin();
-        resetAnimals();
+        // distributeFish();
+        // updateShippingBin();
+        // resetAnimals();
     }
 
     public void distributeForagingItems()
