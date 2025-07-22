@@ -25,11 +25,10 @@ public class PlayerBarModel {
         this.velocityY = 0;
     }
 
-    /**
-     * Updates the bar's position based on physics.
-     * @param delta The time elapsed since the last frame.
-     * @param isFlapping True if the player is holding the button.
-     */
+    public void reset() {
+        y = 0;
+        velocityY = 0;
+    }
     public void update(float delta, boolean isFlapping) {
         if (isFlapping) {
             velocityY -= GRAVITY * 2.5f * delta;

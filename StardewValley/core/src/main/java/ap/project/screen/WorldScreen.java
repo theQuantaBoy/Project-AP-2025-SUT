@@ -77,6 +77,9 @@ public final class WorldScreen implements Screen
 
     private boolean cameraFixed = false;
 
+    private FishingMinigameWindow fishingWindow;
+
+
     public WorldScreen()
     {
         INSTANCE = this;
@@ -263,6 +266,10 @@ public final class WorldScreen implements Screen
 
         uiStage.act(dt);
         uiStage.draw();
+
+        if (fishingWindow != null) {
+            fishingWindow.update(Gdx.graphics.getDeltaTime());
+        }
     }
 
     private void update(float dt)
@@ -332,6 +339,17 @@ public final class WorldScreen implements Screen
             }
 
             cam.position.set(camX, camY, 0);
+        }
+
+        if (Gdx.input.isKeyJustPressed(Input.Keys.F)) {
+            if (fishingWindow == null) {
+                fishingWindow = new FishingMinigameWindow(skin);
+                uiStage.clear();
+                uiStage.addActor(fishingWindow);
+            } else {
+                fishingWindow.remove();
+                fishingWindow = null;
+            }
         }
     }
 
