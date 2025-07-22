@@ -31,10 +31,12 @@ public class FishModel {
         this.targetY = this.y;
     }
 
-    /**
-     * Updates the fish's position based on its assigned behavior.
-     * @param delta The time elapsed since the last frame (provided by libGDX's render loop).
-     */
+    public void reset() {
+        y = trackHeight / 2f;
+        targetY = y;
+        sineWaveCounter = 0;
+        dartTimer = 0;
+    }
     public void update(float delta) {
         switch (behavior) {
             case SMOOTH:  updateSmooth(delta);  break;
@@ -101,5 +103,7 @@ public class FishModel {
         float xPos = (MiniGameState.TRACK_WIDTH - size) / 2f;
         return new Rectangle(xPos, y, size, size);
     }
+
+    public MiniGameState.FishBehavior getBehavior() { return behavior; }
 }
 

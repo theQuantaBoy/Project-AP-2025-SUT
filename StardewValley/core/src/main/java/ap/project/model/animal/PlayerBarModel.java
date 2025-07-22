@@ -63,3 +63,4 @@ public class PlayerBarModel {
         return new Rectangle(0, y, MiniGameState.TRACK_WIDTH, height);
     }
 }
+
