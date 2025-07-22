@@ -13,7 +13,7 @@ import ap.project.model.game.Game;
 import ap.project.screen.input.WorldScreenInputProcessor;
 import ap.project.util.MapAssetLoader;
 import ap.project.view.GameMenu;
-import ap.project.visual.AnimalActor;
+import ap.project.visual.*;
 import ap.project.visual.CharacterRenderer;
 import ap.project.model.game.*;
 import ap.project.visual.MapVisual;

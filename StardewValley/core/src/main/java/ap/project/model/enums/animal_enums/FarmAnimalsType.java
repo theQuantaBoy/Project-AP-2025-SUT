@@ -3,7 +3,7 @@ package ap.project.model.enums.animal_enums;
 import ap.project.model.enums.animal_enums.Direction;
 import ap.project.model.enums.GameObjectType;
 import ap.project.model.game.GameObject;
-import ap.project.util.AnimationUtil;
+import ap.project.util.*;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
