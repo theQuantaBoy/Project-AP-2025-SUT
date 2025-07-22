@@ -6,10 +6,8 @@ import ap.project.model.App.GameAssetsManager;
 import ap.project.model.App.User;
 import ap.project.model.enums.*;
 import ap.project.model.game.Game;
-import ap.project.model.player_data.FriendshipData;
 import ap.project.screen.input.WorldScreenInputProcessor;
 import ap.project.util.MapAssetLoader;
-import ap.project.view.GameMenu;
 import ap.project.visual.CharacterRenderer;
 import ap.project.model.game.*;
 import ap.project.visual.MapVisual;
@@ -21,11 +19,11 @@ import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.maps.tiled.TiledMap;
-import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 
 import java.util.ArrayList;
@@ -99,7 +97,6 @@ public final class WorldScreen implements Screen
         App.setCurrentUser(game.getPlayers().get(0).getUser());
         game.setCurrentPlayer(game.getPlayers().get(0));
 
-        game.getPlayers().get(0).addFriendship(game.getPlayers().get(1), new FriendshipData(2, 50, false));
 
 //        this.game = App.getCurrentGame();
 
@@ -180,15 +177,32 @@ public final class WorldScreen implements Screen
         inputMultiplexer.addProcessor(new InputAdapter() {
             @Override
             public boolean keyDown(int keycode) {
-                if (keycode == Input.Keys.E || keycode == Input.Keys.ESCAPE) {
+                if (keycode == Input.Keys.E ||  keycode == Input.Keys.ESCAPE) {
+                    boolean nowVisible = !inventoryWindow.isVisible();
                     inventoryWindow.toggleVisibility();
+
+                    if (nowVisible)
+                        inventoryWindow.getToolsTab().setChecked(false);
+
+
                     return true;
                 }
                 else if (keycode == Input.Keys.TAB) {
+                    boolean nowVisible = !inventoryWindow.isVisible();
                     inventoryWindow.toggleVisibility();
-                    inventoryWindow.getToolsTab().setChecked(true);
+
+                    if (nowVisible) {
+                        if (inventoryWindow.getLastTabOpenedByTabKey() == InventoryWindow.TabType.TOOLS) {
+                            inventoryWindow.getToolsTab().toggle();
+                        } else {
+                            // Default to Inventory
+                            inventoryWindow.getToolsTab().setChecked(false);
+                        }
+                    }
+
                     return true;
                 }
+
                 else if (keycode == Input.Keys.M) {
                     inventoryWindow.toggleVisibility();
                     inventoryWindow.getMapTab().setChecked(true);

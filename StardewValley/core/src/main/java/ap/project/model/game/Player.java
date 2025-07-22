@@ -1170,4 +1170,14 @@ public class Player {
     {
         return fishes;
     }
+
+    public List<Gift> getGiftHistoryWith(Player selectedFriend) {
+        List<Gift> gifts = new ArrayList<>();
+        for (Gift gift : getArchiveGifts()) {
+            if (gift.getGiver().equals(selectedFriend)) {
+                gifts.add(gift);
+            }
+        }
+        return gifts;
+    }
 }

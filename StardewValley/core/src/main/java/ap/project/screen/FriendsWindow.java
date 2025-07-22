@@ -1,90 +1,333 @@
 package ap.project.screen;
 
+import ap.project.control.game.activities.CommunicateController;
 import ap.project.model.App.App;
 import ap.project.model.App.GameAssetsManager;
+import ap.project.model.App.Result;
+import ap.project.model.game.GameObject;
+import ap.project.model.game.Gift;
 import ap.project.model.game.Player;
 import ap.project.model.player_data.FriendshipData;
-import ap.project.model.player_data.Skill;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
+import com.badlogic.gdx.utils.Align;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class FriendsWindow {
     private final Window popup;
     private final Stage stage;
     private final Table friendsTable;
+    private final Table giftOptionsTable;
+    private final Table newGiftTable;
+    private final Table giftHistoryTable;
+    private final Stack contentStack;
     private final Skin skin;
     private boolean isVisible = false;
-    private Player player;
-    private TooltipManager tooltipManager = TooltipManager.getInstance();
-    private Drawable tooltipBg;
+    private final TooltipManager tooltipManager = TooltipManager.getInstance();
+    private final Drawable tooltipBg;
+    private Player selectedFriend;
+    private CommunicateController controller;
+    private InventoryWindow inventoryWindow;
 
     public FriendsWindow(Stage stage) {
         this.stage = stage;
-        this.player = App.getCurrentGame().getCurrentPlayer();
         this.skin = GameAssetsManager.getGameAssetsManager().getSkin();
+
         popup = new Window("Friends", skin);
         popup.setVisible(false);
         popup.setMovable(true);
         popup.defaults().pad(5);
 
-        tooltipManager.initialTime = 0.5f; // Delay before tooltip shows
+        tooltipManager.initialTime = 0.5f;
         tooltipManager.subsequentTime = 0.1f;
         tooltipBg = GameAssetsManager.getGameAssetsManager().createColoredDrawable(1, 1, new Color(0f, 0f, 0f, 0.7f));
 
-        friendsTable = buildFriendsTable();
+        friendsTable = new Table();
+        giftOptionsTable = new Table();
+        giftHistoryTable = new Table();
+        newGiftTable = new Table();
 
-        popup.add(friendsTable).colspan(4).expand().center(); popup.row();
-        popup.pack();
+        giftOptionsTable.setVisible(false);
+        giftHistoryTable.setVisible(false);
+        newGiftTable.setVisible(false);
+
+        ScrollPane scrollPane = new ScrollPane(friendsTable, skin);
+        scrollPane.setFadeScrollBars(false);
+        scrollPane.setScrollingDisabled(true, false);
+
+        contentStack = new Stack();
+        contentStack.setFillParent(true);
+        contentStack.add(scrollPane);
+        contentStack.add(giftOptionsTable);
+        contentStack.add(giftHistoryTable);
+        contentStack.add(newGiftTable);
+
+        popup.setSize(1000, 700);
+        popup.add(contentStack).expand().fill();
+        popup.row();
+
         center(stage);
         stage.addActor(popup);
-
+        this.controller = new  CommunicateController();
+        this.inventoryWindow = new InventoryWindow(stage);
     }
 
-    private Table buildFriendsTable() {
-        Table table = new Table(skin);
-        table.defaults().pad(4);
+    private void refreshFriendsTable() {
+        friendsTable.clearChildren();
+
+        Player player = App.getCurrentGame().getCurrentPlayer();
         HashMap<Player, FriendshipData> friendships = player.getFriendships();
 
         for (Map.Entry<Player, FriendshipData> entry : friendships.entrySet()) {
             Player friend = entry.getKey();
             FriendshipData data = entry.getValue();
 
-            // You can adjust this based on actual FriendshipData structure
             Label nameLabel = new Label("Name: " + friend.getNickName()
-                + " | Level: " + data.getLevel(), skin);
+                    + " | Level: " + data.getLevel(), skin);
 
             ProgressBar bar = new ProgressBar(0, data.getThresholdForLevel(data.getLevel()), 1, false, skin);
-            bar.setValue(data.getXp());  // or whatever tracks friendship progress
+            bar.setValue(data.getXp());
 
-            // Tooltip (optional)
             String tooltipText = friend.getNickName() + " (Level " + data.getLevel() + ")\n"
-                + "XP: " + data.getXp() + "/" + data.getThresholdForLevel(data.getLevel());
-            Label tooltipLabel = new Label(tooltipText, skin);
+                    + "XP: " + data.getXp() + "/" + data.getThresholdForLevel(data.getLevel());
+            Label tooltipLabel = new Label(tooltipText, skin, "WhiteText");
             Tooltip<Label> tooltip = new Tooltip<>(tooltipLabel, tooltipManager);
+            tooltip.getContainer().setBackground(tooltipBg);
             tooltip.getContainer().pad(8);
             nameLabel.addListener(tooltip);
             bar.addListener(tooltip);
 
-            tooltip.getContainer().setBackground(tooltipBg);
-            tooltip.getContainer().pad(8);
+            TextButton giftButton = new TextButton("Gift", skin);
+            giftButton.addListener(new ClickListener() {
+                @Override
+                public void clicked(InputEvent event, float x, float y) {
+                    showGiftOptions(friend);
+                }
+            });
 
-            // Add to table
-            table.add(nameLabel).left();
-            table.add(bar).width(120);
-            table.row();
-
-            // Add tooltip to stage if needed
             stage.addActor(tooltip.getContainer());
+
+            friendsTable.add(nameLabel).left().padRight(10).padBottom(5);
+            friendsTable.add(bar).width(120).padRight(10).padBottom(5);
+            friendsTable.add(giftButton).size(80, 30).padRight(10).padBottom(5);
+            friendsTable.row();
         }
 
-        return table;
+        center(stage);
     }
 
+    private void showGiftOptions(Player friend) {
+        this.selectedFriend = friend;
+        giftOptionsTable.clear();
+        giftOptionsTable.setVisible(true);
+        friendsTable.setVisible(false);
+        giftHistoryTable.setVisible(false);
+        newGiftTable.setVisible(false);
+
+        Label title = new Label("Gift Options for " + friend.getNickName(), skin);
+
+        // New Gift Button
+        TextButton newGiftButton = new TextButton("New Gift", skin);
+        newGiftButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                showNewGiftUI();
+            }
+        });
+
+        // Gift History Button
+        TextButton giftHistoryButton = new TextButton("History", skin);
+        giftHistoryButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                showGiftHistoryUI(friend);
+            }
+        });
+
+        // Back Button
+        TextButton backButton = new TextButton("Back", skin);
+        backButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                giftOptionsTable.setVisible(false);
+                friendsTable.setVisible(true);
+            }
+        });
+
+        giftOptionsTable.add(title).colspan(3).padBottom(10).row();
+        Table buttonTable = new Table();
+        buttonTable.add(newGiftButton).pad(5).width(120);
+        buttonTable.add(giftHistoryButton).pad(5).width(120);
+        buttonTable.add(backButton).pad(5).width(120);
+        giftOptionsTable.add(buttonTable);
+    }
+
+    private void showNewGiftUI() {
+        newGiftTable.clear();
+        newGiftTable.setVisible(true);
+        giftOptionsTable.setVisible(false);
+
+        Label title = new Label("Send Gift to " + selectedFriend.getNickName(), skin);
+        title.setFontScale(1.2f);
+
+        // Back button
+        TextButton backButton = new TextButton("Back", skin);
+        backButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                newGiftTable.setVisible(false);
+                giftOptionsTable.setVisible(true);
+            }
+        });
+
+        // Inventory
+        Table inventoryTable = inventoryWindow.buildInventoryTable();
+
+        // Amount input field
+        final TextField amountField = new TextField("1", skin);
+        amountField.setAlignment(Align.center);
+        amountField.setMaxLength(3);
+        amountField.setTextFieldFilter(new TextField.TextFieldFilter.DigitsOnlyFilter());
+        amountField.setMessageText("Amount");
+        amountField.setWidth(60);
+
+        Table amountTable = new Table();
+        amountTable.add(new Label("Amount:", skin)).padRight(10);
+        amountTable.add(amountField);
+
+        // ❗ Initialize error label first
+        final Label errorLabel = new Label("", skin);
+        errorLabel.setColor(Color.RED);
+
+        // Gift button
+        TextButton giftButton = new TextButton("Gift", skin);
+        giftButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                GameObject selected = inventoryWindow.getSelectedInventoryObject();
+                if (selected == null) {
+                    errorLabel.setText("No item selected.");
+                    errorLabel.setColor(Color.RED);
+                    return;
+                }
+
+                int amount;
+                try {
+                    amount = Integer.parseInt(amountField.getText());
+                    if (amount <= 0 || amount > selected.getNumber()) {
+                        errorLabel.setText("Invalid amount.");
+                        errorLabel.setColor(Color.RED);
+                        return;
+                    }
+                } catch (NumberFormatException e) {
+                    errorLabel.setText("Invalid input.");
+                    errorLabel.setColor(Color.RED);
+                    return;
+                }
+
+                Result result = controller.gift(selectedFriend, selected.getObjectType(), amount);
+                errorLabel.setText(result.message());
+                errorLabel.setColor(result.isSuccessful() ? Color.GREEN : Color.RED);
+            }
+        });
+
+        // Layout
+        newGiftTable.add(title).padBottom(10).row();
+        newGiftTable.add(inventoryTable).padBottom(10).row();
+        newGiftTable.add(amountTable).padBottom(10).row();
+        newGiftTable.add(giftButton).padBottom(10).row();
+        newGiftTable.add(backButton).padTop(10).row();
+        newGiftTable.add(errorLabel).padTop(10).row();
+    }
+
+
+
+
+
+
+    private void showGiftHistoryUI(Player friend) {
+        giftHistoryTable.clear();
+        giftHistoryTable.setVisible(true);
+        giftOptionsTable.setVisible(false);
+
+        Label title = new Label("Gift History with: " + friend.getNickName(), skin, "Impact");
+        Table historyContent = new Table();
+        List<Gift> giftList = App.getCurrentGame().getCurrentPlayer().getGiftHistoryWith(friend);
+
+        if (giftList.isEmpty()) {
+            Label errorLabel = new Label("No gifts send", skin, "Impact");
+            giftHistoryTable.add(errorLabel).pad(10);
+        } else {
+            giftHistoryTable.add(title).padBottom(5).row();
+
+            for (Gift gift : giftList) {
+                Label name = new Label("Gift: " + gift.toString() + " x" + gift.getAmount() + "        ", skin);
+                historyContent.add(name).pad(5);
+                if (gift.isRated()) {
+                    Label rate = new Label("Rate: " + gift.getRate(), skin);
+                    historyContent.add(rate).pad(5);
+                } else {
+                    TextButton rateButton = new TextButton("Rate", skin);
+                    historyContent.add(rateButton).pad(5).row();
+                    rateButton.addListener(new ClickListener() {
+                        @Override
+                        public void clicked(InputEvent event, float x, float y) {
+                            showRatingDialog(gift);
+                        }
+                    });
+                }
+            }
+        }
+
+        TextButton backButton = new TextButton("Back", skin);
+        backButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                giftHistoryTable.setVisible(false);
+                giftOptionsTable.setVisible(true);
+            }
+        });
+
+
+        giftHistoryTable.add(historyContent).pad(5).row();
+        giftHistoryTable.add(backButton).padTop(5);
+    }
+
+
+    private void showRatingDialog(Gift gift) {
+        Dialog dialog = new Dialog("Rate Gift", skin);
+
+        // Rating selection
+        SelectBox<Integer> ratingSelect = new SelectBox<>(skin);
+        ratingSelect.setItems(1, 2, 3, 4, 5);
+
+        // Confirm button
+        TextButton confirmButton = new TextButton("Submit", skin);
+        confirmButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                int rating = ratingSelect.getSelected();
+                gift.setRate(rating);
+                dialog.hide();
+                showGiftHistoryUI(selectedFriend); // Refresh to show updated rating
+            }
+        });
+
+        // Layout
+        Table content = dialog.getContentTable();
+        content.add(new Label("How would you rate this gift?", skin)).pad(5).row();
+        content.add(ratingSelect).width(200).pad(5).row();
+        content.add(confirmButton).pad(5);
+
+        dialog.show(stage);
+    }
 
     private void center(Stage stage) {
         float w = stage.getViewport().getWorldWidth();
@@ -95,7 +338,13 @@ public class FriendsWindow {
     public void toggleVisibility() {
         isVisible = !isVisible;
         popup.setVisible(isVisible);
-        if (isVisible) buildFriendsTable();
+        if (isVisible) {
+            friendsTable.setVisible(true);
+            giftOptionsTable.setVisible(false);
+            giftHistoryTable.setVisible(false);
+            newGiftTable.setVisible(false);
+            refreshFriendsTable();
+        }
     }
 
     public boolean isVisible() {

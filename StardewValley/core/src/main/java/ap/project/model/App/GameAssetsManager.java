@@ -33,7 +33,7 @@ public class GameAssetsManager {
     private Array<AvatarOptions> avatars;
 
     public GameAssetsManager() {
-        skin = new Skin(Gdx.files.internal("czyzby gdx-skins master pixthulhu/skin/pixthulhu-ui.json"));
+        skin = new Skin(Gdx.files.internal("skin/NzSkin.json"));
         this.registerBackground = new Texture(Gdx.files.internal("menu/Panorama.png"));
         this.logo = new Texture(Gdx.files.internal("menu/Logo No Background.png"));
         avatars = new Array<>();

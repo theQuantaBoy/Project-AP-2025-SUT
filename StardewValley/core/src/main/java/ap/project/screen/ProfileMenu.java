@@ -50,7 +50,7 @@ public class ProfileMenu implements Screen {
         this.background.setFillParent(true);
         this.logo = new Image(GameAssetsManager.getGameAssetsManager().getLogo());
         this.avatar = new Image(user.getAvatar());
-        this.menuName = new Label("PROFILE\nMENU", GameAssetsManager.getGameAssetsManager().getSkin());
+        this.menuName = new Label("PROFILE\nMENU", GameAssetsManager.getGameAssetsManager().getSkin(), "Impact");
         this.menuName.setAlignment(Align.center);
         this.menuName.setColor(Color.GOLD);
         this.nickname = new Label(user.getNickname() + "\n" + user.getGender().name(), GameAssetsManager.getGameAssetsManager().getSkin());
