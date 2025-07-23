@@ -3,69 +3,103 @@ package ap.project.model.animal;
 import com.badlogic.gdx.math.Rectangle;
 
 public class MiniGameState {
+    public static final float TRACK_WIDTH = 400f;
+    public static final float TRACK_HEIGHT = 300f;
+    public static final float PLAYER_BAR_WIDTH = 100f;
+    public static final float PLAYER_BAR_HEIGHT = 20f;
+    public static final float FISH_SIZE = 30f;
 
-    public static final float TRACK_WIDTH = 60f;
-    public static final float TRACK_HEIGHT = 400f;
-    public static final float PROGRESS_BAR_WIDTH = 30f;
+    private static final double BASE_CATCH_RATE = 0.5;
+    private static final double BASE_LOSE_RATE = 0.3;
 
     private FishModel fish;
     private PlayerBarModel playerBar;
     private double catchProgress;
     private boolean isGameOver;
     private boolean playerWon;
-
-    // --- NEW: Logic for Perfect Catch and Trap Bobber ---
-    private boolean fishNeverLeftBar;
+    private boolean perfectCatch;
     private boolean trapBobberEquipped;
 
     public enum FishBehavior {
-        SMOOTH, SINKER, FLOATER, DART, MIXED
+        SMOOTH(1.0), SINKER(0.8), FLOATER(0.8), DART(1.2), MIXED(1.1);
+
+        public final double difficultyModifier;
+
+        FishBehavior(double difficultyModifier) {
+            this.difficultyModifier = difficultyModifier;
+        }
     }
 
-    public MiniGameState() {
-        // You can change the behavior here to test. MIXED is now more interesting.
-        this.fish = new FishModel(TRACK_HEIGHT, FishBehavior.MIXED);
-        this.playerBar = new PlayerBarModel(TRACK_HEIGHT);
-        this.catchProgress = 0.25;
-        this.isGameOver = false;
-        this.playerWon = false;
-
-        // --- NEW: Initialize new game state variables ---
-        this.fishNeverLeftBar = true; // Start by assuming a perfect catch
-        this.trapBobberEquipped = true; // Set to true for testing. In a real game, this would depend on player equipment.
+    public MiniGameState(FishBehavior behavior, boolean trapBobberEquipped) {
+        this.fish = new FishModel(behavior);
+        this.playerBar = new PlayerBarModel();
+        this.trapBobberEquipped = trapBobberEquipped;
+        reset();
     }
 
-    // --- Getters ---
+    public void update(float delta) {
+        if (isGameOver) return;
+
+        // Update game elements
+        fish.update(delta);
+
+        // Check collision
+        boolean fishInBar = isFishInBar();
+
+        // Update perfect catch status
+        if (!fishInBar && perfectCatch) {
+            perfectCatch = false;
+        }
+
+        // Update progress
+        if (fishInBar) {
+            double catchRate = BASE_CATCH_RATE * fish.getBehavior().difficultyModifier;
+            catchProgress += catchRate * delta;
+        } else {
+            double loseRate = BASE_LOSE_RATE;
+            if (trapBobberEquipped) {
+                loseRate *= 0.7; // Reduce escape rate with trap bobber
+            }
+            catchProgress -= loseRate * delta;
+        }
+
+        // Clamp progress between 0 and 1
+        catchProgress = Math.max(0.0, Math.min(1.0, catchProgress));
+
+        // Check win/lose conditions
+        if (catchProgress >= 1.0) {
+            setGameOver(true, true);
+        } else if (catchProgress <= 0.0) {
+            setGameOver(true, false);
+        }
+    }
+
+    public void reset() {
+        catchProgress = 0.25;
+        isGameOver = false;
+        playerWon = false;
+        perfectCatch = true;
+        fish.reset();
+        playerBar.reset();
+    }
+
+    // Getters
     public FishModel getFish() { return fish; }
     public PlayerBarModel getPlayerBar() { return playerBar; }
     public double getCatchProgress() { return catchProgress; }
     public boolean isGameOver() { return isGameOver; }
     public boolean didPlayerWin() { return playerWon; }
-
-    // --- NEW: Getters for new states ---
-    public boolean isPerfectCatch() { return didPlayerWin() && fishNeverLeftBar; }
+    public boolean isPerfectCatch() { return playerWon && perfectCatch; }
     public boolean isTrapBobberEquipped() { return trapBobberEquipped; }
 
-
-    public void setCatchProgress(double progress) {
-        this.catchProgress = Math.max(0.0, Math.min(1.0, progress));
+    public boolean isFishInBar() {
+        Rectangle fishRect = fish.getBounds();
+        Rectangle barRect = playerBar.getBounds();
+        return barRect.overlaps(fishRect);
     }
 
-    public void setGameOver(boolean isGameOver, boolean playerWon) {
+    private void setGameOver(boolean isGameOver, boolean playerWon) {
         this.isGameOver = isGameOver;
         this.playerWon = playerWon;
-    }
-
-    // --- NEW: Method to update the perfect catch status ---
-    public void updatePerfectCatchStatus(boolean fishIsInBar) {
-        if (!fishIsInBar) {
-            this.fishNeverLeftBar = false;
-        }
-    }
-
-    public boolean isFishInBar() {
-        Rectangle fishRect = getFish().getBounds();
-        Rectangle barRect = getPlayerBar().getBounds();
-        return barRect.overlaps(fishRect);
     }
 }
