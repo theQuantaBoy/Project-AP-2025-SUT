@@ -175,8 +175,8 @@ public class CityMenu implements AppMenu
 //            comController.gift(matcher);
         } else if (CommunicateCommands.GIFT_LIST.getMatcher(input) != null) {
             comController.giftList();
-        } else if ((matcher = CommunicateCommands.GIFT_RATE.getMatcher(input)) != null) {
-            println(comController.giftRate(matcher));
+//        } else if ((matcher = CommunicateCommands.GIFT_RATE.getMatcher(input)) != null) {
+//            println(comController.giftRate(matcher));
         } else if ((matcher = CommunicateCommands.GIFT_HISTORY.getMatcher(input)) != null) {
             comController.giftHistory(matcher);
         } else if ((matcher = CommunicateCommands.HUG.getMatcher(input)) != null) {
@@ -415,8 +415,8 @@ public class CityMenu implements AppMenu
 //            comController.gift(matcher);
         } else if (CommunicateCommands.GIFT_LIST.getMatcher(input) != null) {
             comController.giftList();
-        } else if ((matcher = CommunicateCommands.GIFT_RATE.getMatcher(input)) != null) {
-            println(comController.giftRate(matcher));
+//        } else if ((matcher = CommunicateCommands.GIFT_RATE.getMatcher(input)) != null) {
+//            println(comController.giftRate(matcher));
         } else if ((matcher = CommunicateCommands.GIFT_HISTORY.getMatcher(input)) != null) {
             comController.giftHistory(matcher);
         } else if ((matcher = CommunicateCommands.HUG.getMatcher(input)) != null) {

@@ -182,16 +182,16 @@ public class CommunicateController {
         }
     }
 
-    public Result giftRate (Matcher matcher) {
-        int id = Integer.parseInt(matcher.group("giftNumber"));
-        int rate = Integer.parseInt(matcher.group("rate"));
+    public Result giftRate (Gift targetGift, int rate) {
+//        int id = Integer.parseInt(matcher.group("giftNumber"));
+//        int rate = Integer.parseInt(matcher.group("rate"));
         Player currentPlayer = App.getCurrentGame().getCurrentPlayer();
-        Gift targetGift = currentPlayer.getGiftById(id);
-        if (targetGift == null) {
-            return new Result(false, "there's no gift with this id");
-        } else if (rate < 1 || rate > 5) {
-            return new Result(false, "your rate should be between 1 to 5");
-        }
+//        Gift targetGift = currentPlayer.getGiftById(id);
+//        if (targetGift == null) {
+//            return new Result(false, "there's no gift with this id");
+//        } else if (rate < 1 || rate > 5) {
+//            return new Result(false, "your rate should be between 1 to 5");
+//        }
 
         targetGift.setRate(rate);
         Player giver = targetGift.getGiver();

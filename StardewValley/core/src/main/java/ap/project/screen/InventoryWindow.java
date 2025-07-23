@@ -34,7 +34,7 @@ public class InventoryWindow {
     private final Table mapTable;
     private final Table toolsTable;
     private final Stack contentStack;
-    private final BackPack backpack;
+    private BackPack backpack;
     private final Skin skin;
     private boolean isVisible = false;
     private static final int COLS = 8;
@@ -54,8 +54,6 @@ public class InventoryWindow {
      * @param stage    the Stage to which this window will be added
      */
     public InventoryWindow(Stage stage) {
-        this.player = App.getCurrentGame().getCurrentPlayer();
-        this.backpack = player.getCurrentBackPack();
         this.skin = GameAssetsManager.getGameAssetsManager().getSkin();
         this.stage = stage;
         // Create popup Window
@@ -192,7 +190,7 @@ public class InventoryWindow {
         Table table = new Table(skin);
         table.defaults().size(32).pad(2);
         table.center();
-
+        updatePlayer();
         java.util.List<GameObject> slots = backpack.getSlots();
         int capacity = backpack.getCapacity();
 
@@ -285,7 +283,7 @@ public class InventoryWindow {
         toolsTable.clear();
         toolsTable.defaults().size(SLOTS_SIZE).pad(4);
         toolsTable.center();
-
+        updatePlayer();
         java.util.List<Tool> tools = backpack.getTools();
         for (int i = 0; i < COLS; i++) {
             Tool tool = i < tools.size() ? tools.get(i) : null;
@@ -353,7 +351,7 @@ public class InventoryWindow {
     private Table buildSkillsTable() {
         Table table = new Table(skin);
         table.defaults().pad(4);
-
+        updatePlayer();
         for (Skill s : player.getSkills()) {
             Label skillLabel = new Label(s.getName(), skin);
             ProgressBar bar = new ProgressBar(0, s.getThresholdForLevel(s.getLevel()), 1, false, skin);
@@ -439,5 +437,10 @@ public class InventoryWindow {
 
     public TabType getLastTabOpenedByTabKey() {
         return lastTabOpenedByTabKey;
+    }
+
+    private void updatePlayer() {
+        player = App.getCurrentGame().getCurrentPlayer();
+        backpack = player.getCurrentBackPack();
     }
 }

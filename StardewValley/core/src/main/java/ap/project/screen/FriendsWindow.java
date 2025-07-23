@@ -96,7 +96,7 @@ public class FriendsWindow {
             bar.setValue(data.getXp());
 
             String tooltipText = friend.getNickName() + " (Level " + data.getLevel() + ")\n"
-                    + "XP: " + data.getXp() + "/" + data.getThresholdForLevel(data.getLevel());
+                    + "XP: " + data.getXp();
             Label tooltipLabel = new Label(tooltipText, skin, "WhiteText");
             Tooltip<Label> tooltip = new Tooltip<>(tooltipLabel, tooltipManager);
             tooltip.getContainer().setBackground(tooltipBg);
@@ -158,6 +158,7 @@ public class FriendsWindow {
             public void clicked(InputEvent event, float x, float y) {
                 giftOptionsTable.setVisible(false);
                 friendsTable.setVisible(true);
+                refreshFriendsTable();
             }
         });
 
@@ -314,7 +315,7 @@ public class FriendsWindow {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 int rating = ratingSelect.getSelected();
-                gift.setRate(rating);
+                controller.giftRate(gift, rating);
                 dialog.hide();
                 showGiftHistoryUI(selectedFriend); // Refresh to show updated rating
             }
