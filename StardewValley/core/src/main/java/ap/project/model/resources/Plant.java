@@ -86,6 +86,11 @@ public class Plant extends GameObject
 
     public boolean canHarvest() // would be overridden
     {
+        if (!seasons.contains(App.getCurrentGame().getCurrentTime().getSeason()) && !isInGreenhouse)
+        {
+            return false;
+        }
+
         if (!hasHarvested)
         {
             return (currentStageDay == totalHarvestTime);

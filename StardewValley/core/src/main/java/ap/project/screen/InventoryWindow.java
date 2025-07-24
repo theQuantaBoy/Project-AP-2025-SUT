@@ -235,11 +235,11 @@ public class InventoryWindow {
                 stage.addActor(tooltip.getContainer());
             }
 
-            // ✅ Add click listener to select this inventory slot
             slotContainer.addListener(new ClickListener() {
                 @Override
                 public void clicked(InputEvent event, float x, float y) {
                     GameObject clickedObject = slotIndex < slots.size() ? slots.get(slotIndex) : null;
+                    player.setCurrentObject(clickedObject);
                     selectedInventorySlot = clickedObject != null ? slotIndex : -1;
                     refreshInventoryTable(); // re-render with highlight
                     if (clickedObject != null) {

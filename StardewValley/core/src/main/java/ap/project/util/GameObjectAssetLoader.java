@@ -3,6 +3,7 @@ package ap.project.util;
 import ap.project.model.enums.EffectType;
 import ap.project.model.enums.GameObjectType;
 import ap.project.model.enums.resources_enums.CropType;
+import ap.project.model.enums.resources_enums.TreeType;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Texture;
 
@@ -37,6 +38,27 @@ public class GameObjectAssetLoader
             for (String path : paths)
             {
                 assetManager.load(path, Texture.class);
+            }
+        }
+
+        for (TreeType type : TreeType.values()) {
+            List<String> paths = type.getStagePaths();
+            for (String path : paths)
+            {
+                assetManager.load(path, Texture.class);
+            }
+
+            List<String> seasonPaths = type.getSeasonPaths();
+            for (String path : seasonPaths)
+            {
+                assetManager.load(path, Texture.class);
+            }
+
+            String withFruitPath = type.getWithFruitPath();
+
+            if(!withFruitPath.equals(""))
+            {
+                assetManager.load(withFruitPath, Texture.class);
             }
         }
     }
@@ -77,6 +99,40 @@ public class GameObjectAssetLoader
                 Texture texture = assetManager.get(path, Texture.class);
                 texture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
                 type.addStage(texture);
+            }
+        }
+
+        for (TreeType type : TreeType.values())
+        {
+            List<String> paths = type.getStagePaths();
+            for (String path : paths)
+            {
+                if(!path.equals(""))
+                {
+                    Texture texture = assetManager.get(path, Texture.class);
+                    texture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
+                    type.addStage(texture);
+                }
+            }
+
+            List<String> seasonPaths = type.getSeasonPaths();
+            for (String path : seasonPaths)
+            {
+                if(!path.equals(""))
+                {
+                    Texture texture = assetManager.get(path, Texture.class);
+                    texture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
+                    type.addSeasonTexture(texture);
+                }
+            }
+
+            String withFruitPath = type.getWithFruitPath();
+
+            if(!withFruitPath.equals(""))
+            {
+                Texture texture = assetManager.get(withFruitPath, Texture.class);
+                texture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
+                type.setWithFruitTexture(texture);
             }
         }
     }

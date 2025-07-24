@@ -3,17 +3,20 @@ package ap.project.visual;
 import ap.project.model.App.App;
 import ap.project.model.enums.EffectType;
 import ap.project.model.enums.GameAnimationType;
+import ap.project.model.enums.Season;
 import ap.project.model.enums.Weather;
 import ap.project.model.enums.resources_enums.CropType;
 import ap.project.model.game.*;
 import ap.project.model.resources.Crop;
 import ap.project.model.resources.Plant;
+import ap.project.model.resources.Tree;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
+import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -56,6 +59,7 @@ public class MapVisual
         drawRainAnimations();
         drawSnowAnimations();
         drawPlantingTiles();
+        drawPlants();
         renderer.getBatch().setShader(null);
     }
 
@@ -75,7 +79,7 @@ public class MapVisual
     {
         if (map instanceof Farm)
         {
-            Farm  farm = (Farm)map;
+            Farm farm = (Farm)map;
             ArrayList<Tile> plantingTiles = farm.getPlantingTiles();
 
             renderer.getBatch().begin();
@@ -96,6 +100,27 @@ public class MapVisual
                     {
                         drawTileEffect(tile, EffectType.WATERED_TILE);
                     }
+                }
+            }
+
+            renderer.getBatch().end();
+        }
+    }
+
+    public void drawPlants()
+    {
+        if (map instanceof Farm)
+        {
+            Farm farm = (Farm)map;
+            ArrayList<Tile> plantingTiles = farm.getPlantingTiles();
+
+            renderer.getBatch().begin();
+
+            for (Tile tile : plantingTiles)
+            {
+                if (tile.hasPlants())
+                {
+                    Plant plant = (Plant) tile.getObject();
 
                     if (plant instanceof Crop)
                     {
@@ -103,6 +128,30 @@ public class MapVisual
                         CropType cropType = crop.getCropType();
                         Texture currentStage = cropType.getStageTextures().get(crop.getCurrentStage());
                         drawTileTexture(tile, currentStage);
+                    }
+
+                    if (plant instanceof Tree)
+                    {
+                        Tree tree = (Tree) plant;
+                        int currentStage = tree.getCurrentStage();
+
+                        Texture texture;
+                        if (currentStage < 4)
+                        {
+                            texture = tree.getTreeType().getStageTextures().get(currentStage);
+                        } else
+                        {
+                            if (tree.canHarvest())
+                            {
+                                texture = tree.getTreeType().getWithFruitTexture();
+                            } else
+                            {
+                                Season season = App.getCurrentGame().getCurrentTime().getSeason();
+                                texture = tree.getTreeType().getSeasonTextures().get(season.toInteger());
+                            }
+                        }
+
+                        drawTileTreeTexture(tile, texture);
                     }
                 }
             }
@@ -258,6 +307,15 @@ public class MapVisual
     {
         Vector2 location = map.tileToWorld(tile);
         renderer.getBatch().draw(texture, location.x, location.y - (16 * MAP_SCALE), (16 * MAP_SCALE), (16 * MAP_SCALE));
+    }
+
+    public static void drawTileTreeTexture(Tile tile, Texture texture)
+    {
+        Vector2 location = map.tileToWorld(tile);
+        int width = texture.getWidth();
+        int height = texture.getHeight();
+        renderer.getBatch().draw(texture, location.x - (1f * (16 * MAP_SCALE)), location.y - (0.75f * (16 * MAP_SCALE)),
+            (0.5f * width), (0.5f * height));
     }
 
     public TiledMap getTiledMap()
