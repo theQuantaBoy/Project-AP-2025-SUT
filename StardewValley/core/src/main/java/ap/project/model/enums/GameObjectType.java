@@ -144,7 +144,7 @@ public enum GameObjectType
     MAHOGANY_TREE("Mahogany Tree", ""),
     MUSHROOM_TREE("Mushroom Tree", ""),
     MYSTIC_TREE("Mystic Tree", ""),
-    ACORNS_TREE("Acorns", ""),
+    ACORNS("Acorns", ""),
 
     Spring_MIXED_SEED("Spring Mixed Seed", "game_objects/seeds/Spring_Seeds.png"),
     SUMMER_MIXED_SEED("Summer Mixed Seed", "game_objects/seeds/Summer_Seeds.png"),

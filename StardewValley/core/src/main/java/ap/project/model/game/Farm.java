@@ -31,6 +31,7 @@ public class Farm extends Map
     private ArrayList<AnimalBuilding> animalBuildings = new ArrayList<>();
 
     private ArrayList<Tile> tilesWithResources = new ArrayList<>();
+    private ArrayList<Tile> tilesWithForagingTrees = new ArrayList<>();
     private ArrayList<Tile> plantingTiles = new ArrayList<>();
 
     public Farm(MapTypes farmType) {
@@ -88,7 +89,7 @@ public class Farm extends Map
 
     private void setRandomItems()
     {
-        int randomItemsCount = getFreeTiles().size() / 60;
+        int randomItemsCount = getFreeTiles().size() / 80;
 
         for (int i = 0; i < randomItemsCount / 3; i++)
         {
@@ -103,13 +104,19 @@ public class Farm extends Map
             random.setObject(new Resource(ResourceItem.WOOD));
             tilesWithResources.add(random);
         }
-//
-//        for (int i = 0; i < randomItemsCount / 3; i++)
-//        {
-//            Tile random = getRandomFreeTile();
-//            ForagingTreeType type = randomItem(ForagingTreeType.class);
-//            random.setObject(new ForagingTree(type));
-//        }
+
+        for (int i = 0; i < randomItemsCount / 3; i++)
+        {
+            Tile random = getRandomFreeTile();
+            ForagingTreeType type = randomItem(ForagingTreeType.class);
+            random.setObject(new ForagingTree(type));
+            tilesWithForagingTrees.add(random);
+        }
+    }
+
+    public ArrayList<Tile> getTilesWithForagingTrees()
+    {
+        return tilesWithForagingTrees;
     }
 
     public void addPlantingTile(Tile tile)

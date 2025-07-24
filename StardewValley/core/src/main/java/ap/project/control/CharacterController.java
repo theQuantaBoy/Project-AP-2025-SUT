@@ -122,7 +122,7 @@ public class CharacterController
         float nextY = pos.y + dy;
 
         Point tilePos = map.worldToTile(nextX, nextY);
-        Tile  target  = map.getTile(tilePos.getX(), tilePos.getY());
+        Tile target  = map.getTile(tilePos.getX(), tilePos.getY());
 
         boolean ctrl = Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT)
                 || Gdx.input.isKeyPressed(Input.Keys.CONTROL_RIGHT);
@@ -132,6 +132,11 @@ public class CharacterController
                     case LAKE, UNPASSABLE, BUILDING, OBJECT -> true;
                     default -> false;
                 });
+
+        if (target.getObject() != null)
+        {
+            blocked = true;
+        }
 
         if (!blocked)
         {

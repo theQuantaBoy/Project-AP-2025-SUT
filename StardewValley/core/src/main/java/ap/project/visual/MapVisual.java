@@ -6,12 +6,15 @@ import ap.project.model.enums.GameAnimationType;
 import ap.project.model.enums.Season;
 import ap.project.model.enums.Weather;
 import ap.project.model.enums.resources_enums.CropType;
+import ap.project.model.enums.resources_enums.TreeType;
 import ap.project.model.game.*;
 import ap.project.model.resources.Crop;
+import ap.project.model.resources.ForagingTree;
 import ap.project.model.resources.Plant;
 import ap.project.model.resources.Tree;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.MathUtils;
@@ -45,21 +48,28 @@ public class MapVisual
         this.renderer = new OrthogonalTiledMapRenderer(tiledMap, 1.0f);
     }
 
-    public void updateMap(TiledMap tiledMap)
-    {
-        this.tiledMap = tiledMap;
-    }
-
     public void render(OrthographicCamera cam)
     {
         renderer.setView(cam);
         renderer.render();
-        drawResources(cam);
+        drawPlantingTiles();
+        drawResources();
+        renderer.getBatch().setShader(null);
+    }
+
+    public void renderInFrontOfCharacter()
+    {
+        Batch batch = renderer.getBatch();
+        batch.begin();
+
+        drawPlants();
+        drawForagingTrees();
+
+        batch.end();
+
+        // Weather effects (draw last)
         drawRainAnimations();
         drawSnowAnimations();
-        drawPlantingTiles();
-        drawPlants();
-        renderer.getBatch().setShader(null);
     }
 
     public void dispose()
@@ -113,8 +123,6 @@ public class MapVisual
             Farm farm = (Farm)map;
             ArrayList<Tile> plantingTiles = farm.getPlantingTiles();
 
-            renderer.getBatch().begin();
-
             for (Tile tile : plantingTiles)
             {
                 if (tile.hasPlants())
@@ -154,8 +162,6 @@ public class MapVisual
                     }
                 }
             }
-
-            renderer.getBatch().end();
         }
     }
 
@@ -266,7 +272,7 @@ public class MapVisual
         renderer.getBatch().end();
     }
 
-    public void drawResources(OrthographicCamera cam)
+    public void drawResources()
     {
         if (map instanceof Farm)
         {
@@ -274,16 +280,30 @@ public class MapVisual
 
             renderer.getBatch().begin();
 
-//            for (Tile tile : farm.getTilesWithResources())
-//            {
-//                switch (tile.getObject().getObjectType())
-//                {
-//                    case WOOD -> drawTileObject(tile);
-//                    case STONE -> drawTileObject(tile);
-//                }
-//            }
+            for (Tile tile : farm.getTilesWithResources())
+            {
+               drawTileObject(tile);
+            }
 
             renderer.getBatch().end();
+        }
+    }
+
+    public void drawForagingTrees()
+    {
+        if (map instanceof Farm)
+        {
+            Farm farm = (Farm) map;
+
+            Season season = App.getCurrentGame().getCurrentTime().getSeason();
+
+            for (Tile tile : farm.getTilesWithForagingTrees())
+            {
+                ForagingTree tree = (ForagingTree) tile.getObject();
+                TreeType type = tree.getTreeType().getTreeType();
+                Texture texture = type.getSeasonTextures().get(season.toInteger());
+                drawTileTreeTexture(tile, texture);
+            }
         }
     }
 
@@ -313,7 +333,9 @@ public class MapVisual
         Vector2 location = map.tileToWorld(tile);
         int width = texture.getWidth();
         int height = texture.getHeight();
-        renderer.getBatch().draw(texture, location.x - (1f * (16 * MAP_SCALE)), location.y - (0.75f * (16 * MAP_SCALE)),
+//        renderer.getBatch().draw(texture, location.x - (1f * (16 * MAP_SCALE)), location.y - (0.75f * (16 * MAP_SCALE)),
+//            (0.5f * width), (0.5f * height));
+        renderer.getBatch().draw(texture, location.x - (1f * (16 * MAP_SCALE)), location.y - (1f * (16 * MAP_SCALE)),
             (0.5f * width), (0.5f * height));
     }
 

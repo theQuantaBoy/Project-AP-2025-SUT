@@ -76,6 +76,7 @@ public final class WorldScreen implements Screen
     private boolean inputMultiplexerHadSetUp = false;
 
     private boolean cameraFixed = false;
+    private final boolean DEBUG_MODE = true;
 
     public WorldScreen()
     {
@@ -242,23 +243,20 @@ public final class WorldScreen implements Screen
         shapeRenderer.setProjectionMatrix(cam.combined);
         batch.begin();
 
-        if (map.getMapType().getMapKind() == MapKind.TOWN)
-        {
-            for (Player p : game.getPlayers())
-            {
-                if (p.isInCity())
-                {
+        if (map.getMapType().getMapKind() == MapKind.TOWN) {
+            for (Player p : game.getPlayers()) {
+                if (p.isInCity()) {
                     characterRenderer.render(batch, p.getCharacter(), CHAR_SCALE);
                 }
             }
-        } else
-        {
+        } else {
             characterRenderer.render(batch, character, CHAR_SCALE);
         }
 
-
         if (SECOND_PLAYER) characterRenderer.render(batch, player2, CHAR_SCALE);
         batch.end();
+
+        map.getMapVisual().renderInFrontOfCharacter();
 
         batch.setProjectionMatrix(uiCam.combined);
         batch.begin();
@@ -280,9 +278,9 @@ public final class WorldScreen implements Screen
             Tile tile = map.getTile(hoveredTile.getX(), hoveredTile.getY() - 1);
             Vector2 location = map.tileToWorld(tile);
 
-            if (location != null)
+            if (location != null && DEBUG_MODE)
             {
-//                shapeRenderer.rect(location.x, location.y - (16f * MAP_SCALE), (16f * MAP_SCALE), (16f * MAP_SCALE));
+                shapeRenderer.rect(location.x, location.y - (16f * MAP_SCALE), (16f * MAP_SCALE), (16f * MAP_SCALE));
             }
 
             shapeRenderer.end();

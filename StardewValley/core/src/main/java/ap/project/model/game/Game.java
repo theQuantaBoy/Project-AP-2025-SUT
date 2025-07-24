@@ -161,8 +161,8 @@ public class Game
     {
         for (Farm farm : getFarms())
         {
-            farm.setRandomForagingItems();
-            farm.setRandomForagingMinerals();
+//            farm.setRandomForagingItems();
+//            farm.setRandomForagingMinerals();
         }
     }
 
