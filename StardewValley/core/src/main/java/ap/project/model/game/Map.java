@@ -561,7 +561,7 @@ public abstract class Map
         int dx = Math.abs(point.getX() - other.getX());
         int dy = Math.abs(point.getY() - other.getY());
 
-        return (dx <= 2 && dy <= 2);
+        return (dx <= 1 && dy <= 1);
     }
 }
 

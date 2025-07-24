@@ -42,6 +42,11 @@ public class WorldController
             return;
         }
 
+        if (processPickingUpForagingItem(tile))
+        {
+            return;
+        }
+
         if (processMapNavigation(tile))
         {
             return;
@@ -439,6 +444,28 @@ public class WorldController
             tile.setWateringChance(100);
 
             UIRenderer.showTextBox("Tile fertilized with deluxe retaining soil.");
+            return true;
+        }
+
+        return false;
+    }
+
+    private static boolean processPickingUpForagingItem(Tile tile)
+    {
+        Game game = App.getCurrentGame();
+        Player player = game.getCurrentPlayer();
+
+        if (tile.getObject() == null)
+        {
+            return false;
+        }
+
+        if (tile.isRandomForaging())
+        {
+            GameObject object = tile.getObject();
+            player.addToInventory(object.getObjectType(), 1);
+            tile.setObject(null);
+            tile.setRandomForaging(false);
             return true;
         }
 

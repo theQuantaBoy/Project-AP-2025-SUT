@@ -47,6 +47,10 @@ public class WorldScreenInputProcessor implements InputProcessor
             if (tile != null)
             {
                 System.out.println("Clicked Tile (x: " + tile.getX() + ", y: " + tile.getY() + ") - " + tile.getTexture());
+                if (tile.getObject() != null)
+                {
+                    System.out.println("Object: " + tile.getObject().getObjectType());
+                }
 //                for (int i = 0; i < farm.getDepth(); i++)
 //                {
 //                    Tile layerTile = farm.getLayerTiles()[i][tile.getY()][tile.getX()];

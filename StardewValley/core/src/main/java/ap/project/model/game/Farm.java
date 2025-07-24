@@ -32,6 +32,8 @@ public class Farm extends Map
 
     private ArrayList<Tile> tilesWithResources = new ArrayList<>();
     private ArrayList<Tile> tilesWithForagingTrees = new ArrayList<>();
+    private ArrayList<Tile> tilesWithForagingItems = new ArrayList<>();
+    private ArrayList<Tile> tilesWithForagingMinerals = new ArrayList<>();
     private ArrayList<Tile> plantingTiles = new ArrayList<>();
 
     public Farm(MapTypes farmType) {
@@ -57,7 +59,7 @@ public class Farm extends Map
             int y = (int) (Math.random() * HEIGHT);
             int x = (int) (Math.random() * WIDTH);
             Tile tile = tiles[y][x];
-            if ((tile.getTexture() == TileTexture.LAND) || (tile.getTexture() == TileTexture.GRASS) && tile.getObject() == null)
+            if (((tile.getTexture() == TileTexture.LAND) || (tile.getTexture() == TileTexture.GRASS)) && tile.getObject() == null)
             {
                 return tile;
             }
@@ -72,7 +74,7 @@ public class Farm extends Map
             for (int x = 0; x < WIDTH; x++)
             {
                 Tile tile = tiles[y][x];
-                if ((tile.getTexture() == TileTexture.LAND) || (tile.getTexture() == TileTexture.GRASS) && tile.getObject() == null)
+                if (((tile.getTexture() == TileTexture.LAND) || (tile.getTexture() == TileTexture.GRASS)) && tile.getObject() == null)
                 {
                     freeTiles.add(tile);
                 }
@@ -141,7 +143,7 @@ public class Farm extends Map
 
     public void setRandomForagingItems()
     {
-        if (foragingCount() < 200)
+        if (foragingCount() < 20)
         {
             ArrayList<Tile> freeTiles = getFreeTiles();
             for (Tile tile : freeTiles)
@@ -153,20 +155,33 @@ public class Farm extends Map
                         ForagingCropType type = ForagingCropType.getRandomSeasonCrop(App.getCurrentGame().getCurrentTime().getSeason());
                         tile.setObject(new ForagingCrop(type));
                         tile.setRandomForaging(true);
+                        tilesWithForagingItems.add(tile);
+
                     } else if (tile.isPloughed())
                     {
                         ForagingSeedType type = ForagingSeedType.getRandomSeasonSeed(App.getCurrentGame().getCurrentTime().getSeason());
                         tile.setObject(new ForagingSeed(type));
                         tile.setRandomForaging(true);
+                        tilesWithForagingItems.add(tile);
                     }
                 }
             }
         }
     }
 
+    public ArrayList<Tile> getTilesWithForagingItems()
+    {
+        return tilesWithForagingItems;
+    }
+
+    public ArrayList<Tile> getTilesWithForagingMinerals()
+    {
+        return tilesWithForagingMinerals;
+    }
+
     public void setRandomForagingMinerals()
     {
-        if (foragingCount() < 200)
+        if (foragingCount() < 20)
         {
             ArrayList<Tile> freeTiles = getFreeQuarryTiles();
             for (Tile tile : freeTiles)
@@ -176,6 +191,7 @@ public class Farm extends Map
                     ForagingMineralType type = randomItem(ForagingMineralType.class);
                     tile.setObject(new ForagingMineral(type));
                     tile.setRandomForaging(true);
+                    tilesWithForagingMinerals.add(tile);
                 }
             }
         }

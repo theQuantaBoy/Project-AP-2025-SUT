@@ -133,7 +133,7 @@ public class CharacterController
                     default -> false;
                 });
 
-        if (target.getObject() != null)
+        if (target == null || target.getObject() != null)
         {
             blocked = true;
         }

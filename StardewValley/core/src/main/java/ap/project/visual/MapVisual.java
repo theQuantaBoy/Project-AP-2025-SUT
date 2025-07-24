@@ -54,6 +54,7 @@ public class MapVisual
         renderer.render();
         drawPlantingTiles();
         drawResources();
+        drawForagingItems();
         renderer.getBatch().setShader(null);
     }
 
@@ -304,6 +305,23 @@ public class MapVisual
                 Texture texture = type.getSeasonTextures().get(season.toInteger());
                 drawTileTreeTexture(tile, texture);
             }
+        }
+    }
+
+    public void drawForagingItems()
+    {
+        if (map instanceof Farm)
+        {
+            Farm farm = (Farm) map;
+
+            renderer.getBatch().begin();
+
+            for (Tile tile : farm.getTilesWithForagingItems())
+            {
+                drawTileObject(tile);
+            }
+
+            renderer.getBatch().end();
         }
     }
 
