@@ -16,7 +16,6 @@ import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
-import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -143,7 +142,7 @@ public class MapVisual
                         {
                             if (tree.canHarvest())
                             {
-                                texture = tree.getTreeType().getWithFruitTexture();
+                                texture = tree.getTreeType().getWithProductTexture();
                             } else
                             {
                                 Season season = App.getCurrentGame().getCurrentTime().getSeason();

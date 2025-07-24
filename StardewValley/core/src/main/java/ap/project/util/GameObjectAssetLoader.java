@@ -54,7 +54,7 @@ public class GameObjectAssetLoader
                 assetManager.load(path, Texture.class);
             }
 
-            String withFruitPath = type.getWithFruitPath();
+            String withFruitPath = type.getWithProductPath();
 
             if(!withFruitPath.equals(""))
             {
@@ -126,13 +126,13 @@ public class GameObjectAssetLoader
                 }
             }
 
-            String withFruitPath = type.getWithFruitPath();
+            String withFruitPath = type.getWithProductPath();
 
             if(!withFruitPath.equals(""))
             {
                 Texture texture = assetManager.get(withFruitPath, Texture.class);
                 texture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
-                type.setWithFruitTexture(texture);
+                type.setWithProductTexture(texture);
             }
         }
     }
