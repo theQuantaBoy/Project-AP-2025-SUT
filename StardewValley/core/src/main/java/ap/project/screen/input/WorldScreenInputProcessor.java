@@ -4,8 +4,9 @@ import ap.project.control.CharacterController;
 import ap.project.control.WorldController;
 import ap.project.model.App.App;
 import ap.project.model.game.*;
+import ap.project.screen.CommunicationWindow;
+import ap.project.screen.InventoryWindow;
 import ap.project.screen.WorldScreen;
-import ap.project.visual.UIRenderer;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
@@ -21,15 +22,20 @@ public class WorldScreenInputProcessor implements InputProcessor
     private final CharacterController characterController;
     private final OrthographicCamera cam;
     private final WorldScreen worldScreen;
+    private final InventoryWindow inventoryWindow;
+    private final CommunicationWindow communicationWindow;
 
     public WorldScreenInputProcessor(Map map, PlayerCharacter player, CharacterController controller,
-                                     OrthographicCamera cam, WorldScreen worldScreen)
+                                     OrthographicCamera cam, WorldScreen worldScreen, InventoryWindow inventoryWindow,
+                                    CommunicationWindow communicationWindow)
     {
         this.map = map;
         this.player = player;
         this.characterController = controller;
         this.cam = cam;
         this.worldScreen = worldScreen;
+        this.inventoryWindow = inventoryWindow;
+        this.communicationWindow = communicationWindow;
     }
 
     @Override
@@ -69,14 +75,17 @@ public class WorldScreenInputProcessor implements InputProcessor
 
             if (clicked != null)
             {
-                Vector2 playerPos = player.getPosition();
-                Point playerTile = map.worldToTile(playerPos.x, playerPos.y);
+                if (App.getCurrentGame().getPlayerByLocation(clicked) != null) {
+                    communicationWindow.show(App.getCurrentGame().getPlayerByLocation(clicked));
+                } else {
+                    Vector2 playerPos = player.getPosition();
+                    Point playerTile = map.worldToTile(playerPos.x, playerPos.y);
 
-                ArrayList<Point> path = map.findShortestPath(playerTile, clicked);
+                    ArrayList<Point> path = map.findShortestPath(playerTile, clicked);
 
-                if (path != null)
-                {
-                    characterController.moveToPath(path);
+                    if (path != null) {
+                        characterController.moveToPath(path);
+                    }
                 }
             }
         }
@@ -84,19 +93,38 @@ public class WorldScreenInputProcessor implements InputProcessor
     }
 
     @Override
-    public boolean keyDown(int keycode)
-    {
-        if (worldScreen.isDialogVisible() || worldScreen.isInventoryVisible())
-        {
-            return false;
-        }
+    public boolean keyDown(int keycode) {
+        if (keycode == Input.Keys.E ||  keycode == Input.Keys.ESCAPE) {
+            boolean nowVisible = !inventoryWindow.isVisible();
+            inventoryWindow.toggleVisibility();
 
-        if (keycode == Input.Keys.E || keycode == Input.Keys.ESCAPE)
-        {
-            worldScreen.toggleInventoryWindow();
+            if (nowVisible)
+                inventoryWindow.getToolsTab().setChecked(false);
+
+
+            return true;
+        }
+        else if (keycode == Input.Keys.TAB) {
+            boolean nowVisible = !inventoryWindow.isVisible();
+            inventoryWindow.toggleVisibility();
+
+            if (nowVisible) {
+                if (inventoryWindow.getLastTabOpenedByTabKey() == InventoryWindow.TabType.TOOLS) {
+                    inventoryWindow.getToolsTab().toggle();
+                } else {
+                    // Default to Inventory
+                    inventoryWindow.getToolsTab().setChecked(false);
+                }
+            }
+
             return true;
         }
 
+        else if (keycode == Input.Keys.M) {
+            inventoryWindow.toggleVisibility();
+            inventoryWindow.getMapTab().setChecked(true);
+            return true;
+        }
         return false;
     }
 

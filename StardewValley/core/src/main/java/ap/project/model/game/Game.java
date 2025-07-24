@@ -645,6 +645,13 @@ public class Game
         }
     }
 
+    public Player getPlayerByLocation(Point point) {
+        for (Player player : players) {
+            if (player.getLocation().equals(point)) return player;
+        }
+        return null;
+    }
+
 //    public void resetTurnEnergy()
 //    {
 //        for (Player player : players)

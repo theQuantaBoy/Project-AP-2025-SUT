@@ -223,8 +223,8 @@ public class GameMenu implements AppMenu
             println(comController.cheatUpgradeFriendship(matcher));
         } else if ((matcher = CommunicateCommands.CHEAT_UPGRADE_XP.getMatcher(input)) != null) {
             println(comController.cheatUpgradeFriendshipLevel(matcher));
-        } else if ((matcher = CommunicateCommands.TALK.getMatcher(input)) != null) {
-            println(comController.talk(matcher));
+//        } else if ((matcher = CommunicateCommands.TALK.getMatcher(input)) != null) {
+//            println(comController.talk(matcher));
         } else if ((matcher = CommunicateCommands.TALK_HISTORY.getMatcher(input)) != null) {
             comController.talkHistory(matcher);
 //        } else if ((matcher = CommunicateCommands.GIFT.getMatcher(input)) != null) {
@@ -512,8 +512,8 @@ public class GameMenu implements AppMenu
             println(comController.cheatUpgradeFriendship(matcher));
         } else if ((matcher = CommunicateCommands.CHEAT_UPGRADE_XP.getMatcher(input)) != null) {
             println(comController.cheatUpgradeFriendshipLevel(matcher));
-        } else if ((matcher = CommunicateCommands.TALK.getMatcher(input)) != null) {
-            println(comController.talk(matcher));
+//        } else if ((matcher = CommunicateCommands.TALK.getMatcher(input)) != null) {
+//            println(comController.talk(matcher));
         } else if ((matcher = CommunicateCommands.TALK_HISTORY.getMatcher(input)) != null) {
             comController.talkHistory(matcher);
 //        } else if ((matcher = CommunicateCommands.GIFT.getMatcher(input)) != null) {

@@ -83,13 +83,12 @@ public class CommunicateController {
         return false;
     }
 
-    public Result talk(Matcher matcher) {
-        Player player = App.getCurrentGame().getPlayerByNickname(matcher.group("username"));
+    public Result talk(Player player) {
         Player currentPlayer = App.getCurrentGame().getCurrentPlayer();
         if (currentPlayer.equals(player)) {
             return new Result(false, "you can't gift yourself");
         }
-        String message = matcher.group("message");
+        String message = "";
 
         if (currentPlayer.isNear(player.getLocation())) {
             FriendshipData data1 = currentPlayer.getFriendships().get(player);

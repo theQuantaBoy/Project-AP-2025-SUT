@@ -71,6 +71,7 @@ public final class WorldScreen implements Screen
     private static Label dialogContentLabel;
     private InventoryWindow inventoryWindow;
     private FriendsWindow friendsWindow;
+    private CommunicationWindow communicationWindow;
 
     private InputMultiplexer inputMultiplexer;
     private boolean inputMultiplexerHadSetUp = false;
@@ -132,6 +133,7 @@ public final class WorldScreen implements Screen
 
         inventoryWindow = new InventoryWindow(uiStage);
         friendsWindow = new FriendsWindow(uiStage);
+        communicationWindow = new CommunicationWindow(uiStage);
         createTerminalDialog();
 
 
@@ -157,7 +159,8 @@ public final class WorldScreen implements Screen
 
         characterController = new CharacterController(character, map, PLAYER_SPEED, TILE_SIZE);
 
-        gameInputProcessor = new WorldScreenInputProcessor(map, character, characterController, cam, this);
+        gameInputProcessor = new WorldScreenInputProcessor(map, character, characterController, cam, this,
+            inventoryWindow, communicationWindow);
 
         if (inputMultiplexer != null && inputMultiplexerHadSetUp)
         {
