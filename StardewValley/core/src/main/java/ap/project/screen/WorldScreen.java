@@ -77,7 +77,7 @@ public final class WorldScreen implements Screen
     private boolean inputMultiplexerHadSetUp = false;
 
     private boolean cameraFixed = false;
-    private final boolean DEBUG_MODE = true;
+    private final boolean DEBUG_MODE = false;
 
     public WorldScreen()
     {
@@ -244,6 +244,7 @@ public final class WorldScreen implements Screen
             cam.update();
         }
 
+        UIRenderer.updateTextBoxes(dt);
         map.getMapVisual().render(cam);
 
         Batch batch = map.getMapVisual().getRenderer().getBatch();
@@ -307,7 +308,6 @@ public final class WorldScreen implements Screen
         checkGameInfo();
         checkMapSeason();
         map.getMapVisual().update(dt);
-        UIRenderer.updateTextBoxes(dt);
 
         if ( map.getMapType() == MapTypes.GREEN_HOUSE || map.getMapType() == MapTypes.CARPENTER_SHOP ||
         map.getMapType() == MapTypes.MARNIE_RANCH)

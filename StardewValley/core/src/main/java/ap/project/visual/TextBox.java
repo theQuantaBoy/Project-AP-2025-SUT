@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.utils.Array;
 
 import static ap.project.model.game.Map.TILE_SIZE;
 
@@ -22,9 +23,11 @@ public class TextBox
     private final float boxWidth;
     private final float boxHeight;
     private final Vector2 position;
+    private final Array<String> lines = new Array<>(); // Store wrapped lines
 
     private static final float SCALE = 1f;
     private static final float MARGIN = 16f;
+    private static final float MAX_WIDTH = 500f; // Max width for text wrapping
 
     public TextBox(String text, float fontScale, float screenWidth, float screenHeight)
     {
@@ -42,13 +45,48 @@ public class TextBox
             tiles[i] = new Texture(Gdx.files.internal("textbox/textBox_" + i + ".png"));
         }
 
-        GlyphLayout layout = new GlyphLayout(font, text);
-        this.boxWidth = layout.width + TILE_SIZE * 2;
-        this.boxHeight = layout.height + TILE_SIZE * 2;
+        // Wrap text into multiple lines
+        wrapText();
+
+        // Calculate box dimensions based on wrapped lines
+        float maxLineWidth = 0;
+        for (String line : lines) {
+            GlyphLayout layout = new GlyphLayout(font, line);
+            if (layout.width > maxLineWidth) maxLineWidth = layout.width;
+        }
+
+        float lineHeight = font.getLineHeight();
+        this.boxWidth = Math.min(maxLineWidth + TILE_SIZE * 2, MAX_WIDTH + TILE_SIZE * 2);
+        this.boxHeight = lines.size * lineHeight + TILE_SIZE * 2;
 
         this.duration = Math.max(2.5f, text.length() * 0.12f);
-
         this.position = new Vector2(MARGIN, screenHeight - boxHeight - MARGIN);
+    }
+
+    private void wrapText() {
+        GlyphLayout layout = new GlyphLayout();
+        StringBuilder currentLine = new StringBuilder();
+
+        for (String word : text.split("\\s+")) {
+            String testLine = currentLine.length() == 0 ? word : currentLine + " " + word;
+            layout.setText(font, testLine);
+
+            if (layout.width > MAX_WIDTH) {
+                if (currentLine.length() == 0) {
+                    // Single word is too long, split it
+                    lines.add(word);
+                } else {
+                    lines.add(currentLine.toString());
+                    currentLine = new StringBuilder(word);
+                }
+            } else {
+                currentLine = new StringBuilder(testLine);
+            }
+        }
+
+        if (currentLine.length() > 0) {
+            lines.add(currentLine.toString());
+        }
     }
 
     public void update(float delta)
@@ -98,8 +136,12 @@ public class TextBox
             }
         }
 
-        // Text
-        font.draw(batch, text, x + TILE_SIZE, y + (boxHeight / 2f) + font.getCapHeight() / 2f);
+        // Render each line of text
+        float lineY = y + boxHeight - TILE_SIZE - 10; // Start from top with padding
+        for (String line : lines) {
+            font.draw(batch, line, x + TILE_SIZE, lineY);
+            lineY -= font.getLineHeight(); // Move down for next line
+        }
     }
 }
 

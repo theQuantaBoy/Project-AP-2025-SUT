@@ -44,9 +44,8 @@ public class UIRenderer
 
     private final TextButton friends;
 
-
     private final Texture weatherOverlay;
-    private static final Array<TextBox> activeTextBoxes = new Array<>();
+    private static TextBox activeTextBox = null;
 
     public UIRenderer(Time time) {
         this.time = time;
@@ -323,27 +322,25 @@ public class UIRenderer
 
     public static void showTextBox(String text)
     {
-        activeTextBoxes.add(new TextBox(text, 3.5f, Gdx.graphics.getWidth(), Gdx.graphics.getHeight()));
+        // Clear any existing text box before showing new one
+        activeTextBox = null;
+        activeTextBox = new TextBox(text, 3.5f, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
     }
 
     public static void updateTextBoxes(float delta)
     {
-        for (int i = activeTextBoxes.size - 1; i >= 0; i--)
-        {
-            TextBox tb = activeTextBoxes.get(i);
-            tb.update(delta);
-            if (tb.isExpired())
-            {
-                activeTextBoxes.removeIndex(i);
+        if (activeTextBox != null) {
+            activeTextBox.update(delta);
+            if (activeTextBox.isExpired()) {
+                activeTextBox = null;
             }
         }
     }
 
     public static void renderTextBoxes(Batch batch)
     {
-        for (TextBox tb : activeTextBoxes)
-        {
-            tb.render(batch);
+        if (activeTextBox != null) {
+            activeTextBox.render(batch);
         }
     }
 }

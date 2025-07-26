@@ -38,16 +38,6 @@ public class WorldController
         Point clicked = tile.getPoint();
         Point location = player.getLocation();
 
-        if (player.isInHome())
-        {
-            Cabin cabin = player.getCabin();
-            if (cabin.getOvenPoint().equals(clicked))
-            {
-                worldScreen.toggleCookBookWindow();
-                return;
-            }
-        }
-
         if (!Map.isNearOrOn(location, clicked))
         {
             return;
@@ -69,6 +59,11 @@ public class WorldController
         }
 
         if (processObjectUse(tile))
+        {
+            return;
+        }
+
+        if (processBuildings(worldScreen, tile, clicked))
         {
             return;
         }
@@ -595,5 +590,33 @@ public class WorldController
         return (type == GameObjectType.FERTILIZER || type == GameObjectType.SPECIAL_FERTILIZER ||
             type == GameObjectType.BASIC_RETAINING_SOIL || type == GameObjectType.QUALITY_RETAINING_SOIL ||
             type == GameObjectType.DELUXE_RETAINING_SOIL);
+    }
+
+    private static boolean processBuildings(WorldScreen worldScreen, Tile tile, Point clicked)
+    {
+        if (processOvenMechanism(worldScreen, tile, clicked))
+        {
+            return true;
+        }
+
+        return processOvenMechanism(worldScreen, tile, clicked);
+    }
+
+    private static boolean processOvenMechanism(WorldScreen worldScreen, Tile tile, Point clicked)
+    {
+        Game game = App.getCurrentGame();
+        Player player = game.getCurrentPlayer();
+
+        if (player.isInHome())
+        {
+            Cabin cabin = player.getCabin();
+            if (cabin.getOvenPoint().equals(clicked))
+            {
+                worldScreen.toggleCookBookWindow();
+                return true;
+            }
+        }
+
+        return false;
     }
 }

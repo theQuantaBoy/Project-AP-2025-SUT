@@ -1,10 +1,15 @@
 package ap.project.screen;
 
 import ap.project.model.App.App;
+import ap.project.model.App.Result;
+import ap.project.model.enums.GameObjectType;
+import ap.project.model.enums.building_enums.KitchenRecipe;
 import ap.project.model.game.Player;
 import ap.project.model.player_data.Skill;
 import ap.project.model.tools.Tool;
+import ap.project.visual.UIRenderer;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
@@ -237,14 +242,60 @@ public class InventoryWindow {
 
             slotContainer.addListener(new ClickListener() {
                 @Override
-                public void clicked(InputEvent event, float x, float y) {
+                public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
                     GameObject clickedObject = slotIndex < slots.size() ? slots.get(slotIndex) : null;
-                    player.setCurrentObject(clickedObject);
-                    selectedInventorySlot = clickedObject != null ? slotIndex : -1;
-                    refreshInventoryTable(); // re-render with highlight
-                    if (clickedObject != null) {
-                        System.out.println("Selected Inventory Item: " + clickedObject.getObjectType());
+
+                    System.out.println(event.getButton());
+                    System.out.println(getTapCount());
+
+                    if (event.getButton() == Input.Buttons.RIGHT)
+                    {
+                        if (clickedObject != null)
+                        {
+                            GameObjectType type = clickedObject.getObjectType();
+
+                            if (!KitchenRecipe.isEdible(type))
+                            {
+                                UIRenderer.showTextBox("This item is not edible :(");
+                                return true;
+                            }
+
+                            int count = player.howManyInInventory(type);
+                            if (count == 0)
+                            {
+                                UIRenderer.showTextBox("You don't currently have this food in your backpack.");
+                                return true;
+                            }
+
+                            KitchenRecipe food = KitchenRecipe.getKitchenRecipe(type.toString());
+                            if (food == null)
+                            {
+                                UIRenderer.showTextBox("This item is not edible :(");
+                                return true;
+                            }
+
+                            player.removeAmountFromInventory(type, 1);
+                            player.increaseEnergy(food.getEnergy());
+
+                            UIRenderer.showTextBox("Yum Yum, you just ate " + food.getType());
+                            refreshInventoryTable();
+                        }
+                    } else
+                    {
+                        if (player.getCurrentObject() != null && player.getCurrentObject().equals(clickedObject)) {
+                            player.setCurrentObject(null);
+                            selectedInventorySlot = -1; // Deselect if same object clicked
+                        } else
+                        {
+                            player.setCurrentObject(clickedObject);
+                            selectedInventorySlot = clickedObject != null ? slotIndex : -1;
+                        }
+
+                        refreshInventoryTable(); // re-render with highlight
+
                     }
+
+                    return true;
                 }
             });
 
@@ -324,10 +375,18 @@ public class InventoryWindow {
                 @Override
                 public void clicked(InputEvent event, float x, float y) {
                     Tool clickedTool = slotIndex < tools.size() ? tools.get(slotIndex) : null;
-                    player.setCurrentTool(clickedTool);
-                    selectedToolSlot = clickedTool != null ? slotIndex : -1;
+
+                    if (player.getCurrentTool() != null && player.getCurrentTool().equals(clickedTool))
+                    {
+                        player.setCurrentTool(null);
+                        selectedToolSlot = -1; // Deselect if same tool clicked
+                    } else
+                    {
+                        player.setCurrentTool(clickedTool);
+                        selectedToolSlot = clickedTool != null ? slotIndex : -1;
+                    }
+
                     refreshToolTable();
-                    System.out.println(player.getCurrentTool().getToolType().getName());
                 }
             });
 
