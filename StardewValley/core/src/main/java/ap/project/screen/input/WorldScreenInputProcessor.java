@@ -35,7 +35,8 @@ public class WorldScreenInputProcessor implements InputProcessor
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button)
     {
-        if (worldScreen.isDialogVisible() || worldScreen.isInventoryVisible() || worldScreen.isCookBookVisible())
+        if (worldScreen.isDialogVisible() || worldScreen.isInventoryVisible() || worldScreen.isCookBookVisible() ||
+        worldScreen.isRefrigeratorVisible())
         {
             return false;
         }

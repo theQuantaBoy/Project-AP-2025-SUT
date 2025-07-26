@@ -71,6 +71,7 @@ public final class WorldScreen implements Screen
     private static Label dialogContentLabel;
     private InventoryWindow inventoryWindow;
     private CookBookWindow cookBookWindow;
+    private RefrigeratorWindow refrigeratorWindow;
     private FriendsWindow friendsWindow;
 
     private InputMultiplexer inputMultiplexer;
@@ -135,6 +136,7 @@ public final class WorldScreen implements Screen
         inventoryWindow = new InventoryWindow(uiStage);
         friendsWindow = new FriendsWindow(uiStage);
         cookBookWindow = new CookBookWindow(uiStage);
+        refrigeratorWindow = new RefrigeratorWindow(uiStage);
         createTerminalDialog();
 
 
@@ -212,8 +214,18 @@ public final class WorldScreen implements Screen
                     return true;
                 }
 
-                if (keycode == Input.Keys.R && isCookBookVisible()) {
-                    toggleCookBookWindow();
+                if (keycode == Input.Keys.R)
+                {
+                    if (isCookBookVisible())
+                    {
+                        toggleCookBookWindow();
+                    }
+
+                    if (isRefrigeratorVisible())
+                    {
+                        toggleRefrigeratorWindow();
+                    }
+
                     return true;
                 }
 
@@ -238,7 +250,7 @@ public final class WorldScreen implements Screen
         Gdx.gl.glClearColor(0f, 0f, 0f, 1f);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        if (!terminalDialog.isVisible() && !isInventoryVisible() && !isCookBookVisible())
+        if (!terminalDialog.isVisible() && !isInventoryVisible() && !isCookBookVisible() && !isRefrigeratorVisible())
         {
             update(dt);
             cam.update();
@@ -398,6 +410,7 @@ public final class WorldScreen implements Screen
         uiRenderer.dispose();
         shapeRenderer.dispose();
         cookBookWindow.dispose();
+        refrigeratorWindow.dispose();
     }
 
     private void checkMapSeason()
@@ -637,5 +650,14 @@ public final class WorldScreen implements Screen
 
     public boolean isCookBookVisible() {
         return cookBookWindow.isVisible();
+    }
+
+    public void toggleRefrigeratorWindow() {
+        refrigeratorWindow.toggleVisibility();
+    }
+
+    public boolean isRefrigeratorVisible()
+    {
+        return refrigeratorWindow.isVisible();
     }
 }

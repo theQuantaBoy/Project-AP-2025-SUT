@@ -615,6 +615,12 @@ public class WorldController
                 worldScreen.toggleCookBookWindow();
                 return true;
             }
+
+            if (cabin.getRefrigeratorPoint().equals(clicked))
+            {
+                worldScreen.toggleRefrigeratorWindow();
+                return true;
+            }
         }
 
         return false;
