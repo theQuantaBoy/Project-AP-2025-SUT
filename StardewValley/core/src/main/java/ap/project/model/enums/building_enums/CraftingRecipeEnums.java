@@ -11,56 +11,56 @@ public enum CraftingRecipeEnums
             "Destroys everything in a 3-tile radius.", new HashMap<>() {{
                 put(GameObjectType.COPPER_ORE, 4);
                 put(GameObjectType.COAL, 1);
-    }}, 50),
+    }}, 50, false),
 
     BOMB_RECIPE(GameObjectType.BOMB_RECIPE, GameObjectType.BOMB,
             "Destroys everything in a 5-tile radius.", new HashMap<>() {{
                 put(GameObjectType.IRON_ORE, 4);
                 put(GameObjectType.COAL, 1);
-    }}, 50),
+    }}, 50, false),
 
     MEGA_BOMB_RECIPE(GameObjectType.MEGA_BOMB_RECIPE, GameObjectType.MEGA_BOMB,
             "Destroys everything in a 7-tile radius.", new HashMap<>() {{
                 put(GameObjectType.GOLD_ORE, 4);
                 put(GameObjectType.COAL, 1);
-    }}, 50),
+    }}, 50, false),
 
     SPRINKLER_RECIPE(GameObjectType.SPRINKLER_RECIPE, GameObjectType.SPRINKLER,
             "Waters the 4 adjacent tiles.", new HashMap<>() {{
                 put(GameObjectType.COPPER_BAR, 1);
                 put(GameObjectType.IRON_BAR, 1);
-    }}, 0),
+    }}, 0, false),
 
     QUALITY_SPRINKLER_RECIPE(GameObjectType.QUALITY_SPRINKLER_RECIPE, GameObjectType.QUALITY_SPRINKLER,
             "Waters the 8 surrounding tiles.", new HashMap<>() {{
                 put(GameObjectType.IRON_BAR, 1);
                 put(GameObjectType.GOLD_BAR, 1);
-    }}, 0),
+    }}, 0, false),
 
     IRIDIUM_SPRINKLER_RECIPE(GameObjectType.IRIDIUM_SPRINKLER_RECIPE, GameObjectType.IRIDIUM_SPRINKLER,
             "Waters 24 nearby tiles.", new HashMap<>() {{
                 put(GameObjectType.GOLD_BAR, 1);
                 put(GameObjectType.IRIDIUM_BAR, 1);
-    }}, 0),
+    }}, 0, false),
 
     CHARCOAL_KILN_RECIPE(GameObjectType.CHARCOAL_KILN_RECIPE, GameObjectType.CHARCOAL_KLIN,
             "Turns 10 wood into 1 charcoal.", new HashMap<>() {{
                 put(GameObjectType.WOOD, 20);
                 put(GameObjectType.COPPER_BAR, 2);
-    }}, 0),
+    }}, 0, true),
 
     FURNACE_RECIPE(GameObjectType.FURNACE_RECIPE, GameObjectType.FURNACE,
             "Turns ores and coal into bars.", new HashMap<>() {{
                 put(GameObjectType.COPPER_BAR, 20);
                 put(GameObjectType.STONE, 25);
-    }}, 0),
+    }}, 0, true),
 
     SCARECROW_RECIPE(GameObjectType.SCARECROW_RECIPE, GameObjectType.SCARECROW,
             "Protects crops from crows within 8 tiles.", new HashMap<>() {{
                 put(GameObjectType.WOOD, 50);
                 put(GameObjectType.COAL, 1);
                 put(GameObjectType.FIBER, 20);
-    }}, 0),
+    }}, 0, true),
 
     DELUXE_SCARECROW_RECIPE(GameObjectType.DELUXE_SCARECROW_RECIPE, GameObjectType.DELUXE_SCARECROW,
             "Protects crops from crows within 12 tiles.", new HashMap<>() {{
@@ -68,75 +68,75 @@ public enum CraftingRecipeEnums
                 put(GameObjectType.COAL, 1);
                 put(GameObjectType.FIBER, 20);
                 put(GameObjectType.IRIDIUM_ORE, 1);
-    }}, 0),
+    }}, 0, true),
 
     BEE_HOUSE_RECIPE(GameObjectType.BEE_HOUSE_RECIPE, GameObjectType.BEE_HOUSE,
             "Produces honey when placed on the farm.", new HashMap<>() {{
                 put(GameObjectType.WOOD, 40);
                 put(GameObjectType.COAL, 8);
                 put(GameObjectType.IRON_BAR, 1);
-    }}, 0),
+    }}, 0, true),
 
     CHEESE_PRESS_RECIPE(GameObjectType.CHEESE_PRESS_RECIPE, GameObjectType.CHEESE_PRESS,
             "Turns milk into cheese.", new HashMap<>() {{
                 put(GameObjectType.WOOD, 45);
                 put(GameObjectType.STONE, 45);
                 put(GameObjectType.COPPER_BAR, 1);
-    }}, 0),
+    }}, 0, true),
 
     KEG_RECIPE(GameObjectType.KEG_RECIPE, GameObjectType.KEG,
             "Turns fruit and vegetables into drinks.", new HashMap<>() {{
                 put(GameObjectType.WOOD, 30);
                 put(GameObjectType.COPPER_BAR, 1);
                 put(GameObjectType.IRON_BAR, 1);
-    }}, 0),
+    }}, 0, true),
 
     LOOM_RECIPE(GameObjectType.LOOM_RECIPE, GameObjectType.LOOM,
             "Turns wool into cloth.", new HashMap<>() {{
                 put(GameObjectType.WOOD, 60);
                 put(GameObjectType.FIBER, 30);
-    }}, 0),
+    }}, 0, true),
 
     MAYONNAISE_MACHINE_RECIPE(GameObjectType.MAYONNAISE_MACHINE_RECIPE, GameObjectType.MAYONNAISE_MACHINE,
             "Turns eggs into mayonnaise.", new HashMap<>() {{
                 put(GameObjectType.WOOD, 15);
                 put(GameObjectType.STONE, 15);
                 put(GameObjectType.COPPER_BAR, 1);
-    }}, 0),
+    }}, 0, true),
 
     OIL_MAKER_RECIPE(GameObjectType.OIL_MAKER_RECIPE, GameObjectType.OIL_MAKER,
             "Turns truffles into oil.", new HashMap<>() {{
                 put(GameObjectType.WOOD, 100);
                 put(GameObjectType.GOLD_BAR, 1);
                 put(GameObjectType.IRON_BAR, 1);
-    }}, 0),
+    }}, 0, true),
 
     PRESERVES_JAR_RECIPE(GameObjectType.PRESERVES_JAR_RECIPE, GameObjectType.PRESERVES_JAR,
             "Turns vegetables into pickles and fruit into jam.", new HashMap<>() {{
                 put(GameObjectType.WOOD, 50);
                 put(GameObjectType.STONE, 40);
                 put(GameObjectType.COAL, 8);
-    }}, 0),
+    }}, 0, true),
 
     DEHYDRATOR_RECIPE(GameObjectType.DEHYDRATOR_RECIPE, GameObjectType.DEHYDRATOR,
             "Dries fruit or mushrooms.", new HashMap<>() {{
                 put(GameObjectType.WOOD, 30);
                 put(GameObjectType.STONE, 20);
                 put(GameObjectType.FIBER, 30);
-    }}, 0),
+    }}, 0, true),
 
     GRASS_STARTER_RECIPE(GameObjectType.GRASS_STARTER_RECIPE, GameObjectType.GRAPE_STARTER,
             "Makes grass grow where it's placed.", new HashMap<>() {{
                 put(GameObjectType.WOOD, 1);
                 put(GameObjectType.FIBER, 1);
-    }}, 0),
+    }}, 0, false),
 
     FISH_SMOKER_RECIPE(GameObjectType.FISH_SMOKER_RECIPE, GameObjectType.FISH_SMOKER,
             "Smokes any fish using one coal while keeping its quality.", new HashMap<>() {{
                 put(GameObjectType.WOOD, 50);
                 put(GameObjectType.IRON_BAR, 3);
                 put(GameObjectType.COAL, 10);
-    }}, 0),
+    }}, 0, true),
 
     MYSTIC_TREE_SEED_RECIPE(GameObjectType.MYSTIC_TREE_SEED_RECIPE, GameObjectType.MYSTIC_TREE_SEED,
             "Can be planted to grow a mystic tree.", new HashMap<>() {{
@@ -144,7 +144,7 @@ public enum CraftingRecipeEnums
                 put(GameObjectType.MAPLE_SEED, 5);
                 put(GameObjectType.PINE_CONE, 5);
                 put(GameObjectType.MAHOGANY_SEED, 5);
-    }}, 100);
+    }}, 100, false);
 
     ;
 
@@ -153,14 +153,21 @@ public enum CraftingRecipeEnums
     private final String description;
     private final HashMap<GameObjectType, Integer> ingredients;
     private final int price;
+    private final boolean isTall;
 
-    CraftingRecipeEnums(GameObjectType type, GameObjectType product, String description, HashMap<GameObjectType, Integer> ingredients, int price)
+    CraftingRecipeEnums(GameObjectType type, GameObjectType product, String description, HashMap<GameObjectType, Integer> ingredients, int price, boolean isTall)
     {
         this.type = type;
         this.product = product;
         this.description = description;
         this.ingredients = ingredients;
         this.price = price;
+        this.isTall = isTall;
+    }
+
+    public boolean isTall()
+    {
+        return isTall;
     }
 
     public GameObjectType getType()
