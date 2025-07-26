@@ -17,6 +17,7 @@ import ap.project.model.tools.Hoe;
 import ap.project.model.tools.Seythe;
 import ap.project.model.tools.Tool;
 import ap.project.model.tools.WateringCan;
+import ap.project.screen.WorldScreen;
 import ap.project.view.GameMenu;
 import ap.project.visual.UIRenderer;
 
@@ -24,7 +25,7 @@ import javax.swing.plaf.PanelUI;
 
 public class WorldController
 {
-    public static void processClickLeft(Tile tile)
+    public static void processClickLeft(WorldScreen worldScreen, Tile tile)
     {
         Game game = App.getCurrentGame();
         Player player = game.getCurrentPlayer();
@@ -36,6 +37,16 @@ public class WorldController
 
         Point clicked = tile.getPoint();
         Point location = player.getLocation();
+
+        if (player.isInHome())
+        {
+            Cabin cabin = player.getCabin();
+            if (cabin.getOvenPoint().equals(clicked))
+            {
+                worldScreen.toggleCookBookWindow();
+                return;
+            }
+        }
 
         if (!Map.isNearOrOn(location, clicked))
         {

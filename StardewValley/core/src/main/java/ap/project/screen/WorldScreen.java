@@ -70,6 +70,7 @@ public final class WorldScreen implements Screen
     private static StringBuilder dialogTextBuffer = new StringBuilder();
     private static Label dialogContentLabel;
     private InventoryWindow inventoryWindow;
+    private CookBookWindow cookBookWindow;
     private FriendsWindow friendsWindow;
 
     private InputMultiplexer inputMultiplexer;
@@ -133,6 +134,7 @@ public final class WorldScreen implements Screen
 
         inventoryWindow = new InventoryWindow(uiStage);
         friendsWindow = new FriendsWindow(uiStage);
+        cookBookWindow = new CookBookWindow(uiStage);
         createTerminalDialog();
 
 
@@ -209,6 +211,12 @@ public final class WorldScreen implements Screen
                     inventoryWindow.getMapTab().setChecked(true);
                     return true;
                 }
+
+                if (keycode == Input.Keys.R && isCookBookVisible()) {
+                    toggleCookBookWindow();
+                    return true;
+                }
+
                 return false;
             }
         });
@@ -230,7 +238,7 @@ public final class WorldScreen implements Screen
         Gdx.gl.glClearColor(0f, 0f, 0f, 1f);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        if (!terminalDialog.isVisible() && !isInventoryVisible())
+        if (!terminalDialog.isVisible() && !isInventoryVisible() && !isCookBookVisible())
         {
             update(dt);
             cam.update();
@@ -389,6 +397,7 @@ public final class WorldScreen implements Screen
         map.getMapVisual().dispose();
         uiRenderer.dispose();
         shapeRenderer.dispose();
+        cookBookWindow.dispose();
     }
 
     private void checkMapSeason()
@@ -622,5 +631,11 @@ public final class WorldScreen implements Screen
         }
     }
 
+    public void toggleCookBookWindow() {
+        cookBookWindow.toggleVisibility();
+    }
 
+    public boolean isCookBookVisible() {
+        return cookBookWindow.isVisible();
+    }
 }

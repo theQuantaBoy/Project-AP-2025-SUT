@@ -64,6 +64,13 @@ public abstract class Map
             shop.setExteriorDoor(startingPoint);
         }
 
+        if (this instanceof Cabin)
+        {
+            Cabin cabin = (Cabin) this;
+            cabin.setRefrigeratorPoint(loaded.refrigeratorPoint);
+            cabin.setOvenPoint(loaded.ovenPoint);
+        }
+
         this.visual = new MapVisual(this, loaded.tiledMap);
     }
 

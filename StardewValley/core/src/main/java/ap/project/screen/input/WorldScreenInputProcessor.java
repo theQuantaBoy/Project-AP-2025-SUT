@@ -35,7 +35,7 @@ public class WorldScreenInputProcessor implements InputProcessor
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button)
     {
-        if (worldScreen.isDialogVisible() || worldScreen.isInventoryVisible())
+        if (worldScreen.isDialogVisible() || worldScreen.isInventoryVisible() || worldScreen.isCookBookVisible())
         {
             return false;
         }
@@ -64,7 +64,7 @@ public class WorldScreenInputProcessor implements InputProcessor
 //                }
             }
 
-            WorldController.processClickLeft(tile);
+            WorldController.processClickLeft(worldScreen, tile);
         }
 
         if (Gdx.input.isButtonJustPressed(Input.Buttons.RIGHT))
