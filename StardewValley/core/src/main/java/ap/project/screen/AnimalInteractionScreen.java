@@ -40,6 +40,8 @@ public class AnimalInteractionScreen {
         });
     }
 
+
+
     public void show(Animal animal, float x, float y) {
         currentAnimal = animal;
         window.clearChildren();
@@ -94,13 +96,14 @@ public class AnimalInteractionScreen {
         window.toFront();
     }
 
-    private void addButton(String label, Runnable action) {
-        TextButton button = new TextButton(label, skin);
-        button.pad(8, 12, 8, 12);
+    private void addButton(String text, Runnable action) {
+        TextButton button = new TextButton(text, skin);
+        button.pad(8);
         button.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 action.run();
+                hide(); // Close window after any button click
             }
         });
         window.add(button).fillX().padBottom(5).row();
@@ -129,5 +132,9 @@ public class AnimalInteractionScreen {
 
     public Animal getCurrentAnimal() {
         return currentAnimal;
+    }
+
+    public Window getWindow() {
+        return window;
     }
 }

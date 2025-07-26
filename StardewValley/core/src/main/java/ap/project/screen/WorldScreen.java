@@ -194,6 +194,8 @@ public final class WorldScreen implements Screen {
     public void show() {
         inputMultiplexer.clear();
         inputMultiplexer.addProcessor(uiStage);
+        inputMultiplexer.addProcessor(animalInteractionScreen.getStage());
+        inputMultiplexer.addProcessor(gameStage);
         inputMultiplexer.addProcessor(gameInputProcessor);
         inputMultiplexer.addProcessor(new InputAdapter() {
             @Override

@@ -7,6 +7,7 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
@@ -29,9 +30,14 @@ public class AnimalActor extends Actor {
         addListener(new ClickListener(Input.Buttons.RIGHT) {
             @Override
             public void clicked(InputEvent event, float x, float y) {
+                // Only show interaction if not already visible
                 if (!interactionScreen.isVisible()) {
                     Vector2 screenPos = localToStageCoordinates(new Vector2(x, y));
                     interactionScreen.show(animal, screenPos.x, screenPos.y + getHeight());
+
+                    // Bring interaction screen to front
+                    interactionScreen.getStage().getRoot().addActor(interactionScreen.getWindow());
+                    interactionScreen.getWindow().toFront();
                 }
             }
         });
@@ -81,4 +87,9 @@ public class AnimalActor extends Actor {
     public Animal getAnimal() {
         return animal;
     }
+
+    public Rectangle getBoundingRectangle() {
+        return new Rectangle(getX(), getY(), getWidth(), getHeight());
+    }
+
 }
