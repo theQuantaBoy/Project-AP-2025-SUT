@@ -119,7 +119,7 @@ public final class WorldScreen implements Screen {
         gameStage = new Stage(new ExtendViewport(20 * TILE_SIZE, 15 * TILE_SIZE, cam));
         animalActors = new Array<>();
         animalInteractionScreen = new AnimalInteractionScreen(uiStage.getViewport(), skin);
-        //npcAtlas = new TextureAtlas(Gdx.files.internal("npcs/npcs.atlas")); //TODO: adding file
+        npcAtlas = new TextureAtlas(Gdx.files.internal("C:\\Users\\ArmanPC\\IdeaProjects\\advanced-programming-phase-1-group-26\\StardewValley\\core\\assets\\characters\\npc\\npcs.atlas")); //TODO: adding file
 
         Animal testChicken = new Animal("Clucky", FarmAnimalsType.CHICKEN);
         testChicken.setX(20 * TILE_SIZE);
@@ -161,6 +161,8 @@ public final class WorldScreen implements Screen {
 
         inputMultiplexer = new InputMultiplexer();
         checkGameInfo();
+
+        initNPCs();
     }
 
     public void checkGameInfo() {
@@ -221,14 +223,9 @@ public final class WorldScreen implements Screen {
     private void toggleFishingMinigame() {
         if (fishingWindow == null) {
             fishingWindow = new FishingMinigameWindow(skin);
-            fishingWindow.setFillParent(true);
-            uiStage.addActor(fishingWindow);
             fishingWindow.show();
-
-            // Set input to prioritize fishing window
-            inputMultiplexer.clear();
-            inputMultiplexer.addProcessor(fishingWindow.getStage());
-            inputMultiplexer.addProcessor(uiStage);
+            fishingWindow.setVisible(true);
+            fishingWindow.toFront();
         } else {
             fishingWindow.hide();
             fishingWindow.remove();
@@ -248,7 +245,7 @@ public final class WorldScreen implements Screen {
         Gdx.gl.glClearColor(0f, 0f, 0f, 1f);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        if (fishingWindow == null || !fishingWindow.isActive()) {
+        if (fishingWindow == null) {
             if (!terminalDialog.isVisible() && !isInventoryVisible()) {
                 update(dt);
                 cam.update();
@@ -665,8 +662,8 @@ public final class WorldScreen implements Screen {
         NPC abigail = new NPC(NpcDetails.Abigail, new Point(55, 65));
         // ... add other NPCs ...
 
-        npcActors.add(new NPCActor(sebastian, npcAtlas.findRegion("sebastian"), skin));
-        npcActors.add(new NPCActor(abigail, npcAtlas.findRegion("abigail"), skin));
+        npcActors.add(new NPCActor(sebastian, npcAtlas.findRegion("Sebastian"), skin));
+        npcActors.add(new NPCActor(abigail, npcAtlas.findRegion("Abigail"), skin));
         // ... add other NPC actors ...
 
         for (NPCActor npcActor : npcActors) {

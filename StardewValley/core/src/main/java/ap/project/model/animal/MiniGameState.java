@@ -7,7 +7,7 @@ public class MiniGameState {
     public static final float TRACK_HEIGHT = 300f;
     public static final float PLAYER_BAR_WIDTH = 100f;
     public static final float PLAYER_BAR_HEIGHT = 20f;
-    public static final float FISH_SIZE = 30f;
+    public static final float FISH_SIZE = 60f;
 
     private static final double BASE_CATCH_RATE = 0.5;
     private static final double BASE_LOSE_RATE = 0.3;
