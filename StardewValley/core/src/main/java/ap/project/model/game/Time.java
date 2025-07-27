@@ -26,6 +26,7 @@ public class Time
     public void updateHour(int hourNum)
     {
         hour += hourNum;
+        totalHoursPassed += hour;
 
         if (hour > 22)
         {
@@ -133,5 +134,10 @@ public class Time
     public int getTotalDaysPassed()
     {
         return totalDaysPassed;
+    }
+
+    public int getTotalHoursPassed()
+    {
+        return totalHoursPassed;
     }
 }
