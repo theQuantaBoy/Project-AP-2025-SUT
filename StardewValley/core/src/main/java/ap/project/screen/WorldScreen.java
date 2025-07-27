@@ -20,6 +20,7 @@ import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
@@ -264,17 +265,32 @@ public final class WorldScreen implements Screen
         shapeRenderer.setProjectionMatrix(cam.combined);
         batch.begin();
 
-        if (map.getMapType().getMapKind() == MapKind.TOWN) {
-            for (Player p : game.getPlayers()) {
-                if (p.isInCity()) {
+        Vector3 mouseWorldPos = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0);
+        cam.unproject(mouseWorldPos);
+        float worldMouseX = mouseWorldPos.x;
+        float worldMouseY = mouseWorldPos.y;
+
+        if (map.getMapType().getMapKind() == MapKind.TOWN)
+        {
+            for (Player p : game.getPlayers())
+            {
+                if (p.isInCity())
+                {
                     characterRenderer.render(batch, p.getCharacter(), CHAR_SCALE);
                 }
             }
-        } else {
+        } else
+        {
             characterRenderer.render(batch, character, CHAR_SCALE);
         }
 
         if (SECOND_PLAYER) characterRenderer.render(batch, player2, CHAR_SCALE);
+
+        if (!isDialogVisible() && !isInventoryVisible() && !isCookBookVisible() && !isRefrigeratorVisible())
+        {
+            characterRenderer.renderToolOrObjectAtMouse(batch, character, worldMouseX, worldMouseY);
+        }
+
         batch.end();
 
         map.getMapVisual().renderInFrontOfCharacter();

@@ -6,17 +6,12 @@ import ap.project.model.enums.GameObjectType;
 import ap.project.model.enums.TileTexture;
 import ap.project.model.enums.Weather;
 import ap.project.model.enums.resources_enums.CropType;
+import ap.project.model.enums.resources_enums.ResourceItem;
 import ap.project.model.enums.resources_enums.TreeType;
 import ap.project.model.game.*;
-import ap.project.model.resources.Crop;
-import ap.project.model.resources.GiantCrop;
-import ap.project.model.resources.Plant;
-import ap.project.model.resources.Tree;
+import ap.project.model.resources.*;
 import ap.project.model.shops.Shop;
-import ap.project.model.tools.Hoe;
-import ap.project.model.tools.Seythe;
-import ap.project.model.tools.Tool;
-import ap.project.model.tools.WateringCan;
+import ap.project.model.tools.*;
 import ap.project.screen.WorldScreen;
 import ap.project.view.GameMenu;
 import ap.project.visual.UIRenderer;
@@ -347,6 +342,116 @@ public class WorldController
                 return true;
             }
 
+        }
+
+        if (tool instanceof Pickaxe)
+        {
+            if (!tile.hasPlants() && tile.getObject() != null)
+            {
+                GameObject object = tile.getObject();
+                if (!player.inventoryHasCapacity())
+                {
+                    UIRenderer.showTextBox("you don't have enough space in your inventory");
+                    return true;
+                }
+
+                player.addToInventory(object);
+                tile.setObject(null);
+
+                if (tile.isHitByThunder())
+                {
+                    tile.unHitByThunder();
+                }
+
+                UIRenderer.showTextBox(object.getObjectType().toString() + " added to your inventory");
+                return true;
+            }
+
+            else if (tile.getObject() instanceof ForagingMineral)
+            {
+                if (player.getEnergy() <= (int)(weatherModifier * ((Pickaxe) tool).getLevel().getBaseEnergyUsage()))
+                {
+                    UIRenderer.showTextBox("you don't have enough energy");
+                    return true;
+                }
+
+                player.addToInventory(tile.getObject());
+                player.increaseEnergy(-((Pickaxe) tool).getLevel().getBaseEnergyUsage());
+                player.getForagingSkill().changeUnit(5);
+                tile.setObject(null);
+
+                UIRenderer.showTextBox("pickaxe used on mineral");
+                return true;
+            }
+
+            else if (tile.getTexture().equals(TileTexture.QUARRY) && tile.getObject() == null)
+            {
+                if (player.getEnergy() <= (int)(weatherModifier * ((Pickaxe) tool).getLevel().getBaseEnergyUsage()))
+                {
+                    UIRenderer.showTextBox("you don't have enough energy");
+                    return true;
+                }
+
+                if (player.getMiningSkill().getLevel() > 1)
+                {
+                    player.addToInventory(ResourceItem.STONE.getType(), 5);
+                } else
+                {
+                    player.addToInventory(ResourceItem.STONE.getType(), 3);
+                }
+
+                player.increaseEnergy((int)(weatherModifier * -((Pickaxe) tool).getLevel().getBaseEnergyUsage()));
+                player.getMiningSkill().changeUnit(10);
+
+                UIRenderer.showTextBox("pickaxe used on query");
+                return true;
+            } else if (tile.getTexture().equals(TileTexture.LAND))
+            {
+                if (player.getEnergy() <= (int)(weatherModifier * ((Pickaxe) tool).getLevel().getBaseEnergyUsage()))
+                {
+                    UIRenderer.showTextBox("you don't have enough energy");
+                    return true;
+                }
+
+                if (tile.isPloughed())
+                {
+                    if (tile.hasPlants())
+                    {
+                        tile.unPlant();
+                    }
+
+                    tile.ploghInverse();
+                    player.increaseEnergy((int)(weatherModifier * -((Pickaxe) tool).getLevel().getBaseEnergyUsage()));
+
+                    UIRenderer.showTextBox("tile is not ploughed anymore");
+                    return true;
+                } else
+                {
+                    if (player.getEnergy() <= (int)(weatherModifier * ((Pickaxe) tool).getLevel().getFailedEnergyUsage()))
+                    {
+                        UIRenderer.showTextBox("you don't have enough energy");
+                        return true;
+                    }
+
+                    player.increaseEnergy((int)(weatherModifier * -((Pickaxe) tool).getLevel().getFailedEnergyUsage()));
+
+                    UIRenderer.showTextBox("tile is not ploughed");
+                    return true;
+                }
+            } else if (tile.getObject() instanceof ForagingSeed)
+            {
+                tile.setObject(null);
+                player.increaseEnergy((int)(weatherModifier * -((Pickaxe) tool).getLevel().getBaseEnergyUsage()));
+
+                UIRenderer.showTextBox("seed is removed");
+                return true;
+            } else
+            {
+                player.increaseEnergy((int)(weatherModifier * -((Pickaxe) tool).getLevel().getFailedEnergyUsage()));
+
+                UIRenderer.showTextBox("you can't use pickaxe on this tile");
+                return true;
+            }
         }
 
         return false;
