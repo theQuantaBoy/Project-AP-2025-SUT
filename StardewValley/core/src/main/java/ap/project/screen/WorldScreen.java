@@ -91,15 +91,12 @@ public final class WorldScreen implements Screen
             new Player(new User("arash","","arash","", Gender.FEMALE, "", ""), MapTypes.FISHING, 0),
             new Player(new User("moshtagh","","moshtagh","", Gender.FEMALE, "", ""), MapTypes.FORAGING, 0),
             new Player(new User("ottie","","ottie","", Gender.FEMALE, "", ""), MapTypes.COMBAT, 0)
-            )));
+        )));
 
         App.setCurrentGame(game);
         App.setCurrentMenu(Menu.GameMenu);
         App.setCurrentUser(game.getPlayers().get(0).getUser());
         game.setCurrentPlayer(game.getPlayers().get(0));
-
-
-//        this.game = App.getCurrentGame();
 
         for (Player p : game.getPlayers())
         {
@@ -133,9 +130,8 @@ public final class WorldScreen implements Screen
 
         inventoryWindow = new InventoryWindow(uiStage);
         friendsWindow = new FriendsWindow(uiStage);
-        communicationWindow = new CommunicationWindow(uiStage);
+        communicationWindow = new CommunicationWindow(uiStage, this);
         createTerminalDialog();
-
 
         inputMultiplexer = new InputMultiplexer();
         checkGameInfo();
@@ -180,13 +176,17 @@ public final class WorldScreen implements Screen
         inputMultiplexer.addProcessor(new InputAdapter() {
             @Override
             public boolean keyDown(int keycode) {
+                // Handle chat input first
+                if (communicationWindow.getChatScreen().handleKeyDown(keycode)) {
+                    return true;
+                }
+
                 if (keycode == Input.Keys.E ||  keycode == Input.Keys.ESCAPE) {
                     boolean nowVisible = !inventoryWindow.isVisible();
                     inventoryWindow.toggleVisibility();
 
                     if (nowVisible)
                         inventoryWindow.getToolsTab().setChecked(false);
-
 
                     return true;
                 }
@@ -205,7 +205,6 @@ public final class WorldScreen implements Screen
 
                     return true;
                 }
-
                 else if (keycode == Input.Keys.M) {
                     inventoryWindow.toggleVisibility();
                     inventoryWindow.getMapTab().setChecked(true);
@@ -214,8 +213,10 @@ public final class WorldScreen implements Screen
                 return false;
             }
         });
+
         Gdx.input.setInputProcessor(inputMultiplexer);
         inputMultiplexerHadSetUp = true;
+
         TextButton friends = uiRenderer.getFriends();
         uiStage.addActor(friends);
         friends.addListener(new ClickListener() {
@@ -232,7 +233,7 @@ public final class WorldScreen implements Screen
         Gdx.gl.glClearColor(0f, 0f, 0f, 1f);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        if (!terminalDialog.isVisible() && !isInventoryVisible())
+        if (!terminalDialog.isVisible() && !isInventoryVisible() && !isChatVisible())
         {
             update(dt);
             cam.update();
@@ -259,7 +260,6 @@ public final class WorldScreen implements Screen
             characterRenderer.render(batch, character, CHAR_SCALE);
         }
 
-
         if (SECOND_PLAYER) characterRenderer.render(batch, player2, CHAR_SCALE);
         batch.end();
 
@@ -273,7 +273,7 @@ public final class WorldScreen implements Screen
 
         if (hoveredTile != null) {
             Gdx.gl.glEnable(GL20.GL_BLEND);
-            Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA); // ← add this
+            Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
 
             Gdx.gl.glEnable(GL20.GL_BLEND);
             shapeRenderer.setProjectionMatrix(cam.combined);
@@ -307,7 +307,7 @@ public final class WorldScreen implements Screen
         UIRenderer.updateTextBoxes(dt);
 
         if ( map.getMapType() == MapTypes.GREEN_HOUSE || map.getMapType() == MapTypes.CARPENTER_SHOP ||
-        map.getMapType() == MapTypes.MARNIE_RANCH)
+            map.getMapType() == MapTypes.MARNIE_RANCH)
         {
             cameraFixed = false;
         }
@@ -388,12 +388,16 @@ public final class WorldScreen implements Screen
         uiStage.getViewport().update(w, h, true);
     }
 
-    @Override public void pause(){}  @Override public void resume(){}
+    @Override public void pause(){}
+    @Override public void resume(){}
     @Override public void hide(){}
-    @Override public void dispose(){
+
+    @Override
+    public void dispose(){
         map.getMapVisual().dispose();
         uiRenderer.dispose();
         shapeRenderer.dispose();
+        communicationWindow.dispose();
     }
 
     private void checkMapSeason()
@@ -627,5 +631,16 @@ public final class WorldScreen implements Screen
         }
     }
 
+    public Player getCurrentPlayer() {
+        return this.player;
+    }
 
+    public void restoreInputFocus() {
+        // Restore input focus to the world screen
+        Gdx.input.setInputProcessor(inputMultiplexer);
+    }
+
+    public boolean isChatVisible() {
+        return communicationWindow.getChatScreen().isVisible();
+    }
 }

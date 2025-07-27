@@ -27,7 +27,7 @@ public class WorldScreenInputProcessor implements InputProcessor
 
     public WorldScreenInputProcessor(Map map, PlayerCharacter player, CharacterController controller,
                                      OrthographicCamera cam, WorldScreen worldScreen, InventoryWindow inventoryWindow,
-                                    CommunicationWindow communicationWindow)
+                                     CommunicationWindow communicationWindow)
     {
         this.map = map;
         this.player = player;
@@ -41,7 +41,8 @@ public class WorldScreenInputProcessor implements InputProcessor
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button)
     {
-        if (worldScreen.isDialogVisible() || worldScreen.isInventoryVisible())
+        // Don't process clicks if any dialog/window is visible
+        if (worldScreen.isDialogVisible() || worldScreen.isInventoryVisible() || worldScreen.isChatVisible())
         {
             return false;
         }
@@ -53,17 +54,6 @@ public class WorldScreenInputProcessor implements InputProcessor
             if (tile != null)
             {
                 System.out.println("Clicked Tile (x: " + tile.getX() + ", y: " + tile.getY() + ") - " + tile.getTexture());
-//                for (int i = 0; i < farm.getDepth(); i++)
-//                {
-//                    Tile layerTile = farm.getLayerTiles()[i][tile.getY()][tile.getX()];
-//                    if (layerTile != null)
-//                    {
-//                        System.out.println("Layer " + i + ": " + layerTile.getTypeName());
-//                    } else
-//                    {
-//                        System.out.println("Layer " + i + ": null");
-//                    }
-//                }
             }
 
             WorldController.processClickLeft(tile);
@@ -89,19 +79,22 @@ public class WorldScreenInputProcessor implements InputProcessor
             }
         }
 
-
         return true;
     }
 
     @Override
     public boolean keyDown(int keycode) {
+        // Don't process keys if chat is visible (let chat handle its own input)
+        if (worldScreen.isChatVisible()) {
+            return false;
+        }
+
         if (keycode == Input.Keys.E ||  keycode == Input.Keys.ESCAPE) {
             boolean nowVisible = !inventoryWindow.isVisible();
             inventoryWindow.toggleVisibility();
 
             if (nowVisible)
                 inventoryWindow.getToolsTab().setChecked(false);
-
 
             return true;
         }
@@ -120,7 +113,6 @@ public class WorldScreenInputProcessor implements InputProcessor
 
             return true;
         }
-
         else if (keycode == Input.Keys.M) {
             inventoryWindow.toggleVisibility();
             inventoryWindow.getMapTab().setChecked(true);
@@ -132,6 +124,11 @@ public class WorldScreenInputProcessor implements InputProcessor
     @Override
     public boolean keyTyped(char character)
     {
+        // Don't process character input if chat is visible
+        if (worldScreen.isChatVisible()) {
+            return false;
+        }
+
         if (!worldScreen.isDialogVisible() && (character=='t' || character=='T'))
         {
             worldScreen.toggleTerminalDialog();
@@ -167,6 +164,4 @@ public class WorldScreenInputProcessor implements InputProcessor
         }
         return null;
     }
-
 }
-
