@@ -5,6 +5,7 @@ import ap.project.model.enums.EffectType;
 import ap.project.model.enums.GameAnimationType;
 import ap.project.model.enums.Season;
 import ap.project.model.enums.Weather;
+import ap.project.model.enums.building_enums.CraftingRecipeEnums;
 import ap.project.model.enums.resources_enums.CropType;
 import ap.project.model.enums.resources_enums.TreeType;
 import ap.project.model.game.*;
@@ -65,6 +66,7 @@ public class MapVisual
 
         drawPlants();
         drawForagingTrees();
+        drawTilesWithCraftingItems();
 
         batch.end();
 
@@ -325,12 +327,43 @@ public class MapVisual
         }
     }
 
+    public void drawTilesWithCraftingItems()
+    {
+        if (map instanceof Farm)
+        {
+            Farm farm = (Farm) map;
+
+            for (Tile tile : farm.getTilesWithCraftingItems())
+            {
+                drawTileCraftingItem(tile);
+            }
+        }
+    }
+
     public static void drawTileObject(Tile tile)
     {
         Vector2 location = map.tileToWorld(tile);
         if (tile.getObject() != null)
         {
             renderer.getBatch().draw(tile.getObject().getObjectType().getTexture(), location.x, location.y - (16 * MAP_SCALE), (16 * MAP_SCALE), (16 * MAP_SCALE));
+        }
+    }
+
+    public static void drawTileCraftingItem(Tile tile)
+    {
+        Vector2 location = map.tileToWorld(tile);
+        if (tile.getObject() != null && tile.getObject() instanceof CraftingItem)
+        {
+            CraftingItem craftingItem = (CraftingItem) tile.getObject();
+            CraftingRecipeEnums type = craftingItem.getCraftingType();
+
+            if (type.isTall())
+            {
+                renderer.getBatch().draw(tile.getObject().getObjectType().getTexture(), location.x, location.y - (16 * MAP_SCALE), (16 * MAP_SCALE), (32 * MAP_SCALE));
+            } else
+            {
+                renderer.getBatch().draw(tile.getObject().getObjectType().getTexture(), location.x, location.y - (16 * MAP_SCALE), (16 * MAP_SCALE), (16 * MAP_SCALE));
+            }
         }
     }
 

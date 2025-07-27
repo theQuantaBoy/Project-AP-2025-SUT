@@ -35,6 +35,7 @@ public class Farm extends Map
     private ArrayList<Tile> tilesWithForagingItems = new ArrayList<>();
     private ArrayList<Tile> tilesWithForagingMinerals = new ArrayList<>();
     private ArrayList<Tile> plantingTiles = new ArrayList<>();
+    private ArrayList<Tile> tilesWithCraftingItems = new ArrayList<>();
 
     public Farm(MapTypes farmType) {
         super(farmType);
@@ -539,5 +540,16 @@ public class Farm extends Map
     public Point getExitPoint()
     {
         return exitPoint;
+    }
+
+    public ArrayList<Tile> getTilesWithCraftingItems()
+    {
+        return tilesWithCraftingItems;
+    }
+
+    public void addToTilesWithCraftingItems(Tile tile)
+    {
+        tilesWithCraftingItems.add(tile);
+        tilesWithCraftingItems.sort(Comparator.comparingInt(Tile::getY));
     }
 }

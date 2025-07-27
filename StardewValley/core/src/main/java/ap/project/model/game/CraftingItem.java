@@ -26,6 +26,11 @@ public class CraftingItem extends GameObject
         this.itemType = craftingType.getItemType();
     }
 
+    public CraftingRecipeEnums getCraftingType()
+    {
+        return craftingType;
+    }
+
     public boolean isDone()
     {
         int daysPassed = getDaysPassed();

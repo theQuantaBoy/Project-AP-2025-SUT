@@ -1,7 +1,6 @@
 package ap.project.control;
 
 import ap.project.model.App.App;
-import ap.project.model.App.Result;
 import ap.project.model.enums.GameObjectType;
 import ap.project.model.enums.TileTexture;
 import ap.project.model.enums.Weather;
@@ -13,10 +12,7 @@ import ap.project.model.resources.*;
 import ap.project.model.shops.Shop;
 import ap.project.model.tools.*;
 import ap.project.screen.WorldScreen;
-import ap.project.view.GameMenu;
 import ap.project.visual.UIRenderer;
-
-import javax.swing.plaf.PanelUI;
 
 public class WorldController
 {
@@ -479,7 +475,69 @@ public class WorldController
             return true;
         }
 
+        if (processCraftingPlacement(tile))
+        {
+            return true;
+        }
+
         return false;
+    }
+
+    private static boolean processCraftingPlacement(Tile tile)
+    {
+        Game game = App.getCurrentGame();
+        Player player = game.getCurrentPlayer();
+        Map map = player.getCurrentMap();
+
+        if (!player.isInFarm() && !player.isInGreenHouse())
+        {
+            return false;
+        }
+
+        GameObject object = player.getCurrentObject();
+        if (object == null)
+        {
+            return false;
+        }
+
+        if (!(object instanceof CraftingItem))
+        {
+            return false;
+        }
+
+        CraftingItem craftingItem = (CraftingItem) object;
+        if (tile.getObject() != null)
+        {
+            UIRenderer.showTextBox("this tile is not empty");
+            return true;
+        }
+
+        if (tile.getTexture() != TileTexture.LAND && tile.getTexture() != TileTexture.GRASS)
+        {
+            UIRenderer.showTextBox("you can't put a crafting item on this type of tile");
+            return true;
+        }
+
+        tile.setObject(craftingItem);
+
+        if (object.getNumber() == 1)
+        {
+            player.setCurrentObject(null);
+        }
+        player.removeAmountFromInventory(object.getObjectType(), 1);
+
+        if (player.isInFarm())
+        {
+            Farm farm = (Farm) player.getFarm();
+            farm.addToTilesWithCraftingItems(tile);
+        } else if (player.isInGreenHouse())
+        {
+            GreenHouse greenHouse = (GreenHouse) player.getGreenHouse();
+            greenHouse.addToTilesWithCraftingItems(tile);
+        }
+
+        UIRenderer.showTextBox("successfully put " + object.getObjectType() + " on tile!");
+        return true;
     }
 
     private static boolean processFertilizerUse(Tile tile)
