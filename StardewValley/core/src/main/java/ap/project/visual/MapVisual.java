@@ -1,10 +1,7 @@
 package ap.project.visual;
 
 import ap.project.model.App.App;
-import ap.project.model.enums.EffectType;
-import ap.project.model.enums.GameAnimationType;
-import ap.project.model.enums.Season;
-import ap.project.model.enums.Weather;
+import ap.project.model.enums.*;
 import ap.project.model.enums.building_enums.CraftingRecipeEnums;
 import ap.project.model.enums.resources_enums.CropType;
 import ap.project.model.enums.resources_enums.TreeType;
@@ -13,6 +10,7 @@ import ap.project.model.resources.Crop;
 import ap.project.model.resources.ForagingTree;
 import ap.project.model.resources.Plant;
 import ap.project.model.resources.Tree;
+import ap.project.screen.WorldScreen;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
@@ -59,7 +57,7 @@ public class MapVisual
         renderer.getBatch().setShader(null);
     }
 
-    public void renderInFrontOfCharacter()
+    public void renderInFrontOfCharacter(WorldScreen worldScreen)
     {
         Batch batch = renderer.getBatch();
         batch.begin();
@@ -336,6 +334,40 @@ public class MapVisual
             for (Tile tile : farm.getTilesWithCraftingItems())
             {
                 drawTileCraftingItem(tile);
+            }
+        }
+
+        else if (map instanceof GreenHouse)
+        {
+            GreenHouse greenHouse = (GreenHouse) map;
+
+            for (Tile tile : greenHouse.getTilesWithCraftingItems())
+            {
+                drawTileCraftingItem(tile);
+            }
+        }
+    }
+
+    public void showAvailableTilesForArtisanEquipment(WorldScreen worldScreen)
+    {
+        if (map instanceof Farm || map instanceof GreenHouse)
+        {
+            Game game = App.getCurrentGame();
+            Player player = game.getCurrentPlayer();
+
+            if (player.getCurrentObject() != null && player.getCurrentObject() instanceof CraftingItem)
+            {
+                ArrayList<Point> availablePoint = map.getNeighbors(player.getLocation());
+
+                for (Point p : availablePoint)
+                {
+                    Tile tile = map.getTile(p.getX(), p.getY());
+                    if (tile.getObject() == null &&
+                        (tile.getTexture() == TileTexture.LAND || tile.getTexture() == TileTexture.GRASS))
+                    {
+                        worldScreen.showSelectionOverTile(tile);
+                    }
+                }
             }
         }
     }
