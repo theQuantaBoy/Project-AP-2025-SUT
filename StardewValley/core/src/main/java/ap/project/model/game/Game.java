@@ -645,9 +645,11 @@ public class Game
         }
     }
 
-    public Player getPlayerByLocation(Point point) {
+    public Player getPlayerByLocation(Point point) { //TODO: bug in spawn point
         for (Player player : players) {
-            if (player.getLocation().equals(point)) return player;
+            if (!player.equals(App.getCurrentGame().currentPlayer)) {
+                if (player.getLocation().equals(point)) return player;
+            }
         }
         return null;
     }

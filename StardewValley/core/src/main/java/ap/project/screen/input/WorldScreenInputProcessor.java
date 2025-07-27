@@ -69,26 +69,27 @@ public class WorldScreenInputProcessor implements InputProcessor
             WorldController.processClickLeft(tile);
         }
 
-        if (Gdx.input.isButtonJustPressed(Input.Buttons.RIGHT))
-        {
+        if (Gdx.input.isButtonJustPressed(Input.Buttons.RIGHT)) {
             Point clicked = map.screenToTile(Gdx.input.getX(), Gdx.input.getY(), cam);
 
-            if (clicked != null)
-            {
-                if (App.getCurrentGame().getPlayerByLocation(clicked) != null) {
-                    communicationWindow.show(App.getCurrentGame().getPlayerByLocation(clicked));
+            if (clicked != null) {
+                Player nearbyPlayer = findNearbyPlayer(clicked, 1); // radius 1 (8-neighbors)
+
+                if (nearbyPlayer != null) {
+                    communicationWindow.show(nearbyPlayer);
                 } else {
                     Vector2 playerPos = player.getPosition();
                     Point playerTile = map.worldToTile(playerPos.x, playerPos.y);
 
                     ArrayList<Point> path = map.findShortestPath(playerTile, clicked);
-
                     if (path != null) {
                         characterController.moveToPath(path);
                     }
                 }
             }
         }
+
+
         return true;
     }
 
@@ -151,5 +152,21 @@ public class WorldScreenInputProcessor implements InputProcessor
     @Override public boolean touchDragged(int x, int y, int p)   { return false; }
     @Override public boolean mouseMoved(int x, int y) { return false; }
     @Override public boolean scrolled(float x, float y) { return false; }
+
+    private Player findNearbyPlayer(Point center, int radius) {
+        for (int dx = -radius; dx <= radius; dx++) {
+            for (int dy = -radius; dy <= radius; dy++) {
+                int tx = center.getX() + dx;
+                int ty = center.getY() + dy;
+
+                Player found = App.getCurrentGame().getPlayerByLocation(new Point(tx, ty));
+                if (found != null) {
+                    return found;
+                }
+            }
+        }
+        return null;
+    }
+
 }
 

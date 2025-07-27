@@ -238,10 +238,10 @@ public class CommunicateController {
 
     //hugging
 
-    public Result giveHug (Matcher matcher) {
-        Player player = App.getCurrentGame().getPlayerByNickname(matcher.group("username"));
+    public Result giveHug (Player player) {
+        //Player player = App.getCurrentGame().getPlayerByNickname(matcher.group("username"));
         Player currentPlayer = App.getCurrentGame().getCurrentPlayer();
-        if (currentPlayer.isNear(player.getLocation())) {
+//        if (currentPlayer.isNear(player.getLocation())) {
             if (checkFriendship(currentPlayer, player, "hug")) {
                 if (!currentPlayer.getFriendships().get(player).isIntrcatedToday()) {
                     player.getFriendships().get(currentPlayer).changeXp(60, currentPlayer, player);
@@ -263,31 +263,22 @@ public class CommunicateController {
             } else {
                 return new Result(false, "your friendship is not good enough to hug!");
             }
-        } else {
-            return new Result(false, "you can't hug someone who's not near you!");
-        }
+//        } else {
+//            return new Result(false, "you can't hug someone who's not near you!");
+//        }
     }
 
     //flowering
 
-    public Result giveFlower (Matcher matcher) {
-        Player player = App.getCurrentGame().getPlayerByNickname(matcher.group("username"));
+    public Result giveFlower (Player player) {
+        //Player player = App.getCurrentGame().getPlayerByNickname(matcher.group("username"));
         Player currentPlayer = App.getCurrentGame().getCurrentPlayer();
-        if (currentPlayer.isNear(player.getLocation())) {
+//        if (currentPlayer.isNear(player.getLocation())) {
             if (checkFriendship(currentPlayer, player, "flower")) {
                 if (currentPlayer.getFriendships().get(player).getXp() >= 300) {
                     if (currentPlayer.getItemInInventory(GameObjectType.BOUQUET) != null) {
-                        currentPlayer.getItemInInventory(GameObjectType.BOUQUET).addNumber(-1);
-                        if (currentPlayer.getItemInInventory(GameObjectType.BOUQUET).getNumber() < 1) {
-                            currentPlayer.getCurrentBackPack().getSlots().
-                                    remove(currentPlayer.getItemInInventory(GameObjectType.BOUQUET));
-                        }
-
-                        if (player.getItemInInventory(GameObjectType.BOUQUET) != null) {
-                            player.getItemInInventory(GameObjectType.BOUQUET).addNumber(1);
-                        } else {
-                            player.getCurrentBackPack().getSlots().add(new GameObject(GameObjectType.BOUQUET, 1));
-                        }
+                        currentPlayer.removeAmountFromInventory(GameObjectType.BOUQUET, 1);
+                        player.addToInventory(GameObjectType.BOUQUET, 1);
 
                         if (!currentPlayer.getFriendships().get(player).isIntrcatedToday()) {
                             currentPlayer.getFriendships().get(player).setBouquetBought(true);
@@ -318,15 +309,15 @@ public class CommunicateController {
                 return new Result(false,
                         "your friendship is not good enough to give each other flowers");
             }
-        } else {
-            return new Result(false, "you can't give flower to someone who's not near you!");
-        }
+//        } else {
+//            return new Result(false, "you can't give flower to someone who's not near you!");
+//        }
     }
 
     //marriage
 
-    public Result purposeAsk (Matcher matcher) {
-        Player player = App.getCurrentGame().getPlayerByNickname(matcher.group("username"));
+    public Result purposeAsk (Player player) {
+        //Player player = App.getCurrentGame().getPlayerByNickname(matcher.group("username"));
         GameObjectType ring = GameObjectType.WEDDING_RING;
         Player currentPlayer = App.getCurrentGame().getCurrentPlayer();
         if (currentPlayer.isNear(player.getLocation())) {
@@ -354,11 +345,11 @@ public class CommunicateController {
         }
     }
 
-    public void purposeRespond (Matcher matcher) {
-        Player player = App.getCurrentGame().getPlayerByNickname(matcher.group("username"));
-        boolean answer = true;
-        String respond = matcher.group("respond");
-        if (respond.equalsIgnoreCase("cancel")) answer = false;
+    public void purposeRespond (Player player, boolean answer) {
+//        Player player = App.getCurrentGame().getPlayerByNickname(matcher.group("username"));
+//        boolean answer = true;
+//        String respond = matcher.group("respond");
+//        if (respond.equalsIgnoreCase("cancel")) answer = false;
         Player currentPlayer = App.getCurrentGame().getCurrentPlayer();
         GameObject ring = player.getItemInInventory(currentPlayer.getPurposeList().get(player));
 

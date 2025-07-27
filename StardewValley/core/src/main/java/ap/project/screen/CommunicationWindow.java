@@ -2,6 +2,7 @@ package ap.project.screen;
 
 import ap.project.control.game.activities.CommunicateController;
 import ap.project.model.App.GameAssetsManager;
+import ap.project.model.App.Result;
 import ap.project.model.game.Player;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -19,6 +20,7 @@ public class CommunicationWindow {
     private final Drawable tooltipBg;
     private Player selectedFriend;
     private final CommunicateController controller;
+    private Label errorField;
 
     public CommunicationWindow(Stage stage) {
         this.stage = stage;
@@ -28,6 +30,7 @@ public class CommunicationWindow {
         popup.setVisible(false);
         popup.setMovable(true);
         popup.defaults().pad(5);
+        errorField = new Label("", skin);
 
         tooltipBg = GameAssetsManager.getGameAssetsManager().createColoredDrawable(1, 1, new Color(0f, 0f, 0f, 0.7f));
 
@@ -40,6 +43,7 @@ public class CommunicationWindow {
         center(stage);
         stage.addActor(popup);
         this.controller = new CommunicateController();
+
     }
 
     private Table buildOptions() {
@@ -50,8 +54,9 @@ public class CommunicationWindow {
         TextButton talkButton = new TextButton("Talk", skin);
         TextButton hugButton = new TextButton("Hug", skin);
         TextButton bouquetButton = new TextButton("Bouquet", skin);
-        TextButton marryButton = new TextButton("Marry", skin); // Fixed case consistency
+        TextButton marryButton = new TextButton("Marry", skin);
         TextButton backButton = new TextButton("Back", skin);
+
 
         // Add button listeners
         talkButton.addListener(new ChangeListener() {
@@ -67,7 +72,8 @@ public class CommunicationWindow {
             @Override
             public void changed(ChangeEvent event, com.badlogic.gdx.scenes.scene2d.Actor actor) {
                 if (selectedFriend != null) {
-                    //controller.hug(selectedFriend);
+                    Result result = controller.giveHug(selectedFriend);
+                    showResult(result);
                 }
             }
         });
@@ -76,7 +82,8 @@ public class CommunicationWindow {
             @Override
             public void changed(ChangeEvent event, com.badlogic.gdx.scenes.scene2d.Actor actor) {
                 if (selectedFriend != null) {
-                    //controller.giveBouquet(selectedFriend);
+                    Result result = controller.giveFlower(selectedFriend);
+                    showResult(result);
                 }
             }
         });
@@ -107,6 +114,8 @@ public class CommunicationWindow {
         table.add(marryButton).padBottom(15);
         table.row();
         table.add(backButton).padTop(30);
+        table.row();
+        table.add(errorField).padTop(30);
 
         return table;
     }
@@ -124,6 +133,12 @@ public class CommunicationWindow {
         popup.setVisible(true);
         center(stage);
     }
+
+    private void showResult(Result result) {
+        errorField.setText(result.message());
+        errorField.setColor(result.isSuccessful() ? Color.GREEN : Color.RED);
+    }
+
 
     public void hide() {
         isVisible = false;
