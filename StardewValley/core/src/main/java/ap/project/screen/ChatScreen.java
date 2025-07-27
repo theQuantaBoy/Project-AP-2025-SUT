@@ -1,5 +1,6 @@
 package ap.project.screen;
 
+import ap.project.control.game.activities.CommunicateController;
 import ap.project.model.App.GameAssetsManager;
 import ap.project.model.game.Player;
 import ap.project.model.player_data.FriendshipData;
@@ -27,13 +28,13 @@ public class ChatScreen {
     private final TextField messageInput;
     private final TextButton sendButton;
     private final TextButton closeButton;
-
+    private final CommunicateController controller;
     private Player currentPlayer, chatPartner;
     private boolean isVisible = false;
     private final WorldScreen worldScreen;
     private final SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm");
 
-    public ChatScreen(Stage stage, WorldScreen worldScreen) {
+    public ChatScreen(Stage stage, WorldScreen worldScreen, CommunicateController controller) {
         this.stage = stage;
         this.worldScreen = worldScreen;
         this.skin = GameAssetsManager.getGameAssetsManager().getSkin();
@@ -66,6 +67,7 @@ public class ChatScreen {
         messageInput.setMessageText("Type your message…");
         sendButton = new TextButton("Send", skin);
         closeButton = new TextButton("Close", skin);
+        this.controller = controller;
 
         setupLayout();
         setupEventHandlers();
@@ -149,7 +151,7 @@ public class ChatScreen {
     private void sendMessage() {
         String msg = messageInput.getText().trim();
         if (msg.isEmpty()) return;
-
+        controller.talk(chatPartner);
         String stamp = timeFormat.format(new Date());
         String line  = "["+stamp+"] "+currentPlayer.getNickName()+": "+msg;
 
@@ -168,19 +170,31 @@ public class ChatScreen {
     }
 
     private void loadChatHistory() {
+        // get both sides of the friendship
+        FriendshipData meData   = currentPlayer.getFriendships().get(chatPartner);
+        FriendshipData themData = chatPartner.getFriendships().get(currentPlayer);
+
+        // pick whichever has messages (or merge)
         StringBuilder sb = new StringBuilder();
-        FriendshipData fd = currentPlayer.getFriendships().get(chatPartner);
-        if (fd != null && !fd.getMessageHistory().isEmpty()) {
-            for (String m : fd.getMessageHistory()) sb.append(m).append("\n");
+        if (meData != null && !meData.getMessageHistory().isEmpty()) {
+            for (String m : meData.getMessageHistory()) {
+                sb.append(m).append("\n");
+            }
+        } else if (themData != null && !themData.getMessageHistory().isEmpty()) {
+            for (String m : themData.getMessageHistory()) {
+                sb.append(m).append("\n");
+            }
         } else {
             sb.append("No chat history yet. Start a conversation!\n");
         }
+
+        // set the text & relayout
         chatHistoryLabel.setText(sb.toString());
-        // force the label/table to resize
         chatHistoryLabel.setHeight(chatHistoryLabel.getPrefHeight());
         chatContentTable.invalidateHierarchy();
         chatScrollPane.layout();
     }
+
 
     private void centerWindow() {
         float w = stage.getViewport().getWorldWidth();

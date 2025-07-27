@@ -51,7 +51,7 @@ public class CommunicationWindow {
         this.controller = new CommunicateController();
 
         // Initialize chat screen
-        this.chatScreen = new ChatScreen(stage, worldScreen);
+        this.chatScreen = new ChatScreen(stage, worldScreen, controller);
     }
 
     private Table buildOptions() {

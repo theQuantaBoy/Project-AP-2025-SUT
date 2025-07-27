@@ -86,36 +86,36 @@ public class CommunicateController {
     public Result talk(Player player) {
         Player currentPlayer = App.getCurrentGame().getCurrentPlayer();
         if (currentPlayer.equals(player)) {
-            return new Result(false, "you can't gift yourself");
+            return new Result(false, "you can't talk to yourself");
         }
-        String message = "";
+//        String message = "";
 
-        if (currentPlayer.isNear(player.getLocation())) {
-            FriendshipData data1 = currentPlayer.getFriendships().get(player);
-            FriendshipData data2 = player.getFriendships().get(currentPlayer);
-            data1.getMessageHistory().add(message);
-            data2.getMessageHistory().add(message);
-            player.setNewMessage(true);
+//        if (currentPlayer.isNear(player.getLocation())) {
+        FriendshipData data1 = currentPlayer.getFriendships().get(player);
+        FriendshipData data2 = player.getFriendships().get(currentPlayer);
+//        data1.getMessageHistory().add(message);
+//        data2.getMessageHistory().add(message);
+        player.setNewMessage(true);
 
-            if (!data1.isIntrcatedToday()) {
-                data1.changeXp(20, currentPlayer, player);
-                data2.changeXp(20, currentPlayer, player);
-                if (player.getFriendships().get(currentPlayer).isNewLevel()) {
-                    System.out.println("your friendship with " + player.getNickName() +
-                        " changed to " + player.getFriendships().get(currentPlayer).getLevel());
-                    player.getFriendships().get(currentPlayer).setNewLevel(false);
-                    currentPlayer.getFriendships().get(player).setNewLevel(false);
-                }
-                data1.setIntrcatedToday(true);
-                data2.setIntrcatedToday(true);
+        if (!data1.isIntrcatedToday()) {
+            data1.changeXp(20, currentPlayer, player);
+            data2.changeXp(20, currentPlayer, player);
+            if (player.getFriendships().get(currentPlayer).isNewLevel()) {
+                System.out.println("your friendship with " + player.getNickName() +
+                    " changed to " + player.getFriendships().get(currentPlayer).getLevel());
+                player.getFriendships().get(currentPlayer).setNewLevel(false);
+                currentPlayer.getFriendships().get(player).setNewLevel(false);
             }
-            if (player.equals(currentPlayer.getZeidy())) {
-                player.increaseEnergy(50);
-                currentPlayer.increaseEnergy(50);
-            }
-            return new Result(true, "you talked to " + player.getUser().getNickname());
+            data1.setIntrcatedToday(true);
+            data2.setIntrcatedToday(true);
         }
-        return new Result(false, "you can't talk to someone who's not near you!");
+        if (player.equals(currentPlayer.getZeidy())) {
+            player.increaseEnergy(50);
+            currentPlayer.increaseEnergy(50);
+        }
+        return new Result(true, "you talked to " + player.getUser().getNickname());
+//        }
+//        return new Result(false, "you can't talk to someone who's not near you!");
     }
 
     public void talkHistory(Matcher matcher) {
