@@ -56,7 +56,7 @@ public class CommunicateController {
         return new Result(true, "xp upgraded cheater");
     }
 
-    public static boolean checkFriendship(Player player1, Player player2, String command) { //TODO: might change string to command
+    private static boolean checkFriendship(Player player1, Player player2, String command) { //TODO: might change string to command
 
         int level = player1.getFriendships().get(player2).getLevel();
 
@@ -307,7 +307,7 @@ public class CommunicateController {
                 }
             } else {
                 return new Result(false,
-                        "your friendship is not good enough to give each other flowers");
+                        "your friendship is not good enough to\n give each other flowers");
             }
 //        } else {
 //            return new Result(false, "you can't give flower to someone who's not near you!");

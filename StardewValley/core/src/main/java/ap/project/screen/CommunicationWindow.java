@@ -9,6 +9,9 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
+import com.badlogic.gdx.utils.Align;
+
+import javax.swing.*;
 
 public class CommunicationWindow {
     private final Window popup;
@@ -48,14 +51,14 @@ public class CommunicationWindow {
 
     private Table buildOptions() {
         Table table = new Table(skin);
-        table.defaults().pad(10).minWidth(100).fillX();
-        table.center();
+        table.defaults().pad(10).width(300).height(70);
 
         TextButton talkButton = new TextButton("Talk", skin);
         TextButton hugButton = new TextButton("Hug", skin);
         TextButton bouquetButton = new TextButton("Bouquet", skin);
         TextButton marryButton = new TextButton("Marry", skin);
         TextButton backButton = new TextButton("Back", skin);
+        errorField.setAlignment(Align.center);
 
 
         // Add button listeners
@@ -63,7 +66,8 @@ public class CommunicationWindow {
             @Override
             public void changed(ChangeEvent event, com.badlogic.gdx.scenes.scene2d.Actor actor) {
                 if (selectedFriend != null) {
-                    //controller.talk(selectedFriend);
+                    Result result = controller.talk(selectedFriend);
+                    showResult(result);
                 }
             }
         });
@@ -116,6 +120,7 @@ public class CommunicationWindow {
         table.add(backButton).padTop(30);
         table.row();
         table.add(errorField).padTop(30);
+
 
         return table;
     }
