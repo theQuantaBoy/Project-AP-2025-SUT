@@ -2,13 +2,12 @@ package ap.project.control.game.activities;
 
 import ap.project.model.App.App;
 import ap.project.model.App.Result;
-import ap.project.model.building.CraftingItems.CraftingItem;
-import ap.project.model.building.CraftingItems.CraftingItemCreator;
 import ap.project.model.enums.GameObjectType;
 import ap.project.model.enums.Menu;
 import ap.project.model.enums.building_enums.CraftingRecipeEnums;
 import ap.project.model.enums.building_enums.KitchenRecipe;
 import ap.project.model.game.*;
+import ap.project.model.game.CraftingItem;
 import ap.project.model.tools.Tool;
 import ap.project.view.HomeMenu;
 
@@ -105,9 +104,8 @@ public class HomeController
         }
 
         player.increaseEnergy(-2);
-        CraftingItem product = CraftingItemCreator.create(recipe);
-
-        player.addToInventory(product);
+        CraftingItem craftingItem = new CraftingItem(recipe);
+        player.addToInventory(craftingItem);
 
         return new Result(true, recipe.getProduct() + " was added to your inventory.");
     }
