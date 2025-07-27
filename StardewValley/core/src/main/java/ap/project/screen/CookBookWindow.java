@@ -52,7 +52,7 @@ public class CookBookWindow
         window = new Window("Cook Book", skin);
         window.setVisible(false);
         window.setMovable(true);
-        window.defaults().pad(20); // Increased padding for larger window
+        window.defaults().pad(20);
 
         // Create selection border drawable (dark brown border with customizable thickness)
         Pixmap borderPixmap = new Pixmap(SLOT_SIZE, SLOT_SIZE, Pixmap.Format.RGBA8888);

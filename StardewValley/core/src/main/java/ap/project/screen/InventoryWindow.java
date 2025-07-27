@@ -417,12 +417,22 @@ public class InventoryWindow {
         table.defaults().size(32).pad(2);
         table.center();
 
-        java.util.List<GameObject> slots = backpack.getSlots();
+        java.util.List<GameObject> slots = backpack.getNonEmptyItems();
         int capacity = backpack.getCapacity();
+        int counter = 0;
 
-        for (int slot = 0; slot < capacity; slot++) {
+        for (int slot = 0; slot < capacity; slot++)
+        {
             final int slotIndex = slot; // needed for use in listener
-            GameObject obj = slots.get(slot);
+            GameObject obj;
+
+            if (slot < backpack.getItemCount())
+            {
+                obj = slots.get(counter++);
+            } else
+            {
+                obj = null;
+            }
 
             Table slotContainer = new Table();
 

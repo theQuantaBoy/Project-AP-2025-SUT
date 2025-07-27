@@ -2,7 +2,9 @@ package ap.project.screen;
 
 import ap.project.model.App.App;
 import ap.project.model.App.GameAssetsManager;
+import ap.project.model.App.Result;
 import ap.project.model.enums.GameObjectType;
+import ap.project.model.enums.building_enums.KitchenRecipe;
 import ap.project.model.game.GameObject;
 import ap.project.model.game.Player;
 import ap.project.model.tools.BackPack;
@@ -21,9 +23,11 @@ import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
 
+import java.util.ArrayList;
 import java.util.List;
 
-public class RefrigeratorWindow {
+public class RefrigeratorWindow
+{
     private final Window window;
     private final Stage stage;
     private final Table refrigeratorGrid;
@@ -39,12 +43,16 @@ public class RefrigeratorWindow {
     private Drawable slotBackground;
     private final Player player;
 
+    private static final int BORDER_THICKNESS = 4; // Customizable border thickness
+    private static final Color BORDER_COLOR = new Color(101/255f, 67/255f, 33/255f, 1f); // Dark brown
+
     // Selection tracking
     private GameObject selectedItem;
     private boolean isRefrigeratorSource;
     private int selectedIndex = -1;
 
-    public RefrigeratorWindow(Stage stage) {
+    public RefrigeratorWindow(Stage stage)
+    {
         this.stage = stage;
         this.player = App.getCurrentGame().getCurrentPlayer();
         this.skin = GameAssetsManager.getGameAssetsManager().getSkin();
@@ -91,41 +99,46 @@ public class RefrigeratorWindow {
         });
         mainLayout.add(okButton).colspan(COLS).padTop(20);
 
+        float width = (SLOT_SIZE + 16) * (COLS) + 320;
+        float height = (SLOT_SIZE + 16) * (2 * ROWS) + 360;
+
         window.add(mainLayout);
         window.pack();
-        window.setSize(800, 600);
+        window.setSize(width, height);
         center();
         stage.addActor(window);
     }
 
-    private void createSelectionBorder() {
+    private void createSelectionBorder()
+    {
         Pixmap borderPixmap = new Pixmap(SLOT_SIZE, SLOT_SIZE, Pixmap.Format.RGBA8888);
         borderPixmap.setColor(0, 0, 0, 0);
         borderPixmap.fill();
-        borderPixmap.setColor(new Color(101/255f, 67/255f, 33/255f, 1f));
-        borderPixmap.fillRectangle(0, 0, SLOT_SIZE, 4);
-        borderPixmap.fillRectangle(0, SLOT_SIZE - 4, SLOT_SIZE, 4);
-        borderPixmap.fillRectangle(0, 0, 4, SLOT_SIZE);
-        borderPixmap.fillRectangle(SLOT_SIZE - 4, 0, 4, SLOT_SIZE);
+        borderPixmap.setColor(BORDER_COLOR);
+        borderPixmap.fillRectangle(0, 0, SLOT_SIZE, BORDER_THICKNESS); // Top border
+        borderPixmap.fillRectangle(0, SLOT_SIZE - BORDER_THICKNESS, SLOT_SIZE, BORDER_THICKNESS); // Bottom border
+        borderPixmap.fillRectangle(0, 0, BORDER_THICKNESS, SLOT_SIZE); // Left border
+        borderPixmap.fillRectangle(SLOT_SIZE - BORDER_THICKNESS, 0, BORDER_THICKNESS, SLOT_SIZE); // Right border
         selectionBorderDrawable = new TextureRegionDrawable(new TextureRegion(new Texture(borderPixmap)));
         borderPixmap.dispose();
     }
 
-    private void refresh() {
+    private void refresh()
+    {
         refrigeratorGrid.clear();
         inventoryGrid.clear();
-        selectedItem = null;
-        selectedIndex = -1;
 
         // Build refrigerator grid
+        ArrayList<GameObject> refrigerator = player.getRefrigerator();
         buildGrid(refrigeratorGrid, player.getRefrigerator(), true);
 
         // Build inventory grid
-        List<GameObject> inventory = player.getCurrentBackPack().getSlots();
+        ArrayList<GameObject> inventory = player.getInventory();
         buildGrid(inventoryGrid, inventory, false);
     }
 
-    private void buildGrid(Table grid, List<GameObject> items, boolean isRefrigerator) {
+    private void buildGrid(Table grid, ArrayList<GameObject> items, boolean isRefrigerator)
+    {
         grid.defaults().size(SLOT_SIZE).pad(GRID_SPACING);
 
         Drawable tooltipBg = GameAssetsManager.getGameAssetsManager()
@@ -133,82 +146,106 @@ public class RefrigeratorWindow {
         BitmapFont tooltipFont = GameAssetsManager.generateFont("fonts/Roboto-Regular.ttf", 20, Color.WHITE);
         BitmapFont quantityFont = GameAssetsManager.generateFont("fonts/Roboto-Regular.ttf", 16, Color.WHITE);
 
-        for (int i = 0; i < ROWS * COLS; i++) {
+        for (int i = 0; i < ROWS * COLS; i++)
+        {
             final int index = i;
             final boolean isSourceRefrigerator = isRefrigerator;
 
-            // Use Container instead of Stack for background support
-            Container<Table> slotContainer = new Container<>();
-            slotContainer.setSize(SLOT_SIZE, SLOT_SIZE);
-            slotContainer.setBackground(slotBackground); // Set slot background
+            // Use Stack instead of Container for better layering
+            Stack slotStack = new Stack();
+            slotStack.setSize(SLOT_SIZE, SLOT_SIZE);
 
-            Table content = new Table();
-            slotContainer.setActor(content);
+            // Add slot background first
+            Image bgImage = new Image(slotBackground);
+            slotStack.add(bgImage);
 
-            // Check if this slot is selected
-            boolean isSelected = (selectedIndex == index) &&
-                (isRefrigeratorSource == isRefrigerator);
-
-            // Add selection border if selected
-            if (isSelected) {
-                content.add(new Image(selectionBorderDrawable)).size(SLOT_SIZE, SLOT_SIZE);
-            }
+            // Add click listener
+            slotStack.addListener(new ClickListener()
+            {
+                @Override
+                public void clicked(InputEvent event, float x, float y)
+                {
+                    handleSlotClick(index, isSourceRefrigerator, items);
+                }
+            });
 
             // Add item if present
-            if (i < items.size() && items.get(i) != null) {
+            if (i < items.size() && items.get(i) != null)
+            {
                 GameObject item = items.get(i);
                 Texture texture = item.getObjectType().getTexture();
+
+                // Create container for item to ensure proper scaling
                 Image image = new Image(new TextureRegionDrawable(new TextureRegion(texture)));
                 image.setSize(SLOT_SIZE, SLOT_SIZE);
-                content.add(image).size(SLOT_SIZE, SLOT_SIZE);
 
-                // Add quantity text
-                if (item.getNumber() > 1) {
+                slotStack.addActor(image);
+
+                // Add quantity text in a separate table at bottom right
+                if (item.getNumber() > 1)
+                {
+                    Table quantityTable = new Table();
+                    quantityTable.setFillParent(true);
+                    quantityTable.bottom().right();
+
                     Label quantityLabel = new Label(String.valueOf(item.getNumber()),
                         new Label.LabelStyle(quantityFont, Color.WHITE));
-                    quantityLabel.setAlignment(Align.bottomRight);
-                    content.add(quantityLabel).size(SLOT_SIZE, SLOT_SIZE);
+                    quantityTable.add(quantityLabel).pad(2);
+
+                    slotStack.add(quantityTable);
                 }
 
-                // Add tooltip
+                if (item == selectedItem)
+                {
+                    Image borderImage = new Image(selectionBorderDrawable);
+                    slotStack.addActor(borderImage);
+                }
+            }
+
+            // Add tooltip
+            if (i < items.size() && items.get(i) != null)
+            {
+                GameObject item = items.get(i);
                 Label tooltipLabel = new Label(item.getObjectType().toString(),
                     new Label.LabelStyle(tooltipFont, Color.WHITE));
                 Tooltip<Label> tooltip = new Tooltip<>(tooltipLabel, tooltipManager);
                 tooltip.getContainer().setBackground(tooltipBg);
                 tooltip.getContainer().pad(5);
-                slotContainer.addListener(tooltip);
+                slotStack.addListener(tooltip);
             }
 
-            // Add click listener
-            slotContainer.addListener(new ClickListener() {
-                @Override
-                public void clicked(InputEvent event, float x, float y) {
-                    handleSlotClick(index, isSourceRefrigerator, items);
-                }
-            });
-
-            grid.add(slotContainer);
+            grid.add(slotStack).size(SLOT_SIZE, SLOT_SIZE);
             if ((i + 1) % COLS == 0) grid.row();
         }
     }
 
-    private void handleSlotClick(int index, boolean isRefrigerator, List<GameObject> items) {
+    private void handleSlotClick(int index, boolean isRefrigerator, List<GameObject> items)
+    {
         // Get item at clicked position
         GameObject clickedItem = (index < items.size()) ? items.get(index) : null;
 
         // First click: select item
-        if (selectedItem == null) {
-            if (clickedItem != null) {
-                selectedItem = clickedItem;
-                selectedIndex = index;
-                isRefrigeratorSource = isRefrigerator;
-                refresh();
-            }
+        if (clickedItem != null)
+        {
+            selectedItem = clickedItem;
+            selectedIndex = index;
+            isRefrigeratorSource = isRefrigerator;
+            refresh();
+
+            UIRenderer.showTextBox("selected " + selectedItem.getObjectType());
         }
+
         // Second click: transfer items
-        else {
+        else if ((selectedItem != null && clickedItem == null))
+        {
             // Prevent transferring to same grid
-            if (isRefrigeratorSource == isRefrigerator) {
+            if (isRefrigeratorSource == isRefrigerator)
+            {
+                if (isRefrigeratorSource)
+                    UIRenderer.showTextBox("You can't move an item fron the refrigerator to the refrigerator.");
+                else
+                    UIRenderer.showTextBox("You can't move an item fron your inventory to the inventory.");
+
                 selectedItem = null;
                 selectedIndex = -1;
                 refresh();
@@ -216,10 +253,12 @@ public class RefrigeratorWindow {
             }
 
             // Transfer items
-            if (isRefrigeratorSource) {
-                transferFromRefrigeratorToInventory(index, clickedItem);
-            } else {
-                transferFromInventoryToRefrigerator(index, clickedItem);
+            if (isRefrigeratorSource)
+            {
+                transferFromRefrigeratorToInventory();
+            } else
+            {
+                transferFromInventoryToRefrigerator();
             }
 
             selectedItem = null;
@@ -229,52 +268,80 @@ public class RefrigeratorWindow {
     }
 
     // Placeholder for food restriction logic
-    private boolean canBeStoredInRefrigerator(GameObjectType type) {
-        // TODO: Implement food-only logic
+    private boolean canBeStoredInRefrigerator(GameObjectType type)
+    {
+        Player player = App.getCurrentGame().getCurrentPlayer();
+
+        if (type == null)
+        {
+            return false;
+        }
+
+        if (!KitchenRecipe.isEdible(type))
+        {
+            return false;
+        }
+
+        if (player.getRefrigerator().size() == 36)
+        {
+            return false;
+        }
+
         return true;
     }
 
-    private void transferFromRefrigeratorToInventory(int targetIndex, GameObject targetItem) {
+    private void transferFromRefrigeratorToInventory()
+    {
         // Placeholder for capacity check
-        if (!player.getCurrentBackPack().hasEmptySlot()) {
+        if (!player.getCurrentBackPack().hasEmptySlot())
+        {
             UIRenderer.showTextBox("Inventory is full!");
             return;
         }
 
-        if (!canBeStoredInRefrigerator(selectedItem.getObjectType())) {
+        if (!canBeStoredInRefrigerator(selectedItem.getObjectType()))
+        {
             UIRenderer.showTextBox("This can't be stored in refrigerator!");
             return;
         }
 
         // Perform transfer
-        player.getRefrigerator().remove(selectedIndex);
+        player.getRefrigerator().remove(selectedItem);
         player.addToInventory(selectedItem);
+
+        UIRenderer.showTextBox("You successfully picked " + selectedItem.getObjectType() + " from the refrigerator.");
     }
 
-    private void transferFromInventoryToRefrigerator(int targetIndex, GameObject targetItem) {
+    private void transferFromInventoryToRefrigerator()
+    {
         // Placeholder for capacity check
-        if (player.getRefrigerator().size() >= 36) {
+        if (player.getRefrigerator().size() >= 36)
+        {
             UIRenderer.showTextBox("Refrigerator is full!");
             return;
         }
 
-        if (!canBeStoredInRefrigerator(selectedItem.getObjectType())) {
+        if (!canBeStoredInRefrigerator(selectedItem.getObjectType()))
+        {
             UIRenderer.showTextBox("This can't be stored in refrigerator!");
             return;
         }
 
-        // Perform transfer
-        player.getCurrentBackPack().removeItem(selectedItem);
+        player.removeFromInventory(selectedItem);
         player.getRefrigerator().add(selectedItem);
+
+        UIRenderer.showTextBox("You successfully put " + selectedItem.getObjectType() + " into your inventory.");
     }
 
-    private void center() {
+    private void center()
+    {
         float w = stage.getViewport().getWorldWidth();
         float h = stage.getViewport().getWorldHeight();
         window.setPosition((w - window.getWidth()) / 2f, (h - window.getHeight()) / 2f);
     }
 
-    public void toggleVisibility() {
+    public void toggleVisibility()
+    {
         isVisible = !isVisible;
         window.setVisible(isVisible);
         if (isVisible) refresh();
