@@ -241,10 +241,7 @@ public class RefrigeratorWindow
             // Prevent transferring to same grid
             if (isRefrigeratorSource == isRefrigerator)
             {
-                if (isRefrigeratorSource)
-                    UIRenderer.showTextBox("You can't move an item fron the refrigerator to the refrigerator.");
-                else
-                    UIRenderer.showTextBox("You can't move an item fron your inventory to the inventory.");
+                UIRenderer.showTextBox("Cannot move within the same grid");
 
                 selectedItem = null;
                 selectedIndex = -1;

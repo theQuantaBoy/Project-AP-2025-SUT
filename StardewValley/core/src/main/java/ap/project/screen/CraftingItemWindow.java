@@ -57,6 +57,8 @@ public class CraftingItemWindow
     private Label statusLabel;
     private Dialog confirmationDialog;
 
+    private ArrayList<GameObject> craftingIngredients = new ArrayList<>();
+
     public CraftingItemWindow(Stage stage)
     {
         this.stage = stage;
@@ -201,7 +203,7 @@ public class CraftingItemWindow
         // Center the crafting grid in a wrapper table
         Table centerWrapper = new Table();
         craftingGrid = new Table();
-        buildGrid(craftingGrid, new ArrayList<>(CRAFTING_COLS), true, CRAFTING_COLS);
+        buildGrid(craftingGrid, craftingIngredients, true, CRAFTING_COLS);
         centerWrapper.add(craftingGrid);
         mainLayout.add(centerWrapper).colspan(INVENTORY_COLS).padBottom(20).center().row();
 
@@ -448,21 +450,82 @@ public class CraftingItemWindow
         {
             selectedItem = clickedItem;
             selectedIndex = index;
-            isCraftingSource = isCraftingSource;
+            this.isCraftingSource = isCraftingSource;
             refresh();
         } else if (selectedItem != null)
         {
             if (isCraftingSource == this.isCraftingSource)
             {
                 UIRenderer.showTextBox("Cannot move within the same grid");
+
+                selectedItem = null;
+                selectedIndex = -1;
+                refresh();
+                return;
             } else
             {
-                // Move item between grids
-                // Implementation would be similar to RefrigeratorWindow
+                // Handle transfer between grids
+                if (this.isCraftingSource)
+                {
+                    // Moving from crafting grid to inventory
+                    transferFromCraftTableToInventory();
+                } else
+                {
+                    // Moving from inventory to crafting grid
+                    transferFromInventoryToCraftTable();
+                }
             }
+
             selectedItem = null;
             selectedIndex = -1;
             refresh();
+        }
+    }
+
+    private void transferFromInventoryToCraftTable()
+    {
+        Player player = App.getCurrentGame().getCurrentPlayer();
+
+        if (selectedItem == null)
+        {
+            UIRenderer.showTextBox("please first select an item from inventory");
+            return;
+        }
+
+        if (craftingIngredients.size() >= CRAFTING_COLS)
+        {
+            UIRenderer.showTextBox("the craft grid is full");
+            return;
+        }
+
+        for (GameObject item : craftingIngredients)
+        {
+            if (item.getObjectType() == selectedItem.getObjectType())
+            {
+                item.setNumber(item.getNumber() + 1);
+                player.removeAmountFromInventory(selectedItem.getObjectType(), 1);
+                return;
+            }
+        }
+
+        craftingIngredients.add(new GameObject(selectedItem.getObjectType(), 1));
+        player.removeAmountFromInventory(selectedItem.getObjectType(), 1);
+    }
+
+    private void transferFromCraftTableToInventory()
+    {
+        Player player = App.getCurrentGame().getCurrentPlayer();
+
+        if (!player.getCurrentBackPack().hasEmptySlot())
+        {
+            UIRenderer.showTextBox("Inventory is full!");
+            return;
+        }
+
+        if (selectedItem != null)
+        {
+            player.addToInventory(selectedItem);
+            craftingIngredients.remove(selectedItem);
         }
     }
 
