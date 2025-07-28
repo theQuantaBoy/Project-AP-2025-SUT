@@ -1,6 +1,7 @@
 package ap.project.screen;
 
 import ap.project.model.App.App;
+import ap.project.model.enums.GameObjectType;
 import ap.project.model.game.Player;
 import ap.project.model.player_data.Skill;
 import ap.project.model.tools.Tool;
@@ -45,6 +46,7 @@ public class InventoryWindow {
     public enum TabType { INVENTORY, SKILL, SOCIAL, MAP, TOOLS }
 
     private TabType lastTabOpenedByTabKey = TabType.INVENTORY;
+    private ImageButton trashButton;
 
     public InventoryWindow(Stage stage) {
         this.skin = GameAssetsManager.getGameAssetsManager().getSkin();
@@ -53,6 +55,23 @@ public class InventoryWindow {
         popup.setVisible(false);
         popup.setMovable(true);
         popup.defaults().pad(5);
+
+        Drawable trashDrawable = getIconForGameObject(new GameObject(GameObjectType.TRASH_CAN, 1));
+        trashButton = new ImageButton(trashDrawable);
+        trashButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                if (selectedInventorySlot >= 0) {
+                    // remove from backpack
+                    GameObject selected = backpack.getSlots().get(selectedInventorySlot);
+                    player.removeAmountFromInventory(selected.getObjectType(), 1);
+                    // reset selection
+                    if (backpack.getSlots().get(selectedInventorySlot) == null) selectedInventorySlot = -1;
+                    // rebuild UI
+                    refreshInventoryTable();
+                }
+            }
+        });
 
         TextButton invTab = new TextButton("Inventory", skin);
         TextButton skillsTab = new TextButton("Skills", skin);
@@ -159,6 +178,7 @@ public class InventoryWindow {
         popup.add(socialTab).expandX().fillX();
         popup.add(mapTab).expandX().fillX();
         popup.add(toolsTab).expandX().fillX();
+        popup.add(trashButton).width(32).height(32).padLeft(10);
         popup.row();
         popup.add(contentStack).colspan(4).expand().fill(); // Important: use .fill
         popup.row();
