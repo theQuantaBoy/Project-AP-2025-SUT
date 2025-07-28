@@ -102,4 +102,16 @@ public class GreenHouse extends Map
         tilesWithCraftingItems.add(tile);
         tilesWithCraftingItems.sort(Comparator.comparingInt(Tile::getY));
     }
+
+    public void removeTileObject(Tile tile)
+    {
+        if (tilesWithCraftingItems.contains(tile))
+        {
+            tilesWithCraftingItems.remove(tile);
+            tilesWithCraftingItems.sort(Comparator.comparingInt(Tile::getY));
+        }
+
+        tile.unPlant();
+        tile.setObject(null);
+    }
 }

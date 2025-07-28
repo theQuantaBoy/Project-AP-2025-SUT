@@ -384,7 +384,7 @@ public class InventoryWindow {
         }
 
         player.increaseEnergy(-2);
-        CraftingItem craftingItem = new CraftingItem(selectedCraftingRecipe);
+        CraftingItem craftingItem = new CraftingItem(selectedCraftingRecipe, null);
         player.addToInventory(craftingItem);
 
         UIRenderer.showTextBox(selectedCraftingRecipe.getProduct() + " was added to your inventory.");

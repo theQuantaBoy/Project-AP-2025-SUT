@@ -128,7 +128,7 @@ public class CharacterController
                 || Gdx.input.isKeyPressed(Input.Keys.CONTROL_RIGHT);
 
         boolean blocked = target == null ||
-                (!ctrl && switch (target.getTexture()) {
+                (switch (target.getTexture()) {
                     case LAKE, UNPASSABLE, BUILDING, OBJECT -> true;
                     default -> false;
                 });
@@ -136,6 +136,11 @@ public class CharacterController
         if (target == null || target.getObject() != null)
         {
             blocked = true;
+        }
+
+        if (ctrl)
+        {
+            blocked = false;
         }
 
         if (!blocked)

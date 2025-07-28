@@ -5,9 +5,8 @@ import ap.project.model.building.CraftingItem;
 import ap.project.model.App.GameAssetsManager;
 import ap.project.model.enums.GameObjectType;
 import ap.project.model.enums.building_enums.ArtisanGoodsType;
-import ap.project.model.game.Game;
-import ap.project.model.game.GameObject;
-import ap.project.model.game.Player;
+import ap.project.model.enums.building_enums.CraftingRecipeEnums;
+import ap.project.model.game.*;
 import ap.project.visual.UIRenderer;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
@@ -208,7 +207,7 @@ public class CraftingItemWindow
             @Override
             public void clicked(InputEvent event, float x, float y)
             {
-                // Activate logic
+                doBombThing();
                 UIRenderer.showTextBox("Device activated!");
                 toggleVisibility();
             }
@@ -228,6 +227,77 @@ public class CraftingItemWindow
         buttonTable.add(closeButton);
         content.add(buttonTable).row();
         window.add(content);
+    }
+
+    private void doBombThing()
+    {
+        Map map = App.getCurrentGame().getCurrentPlayer().getCurrentMap();
+        Tile tile = currentItem.getTile();
+
+        if (currentItem.getCraftingType() == CraftingRecipeEnums.CHERRY_BOMB_RECIPE)
+        {
+            ArrayList<Point> neighbors = map.getCircularNeighbors(tile.getPoint(), 3);
+            for (Point point : neighbors)
+            {
+                Tile t = map.getTile(point.getX(), point.getY());
+
+                if (map instanceof Farm)
+                {
+                    Farm farm = (Farm) map;
+                    if (t != null) farm.removeTileObject(t);
+                }
+
+                if (map instanceof GreenHouse)
+                {
+                    GreenHouse greenHouse = (GreenHouse) map;
+                    if (t != null) greenHouse.removeTileObject(t);
+                }
+            }
+        }
+
+        else if (currentItem.getCraftingType() == CraftingRecipeEnums.BOMB_RECIPE)
+        {
+            ArrayList<Point> neighbors = map.getCircularNeighbors(tile.getPoint(), 5);
+            for (Point point : neighbors)
+            {
+                Tile t = map.getTile(point.getX(), point.getY());
+
+                if (map instanceof Farm)
+                {
+                    Farm farm = (Farm) map;
+                    if (t != null) farm.removeTileObject(t);
+                }
+
+                if (map instanceof GreenHouse)
+                {
+                    GreenHouse greenHouse = (GreenHouse) map;
+                    if (t != null) greenHouse.removeTileObject(t);
+                }
+            }
+        }
+
+        else if (currentItem.getCraftingType() == CraftingRecipeEnums.MEGA_BOMB_RECIPE)
+        {
+            ArrayList<Point> neighbors = map.getCircularNeighbors(tile.getPoint(), 7);
+            for (Point point : neighbors)
+            {
+                Tile t = map.getTile(point.getX(), point.getY());
+
+                if (map instanceof Farm)
+                {
+                    Farm farm = (Farm) map;
+                    if (t != null) farm.removeTileObject(t);
+                }
+
+                if (map instanceof GreenHouse)
+                {
+                    GreenHouse greenHouse = (GreenHouse) map;
+                    if (t != null) greenHouse.removeTileObject(t);
+                }
+            }
+        }
+
+        tile.setObject(null);
     }
 
     private void buildPeriodicSetupUI()

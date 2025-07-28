@@ -5,6 +5,7 @@ import ap.project.model.enums.GameObjectType;
 import ap.project.model.enums.building_enums.ArtisanGoodsType;
 import ap.project.model.enums.building_enums.CraftingRecipeEnums;
 import ap.project.model.game.GameObject;
+import ap.project.model.game.Tile;
 import ap.project.model.game.Time;
 
 import java.util.ArrayList;
@@ -24,12 +25,14 @@ public class CraftingItem extends GameObject
     private int neededHours = -1;
 
     private ArrayList<GameObject> craftingIngredients = new ArrayList<>();
+    private final Tile tile;
 
-    public CraftingItem (CraftingRecipeEnums craftingType)
+    public CraftingItem (CraftingRecipeEnums craftingType, Tile tile)
     {
         super(craftingType.getProduct(), 1);
         this.craftingType = craftingType;
         this.itemType = craftingType.getItemType();
+        this.tile = tile;
     }
 
     public CraftingRecipeEnums getCraftingType()
@@ -146,6 +149,11 @@ public class CraftingItem extends GameObject
         } else {
             return String.format("%dh", hours);
         }
+    }
+
+    public Tile getTile()
+    {
+        return tile;
     }
 
     public ItemType getItemType()

@@ -643,11 +643,6 @@ public class Tile
         isImmuneFromCrows = true;
     }
 
-    public void setImmunityFromCrows()
-    {
-        isImmuneFromCrows = false;
-    }
-
     public void unHitByThunder()
     {
         hitByThunder = false;

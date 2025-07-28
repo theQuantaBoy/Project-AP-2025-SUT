@@ -5,6 +5,7 @@ import ap.project.model.building.CraftingItem;
 import ap.project.model.enums.GameObjectType;
 import ap.project.model.enums.TileTexture;
 import ap.project.model.enums.Weather;
+import ap.project.model.enums.building_enums.CraftingRecipeEnums;
 import ap.project.model.enums.resources_enums.CropType;
 import ap.project.model.enums.resources_enums.ResourceItem;
 import ap.project.model.enums.resources_enums.TreeType;
@@ -14,6 +15,8 @@ import ap.project.model.shops.Shop;
 import ap.project.model.tools.*;
 import ap.project.screen.WorldScreen;
 import ap.project.visual.UIRenderer;
+
+import java.util.ArrayList;
 
 public class WorldController
 {
@@ -543,7 +546,8 @@ public class WorldController
             return true;
         }
 
-        tile.setObject(new CraftingItem(craftingItem.getCraftingType()));
+        CraftingItem newCraftedItem = new CraftingItem(craftingItem.getCraftingType(), tile);
+        tile.setObject(newCraftedItem);
 
         if (object.getNumber() == 1)
         {
@@ -559,6 +563,53 @@ public class WorldController
         {
             GreenHouse greenHouse = (GreenHouse) player.getGreenHouse();
             greenHouse.addToTilesWithCraftingItems(tile);
+        }
+
+        if (newCraftedItem.getCraftingType().getItemType() == CraftingItem.ItemType.PERMANENT)
+        {
+            if (newCraftedItem.getCraftingType() == CraftingRecipeEnums.SPRINKLER_RECIPE)
+            {
+                ArrayList<Point> neighbors = map.getDirectNeighbors(tile.getPoint());
+                for (Point neighbor : neighbors)
+                {
+                    Tile t = map.getTile(neighbor.getX(), neighbor.getY());
+                    if (t != null) t.setShouldBeWateredAutomatically(true);
+                }
+            } else if (newCraftedItem.getCraftingType() == CraftingRecipeEnums.QUALITY_SPRINKLER_RECIPE)
+            {
+                ArrayList<Point> neighbors = map.getSquareNeighbors(tile.getPoint(), 1);
+                for (Point neighbor : neighbors)
+                {
+                    Tile t = map.getTile(neighbor.getX(), neighbor.getY());
+                    if (t != null) t.setShouldBeWateredAutomatically(true);
+                }
+            } else if (newCraftedItem.getCraftingType() == CraftingRecipeEnums.IRIDIUM_SPRINKLER_RECIPE)
+            {
+                ArrayList<Point> neighbors = map.getSquareNeighbors(tile.getPoint(), 2);
+                for (Point neighbor : neighbors)
+                {
+                    Tile t = map.getTile(neighbor.getX(), neighbor.getY());
+                    if (t != null) t.setShouldBeWateredAutomatically(true);
+                }
+            }
+
+            else if (newCraftedItem.getCraftingType() == CraftingRecipeEnums.SCARECROW_RECIPE)
+            {
+                ArrayList<Point> neighbors = map.getCircularNeighbors(tile.getPoint(), 8);
+                for (Point neighbor : neighbors)
+                {
+                    Tile t = map.getTile(neighbor.getX(), neighbor.getY());
+                    if (t != null) t.makeImmuneFromCrows();
+                }
+            } else if (newCraftedItem.getCraftingType() == CraftingRecipeEnums.DELUXE_SCARECROW_RECIPE)
+            {
+                ArrayList<Point> neighbors = map.getCircularNeighbors(tile.getPoint(), 12);
+                for (Point neighbor : neighbors)
+                {
+                    Tile t = map.getTile(neighbor.getX(), neighbor.getY());
+                    if (t != null) t.makeImmuneFromCrows();
+                }
+            }
         }
 
         UIRenderer.showTextBox("successfully put " + object.getObjectType() + " on tile!");

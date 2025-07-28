@@ -104,7 +104,7 @@ public class HomeController
         }
 
         player.increaseEnergy(-2);
-        CraftingItem craftingItem = new CraftingItem(recipe);
+        CraftingItem craftingItem = new CraftingItem(recipe, null);
         player.addToInventory(craftingItem);
 
         return new Result(true, recipe.getProduct() + " was added to your inventory.");
