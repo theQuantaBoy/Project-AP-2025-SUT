@@ -430,17 +430,18 @@ public class CommunicateController {
 //        }
     }
 
-    public void purposeRespond (Player player, boolean answer) {
+    public Result purposeRespond (Player player, boolean answer) {
 //        Player player = App.getCurrentGame().getPlayerByNickname(matcher.group("username"));
 //        boolean answer = true;
 //        String respond = matcher.group("respond");
 //        if (respond.equalsIgnoreCase("cancel")) answer = false;
         Player currentPlayer = App.getCurrentGame().getCurrentPlayer();
         GameObject ring = player.getItemInInventory(currentPlayer.getPurposeList().get(player));
-
+        String message = "";
+        boolean isSuccessful;
         if (answer) {
-            player.getCurrentBackPack().getSlots().remove(ring);
-            currentPlayer.getCurrentBackPack().getSlots().add(ring);
+            currentPlayer.addToInventory(ring);
+            player.removeFromInventory(ring);
             player.setZeidy(currentPlayer);
             currentPlayer.setZeidy(player);
             player.getFriendships().get(currentPlayer).setMarried(true);
@@ -453,7 +454,8 @@ public class CommunicateController {
                 player.getFriendships().get(currentPlayer).setNewLevel(false);
                 currentPlayer.getFriendships().get(player).setNewLevel(false);
             }
-            System.out.println("you are husband and wife now");
+            message = "you are husband and wife now";
+            isSuccessful = true;
             //TODO: add energy things
         } else {
             FriendshipData data1 =currentPlayer.getFriendships().get(player);
@@ -464,8 +466,10 @@ public class CommunicateController {
             data2.setLevel(0);
             data2.setXp(0);
             data2.setBouquetBought(false);
-            System.out.println("go kill yourself");
+            message = "go kill yourself";
+            isSuccessful = false;
         }
         currentPlayer.getPurposeList().remove(player);
+        return new Result(isSuccessful, message);
     }
 }

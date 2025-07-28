@@ -19,7 +19,7 @@ import javax.swing.*;
 public class CommunicationWindow {
     private final Window popup;
     private final Stage stage;
-    private final Table options;
+    private Table options;
     private final Stack contentStack;
     private final Skin skin;
     private boolean isVisible = false;
@@ -43,7 +43,7 @@ public class CommunicationWindow {
 
         tooltipBg = GameAssetsManager.getGameAssetsManager().createColoredDrawable(1, 1, new Color(0f, 0f, 0f, 0.7f));
 
-        options = buildOptions();
+        options = new Table();
         contentStack = new Stack();
         contentStack.add(options);
         popup.add(contentStack).expand().fill();
@@ -57,7 +57,7 @@ public class CommunicationWindow {
         this.chatScreen = new ChatScreen(stage, worldScreen, controller);
     }
 
-    private Table buildOptions() {
+    public Table buildOptions() {
         Table table = new Table(skin);
         table.defaults().pad(10).width(300).height(70);
 
@@ -65,6 +65,7 @@ public class CommunicationWindow {
         TextButton hugButton = new TextButton("Hug", skin);
         TextButton bouquetButton = new TextButton("Bouquet", skin);
         TextButton marryButton = new TextButton("Marry", skin);
+        TextButton purpose = new TextButton("Purpose Answer", skin);
         TextButton backButton = new TextButton("Back", skin);
         errorField.setAlignment(Align.center);
 
@@ -100,7 +101,7 @@ public class CommunicationWindow {
             }
         });
 
-        // Marry button listener - UPDATED WITH RING SELECTION
+        // Marry button listener
         marryButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, com.badlogic.gdx.scenes.scene2d.Actor actor) {
@@ -108,9 +109,25 @@ public class CommunicationWindow {
                     Player currentPlayer = App.getCurrentGame().getCurrentPlayer();
 
                     if (currentPlayer.hasRingInInventory()) {
-                        showRingSelectionDialog(); // Show ring selection dialog
+                        showRingSelectionDialog();
                     } else {
                         Result result = new Result(false, "You don't have any rings to propose with");
+                        showResult(result);
+                    }
+                }
+            }
+        });
+
+        purpose.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, com.badlogic.gdx.scenes.scene2d.Actor actor) {
+                if (selectedFriend != null) {
+                    Player currentPlayer = App.getCurrentGame().getCurrentPlayer();
+
+                    if (currentPlayer.getPurposeList().containsKey(selectedFriend)) {
+                        showPurposeAnswerDialog();
+                    } else {
+                        Result result = new Result(false, "No pending proposal from " + selectedFriend.getNickName());
                         showResult(result);
                     }
                 }
@@ -130,11 +147,78 @@ public class CommunicationWindow {
         table.add(chatButton).padBottom(15).row();
         table.add(hugButton).padBottom(15).row();
         table.add(bouquetButton).padBottom(15).row();
-        table.add(marryButton).padBottom(15).row();
+
+        // Dynamic button based on purpose list status
+        if (App.getCurrentGame().getCurrentPlayer().getPurposeList().containsKey(selectedFriend)) {
+            table.add(purpose).padBottom(15).row();
+        } else {
+            table.add(marryButton).padBottom(15).row();
+        }
+
         table.add(backButton).padTop(30).row();
         table.add(errorField).padTop(30);
 
         return table;
+    }
+
+    private void refreshOptions() {
+        // Clear the stack
+        contentStack.clearChildren();
+
+        // Rebuild options table
+        options = buildOptions();
+
+        // Add back to stack
+        contentStack.add(options);
+    }
+
+    private void showPurposeAnswerDialog() {
+        Dialog dialog = new Dialog("Marriage Proposal", skin);
+        dialog.setSize(400, 250);
+
+        // Title
+        Label title = new Label(selectedFriend.getNickName() + " has proposed to you!", skin);
+        title.setWrap(true);
+        dialog.getContentTable().add(title).width(350).pad(10).row();
+
+        // Question
+        Label question = new Label("Will you accept this proposal?", skin);
+        question.setWrap(true);
+        dialog.getContentTable().add(question).width(350).pad(10).row();
+
+        // Button container
+        Table buttonTable = new Table(skin);
+        buttonTable.defaults().pad(10).width(120).height(50);
+
+        // Yes button
+        TextButton yesButton = new TextButton("Yes", skin);
+        yesButton.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, com.badlogic.gdx.scenes.scene2d.Actor actor) {
+                Result result = controller.purposeRespond(selectedFriend, true);
+                showResult(result);
+                dialog.hide();
+                refreshOptions();
+            }
+        });
+
+        // No button
+        TextButton noButton = new TextButton("No", skin);
+        noButton.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, com.badlogic.gdx.scenes.scene2d.Actor actor) {
+                Result result = controller.purposeRespond(selectedFriend, false);
+                showResult(result);
+                dialog.hide();
+                refreshOptions();
+            }
+        });
+
+        buttonTable.add(yesButton);
+        buttonTable.add(noButton);
+
+        dialog.getContentTable().add(buttonTable).padTop(15).row();
+        dialog.show(stage);
     }
 
     private void showRingSelectionDialog() {
@@ -163,6 +247,10 @@ public class CommunicationWindow {
                     public void changed(ChangeEvent event, com.badlogic.gdx.scenes.scene2d.Actor actor) {
                         Result result = controller.purposeAsk(selectedFriend, item);
                         showResult(result);
+                        if (result.isSuccessful()) {
+                            selectedFriend.setNewShohar(true);
+                            refreshOptions();
+                        }
                         dialog.hide();
                     }
                 });
@@ -207,6 +295,7 @@ public class CommunicationWindow {
         popup.getTitleLabel().setText("Communicate with " + friend.getNickName());
         isVisible = true;
         popup.setVisible(true);
+        refreshOptions();
         center(stage);
     }
 

@@ -69,6 +69,7 @@ public class Player {
 
     private HashMap<Player, GameObjectType> purposeList = new HashMap<>();
     private Player zeidy;
+    private boolean newShohar = false;
 
     private Tool currentTool;
     private GameObject currentObject;
@@ -350,6 +351,14 @@ public class Player {
 
     public void setZeidy(Player zeidy) {
         this.zeidy = zeidy;
+    }
+
+    public boolean isNewShohar() {
+        return newShohar;
+    }
+
+    public void setNewShohar(boolean newShohar) {
+        this.newShohar = newShohar;
     }
 
     public User getUser() {

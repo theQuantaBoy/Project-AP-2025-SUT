@@ -19,6 +19,7 @@ import ap.project.model.player_data.FriendshipWithNpcData;
 import ap.project.model.resources.Plant;
 import ap.project.view.GameMenu;
 import ap.project.view.HomeMenu;
+import ap.project.visual.UIRenderer;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -495,6 +496,10 @@ public class Game
         } else if (currentPlayer.isInHome())
         {
             App.setCurrentMenu(Menu.HomeMenu);
+        }
+        if (currentPlayer.isNewShohar()) {
+            UIRenderer.showTextBox("someone has purposed!");
+            currentPlayer.setNewShohar(false);
         }
     }
 
