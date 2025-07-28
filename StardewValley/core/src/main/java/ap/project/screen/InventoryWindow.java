@@ -4,11 +4,10 @@ import ap.project.model.App.App;
 import ap.project.model.enums.GameObjectType;
 import ap.project.model.enums.building_enums.CraftingRecipeEnums;
 import ap.project.model.enums.building_enums.KitchenRecipe;
-import ap.project.model.game.CraftingItem;
+import ap.project.model.building.CraftingItem;
 import ap.project.model.game.Player;
 import ap.project.model.player_data.Skill;
 import ap.project.model.tools.Tool;
-import ap.project.view.HomeMenu;
 import ap.project.visual.UIRenderer;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
@@ -385,7 +384,7 @@ public class InventoryWindow {
         }
 
         player.increaseEnergy(-2);
-        ap.project.model.game.CraftingItem craftingItem = new ap.project.model.game.CraftingItem(selectedCraftingRecipe);
+        CraftingItem craftingItem = new CraftingItem(selectedCraftingRecipe);
         player.addToInventory(craftingItem);
 
         UIRenderer.showTextBox(selectedCraftingRecipe.getProduct() + " was added to your inventory.");

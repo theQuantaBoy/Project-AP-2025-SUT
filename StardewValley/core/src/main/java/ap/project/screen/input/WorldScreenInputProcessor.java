@@ -36,7 +36,7 @@ public class WorldScreenInputProcessor implements InputProcessor
     public boolean touchDown(int screenX, int screenY, int pointer, int button)
     {
         if (worldScreen.isDialogVisible() || worldScreen.isInventoryVisible() || worldScreen.isCookBookVisible() ||
-        worldScreen.isRefrigeratorVisible())
+        worldScreen.isRefrigeratorVisible() || worldScreen.isCraftingWindowVisible())
         {
             return false;
         }
@@ -71,19 +71,25 @@ public class WorldScreenInputProcessor implements InputProcessor
         if (Gdx.input.isButtonJustPressed(Input.Buttons.RIGHT))
         {
             Point clicked = map.screenToTile(Gdx.input.getX(), Gdx.input.getY(), cam);
+            Tile tile = worldScreen.cursorToTile();
 
-            if (clicked != null)
+            if (tile != null)
             {
-                Vector2 playerPos = player.getPosition();
-                Point playerTile = map.worldToTile(playerPos.x, playerPos.y);
-
-                ArrayList<Point> path = map.findShortestPath(playerTile, clicked);
-
-                if (path != null)
-                {
-                    characterController.moveToPath(path);
-                }
+                WorldController.processClickRight(worldScreen, tile);
             }
+
+//            if (clicked != null)
+//            {
+//                Vector2 playerPos = player.getPosition();
+//                Point playerTile = map.worldToTile(playerPos.x, playerPos.y);
+//
+//                ArrayList<Point> path = map.findShortestPath(playerTile, clicked);
+//
+//                if (path != null)
+//                {
+//                    characterController.moveToPath(path);
+//                }
+//            }
         }
         return true;
     }

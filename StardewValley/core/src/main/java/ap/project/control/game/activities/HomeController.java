@@ -7,7 +7,7 @@ import ap.project.model.enums.Menu;
 import ap.project.model.enums.building_enums.CraftingRecipeEnums;
 import ap.project.model.enums.building_enums.KitchenRecipe;
 import ap.project.model.game.*;
-import ap.project.model.game.CraftingItem;
+import ap.project.model.building.CraftingItem;
 import ap.project.model.tools.Tool;
 import ap.project.view.HomeMenu;
 

@@ -1,6 +1,7 @@
 package ap.project.visual;
 
 import ap.project.model.App.App;
+import ap.project.model.building.CraftingItem;
 import ap.project.model.enums.*;
 import ap.project.model.enums.building_enums.CraftingRecipeEnums;
 import ap.project.model.enums.resources_enums.CropType;

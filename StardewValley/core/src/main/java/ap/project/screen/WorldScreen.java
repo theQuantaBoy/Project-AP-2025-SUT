@@ -4,6 +4,7 @@ import ap.project.control.CharacterController;
 import ap.project.model.App.App;
 import ap.project.model.App.GameAssetsManager;
 import ap.project.model.App.User;
+import ap.project.model.building.CraftingItem;
 import ap.project.model.enums.*;
 import ap.project.model.game.Game;
 import ap.project.screen.input.WorldScreenInputProcessor;
@@ -73,6 +74,7 @@ public final class WorldScreen implements Screen
     private InventoryWindow inventoryWindow;
     private CookBookWindow cookBookWindow;
     private RefrigeratorWindow refrigeratorWindow;
+    private CraftingItemWindow craftingItemWindow;
     private FriendsWindow friendsWindow;
 
     private InputMultiplexer inputMultiplexer;
@@ -138,6 +140,7 @@ public final class WorldScreen implements Screen
         friendsWindow = new FriendsWindow(uiStage);
         cookBookWindow = new CookBookWindow(uiStage);
         refrigeratorWindow = new RefrigeratorWindow(uiStage);
+        craftingItemWindow = new CraftingItemWindow(uiStage);
         createTerminalDialog();
 
 
@@ -695,5 +698,16 @@ public final class WorldScreen implements Screen
 
         shapeRenderer.end();
         Gdx.gl.glDisable(GL20.GL_BLEND);
+    }
+
+    public void toggleCraftingWindow(CraftingItem item)
+    {
+        craftingItemWindow.setItem(item);
+        craftingItemWindow.toggleVisibility();
+    }
+
+    public boolean isCraftingWindowVisible()
+    {
+        return craftingItemWindow.isVisible();
     }
 }

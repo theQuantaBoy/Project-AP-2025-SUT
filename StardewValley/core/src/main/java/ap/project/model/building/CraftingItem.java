@@ -1,9 +1,11 @@
-package ap.project.model.game;
+package ap.project.model.building;
 
 import ap.project.model.App.App;
 import ap.project.model.enums.GameObjectType;
 import ap.project.model.enums.building_enums.ArtisanGoodsType;
 import ap.project.model.enums.building_enums.CraftingRecipeEnums;
+import ap.project.model.game.GameObject;
+import ap.project.model.game.Time;
 
 public class CraftingItem extends GameObject
 {
@@ -102,6 +104,11 @@ public class CraftingItem extends GameObject
         this.neededDays = 0;
         this.neededHours = 0;
         this.isWorking = false;
+    }
+
+    public boolean isWorking()
+    {
+        return isWorking;
     }
 
     public enum ItemType

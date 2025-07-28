@@ -1,6 +1,7 @@
 package ap.project.control;
 
 import ap.project.model.App.App;
+import ap.project.model.building.CraftingItem;
 import ap.project.model.enums.GameObjectType;
 import ap.project.model.enums.TileTexture;
 import ap.project.model.enums.Weather;
@@ -55,6 +56,30 @@ public class WorldController
         }
 
         if (processBuildings(worldScreen, tile, clicked))
+        {
+            return;
+        }
+    }
+
+    public static void processClickRight(WorldScreen worldScreen, Tile tile)
+    {
+        Game game = App.getCurrentGame();
+        Player player = game.getCurrentPlayer();
+
+        if (tile == null)
+        {
+            return;
+        }
+
+        Point clicked = tile.getPoint();
+        Point location = player.getLocation();
+
+        if (!Map.isNearOrOn(location, clicked))
+        {
+            return;
+        }
+
+        if (processCraftingStation(worldScreen, tile))
         {
             return;
         }
@@ -762,6 +787,8 @@ public class WorldController
             return true;
         }
 
+
+
         return processOvenMechanism(worldScreen, tile, clicked);
     }
 
@@ -782,6 +809,24 @@ public class WorldController
             if (cabin.getRefrigeratorPoint().equals(clicked))
             {
                 worldScreen.toggleRefrigeratorWindow();
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static boolean processCraftingStation(WorldScreen worldScreen, Tile tile)
+    {
+        Game game = App.getCurrentGame();
+        Player player = game.getCurrentPlayer();
+
+        if (player.isInFarm() || player.isInGreenHouse())
+        {
+            if (tile.getObject() != null && tile.getObject() instanceof CraftingItem)
+            {
+                CraftingItem craftingItem = (CraftingItem) tile.getObject();
+                worldScreen.toggleCraftingWindow(craftingItem);
                 return true;
             }
         }

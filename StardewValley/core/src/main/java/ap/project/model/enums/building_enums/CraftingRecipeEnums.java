@@ -1,7 +1,7 @@
 package ap.project.model.enums.building_enums;
 
 import ap.project.model.enums.GameObjectType;
-import ap.project.model.game.CraftingItem;
+import ap.project.model.building.CraftingItem;
 
 import java.util.ArrayList;
 import java.util.HashMap;
