@@ -89,6 +89,7 @@ public final class WorldScreen implements Screen {
     private static Label dialogContentLabel;
     private InventoryWindow inventoryWindow;
     private FriendsWindow friendsWindow;
+    private CommunicationWindow communicationWindow;
 
     private InputMultiplexer inputMultiplexer;
     private boolean inputMultiplexerHadSetUp = false;
@@ -106,10 +107,10 @@ public final class WorldScreen implements Screen {
         cam.setToOrtho(false);
 
         this.game = new Game(new ArrayList<>(List.of(
-            new Player(new User("mohsen", "", "mohsen", "", Gender.FEMALE, "", ""), MapTypes.STANDARD, 0),
-            new Player(new User("arash", "", "arash", "", Gender.FEMALE, "", ""), MapTypes.FISHING, 0),
-            new Player(new User("moshtagh", "", "moshtagh", "", Gender.FEMALE, "", ""), MapTypes.FORAGING, 0),
-            new Player(new User("ottie", "", "ottie", "", Gender.FEMALE, "", ""), MapTypes.COMBAT, 0)
+            new Player(new User("mohsen","","mohsen","", Gender.MALE, "", ""), MapTypes.STANDARD, 0),
+            new Player(new User("arash","","arash","", Gender.FEMALE, "", ""), MapTypes.FISHING, 0),
+            new Player(new User("moshtagh","","moshtagh","", Gender.FEMALE, "", ""), MapTypes.FORAGING, 0),
+            new Player(new User("ottie","","ottie","", Gender.FEMALE, "", ""), MapTypes.COMBAT, 0)
         )));
 
         App.setCurrentGame(game);
@@ -158,6 +159,7 @@ public final class WorldScreen implements Screen {
 
         inventoryWindow = new InventoryWindow(uiStage);
         friendsWindow = new FriendsWindow(uiStage);
+        communicationWindow = new CommunicationWindow(uiStage, this);
         createTerminalDialog();
 
         inputMultiplexer = new InputMultiplexer();
@@ -179,7 +181,8 @@ public final class WorldScreen implements Screen {
 
         characterController = new CharacterController(character, map, PLAYER_SPEED, TILE_SIZE);
 
-        gameInputProcessor = new WorldScreenInputProcessor(map, character, characterController, cam, this);
+        gameInputProcessor = new WorldScreenInputProcessor(map, character, characterController, cam, this,
+            inventoryWindow, communicationWindow);
 
         if (inputMultiplexer != null && inputMultiplexerHadSetUp) {
             inputMultiplexer.removeProcessor(1);
@@ -197,7 +200,12 @@ public final class WorldScreen implements Screen {
         inputMultiplexer.addProcessor(new InputAdapter() {
             @Override
             public boolean keyDown(int keycode) {
-                if (keycode == Input.Keys.E || keycode == Input.Keys.ESCAPE) {
+                // Handle chat input first
+                if (communicationWindow.getChatScreen().handleKeyDown(keycode)) {
+                    return true;
+                }
+
+                if (keycode == Input.Keys.E ||  keycode == Input.Keys.ESCAPE) {
                     boolean nowVisible = !inventoryWindow.isVisible();
                     inventoryWindow.toggleVisibility();
 
@@ -225,10 +233,8 @@ public final class WorldScreen implements Screen {
                 return false;
             }
         });
-
         Gdx.input.setInputProcessor(inputMultiplexer);
         inputMultiplexerHadSetUp = true;
-
         TextButton friends = uiRenderer.getFriends();
         uiStage.addActor(friends);
         friends.addListener(new ClickListener() {
@@ -244,7 +250,8 @@ public final class WorldScreen implements Screen {
         Gdx.gl.glClearColor(0f, 0f, 0f, 1f);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        if (!terminalDialog.isVisible() && !isInventoryVisible()) {
+        if (!terminalDialog.isVisible() && !isInventoryVisible() && !isChatVisible())
+        {
             update(dt);
             cam.update();
         }
@@ -284,6 +291,7 @@ public final class WorldScreen implements Screen {
             Gdx.gl.glEnable(GL20.GL_BLEND);
             Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
 
+            Gdx.gl.glEnable(GL20.GL_BLEND);
             shapeRenderer.setProjectionMatrix(cam.combined);
             shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
             shapeRenderer.setColor(1f, 0f, 0f, 0.3f);
@@ -436,6 +444,7 @@ public final class WorldScreen implements Screen {
         uiRenderer.dispose();
         shapeRenderer.dispose();
         gameStage.dispose();
+        communicationWindow.dispose();
     }
 
     private void checkMapSeason() {
@@ -660,5 +669,18 @@ public final class WorldScreen implements Screen {
 
     private void updateSeason() {
         // Implement season update logic if needed
+    }
+
+    public Player getCurrentPlayer() {
+        return this.player;
+    }
+
+    public void restoreInputFocus() {
+        // Restore input focus to the world screen
+        Gdx.input.setInputProcessor(inputMultiplexer);
+    }
+
+    public boolean isChatVisible() {
+        return communicationWindow.getChatScreen().isVisible();
     }
 }

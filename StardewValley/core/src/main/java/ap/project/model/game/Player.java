@@ -41,6 +41,7 @@ public class Player {
 
     private float energy;
     private float maxEnergy = 200f;
+    private boolean isMaxEnergySet = false;
     private boolean fainted = false;
 
     private Skill farmingSkill = new Skill(SkillType.Farming);
@@ -69,6 +70,7 @@ public class Player {
 
     private HashMap<Player, GameObjectType> purposeList = new HashMap<>();
     private Player zeidy;
+    private boolean newShohar = false;
 
     private Tool currentTool;
     private GameObject currentObject;
@@ -129,6 +131,7 @@ public class Player {
         this.mapType = currentMapType;
         this.cabin = new Cabin();
         this.greenHouse = new GreenHouse();
+        this.gender = user.getGender();
 //        this.currentMap = this.farm;
         this.energy = 200f;
         this.fainted = false;
@@ -218,7 +221,7 @@ public class Player {
 
     public void increaseEnergy(float energy)
     {
-        if (energy != -1)
+        if (!isMaxEnergySet)
         {
            this.energy += energy;
         }
@@ -349,6 +352,14 @@ public class Player {
 
     public void setZeidy(Player zeidy) {
         this.zeidy = zeidy;
+    }
+
+    public boolean isNewShohar() {
+        return newShohar;
+    }
+
+    public void setNewShohar(boolean newShohar) {
+        this.newShohar = newShohar;
     }
 
     public User getUser() {
@@ -882,6 +893,14 @@ public class Player {
         return allPlants;
     }
 
+    public boolean isMaxEnergySet() {
+        return isMaxEnergySet;
+    }
+
+    public void setMaxEnergySet(boolean maxEnergySet) {
+        isMaxEnergySet = maxEnergySet;
+    }
+
     public Result newMessages() {
         Player currentPlayer = App.getCurrentGame().getCurrentPlayer();
         if (currentPlayer.isNewMessage()) {
@@ -1174,8 +1193,13 @@ public class Player {
 
     public List<Gift> getGiftHistoryWith(Player selectedFriend) {
         List<Gift> gifts = new ArrayList<>();
-        for (Gift gift : getArchiveGifts()) {
+        for (Gift gift : archiveGifts) {
             if (gift.getGiver().equals(selectedFriend)) {
+                gifts.add(gift);
+            }
+        }
+        for  (Gift gift : givenGifts) {
+            if (gift.getTaker().equals(selectedFriend)) {
                 gifts.add(gift);
             }
         }
@@ -1185,5 +1209,16 @@ public class Player {
     public Vector2 getPosition()
     {
         return character.getPosition();
+    }
+
+    public boolean hasRingInInventory() {
+
+        List<GameObjectType> rings = GameObjectType.getRings();
+        for (GameObject item : currentBackPack.getSlots()) {
+            if (item != null && rings.contains(item.getObjectType())) {
+                return true;
+            }
+        }
+        return false;
     }
 }

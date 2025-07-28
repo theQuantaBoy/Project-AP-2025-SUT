@@ -323,7 +323,8 @@ public class UIRenderer
 
     public static void showTextBox(String text)
     {
-        activeTextBoxes.add(new TextBox(text, 3.5f, Gdx.graphics.getWidth(), Gdx.graphics.getHeight()));
+        int stackIndex = activeTextBoxes.size; // Current size becomes the stack index
+        activeTextBoxes.add(new TextBox(text, 3.5f, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), stackIndex));
     }
 
     public static void updateTextBoxes(float delta)
@@ -335,7 +336,19 @@ public class UIRenderer
             if (tb.isExpired())
             {
                 activeTextBoxes.removeIndex(i);
+                // Reposition remaining text boxes to fill the gap
+                repositionTextBoxes();
             }
+        }
+    }
+    private static void repositionTextBoxes()
+    {
+        float screenHeight = Gdx.graphics.getHeight();
+        float screenWidth = Gdx.graphics.getWidth();
+
+        for (int i = 0; i < activeTextBoxes.size; i++)
+        {
+            activeTextBoxes.get(i).updateStackPosition(i, screenWidth, screenHeight);
         }
     }
 

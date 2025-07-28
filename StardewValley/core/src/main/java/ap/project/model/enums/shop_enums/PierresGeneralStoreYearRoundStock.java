@@ -11,8 +11,8 @@ public enum PierresGeneralStoreYearRoundStock { //TODO needs some coding
             100, -1, null, GameObjectType.WHEAT_FLOWER, -1),
     BOUQUET("Bouquet", "A gift that shows your romantic interest. (Unlocked after level 2 friendship)",
             1000, 2, null, GameObjectType.BOUQUET, 2),
-    WEDDING_RING("Wedding Ring", "Used to ask for marriage. (Unlocked after level 3 friendship)",
-            10000, 2, null, GameObjectType.WEDDING_RING, 2),
+    WEDDING_RING("Wedding Ring", "Used to ask for marriage. (Unlocked after level 3 friendship)", //TODO: ADD ALL RINGS
+            10000, 2, null, GameObjectType.LUCKY_RING, 2),
     DEHYDRATOR_RECIPE("Dehydrator (Recipe)", "A recipe to make Dehydrator",
             10000, 1, null, GameObjectType.DEHYDRATOR_RECIPE, 1),
     GRASS_STARTER_RECIPE("Grass Starter (Recipe)", "A recipe to make Grass Starter",

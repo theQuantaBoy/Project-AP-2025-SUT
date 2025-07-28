@@ -22,14 +22,17 @@ public class TextBox
     private final float boxWidth;
     private final float boxHeight;
     private final Vector2 position;
+    private int stackIndex; // Track position in stack (mutable for repositioning)
 
     private static final float SCALE = 1f;
     private static final float MARGIN = 16f;
+    private static final float STACK_SPACING = 8f; // Space between stacked boxes
 
-    public TextBox(String text, float fontScale, float screenWidth, float screenHeight)
+    public TextBox(String text, float fontScale, float screenWidth, float screenHeight, int stackIndex)
     {
         this.text = text;
         this.elapsed = 0;
+        this.stackIndex = stackIndex;
 
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/PixelOperator.ttf"));
         FreeTypeFontGenerator.FreeTypeFontParameter param = new FreeTypeFontGenerator.FreeTypeFontParameter();
@@ -48,7 +51,23 @@ public class TextBox
 
         this.duration = Math.max(2.5f, text.length() * 0.12f);
 
-        this.position = new Vector2(MARGIN, screenHeight - boxHeight - MARGIN);
+        // Calculate position based on stack index
+        float yOffset = stackIndex * (boxHeight + STACK_SPACING);
+        this.position = new Vector2(MARGIN, screenHeight - boxHeight - MARGIN - yOffset);
+    }
+
+    // Backward compatibility constructor
+    public TextBox(String text, float fontScale, float screenWidth, float screenHeight)
+    {
+        this(text, fontScale, screenWidth, screenHeight, 0);
+    }
+
+    // Method to update stack position
+    public void updateStackPosition(int newStackIndex, float screenWidth, float screenHeight)
+    {
+        this.stackIndex = newStackIndex;
+        float yOffset = stackIndex * (boxHeight + STACK_SPACING);
+        this.position.set(MARGIN, screenHeight - boxHeight - MARGIN - yOffset);
     }
 
     public void update(float delta)
@@ -101,5 +120,8 @@ public class TextBox
         // Text
         font.draw(batch, text, x + TILE_SIZE, y + (boxHeight / 2f) + font.getCapHeight() / 2f);
     }
-}
 
+    public int getStackIndex() {
+        return stackIndex;
+    }
+}
