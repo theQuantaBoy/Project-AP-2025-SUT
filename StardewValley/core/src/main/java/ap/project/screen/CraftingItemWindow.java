@@ -139,23 +139,19 @@ public class CraftingItemWindow
 
     public void toggleVisibility()
     {
+        isVisible = !isVisible;
+        window.setVisible(isVisible);
+
         if (isVisible)
         {
-            // Reset selection state when closing
-            currentItem = null;
+            refresh();
+            center();
+        } else
+        {
             selectedItem = null;
             selectedIndex = -1;
             isCraftingSource = false;
-        } else
-        {
-            // Reset UI when opening
-            refresh();
         }
-
-        isVisible = !isVisible;
-        window.setVisible(isVisible);
-        WorldScreen.getInstance().resetInputProcessor();
-        if (isVisible) center();
     }
 
     public boolean isVisible()
