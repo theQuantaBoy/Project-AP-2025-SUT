@@ -129,6 +129,7 @@ public class Player {
         this.mapType = currentMapType;
         this.cabin = new Cabin();
         this.greenHouse = new GreenHouse();
+        this.gender = user.getGender();
 //        this.currentMap = this.farm;
         this.energy = 200f;
         this.fainted = false;
@@ -1193,5 +1194,16 @@ public class Player {
             }
         }
         return gifts;
+    }
+
+    public boolean hasRingInInventory() {
+
+        List<GameObjectType> rings = GameObjectType.getRings();
+        for (GameObject item : currentBackPack.getSlots()) {
+            if (item != null && rings.contains(item.getObjectType())) {
+                return true;
+            }
+        }
+        return false;
     }
 }

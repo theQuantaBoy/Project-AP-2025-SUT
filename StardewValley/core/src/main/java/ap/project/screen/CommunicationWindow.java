@@ -1,8 +1,11 @@
 package ap.project.screen;
 
 import ap.project.control.game.activities.CommunicateController;
+import ap.project.model.App.App;
 import ap.project.model.App.GameAssetsManager;
 import ap.project.model.App.Result;
+import ap.project.model.enums.GameObjectType;
+import ap.project.model.game.GameObject;
 import ap.project.model.game.Player;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -58,26 +61,14 @@ public class CommunicationWindow {
         Table table = new Table(skin);
         table.defaults().pad(10).width(300).height(70);
 
-//        TextButton talkButton = new TextButton("Talk", skin);
-        TextButton chatButton = new TextButton("Chat", skin); // New chat button
+        TextButton chatButton = new TextButton("Chat", skin);
         TextButton hugButton = new TextButton("Hug", skin);
         TextButton bouquetButton = new TextButton("Bouquet", skin);
         TextButton marryButton = new TextButton("Marry", skin);
         TextButton backButton = new TextButton("Back", skin);
         errorField.setAlignment(Align.center);
 
-        // Add button listeners
-//        talkButton.addListener(new ChangeListener() {
-//            @Override
-//            public void changed(ChangeEvent event, com.badlogic.gdx.scenes.scene2d.Actor actor) {
-//                if (selectedFriend != null) {
-//                    Result result = controller.talk(selectedFriend);
-//                    showResult(result);
-//                }
-//            }
-//        });
-
-        // New chat button listener
+        // Chat button listener
         chatButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, com.badlogic.gdx.scenes.scene2d.Actor actor) {
@@ -87,6 +78,7 @@ public class CommunicationWindow {
             }
         });
 
+        // Hug button listener
         hugButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, com.badlogic.gdx.scenes.scene2d.Actor actor) {
@@ -97,6 +89,7 @@ public class CommunicationWindow {
             }
         });
 
+        // Bouquet button listener
         bouquetButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, com.badlogic.gdx.scenes.scene2d.Actor actor) {
@@ -107,38 +100,88 @@ public class CommunicationWindow {
             }
         });
 
+        // Marry button listener - UPDATED WITH RING SELECTION
         marryButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, com.badlogic.gdx.scenes.scene2d.Actor actor) {
                 if (selectedFriend != null) {
-                    //controller.marry(selectedFriend);
+                    Player currentPlayer = App.getCurrentGame().getCurrentPlayer();
+
+                    if (currentPlayer.hasRingInInventory()) {
+                        showRingSelectionDialog(); // Show ring selection dialog
+                    } else {
+                        Result result = new Result(false, "You don't have any rings to propose with");
+                        showResult(result);
+                    }
                 }
             }
         });
 
+        // Back button listener
         backButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, com.badlogic.gdx.scenes.scene2d.Actor actor) {
+                errorField.setText("");
                 hide();
             }
         });
 
-        // Add buttons to table with proper layout
-//        table.add(talkButton).padBottom(15);
-//        table.row();
-        table.add(chatButton).padBottom(15); // Add chat button
-        table.row();
-        table.add(hugButton).padBottom(15);
-        table.row();
-        table.add(bouquetButton).padBottom(15);
-        table.row();
-        table.add(marryButton).padBottom(15);
-        table.row();
-        table.add(backButton).padTop(30);
-        table.row();
+        // Add buttons to table
+        table.add(chatButton).padBottom(15).row();
+        table.add(hugButton).padBottom(15).row();
+        table.add(bouquetButton).padBottom(15).row();
+        table.add(marryButton).padBottom(15).row();
+        table.add(backButton).padTop(30).row();
         table.add(errorField).padTop(30);
 
         return table;
+    }
+
+    private void showRingSelectionDialog() {
+        Dialog dialog = new Dialog("Select a Ring", skin);
+        dialog.setSize(500, 400);
+
+        // Title
+        Label title = new Label("Choose a ring for your proposal:", skin);
+        dialog.getContentTable().add(title).padBottom(15).row();
+
+        // Scrollable ring list
+        Table ringTable = new Table(skin);
+        ScrollPane scrollPane = new ScrollPane(ringTable, skin);
+        scrollPane.setFadeScrollBars(false);
+        dialog.getContentTable().add(scrollPane).width(450).height(250).pad(10).row();
+
+        Player currentPlayer = App.getCurrentGame().getCurrentPlayer();
+
+        // Add rings to the table
+        for (GameObject item : currentPlayer.getInventory()) {
+            if (GameObjectType.getRings().contains(item.getObjectType())) {
+                TextButton ringButton = new TextButton(item.getObjectType().toString() + " x" + item.getNumber(), skin);
+
+                ringButton.addListener(new ChangeListener() {
+                    @Override
+                    public void changed(ChangeEvent event, com.badlogic.gdx.scenes.scene2d.Actor actor) {
+                        Result result = controller.purposeAsk(selectedFriend, item);
+                        showResult(result);
+                        dialog.hide();
+                    }
+                });
+
+                ringTable.add(ringButton).width(400).height(50).pad(5).row();
+            }
+        }
+
+        // Cancel button
+        TextButton cancelButton = new TextButton("Cancel", skin);
+        cancelButton.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, com.badlogic.gdx.scenes.scene2d.Actor actor) {
+                dialog.hide();
+            }
+        });
+
+        dialog.getButtonTable().add(cancelButton).pad(10);
+        dialog.show(stage);
     }
 
     private void openChatScreen() {

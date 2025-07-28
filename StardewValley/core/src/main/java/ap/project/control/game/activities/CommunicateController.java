@@ -14,6 +14,8 @@ import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 
+import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.regex.Matcher;
 
@@ -399,33 +401,33 @@ public class CommunicateController {
 
     //marriage
 
-    public Result purposeAsk (Player player) {
+    public Result purposeAsk (Player player, GameObject ring) {
         //Player player = App.getCurrentGame().getPlayerByNickname(matcher.group("username"));
-        GameObjectType ring = GameObjectType.WEDDING_RING;
+
         Player currentPlayer = App.getCurrentGame().getCurrentPlayer();
-        if (currentPlayer.isNear(player.getLocation())) {
-            if (checkFriendship(currentPlayer, player, "marriage")) {
-                if (currentPlayer.getFriendships().get(player).getXp() >= 400) {
-                    if (currentPlayer.getGender().equals(Gender.FEMALE)) {
-                        return new Result(false, "you can't purpose ask doost pesaret");
-                    } else if (player.getGender().equals(Gender.MALE)) {
-                        return new Result(false,
-                                "unfortunately this item is not supported in your country");
-                    } else if (currentPlayer.getItemInInventory(ring) == null) {
-                        return new Result(false, "you don't have a ring. buy one");
-                    } else {
-                        player.getPurposeList().put(currentPlayer, ring);
-                        return new Result(true, "you purposed");
-                    }
+//        if (currentPlayer.isNear(player.getLocation())) {
+        if (checkFriendship(currentPlayer, player, "marriage")) {
+            if (currentPlayer.getFriendships().get(player).getXp() >= 400) {
+                if (currentPlayer.getGender().equals(Gender.FEMALE)) {
+                    return new Result(false, "you can't purpose ask doost pesaret");
+                } else if (player.getGender().equals(Gender.MALE)) {
+                    return new Result(false,
+                            "unfortunately this item is not supported in your country");
+                } else if (currentPlayer.getItemInInventory(ring.getObjectType()) == null) {
+                    return new Result(false, "you don't have a ring. buy one");
                 } else {
-                    return new Result(false, "you can't purpose. upgrade your friendship xp!");
+                    player.getPurposeList().put(currentPlayer, ring.getObjectType());
+                    return new Result(true, "you purposed");
                 }
             } else {
-                return new Result(false, "your friendship is not good enough to purpose!");
+                return new Result(false, "you can't purpose. upgrade your friendship xp!");
             }
         } else {
-            return new Result(false, "you can't purpose to someone who's not near you!");
+            return new Result(false, "your friendship is not good enough to purpose!");
         }
+//        } else {
+//            return new Result(false, "you can't purpose to someone who's not near you!");
+//        }
     }
 
     public void purposeRespond (Player player, boolean answer) {
