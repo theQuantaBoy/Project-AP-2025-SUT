@@ -1,21 +1,35 @@
 package ap.project.visual;
 
+import ap.project.Main;
 import ap.project.model.App.App;
+import ap.project.model.App.GameAssetsManager;
 import ap.project.model.enums.DayOfWeek;
 import ap.project.model.enums.Weather;
 import ap.project.model.game.Game;
 import ap.project.model.game.Player;
 import ap.project.model.game.PlayerCharacter;
 import ap.project.model.game.Time;
+import ap.project.model.tools.Tool;
+import ap.project.screen.InventoryWindow;
+import ap.project.screen.WorldScreen;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.*;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 
-public class UIRenderer {
+import java.awt.*;
+import com.badlogic.gdx.utils.Array;
+
+public class UIRenderer
+{
     private final Texture clockTexture;
     private final Texture handleUp, handleDown, handleMid;
     private final Texture journalAlert;
@@ -25,10 +39,14 @@ public class UIRenderer {
     private final BitmapFont font;
     private final Time time;
 
-    private final ShapeRenderer shapeRenderer = new ShapeRenderer();;
-    Player player;
+    private final ShapeRenderer shapeRenderer = new ShapeRenderer();
+    private Player player;
+
+    private final TextButton friends;
+
 
     private final Texture weatherOverlay;
+    private static final Array<TextBox> activeTextBoxes = new Array<>();
 
     public UIRenderer(Time time) {
         this.time = time;
@@ -60,6 +78,8 @@ public class UIRenderer {
         font.getRegion().getTexture().setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
         this.player = App.getCurrentGame().getCurrentPlayer();
 
+        this.friends = new TextButton("friends", GameAssetsManager.getGameAssetsManager().getSkin());
+
         Pixmap overlayPixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
         overlayPixmap.setColor(0.7f, 0.7f, 0.7f, 0.4f);
         overlayPixmap.fill();
@@ -79,7 +99,22 @@ public class UIRenderer {
 
         renderClock(batch, screenW, screenH);
         renderEnergyBar(uiCam, screenW, screenH);
+        renderTextBoxes(batch);
+        renderFriendsButton(batch, screenW, screenH);
+        // In the future:
+        // renderEnergyBar(batch, screenW, screenH);
+        // renderInventoryBar(batch, screenW, screenH);
     }
+
+    private void renderFriendsButton(Batch batch, int screenW, int screenH) {
+        float buttonX = screenW - 250f;
+        float buttonY = screenH - 320f;
+
+        friends.setPosition(buttonX, buttonY);
+        friends.setSize(220f, 60f);
+        friends.draw(batch, 1f);
+    }
+
 
     /** Draw the entire clock UI section */
     private void renderClock(Batch batch, int screenW, int screenH) {
@@ -264,6 +299,10 @@ public class UIRenderer {
         shapeRenderer.dispose();
     }
 
+    public TextButton getFriends() {
+        return friends;
+    }
+
     public boolean shouldRain()
     {
         Game game = App.getCurrentGame();
@@ -280,5 +319,31 @@ public class UIRenderer {
         Player player = game.getCurrentPlayer();
 
         return ((time.getCurrentWeather() == Weather.Snow) && (player.isInCity() || player.isInFarm()));
+    }
+
+    public static void showTextBox(String text)
+    {
+        activeTextBoxes.add(new TextBox(text, 3.5f, Gdx.graphics.getWidth(), Gdx.graphics.getHeight()));
+    }
+
+    public static void updateTextBoxes(float delta)
+    {
+        for (int i = activeTextBoxes.size - 1; i >= 0; i--)
+        {
+            TextBox tb = activeTextBoxes.get(i);
+            tb.update(delta);
+            if (tb.isExpired())
+            {
+                activeTextBoxes.removeIndex(i);
+            }
+        }
+    }
+
+    public static void renderTextBoxes(Batch batch)
+    {
+        for (TextBox tb : activeTextBoxes)
+        {
+            tb.render(batch);
+        }
     }
 }

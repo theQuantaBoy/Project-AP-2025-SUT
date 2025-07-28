@@ -42,7 +42,7 @@ public class ForgetScreen implements Screen {
         this.background = new Image(GameAssetsManager.getGameAssetsManager().getRegisterBackground());
         this.background.setFillParent(true);
         this.logo = new Image(GameAssetsManager.getGameAssetsManager().getLogo());
-        this.menuName = new Label("FORGET PASSWORD\nMENU", GameAssetsManager.getGameAssetsManager().getSkin());
+        this.menuName = new Label("FORGET PASSWORD\nMENU", GameAssetsManager.getGameAssetsManager().getSkin(), "Impact");
         this.menuName.setAlignment(Align.center);
         this.menuName.setColor(Color.GOLD);
         this.question = new Label(user.getQuestion(), GameAssetsManager.getGameAssetsManager().getSkin());
@@ -72,9 +72,9 @@ public class ForgetScreen implements Screen {
         this.table.add(secTable).row();
         Table passTable  = new Table();
         passTable.add(password).width(320).height(50).pad(10);
-        passTable.add(random).width(180).height(50).pad(10).row();
+        passTable.add(random).width(260).height(50).pad(10).row();
         passTable.add(confirmPassword).width(320).height(50).pad(10);
-        passTable.add(resetPassword).width(180).height(50).pad(10);
+        passTable.add(resetPassword).width(260).height(50).pad(10);
         this.table.add(passTable).row();
         table.add(backButton).width(500).height(50).pad(10).row();
         table.add(errorLabel).width(500).height(50).pad(10).row();

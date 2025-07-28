@@ -31,6 +31,7 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
@@ -40,7 +41,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public final class WorldScreen implements Screen {
+
     private final com.badlogic.gdx.Game miniGame;
+
     private final Stage gameStage;
     private final Array<AnimalActor> animalActors;
     private final AnimalInteractionScreen animalInteractionScreen;
@@ -86,6 +89,7 @@ public final class WorldScreen implements Screen {
     private static StringBuilder dialogTextBuffer = new StringBuilder();
     private static Label dialogContentLabel;
     private InventoryWindow inventoryWindow;
+    private FriendsWindow friendsWindow;
 
     private InputMultiplexer inputMultiplexer;
     private boolean inputMultiplexerHadSetUp = false;
@@ -93,19 +97,17 @@ public final class WorldScreen implements Screen {
     private boolean cameraFixed = false;
 
     private FishingMinigameWindow fishingWindow;
-    private Farm farm;
-    private float mapPixelW;
-    private float mapPixelH;
 
     public WorldScreen() {
         INSTANCE = this;
+
         this.shapeRenderer = new ShapeRenderer();
         this.miniGame = new FishingGame();
         cam = new OrthographicCamera(20 * TILE_SIZE, 15 * TILE_SIZE);
         cam.setToOrtho(false);
 
         this.game = new Game(new ArrayList<>(List.of(
-            new Player(new User("mohsen", "", "mohsen", "", Gender.FEMALE, "", ""), MapTypes.MINING, 0),
+            new Player(new User("mohsen", "", "mohsen", "", Gender.FEMALE, "", ""), MapTypes.STANDARD, 0),
             new Player(new User("arash", "", "arash", "", Gender.FEMALE, "", ""), MapTypes.FISHING, 0),
             new Player(new User("moshtagh", "", "moshtagh", "", Gender.FEMALE, "", ""), MapTypes.FORAGING, 0),
             new Player(new User("ottie", "", "ottie", "", Gender.FEMALE, "", ""), MapTypes.COMBAT, 0)
@@ -133,7 +135,6 @@ public final class WorldScreen implements Screen {
             Farm f = new Farm(p.getMapType());
             p.setFarm(f);
             p.setCurrentMap(f);
-            this.farm = f;
         }
 
         for (Player p : game.getPlayers()) {
@@ -148,7 +149,8 @@ public final class WorldScreen implements Screen {
 
         if (SECOND_PLAYER) {
             Vector2 spawn2 = new Vector2(62 * TILE_SIZE, 60 * TILE_SIZE);
-            player2 = new PlayerCharacter(CharacterType.ABIGAIL, spawn2, "Player 456");
+            Player player2p = new Player(new User("arash", "", "arash", "", Gender.FEMALE, "", ""), MapTypes.FISHING, 0);
+            player2 = new PlayerCharacter(CharacterType.ABIGAIL, spawn2, "Player 456", player2p);
             controller2 = new CharacterController(player2, map, PLAYER_SPEED, TILE_SIZE);
             controller2.chnageMoveKeys(Input.Keys.UP, Input.Keys.LEFT, Input.Keys.DOWN, Input.Keys.RIGHT);
         }
@@ -157,6 +159,7 @@ public final class WorldScreen implements Screen {
         uiRenderer = new UIRenderer(time);
 
         inventoryWindow = new InventoryWindow(uiStage);
+        friendsWindow = new FriendsWindow(uiStage);
         createTerminalDialog();
 
         inputMultiplexer = new InputMultiplexer();
@@ -201,25 +204,46 @@ public final class WorldScreen implements Screen {
             @Override
             public boolean keyDown(int keycode) {
                 if (keycode == Input.Keys.E || keycode == Input.Keys.ESCAPE) {
+                    boolean nowVisible = !inventoryWindow.isVisible();
                     inventoryWindow.toggleVisibility();
+
+                    if (nowVisible)
+                        inventoryWindow.getToolsTab().setChecked(false);
+
                     return true;
                 } else if (keycode == Input.Keys.TAB) {
+                } else if (keycode == Input.Keys.TAB) {
+                    boolean nowVisible = !inventoryWindow.isVisible();
                     inventoryWindow.toggleVisibility();
-                    inventoryWindow.getToolsTab().setChecked(true);
+
+                    if (nowVisible) {
+                        if (inventoryWindow.getLastTabOpenedByTabKey() == InventoryWindow.TabType.TOOLS) {
+                            inventoryWindow.getToolsTab().toggle();
+                        } else {
+                            inventoryWindow.getToolsTab().setChecked(false);
+                        }
+                    }
                     return true;
                 } else if (keycode == Input.Keys.M) {
                     inventoryWindow.toggleVisibility();
                     inventoryWindow.getMapTab().setChecked(true);
                     return true;
-                } else if (keycode == Input.Keys.F) {
-                    toggleFishingMinigame();
-                    return true;
                 }
                 return false;
             }
         });
+
         Gdx.input.setInputProcessor(inputMultiplexer);
         inputMultiplexerHadSetUp = true;
+
+        TextButton friends = uiRenderer.getFriends();
+        uiStage.addActor(friends);
+        friends.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                toggleFriendsWindow();
+            }
+        });
     }
 
     private void toggleFishingMinigame() {
@@ -246,13 +270,6 @@ public final class WorldScreen implements Screen {
     public void render(float dt) {
         Gdx.gl.glClearColor(0f, 0f, 0f, 1f);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-
-        if (fishingWindow == null) {
-            if (!terminalDialog.isVisible() && !isInventoryVisible()) {
-                update(dt);
-                cam.update();
-            }
-        }
 
         if (!terminalDialog.isVisible() && !isInventoryVisible()) {
             update(dt);
@@ -302,7 +319,7 @@ public final class WorldScreen implements Screen {
             Vector2 location = map.tileToWorld(tile);
 
             if (location != null) {
-                shapeRenderer.rect(location.x, location.y - (16f * MAP_SCALE), (16f * MAP_SCALE), (16f * MAP_SCALE));
+                // shapeRenderer.rect(location.x, location.y - (16f * MAP_SCALE), (16f * MAP_SCALE), (16f * MAP_SCALE));
             }
 
             shapeRenderer.end();
@@ -331,6 +348,7 @@ public final class WorldScreen implements Screen {
         checkGameInfo();
         checkMapSeason();
         map.getMapVisual().update(dt);
+        UIRenderer.updateTextBoxes(dt);
 
         if (map.getMapType() == MapTypes.GREEN_HOUSE || map.getMapType() == MapTypes.CARPENTER_SHOP ||
             map.getMapType() == MapTypes.MARNIE_RANCH) {
@@ -338,14 +356,12 @@ public final class WorldScreen implements Screen {
         }
 
         Vector2 targetPos = new Vector2(
-            player.getCharacter().getPosition().x + TILE_SIZE / 2,
-            player.getCharacter().getPosition().y + TILE_SIZE / 2
+            player.getPosition().x + TILE_SIZE / 2,
+            player.getPosition().y + TILE_SIZE / 2
         );
-
 
         cam.position.lerp(new Vector3(targetPos.x, targetPos.y, 0), 5f * dt);
 
-        cam.position.set(player.getCharacter().getPosition().x + TILE_SIZE / 2, player.getCharacter().getPosition().y + TILE_SIZE / 2, 0);
         if (!cameraFixed) {
             float playerX = character.getPosition().x + TILE_SIZE / 2;
             float playerY = character.getPosition().y + TILE_SIZE / 2;
@@ -353,8 +369,8 @@ public final class WorldScreen implements Screen {
             float camX = playerX;
             float camY = playerY;
 
-            mapPixelW = map.getWidth() * MAP_SCALE * 16;
-            mapPixelH = map.getHeight() * MAP_SCALE * 16;
+            float mapPixelW = map.getWidth() * TILE_SIZE;
+            float mapPixelH = map.getHeight() * TILE_SIZE;
 
             cam.position.x = MathUtils.clamp(cam.position.x,
                 cam.viewportWidth / 2, mapPixelW - cam.viewportWidth / 2);
@@ -365,8 +381,8 @@ public final class WorldScreen implements Screen {
             float halfViewportW = cam.viewportWidth / 2;
             float halfViewportH = cam.viewportHeight / 2;
 
-            float rightEdgeSize = mapPixelW - (cam.viewportWidth / 2);
-            float upEdgeSize = mapPixelH - (cam.viewportHeight / 2);
+            float rightEdgeSize = (map.getWidth() * MAP_SCALE * 16) - (cam.viewportWidth / 2);
+            float upEdgeSize = (map.getHeight() * MAP_SCALE * 16) - (cam.viewportHeight / 2);
 
             if (playerX < halfViewportW) {
                 camX = halfViewportW;
@@ -380,15 +396,21 @@ public final class WorldScreen implements Screen {
                 camY = upEdgeSize;
             }
 
-            if (map.getMapType() == MapTypes.JOJA_MART ||
-                map.getMapType() == MapTypes.GREEN_HOUSE ||
-                map.getMapType() == MapTypes.CARPENTER_SHOP) {
-                camX = mapPixelW / 2;
+            if (map.getMapType() == MapTypes.JOJA_MART) {
+                camX = (map.getWidth() * MAP_SCALE * 16) / 2;
+            }
+
+            if (map.getMapType() == MapTypes.GREEN_HOUSE) {
+                camX = (map.getWidth() * MAP_SCALE * 16) / 2;
+            }
+
+            if (map.getMapType() == MapTypes.CARPENTER_SHOP) {
+                camX = (map.getWidth() * MAP_SCALE * 16) / 2;
             }
 
             if (map.getMapType() == MapTypes.MARNIE_RANCH) {
-                camX = mapPixelW / 2;
-                camY = mapPixelH / 2;
+                camX = (map.getWidth() * MAP_SCALE * 16) / 2;
+                camY = (map.getHeight() * MAP_SCALE * 16) / 2;
             }
 
             cam.position.set(camX, camY, 0);
@@ -396,9 +418,9 @@ public final class WorldScreen implements Screen {
     }
 
     @Override
-    public void resize(int width, int height) {
+    public void resize(int w, int h) {
         float targetRatio = 4f / 3f;
-        float currentRatio = (float) width / height;
+        float currentRatio = (float) w / h;
 
         if (currentRatio > targetRatio) {
             cam.viewportHeight = 15 * TILE_SIZE;
@@ -408,11 +430,11 @@ public final class WorldScreen implements Screen {
             cam.viewportHeight = cam.viewportWidth / currentRatio;
         }
 
-        uiCam.setToOrtho(false, width, height);
+        uiCam.setToOrtho(false, w, h);
         uiCam.update();
 
-        animalInteractionScreen.getStage().getViewport().update(width, height, true);
-        uiStage.getViewport().update(width, height, true);
+        animalInteractionScreen.getStage().getViewport().update(w, h, true);
+        uiStage.getViewport().update(w, h, true);
     }
 
     @Override
@@ -447,10 +469,10 @@ public final class WorldScreen implements Screen {
         TiledMap tiledMap = loaded.tiledMap;
         map.setVisual(new MapVisual(map, tiledMap));
 
-        mapPixelW = map.getWidth() * TILE_SIZE;
-        mapPixelH = map.getHeight() * TILE_SIZE;
+        float mapPixelWidth = map.getWidth() * TILE_SIZE;
+        float mapPixelHeight = map.getHeight() * TILE_SIZE;
 
-        if (mapPixelW <= cam.viewportWidth || mapPixelH <= cam.viewportHeight) {
+        if (mapPixelWidth <= cam.viewportWidth || mapPixelHeight <= cam.viewportHeight) {
             setCameraFixed(true);
 
             float centerX = (map.getWidth() * MAP_SCALE * 16) / 2;
@@ -467,11 +489,14 @@ public final class WorldScreen implements Screen {
 
     public Tile cursorToTile() {
         float mouseX = Gdx.input.getX();
-        float mouseY = Gdx.input.getY() + (60); // Hard-Coded
+        float mouseY = Gdx.input.getY() + 60; // Hard-Coded
 
         hoveredTile = map.screenToTile(mouseX, mouseY, cam);
-        Tile tile = map.getTile(hoveredTile.getX(), hoveredTile.getY() - 1);
+        if (hoveredTile == null) {
+            return null;
+        }
 
+        Tile tile = map.getTile(hoveredTile.getX(), hoveredTile.getY() - 1);
         return tile;
     }
 
@@ -533,15 +558,18 @@ public final class WorldScreen implements Screen {
             }
         });
 
+        // Add buttons to table
         buttonTable.add(submitButton).padRight(10);
         buttonTable.add(closeButton);
 
+        // Add button table to dialog
         contentTable.row();
         contentTable.add(buttonTable).padTop(10).right();
 
         terminalDialog.key(Input.Keys.ENTER, "SUBMIT");
         terminalDialog.key(Input.Keys.ESCAPE, "CLOSE");
 
+        // Configure dialog window
         terminalDialog.setModal(true);
         terminalDialog.setMovable(true);
         terminalDialog.setResizable(true);
@@ -626,8 +654,8 @@ public final class WorldScreen implements Screen {
                     float targetX = actor.getX() + MathUtils.random(-moveDist, moveDist);
                     float targetY = actor.getY() + MathUtils.random(-moveDist, moveDist);
 
-                    targetX = MathUtils.clamp(targetX, 0, farm.getDepth() * TILE_SIZE - actor.getWidth());
-                    targetY = MathUtils.clamp(targetY, 0, farm.getHeight() * TILE_SIZE - actor.getHeight());
+                    targetX = MathUtils.clamp(targetX, 0, map.getWidth() * TILE_SIZE - actor.getWidth());
+                    targetY = MathUtils.clamp(targetY, 0, map.getHeight() * TILE_SIZE - actor.getHeight());
 
                     actor.moveTo(targetX, targetY);
                 }
@@ -635,8 +663,8 @@ public final class WorldScreen implements Screen {
         }
     }
 
-    private void updateSeason() {
-        // Implement season update logic if needed
+    public void toggleFriendsWindow() {
+        friendsWindow.toggleVisibility();
     }
 
     public static WorldScreen getInstance() {
@@ -652,6 +680,9 @@ public final class WorldScreen implements Screen {
         }
     }
 
+    private void updateSeason() {
+        // Implement season update logic if needed
+    }
     public Player getPlayer() {
         return player;
     }

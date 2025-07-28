@@ -55,9 +55,8 @@ public class RegisterScreen implements Screen {
         this.background = new Image(GameAssetsManager.getGameAssetsManager().getRegisterBackground());
         this.background.setFillParent(true);
         this.logo = new Image(GameAssetsManager.getGameAssetsManager().getLogo());
-        this.menuName = new Label("REGISTRATION\nMENU", GameAssetsManager.getGameAssetsManager().getSkin());
+        this.menuName = new Label("REGISTRATION\nMENU", GameAssetsManager.getGameAssetsManager().getSkin(), "Impact");
         this.menuName.setAlignment(Align.center);
-        this.menuName.setColor(Color.GOLD);
 
         this.table = new Table();
 
@@ -91,9 +90,8 @@ public class RegisterScreen implements Screen {
         Array<String> genderOptions = new Array<>(); genderOptions.add("Male"); genderOptions.add("Female");
         this.gender = new SelectBox<>(GameAssetsManager.getGameAssetsManager().getSkin());
         this.gender.setItems(genderOptions);
-        this.gender.getStyle().font.getData().setScale(0.5f);
-        this.gender.getStyle().fontColor.set(Color.WHITE);
-        this.username.getStyle().fontColor = Color.WHITE;
+//        this.gender.getStyle().fontColor.set(Color.WHITE);
+//        this.username.getStyle().fontColor = Color.WHITE;
         Array<String> secQuestionOptions = new Array<>();
         secQuestionOptions.add(SecurityQuestionType.ANIMAL.getQuestion());
         secQuestionOptions.add(SecurityQuestionType.GAME.getQuestion());
@@ -109,29 +107,29 @@ public class RegisterScreen implements Screen {
         this.errorLabel = new Label("", GameAssetsManager.getGameAssetsManager().getSkin());
         this.errorLabel.setAlignment(Align.center);
         this.errorLabel.setColor(Color.RED);
-        this.errorLabel.setFontScale(2);
+//        this.errorLabel.setFontScale(2);
         this.exit = new TextButton("Exit", GameAssetsManager.getGameAssetsManager().getSkin());
 
 
         // Build form layout
-        table.add(username).width(500).height(50).pad(10).row();
+        table.add(username).width(500).height(45).pad(10).row();
 
         Table passwordRow = new Table();
         Table nicknameRow = new Table();
-        table.add(password).width(500).height(50).pad(10).row();
-        passwordRow.add(confirmPassword).width(300).height(50).pad(10);
-        passwordRow.add(randomPass).width(180).height(50).pad(10).row();
+        table.add(password).width(500).height(45).pad(10).row();
+        passwordRow.add(confirmPassword).width(300).height(45).pad(10);
+        passwordRow.add(randomPass).width(180).height(45).pad(10).row();
         table.add(passwordRow).row();
-        table.add(email).width(500).height(50).pad(10).row();
-        nicknameRow.add(nickname).width(300).height(50).pad(10);
-        nicknameRow.add(gender).width(180).height(50).pad(10).row();
+        table.add(email).width(500).height(45).pad(10).row();
+        nicknameRow.add(nickname).width(300).height(45).pad(10);
+        nicknameRow.add(gender).width(180).height(45).pad(10).row();
         table.add(nicknameRow).row();
-        table.add(secQuestion).width(500).height(50).pad(10).row();
-        table.add(secAnswer).width(500).height(50).pad(10).row();
-        table.add(enter).width(500).height(60).pad(20).row();
-        table.add(login).width(500).height(50).pad(20).row();
-        table.add(exit).width(500).height(60).pad(20).row();
-        table.add(errorLabel).width(300).height(60).pad(20).row();
+        table.add(secQuestion).width(500).height(45).pad(10).row();
+        table.add(secAnswer).width(500).height(45).pad(10).row();
+        table.add(enter).width(500).height(55).pad(20).row();
+        table.add(login).width(500).height(55).pad(20).row();
+        table.add(exit).width(500).height(55).pad(20).row();
+        table.add(errorLabel).width(300).height(45).pad(5).row();
 
         // Add button listeners
         addButtonListeners();

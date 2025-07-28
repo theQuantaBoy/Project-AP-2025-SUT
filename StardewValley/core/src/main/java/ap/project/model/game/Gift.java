@@ -10,6 +10,7 @@ public class Gift {
     private int rate;
     private final int id;
     private static int lastAssigned = 0;
+    private boolean isRated = false;
 
     public Gift(GameObjectType gameObject, Player giver, Player taker, int amount) {
         this.gameObject = gameObject;
@@ -41,9 +42,23 @@ public class Gift {
 
     public void setRate(int rate) {
         this.rate = rate;
+        isRated = true;
     }
 
     public int getId() {
         return id;
+    }
+
+    public boolean isRated() {
+        return isRated;
+    }
+
+    public void setRated(boolean rated) {
+        isRated = rated;
+    }
+
+    @Override
+    public String toString() {
+        return gameObject.toString();
     }
 }
