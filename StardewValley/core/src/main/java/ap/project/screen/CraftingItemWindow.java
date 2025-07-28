@@ -36,6 +36,8 @@ public class CraftingItemWindow
     private Table inventoryGrid;
     private static final int CRAFTING_ROWS = 1;
     private static final int CRAFTING_COLS = 6;
+    private static final int INVENTORY_ROWS = 3;
+    private static final int INVENTORY_COLS = 12;
     private static final int SLOT_SIZE = 48;
     private static final int GRID_SPACING = 8;
     private Drawable selectionBorderDrawable;
@@ -191,12 +193,17 @@ public class CraftingItemWindow
     private void buildPeriodicSetupUI()
     {
         Table mainLayout = new Table();
+        mainLayout.defaults().pad(5);
 
-        // Crafting grid
-        mainLayout.add(new Label("Input Slots", skin)).colspan(CRAFTING_COLS).padBottom(10).row();
+        // Crafting grid header
+        mainLayout.add(new Label("Input Slots", skin)).colspan(INVENTORY_COLS).padBottom(10).row();
+
+        // Center the crafting grid in a wrapper table
+        Table centerWrapper = new Table();
         craftingGrid = new Table();
-        buildGrid(craftingGrid, new ArrayList<>(CRAFTING_COLS), true);
-        mainLayout.add(craftingGrid).colspan(CRAFTING_COLS).padBottom(20).row();
+        buildGrid(craftingGrid, new ArrayList<>(CRAFTING_COLS), true, CRAFTING_COLS);
+        centerWrapper.add(craftingGrid);
+        mainLayout.add(centerWrapper).colspan(INVENTORY_COLS).padBottom(20).center().row();
 
         // Options button
         TextButton optionsButton = new TextButton("Recipes", skin);
@@ -208,20 +215,22 @@ public class CraftingItemWindow
                 showRecipesDialog();
             }
         });
-        mainLayout.add(optionsButton).padTop(10).padBottom(20).colspan(CRAFTING_COLS).row();
+        mainLayout.add(optionsButton).padTop(10).padBottom(20).colspan(INVENTORY_COLS).row();
 
         // Separator
-        mainLayout.add(createSeparator()).colspan(CRAFTING_COLS).fillX().padBottom(20).row();
+        mainLayout.add(createSeparator()).colspan(INVENTORY_COLS).fillX().padBottom(20).row();
 
         // Inventory grid
-        mainLayout.add(new Label("Inventory", skin)).colspan(CRAFTING_COLS).padBottom(10).row();
+        mainLayout.add(new Label("Inventory", skin)).colspan(INVENTORY_COLS).padBottom(10).row();
         inventoryGrid = new Table();
         Player player = App.getCurrentGame().getCurrentPlayer();
-        buildGrid(inventoryGrid, player.getInventory(), false);
-        mainLayout.add(inventoryGrid).colspan(CRAFTING_COLS).padBottom(20).row();
+        buildGrid(inventoryGrid, player.getInventory(), false, INVENTORY_COLS);
+        mainLayout.add(inventoryGrid).colspan(INVENTORY_COLS).padBottom(20).row();
 
         // Buttons
         Table buttonTable = new Table();
+        buttonTable.defaults().minWidth(120).pad(10);
+
         startButton = new TextButton("Start Crafting", skin);
         startButton.addListener(new ClickListener()
         {
@@ -254,7 +263,7 @@ public class CraftingItemWindow
 
         buttonTable.add(startButton).padRight(20);
         buttonTable.add(closeButton);
-        mainLayout.add(buttonTable).colspan(CRAFTING_COLS).padTop(10);
+        mainLayout.add(buttonTable).colspan(INVENTORY_COLS).padTop(10);
 
         window.add(mainLayout);
     }
@@ -262,6 +271,7 @@ public class CraftingItemWindow
     private void buildPeriodicWorkingUI()
     {
         Table content = new Table();
+        content.defaults().pad(15);
 
         statusLabel = new Label("Crafting in progress...", skin);
         content.add(statusLabel).padBottom(30).row();
@@ -270,10 +280,12 @@ public class CraftingItemWindow
         ProgressBar progressBar = new ProgressBar(0, 1, 0.01f, false, skin);
         progressBar.setValue(currentItem.getHowMuchDone());
         progressBar.setAnimateDuration(0.5f);
-        content.add(progressBar).width(300).padBottom(20).row();
+        content.add(progressBar).width(300).height(30).padBottom(20).row();
 
         // Buttons
         Table buttonTable = new Table();
+        buttonTable.defaults().minWidth(160).pad(10);
+
         cancelButton = new TextButton("Cancel Crafting", skin);
         cancelButton.addListener(new ClickListener()
         {
@@ -286,7 +298,6 @@ public class CraftingItemWindow
             }
         });
 
-        // CORRECTED: Properly declare and initialize the button
         getInstantlyButton = new TextButton("Complete Instantly", skin);
         getInstantlyButton.addListener(new ClickListener()
         {
@@ -299,7 +310,7 @@ public class CraftingItemWindow
 
         buttonTable.add(cancelButton).padRight(20);
         buttonTable.add(getInstantlyButton);
-        content.add(buttonTable);
+        content.add(buttonTable).padTop(10);
 
         window.add(content);
     }
@@ -307,6 +318,7 @@ public class CraftingItemWindow
     private void buildPeriodicDoneUI()
     {
         Table content = new Table();
+        content.defaults().pad(20);
 
         statusLabel = new Label("Crafting complete! Collect your item.", skin);
         content.add(statusLabel).padBottom(30).row();
@@ -329,13 +341,15 @@ public class CraftingItemWindow
             }
         });
 
-        content.add(getProductButton).size(200, 50);
+        content.add(getProductButton).minWidth(200).minHeight(60).row();
         window.add(content);
     }
 
     private void buildPermanentUI()
     {
         Table content = new Table();
+        content.defaults().pad(20);
+
         content.add(new Label("Permanent Device", skin)).padBottom(20).row();
         content.add(new Label("This device works automatically", skin)).padBottom(30).row();
 
@@ -349,7 +363,7 @@ public class CraftingItemWindow
             }
         });
 
-        content.add(closeButton).size(150, 50);
+        content.add(closeButton).minWidth(150).minHeight(50);
         window.add(content);
     }
 
@@ -364,14 +378,14 @@ public class CraftingItemWindow
         return separator;
     }
 
-    private void buildGrid(Table grid, List<GameObject> items, boolean isCraftingGrid)
+    private void buildGrid(Table grid, List<GameObject> items, boolean isCraftingGrid, int cols)
     {
         grid.defaults().size(SLOT_SIZE).pad(GRID_SPACING);
         grid.clear();
 
         BitmapFont quantityFont = GameAssetsManager.generateFont("fonts/Roboto-Regular.ttf", 16, Color.WHITE);
 
-        int slots = isCraftingGrid ? CRAFTING_ROWS * CRAFTING_COLS : 36;
+        int slots = isCraftingGrid ? CRAFTING_ROWS * CRAFTING_COLS : INVENTORY_ROWS * INVENTORY_COLS;
 
         for (int i = 0; i < slots; i++)
         {
@@ -422,7 +436,7 @@ public class CraftingItemWindow
             }
 
             grid.add(slotStack);
-            if ((i + 1) % CRAFTING_COLS == 0) grid.row();
+            if ((i + 1) % cols == 0) grid.row();
         }
     }
 
