@@ -501,6 +501,14 @@ public class Game
             UIRenderer.showTextBox("someone has purposed!");
             currentPlayer.setNewShohar(false);
         }
+        if (!currentPlayer.getNewGifts().isEmpty()) {
+            UIRenderer.showTextBox("you received a new gift!");
+            currentPlayer.getNewGifts().clear();
+        }
+        if (currentPlayer.isNewMessage()) {
+            UIRenderer.showTextBox("you received a new message!");
+            currentPlayer.setNewMessage(false);
+        }
     }
 
     public void unleashTheCrows()
