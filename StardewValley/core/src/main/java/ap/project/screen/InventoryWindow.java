@@ -6,7 +6,6 @@ import ap.project.model.player_data.Skill;
 import ap.project.model.tools.Tool;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Actor;
@@ -21,14 +20,11 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 
-/**
- * A popup inventory window with tabbed panels that automatically shows
- * the player's current backpack contents in a grid.
- */
 public class InventoryWindow {
     private final Window popup;
     private final Stage stage;
     private final Table inventoryTable;
+    private final ScrollPane inventoryScrollPane;
     private final Table skillsTable;
     private final Table socialTable;
     private final Table mapTable;
@@ -39,62 +35,59 @@ public class InventoryWindow {
     private boolean isVisible = false;
     private static final int COLS = 8;
     private static final int SLOTS_SIZE = 64;
-    private Drawable slotBackground; // For inventory slot backgrounds
+    private Drawable slotBackground;
     private Drawable slotHighlight;
     private Player player;
     private TooltipManager tooltipManager = TooltipManager.getInstance();
     private Drawable tooltipBg;
     private TextButton toolsTab;
     private TextButton mapTab;
-    public enum TabType { INVENTORY, SKILL, SOCIAL, MAP, TOOLS}
+    public enum TabType { INVENTORY, SKILL, SOCIAL, MAP, TOOLS }
 
     private TabType lastTabOpenedByTabKey = TabType.INVENTORY;
 
-    /**
-     * @param stage    the Stage to which this window will be added
-     */
     public InventoryWindow(Stage stage) {
         this.skin = GameAssetsManager.getGameAssetsManager().getSkin();
         this.stage = stage;
-        // Create popup Window
         popup = new Window("Menu", skin);
         popup.setVisible(false);
         popup.setMovable(true);
         popup.defaults().pad(5);
 
-        // Create tab buttons
         TextButton invTab = new TextButton("Inventory", skin);
         TextButton skillsTab = new TextButton("Skills", skin);
         TextButton socialTab = new TextButton("Social", skin);
         mapTab = new TextButton("Map", skin);
         toolsTab = new TextButton("Tools", skin);
+
         this.slotBackground = GameAssetsManager.getGameAssetsManager().createColoredDrawable(SLOTS_SIZE, SLOTS_SIZE, new Color(0.3f, 0.3f, 0.3f, 0.7f));
         this.slotHighlight = GameAssetsManager.getGameAssetsManager().createColoredDrawable(SLOTS_SIZE, SLOTS_SIZE, new Color(0.5f, 0.5f, 0.5f, 0.9f));
 
-        tooltipManager.initialTime = 0.5f; // Delay before tooltip shows
+        tooltipManager.initialTime = 0.5f;
         tooltipManager.subsequentTime = 0.1f;
         tooltipBg = GameAssetsManager.getGameAssetsManager().createColoredDrawable(1, 1, new Color(0f, 0f, 0f, 0.7f));
 
-        // Create content tables
         inventoryTable = new Table(skin);
-        skillsTable    = buildSkillsTable();
-        socialTable    = buildSocialTable();
-        mapTable       = buildMapTable();
-        toolsTable     = new Table(skin);
+        inventoryScrollPane = new ScrollPane(inventoryTable, skin);
+        inventoryScrollPane.setFadeScrollBars(false);
+        inventoryScrollPane.setScrollingDisabled(true, false); // ✅ Only vertical scrolling
 
-        // Stack panels and hide non-inventory
-        contentStack = new Stack(inventoryTable, skillsTable, socialTable, mapTable, toolsTable);
+        skillsTable = buildSkillsTable();
+        socialTable = buildSocialTable();
+        mapTable = buildMapTable();
+        toolsTable = new Table(skin);
+
+        contentStack = new Stack(inventoryScrollPane, skillsTable, socialTable, mapTable, toolsTable);
         skillsTable.setVisible(false);
         socialTable.setVisible(false);
         mapTable.setVisible(false);
         toolsTable.setVisible(false);
 
-        // Tab switching with inventory refresh
         invTab.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 refreshInventoryTable();
-                inventoryTable.setVisible(true);
+                inventoryScrollPane.setVisible(true);
                 skillsTable.setVisible(false);
                 socialTable.setVisible(false);
                 mapTable.setVisible(false);
@@ -104,10 +97,11 @@ public class InventoryWindow {
                 lastTabOpenedByTabKey = TabType.INVENTORY;
             }
         });
+
         skillsTab.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                inventoryTable.setVisible(false);
+                inventoryScrollPane.setVisible(false);
                 skillsTable.setVisible(true);
                 socialTable.setVisible(false);
                 mapTable.setVisible(false);
@@ -116,10 +110,11 @@ public class InventoryWindow {
                 center(stage);
             }
         });
+
         socialTab.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                inventoryTable.setVisible(false);
+                inventoryScrollPane.setVisible(false);
                 skillsTable.setVisible(false);
                 socialTable.setVisible(true);
                 mapTable.setVisible(false);
@@ -128,10 +123,11 @@ public class InventoryWindow {
                 center(stage);
             }
         });
+
         mapTab.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                inventoryTable.setVisible(false);
+                inventoryScrollPane.setVisible(false);
                 skillsTable.setVisible(false);
                 socialTable.setVisible(false);
                 mapTable.setVisible(true);
@@ -141,10 +137,11 @@ public class InventoryWindow {
                 lastTabOpenedByTabKey = TabType.MAP;
             }
         });
+
         toolsTab.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                inventoryTable.setVisible(false);
+                inventoryScrollPane.setVisible(false);
                 skillsTable.setVisible(false);
                 socialTable.setVisible(false);
                 mapTable.setVisible(false);
@@ -152,12 +149,10 @@ public class InventoryWindow {
                 refreshToolTable();
                 popup.pack();
                 center(stage);
-
                 lastTabOpenedByTabKey = TabType.TOOLS;
             }
         });
 
-        // Assemble popup layout
         popup.row();
         popup.add(invTab).expandX().fillX();
         popup.add(skillsTab).expandX().fillX();
@@ -165,95 +160,23 @@ public class InventoryWindow {
         popup.add(mapTab).expandX().fillX();
         popup.add(toolsTab).expandX().fillX();
         popup.row();
-        popup.add(contentStack).colspan(4).expand().center(); popup.row();
+        popup.add(contentStack).colspan(4).expand().fill(); // Important: use .fill
+        popup.row();
         popup.pack();
         center(stage);
         stage.addActor(popup);
     }
 
-    private Drawable createColoredDrawable(int width, int height, Color color) {
-        Pixmap pixmap = new Pixmap(width, height, Pixmap.Format.RGBA8888);
-        pixmap.setColor(color);
-        pixmap.fill();
-        Texture texture = new Texture(pixmap);
-        pixmap.dispose();
-        return new TextureRegionDrawable(new TextureRegion(texture));
-    }
+    private int selectedInventorySlot = -1;
+    private int selectedToolSlot = -1;
 
+    private void refreshInventoryTable() {
+        inventoryTable.clear();
+        Table content;
+        /*if (backpack.getCapacity() == -1)*/ content = buildLimitedInventoryTable();
+//        else content = buildLimitedInventoryTable();
 
-    private int selectedObjectSlot = -1;
-
-    /**
-     * Refreshes the inventory grid to match the backpack contents.
-     */
-    public Table buildInventoryTable() {
-        Table table = new Table(skin);
-        table.defaults().size(32).pad(2);
-        table.center();
-        updatePlayer();
-        java.util.List<GameObject> slots = backpack.getSlots();
-        int capacity = backpack.getCapacity();
-
-        for (int slot = 0; slot < capacity; slot++) {
-            final int slotIndex = slot; // needed for use in listener
-            GameObject obj = slots.get(slot);
-
-            Table slotContainer = new Table();
-
-            // Use highlight if this is the selected inventory slot
-            slotContainer.setBackground(
-                slotIndex == selectedInventorySlot ? slotHighlight : slotBackground
-            );
-            slotContainer.setSize(SLOTS_SIZE, SLOTS_SIZE);
-
-            if (obj != null) {
-                Drawable icon;
-                try {
-                    icon = getIconForGameObject(obj);
-                } catch (Exception e) {
-                    icon = new Image(new Texture(Gdx.files.internal("game_objects/crops/Rice.png"))).getDrawable();
-                }
-
-                Stack itemStack = new Stack();
-                itemStack.add(new Image(icon));
-
-                if (obj.getNumber() > 1) {
-                    Label countLabel = new Label(String.valueOf(obj.getNumber()), skin);
-                    itemStack.add(countLabel);
-                }
-
-                slotContainer.add(itemStack).expand().fill();
-
-                String tooltipText = obj.getObjectType().toString();
-                Label tooltipLabel = new Label(tooltipText, skin);
-                Tooltip<Label> tooltip = new Tooltip<>(tooltipLabel, tooltipManager);
-                tooltip.getContainer().setBackground(tooltipBg);
-                tooltip.getContainer().pad(8);
-                slotContainer.addListener(tooltip);
-                stage.addActor(tooltip.getContainer());
-            }
-
-            // ✅ Add click listener to select this inventory slot
-            slotContainer.addListener(new ClickListener() {
-                @Override
-                public void clicked(InputEvent event, float x, float y) {
-                    GameObject clickedObject = slotIndex < slots.size() ? slots.get(slotIndex) : null;
-                    selectedInventorySlot = clickedObject != null ? slotIndex : -1;
-                    refreshInventoryTable(); // re-render with highlight
-                    if (clickedObject != null) {
-                        System.out.println("Selected Inventory Item: " + clickedObject.getObjectType());
-                    }
-                }
-            });
-
-            table.add(slotContainer).size(SLOTS_SIZE, SLOTS_SIZE).pad(2);
-
-            if ((slot + 1) % COLS == 0) {
-                table.row();
-            }
-        }
-
-        return table;
+        inventoryTable.add(content).expand().center();
     }
 
     public GameObject getSelectedInventoryObject() {
@@ -264,52 +187,142 @@ public class InventoryWindow {
         return null;
     }
 
+//    public Table buildInventoryTable() {
+//        Table table = new Table(skin);
+//        table.defaults().size(SLOTS_SIZE).pad(2);
+//        table.top().left();
+//        updatePlayer();
+//
+//        // Loop only existing items
+//        for (int i = 0; i < backpack.getSlots().size(); i++) {
+//            GameObject obj = backpack.getSlots().get(i);
+//            table.add(createSlotCell(i, obj))
+//                .size(SLOTS_SIZE, SLOTS_SIZE).pad(2);
+//
+//            if ((i + 1) % COLS == 0) {
+//                table.row();
+//            }
+//        }
+//        return table;
+//    }
+//
+//    /**
+//     * Creates a single slot cell at index i, highlighting if selected.
+//     */
+//    private Table createSlotCell(int index, GameObject obj) {
+//        Table slot = new Table(skin);
+//        slot.setBackground(index == selectedInventorySlot ? slotHighlight : slotBackground);
+//        slot.setSize(SLOTS_SIZE, SLOTS_SIZE);
+//
+//        if (obj != null) {
+//            Drawable icon = getIconForGameObject(obj);
+//            Stack stack = new Stack(new Image(icon));
+//            if (obj.getNumber() > 1) {
+//                stack.add(new Label(String.valueOf(obj.getNumber()), skin));
+//            }
+//            slot.add(stack).expand().fill();
+//
+//            Tooltip<Label> tip = new Tooltip<>(
+//                new Label(obj.getObjectType().toString(), skin),
+//                tooltipManager
+//            );
+//            tip.getContainer().setBackground(tooltipBg);
+//            slot.addListener(tip);
+//            stage.addActor(tip.getContainer());
+//        }
+//
+//        slot.addListener(new ClickListener() {
+//            @Override
+//            public void clicked(InputEvent event, float x, float y) {
+//                selectedInventorySlot = (obj != null) ? index : -1;
+//                refreshInventoryTable();  // re-build & re-display
+//            }
+//        });
+//
+//        return slot;
+//    }
 
-    /**
-     * Refreshes the inventory grid to match the backpack contents.
-     */
-    private void refreshInventoryTable() {
-        inventoryTable.clearChildren();
-        Table newTable = buildInventoryTable();
-        inventoryTable.add(newTable).expand().center();
+
+    public Table buildLimitedInventoryTable() {
+        Table table = new Table(skin);
+        table.defaults().size(SLOTS_SIZE).pad(2);
+        table.center();
+        updatePlayer();
+        java.util.List<GameObject> slots = backpack.getSlots();
+        int capacity = backpack.getCapacity();
+
+        for (int slot = 0; slot < capacity; slot++) {
+            final int slotIndex = slot;
+            GameObject obj = slots.get(slot);
+            Table slotContainer = new Table();
+            slotContainer.setBackground(slotIndex == selectedInventorySlot ? slotHighlight : slotBackground);
+            slotContainer.setSize(SLOTS_SIZE, SLOTS_SIZE);
+
+            if (obj != null) {
+                Drawable icon = getSafeIcon(obj);
+                Stack itemStack = new Stack();
+                itemStack.add(new Image(icon));
+
+                if (obj.getNumber() > 1) {
+                    Label countLabel = new Label(String.valueOf(obj.getNumber()), skin);
+                    itemStack.add(countLabel);
+                }
+
+                slotContainer.add(itemStack).expand().fill();
+
+                Label tooltipLabel = new Label(obj.getObjectType().toString(), skin);
+                Tooltip<Label> tooltip = new Tooltip<>(tooltipLabel, tooltipManager);
+                tooltip.getContainer().setBackground(tooltipBg);
+                tooltip.getContainer().pad(8);
+                slotContainer.addListener(tooltip);
+                stage.addActor(tooltip.getContainer());
+            }
+
+            slotContainer.addListener(new ClickListener() {
+                @Override
+                public void clicked(InputEvent event, float x, float y) {
+                    GameObject clickedObject = slotIndex < slots.size() ? slots.get(slotIndex) : null;
+                    selectedInventorySlot = clickedObject != null ? slotIndex : -1;
+                    refreshInventoryTable();
+                    if (clickedObject != null)
+                        System.out.println("Selected Inventory Item: " + clickedObject.getObjectType());
+                }
+            });
+
+            table.add(slotContainer).size(SLOTS_SIZE, SLOTS_SIZE).pad(2);
+
+            if ((slot + 1) % COLS == 0)
+                table.row();
+        }
+        return table;
     }
 
-    private int selectedToolSlot = -1;
-    private int selectedInventorySlot = -1;
+    private Drawable getSafeIcon(GameObject obj) {
+        try {
+            return getIconForGameObject(obj);
+        } catch (Exception e) {
+            return new Image(new Texture(Gdx.files.internal("game_objects/crops/Rice.png"))).getDrawable();
+        }
+    }
 
-
-    // Replace your existing method with this:
     private void refreshToolTable() {
         toolsTable.clear();
         toolsTable.defaults().size(SLOTS_SIZE).pad(4);
         toolsTable.center();
         updatePlayer();
         java.util.List<Tool> tools = backpack.getTools();
+
         for (int i = 0; i < COLS; i++) {
             Tool tool = i < tools.size() ? tools.get(i) : null;
             Table slotContainer = new Table();
-
-            // Use highlight if this is the selected slot
-            slotContainer.setBackground(
-                i == selectedToolSlot ? slotHighlight : slotBackground
-            );
+            slotContainer.setBackground(i == selectedToolSlot ? slotHighlight : slotBackground);
             slotContainer.setSize(SLOTS_SIZE, SLOTS_SIZE);
 
             if (tool != null) {
-                Drawable icon;
-                try {
-                    icon = getIconForGameObject((GameObject)tool);
-                } catch (Exception e) {
-                    icon = new Image(
-                        new Texture(Gdx.files.internal("game_objects/crops/Rice.png"))
-                    ).getDrawable();
-                }
-                Image iconImage = new Image(icon);
-                slotContainer.add(iconImage).expand().fill();
+                Drawable icon = getSafeIcon((GameObject) tool);
+                slotContainer.add(new Image(icon)).expand().fill();
 
-                // Tooltip for the tool
-                String tooltipText = tool.getObjectType().toString();
-                Label tooltipLabel = new Label(tooltipText, skin);
+                Label tooltipLabel = new Label(tool.getObjectType().toString(), skin);
                 Tooltip<Label> tooltip = new Tooltip<>(tooltipLabel, tooltipManager);
                 tooltip.getContainer().setBackground(tooltipBg);
                 tooltip.getContainer().pad(8);
@@ -325,25 +338,19 @@ public class InventoryWindow {
                     player.setCurrentTool(clickedTool);
                     selectedToolSlot = clickedTool != null ? slotIndex : -1;
                     refreshToolTable();
-                    System.out.println(player.getCurrentTool().getToolType().getName());
+                    if (player.getCurrentTool() != null)
+                        System.out.println(player.getCurrentTool().getToolType().getName());
                 }
             });
 
-            toolsTable.add(slotContainer)
-                .size(SLOTS_SIZE, SLOTS_SIZE)
-                .pad(4);
+            toolsTable.add(slotContainer).size(SLOTS_SIZE, SLOTS_SIZE).pad(4);
 
-            if ((i + 1) % COLS == 0) {
+            if ((i + 1) % COLS == 0)
                 toolsTable.row();
-            }
         }
     }
 
-    /**
-     * Gets the icon for a game object
-     */
     private Drawable getIconForGameObject(GameObject obj) {
-        // Replace with your actual icon loading logic
         String path = obj.getObjectType().getPath();
         return new TextureRegionDrawable(new TextureRegion(new Texture(Gdx.files.internal(path))));
     }
@@ -357,21 +364,16 @@ public class InventoryWindow {
             ProgressBar bar = new ProgressBar(0, s.getThresholdForLevel(s.getLevel()), 1, false, skin);
             bar.setValue((float) s.getUnit());
 
-            // Tooltip content (can be customized)
-            String tooltipText = s.getName() + " (Level " + s.getLevel() + ")\n" +
-                "XP: " + s.getUnit() + "/" + s.getThresholdForLevel(s.getLevel());
+            String tooltipText = s.getName() + " (Level " + s.getLevel() + ")\nXP: " +
+                s.getUnit() + "/" + s.getThresholdForLevel(s.getLevel());
 
             Label tooltipLabel = new Label(tooltipText, skin);
             Tooltip<Label> tooltip = new Tooltip<>(tooltipLabel, tooltipManager);
-
             tooltip.getContainer().setBackground(tooltipBg);
-            tooltip.getContainer().pad(8);            // add some padding around the text
+            tooltip.getContainer().pad(8);
 
-            // Add tooltip listener to label and progress bar
             skillLabel.addListener(tooltip);
             bar.addListener(tooltip);
-
-            // Ensure tooltips work properly
             stage.addActor(tooltip.getContainer());
 
             table.add(skillLabel);
@@ -380,7 +382,6 @@ public class InventoryWindow {
         }
         return table;
     }
-
 
     private Table buildSocialTable() {
         Table table = new Table(skin);
@@ -410,9 +411,6 @@ public class InventoryWindow {
         popup.setPosition((w - popup.getWidth()) / 2f, (h - popup.getHeight()) / 2f);
     }
 
-    /**
-     * Toggles the popup visibility.
-     */
     public void toggleVisibility() {
         isVisible = !isVisible;
         popup.setVisible(isVisible);

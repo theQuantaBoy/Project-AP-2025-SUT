@@ -189,7 +189,7 @@ public class FriendsWindow {
         });
 
         // Inventory
-        Table inventoryTable = inventoryWindow.buildInventoryTable();
+        Table inventoryTable = inventoryWindow.buildLimitedInventoryTable();
 
         // Amount input field
         final TextField amountField = new TextField("1", skin);
