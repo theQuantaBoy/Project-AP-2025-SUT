@@ -122,16 +122,26 @@ public class CharacterController
         float nextY = pos.y + dy;
 
         Point tilePos = map.worldToTile(nextX, nextY);
-        Tile  target  = map.getTile(tilePos.getX(), tilePos.getY());
+        Tile target  = map.getTile(tilePos.getX(), tilePos.getY());
 
         boolean ctrl = Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT)
                 || Gdx.input.isKeyPressed(Input.Keys.CONTROL_RIGHT);
 
         boolean blocked = target == null ||
-                (!ctrl && switch (target.getTexture()) {
+                (switch (target.getTexture()) {
                     case LAKE, UNPASSABLE, BUILDING, OBJECT -> true;
                     default -> false;
                 });
+
+        if (target == null || target.getObject() != null)
+        {
+            blocked = true;
+        }
+
+        if (ctrl)
+        {
+            blocked = false;
+        }
 
         if (!blocked)
         {

@@ -41,8 +41,9 @@ public class WorldScreenInputProcessor implements InputProcessor
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button)
     {
-        // Don't process clicks if any dialog/window is visible
-        if (worldScreen.isDialogVisible() || worldScreen.isInventoryVisible() || worldScreen.isChatVisible())
+        if (worldScreen.isDialogVisible() || worldScreen.isInventoryVisible() ||
+            worldScreen.isCookBookVisible() || worldScreen.isRefrigeratorVisible() ||
+            worldScreen.isCraftingWindowVisible() || worldScreen.isChatVisible())
         {
             return false;
         }
@@ -54,38 +55,59 @@ public class WorldScreenInputProcessor implements InputProcessor
             if (tile != null)
             {
                 System.out.println("Clicked Tile (x: " + tile.getX() + ", y: " + tile.getY() + ") - " + tile.getTexture());
+                if (tile.getObject() != null)
+                {
+                    System.out.println("Object: " + tile.getObject().getObjectType());
+                }
+//                for (int i = 0; i < farm.getDepth(); i++)
+//                {
+//                    Tile layerTile = farm.getLayerTiles()[i][tile.getY()][tile.getX()];
+//                    if (layerTile != null)
+//                    {
+//                        System.out.println("Layer " + i + ": " + layerTile.getTypeName());
+//                    } else
+//                    {
+//                        System.out.println("Layer " + i + ": null");
+//                    }
+//                }
             }
 
-            WorldController.processClickLeft(tile);
+            WorldController.processClickLeft(worldScreen, tile);
         }
 
         if (Gdx.input.isButtonJustPressed(Input.Buttons.RIGHT)) {
             Point clicked = map.screenToTile(Gdx.input.getX(), Gdx.input.getY(), cam);
+            Tile tile = worldScreen.cursorToTile();
 
-            if (clicked != null) {
-                Player nearbyPlayer = findNearbyPlayer(clicked, 1); // radius 1 (8-neighbors)
-
-                if (nearbyPlayer != null) {
-                    communicationWindow.show(nearbyPlayer);
-                } else {
-                    Vector2 playerPos = player.getPosition();
-                    Point playerTile = map.worldToTile(playerPos.x, playerPos.y);
-
-                    ArrayList<Point> path = map.findShortestPath(playerTile, clicked);
-                    if (path != null) {
-                        characterController.moveToPath(path);
-                    }
-                }
+            if (tile != null)
+            {
+                WorldController.processClickRight(worldScreen, tile);
             }
+
+//            if (clicked != null)
+//            {
+//                Vector2 playerPos = player.getPosition();
+//                Point playerTile = map.worldToTile(playerPos.x, playerPos.y);
+//
+//                ArrayList<Point> path = map.findShortestPath(playerTile, clicked);
+//
+//                if (path != null)
+//                {
+//                    characterController.moveToPath(path);
+//                }
+//            }
         }
 
         return true;
     }
 
     @Override
-    public boolean keyDown(int keycode) {
-        // Don't process keys if chat is visible (let chat handle its own input)
-        if (worldScreen.isChatVisible()) {
+    public boolean keyDown(int keycode)
+    {
+        if (worldScreen.isDialogVisible() || worldScreen.isInventoryVisible() ||
+            worldScreen.isCookBookVisible() || worldScreen.isRefrigeratorVisible() ||
+        worldScreen.isCraftingWindowVisible() || worldScreen.isChatViisible())
+        {
             return false;
         }
 

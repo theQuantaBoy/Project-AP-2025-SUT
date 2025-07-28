@@ -31,7 +31,11 @@ public class Farm extends Map
     private ArrayList<AnimalBuilding> animalBuildings = new ArrayList<>();
 
     private ArrayList<Tile> tilesWithResources = new ArrayList<>();
+    private ArrayList<Tile> tilesWithForagingTrees = new ArrayList<>();
+    private ArrayList<Tile> tilesWithForagingItems = new ArrayList<>();
+    private ArrayList<Tile> tilesWithForagingMinerals = new ArrayList<>();
     private ArrayList<Tile> plantingTiles = new ArrayList<>();
+    private ArrayList<Tile> tilesWithCraftingItems = new ArrayList<>();
 
     public Farm(MapTypes farmType) {
         super(farmType);
@@ -56,7 +60,7 @@ public class Farm extends Map
             int y = (int) (Math.random() * HEIGHT);
             int x = (int) (Math.random() * WIDTH);
             Tile tile = tiles[y][x];
-            if ((tile.getTexture() == TileTexture.LAND) || (tile.getTexture() == TileTexture.GRASS) && tile.getObject() == null)
+            if (((tile.getTexture() == TileTexture.LAND) || (tile.getTexture() == TileTexture.GRASS)) && tile.getObject() == null)
             {
                 return tile;
             }
@@ -71,7 +75,7 @@ public class Farm extends Map
             for (int x = 0; x < WIDTH; x++)
             {
                 Tile tile = tiles[y][x];
-                if ((tile.getTexture() == TileTexture.LAND) || (tile.getTexture() == TileTexture.GRASS) && tile.getObject() == null)
+                if (((tile.getTexture() == TileTexture.LAND) || (tile.getTexture() == TileTexture.GRASS)) && tile.getObject() == null)
                 {
                     freeTiles.add(tile);
                 }
@@ -88,13 +92,14 @@ public class Farm extends Map
 
     private void setRandomItems()
     {
-        int randomItemsCount = getFreeTiles().size() / 60;
+        int randomItemsCount = getFreeTiles().size() / 80;
 
         for (int i = 0; i < randomItemsCount / 3; i++)
         {
             Tile random = getRandomFreeTile();
             random.setObject(new Resource(ResourceItem.STONE));
             tilesWithResources.add(random);
+            tilesWithResources.sort(Comparator.comparingInt(Tile::getY));
         }
 
         for (int i = 0; i < randomItemsCount / 3; i++)
@@ -102,24 +107,34 @@ public class Farm extends Map
             Tile random = getRandomFreeTile();
             random.setObject(new Resource(ResourceItem.WOOD));
             tilesWithResources.add(random);
+            tilesWithResources.sort(Comparator.comparingInt(Tile::getY));
         }
-//
-//        for (int i = 0; i < randomItemsCount / 3; i++)
-//        {
-//            Tile random = getRandomFreeTile();
-//            ForagingTreeType type = randomItem(ForagingTreeType.class);
-//            random.setObject(new ForagingTree(type));
-//        }
+
+        for (int i = 0; i < randomItemsCount / 3; i++)
+        {
+            Tile random = getRandomFreeTile();
+            ForagingTreeType type = randomItem(ForagingTreeType.class);
+            random.setObject(new ForagingTree(type));
+            tilesWithForagingTrees.add(random);
+            tilesWithForagingTrees.sort(Comparator.comparingInt(Tile::getY));
+        }
+    }
+
+    public ArrayList<Tile> getTilesWithForagingTrees()
+    {
+        return tilesWithForagingTrees;
     }
 
     public void addPlantingTile(Tile tile)
     {
         plantingTiles.add(tile);
+        plantingTiles.sort(Comparator.comparingInt(Tile::getY));
     }
 
     public void removePlantingTile(Tile tile)
     {
         plantingTiles.remove(tile);
+        plantingTiles.sort(Comparator.comparingInt(Tile::getY));
     }
 
     public ArrayList<Tile> getPlantingTiles()
@@ -134,7 +149,7 @@ public class Farm extends Map
 
     public void setRandomForagingItems()
     {
-        if (foragingCount() < 200)
+        if (foragingCount() < 20)
         {
             ArrayList<Tile> freeTiles = getFreeTiles();
             for (Tile tile : freeTiles)
@@ -146,20 +161,35 @@ public class Farm extends Map
                         ForagingCropType type = ForagingCropType.getRandomSeasonCrop(App.getCurrentGame().getCurrentTime().getSeason());
                         tile.setObject(new ForagingCrop(type));
                         tile.setRandomForaging(true);
+                        tilesWithForagingItems.add(tile);
+                        tilesWithForagingItems.sort(Comparator.comparingInt(Tile::getY));
+
                     } else if (tile.isPloughed())
                     {
                         ForagingSeedType type = ForagingSeedType.getRandomSeasonSeed(App.getCurrentGame().getCurrentTime().getSeason());
                         tile.setObject(new ForagingSeed(type));
                         tile.setRandomForaging(true);
+                        tilesWithForagingItems.add(tile);
+                        tilesWithForagingItems.sort(Comparator.comparingInt(Tile::getY));
                     }
                 }
             }
         }
     }
 
+    public ArrayList<Tile> getTilesWithForagingItems()
+    {
+        return tilesWithForagingItems;
+    }
+
+    public ArrayList<Tile> getTilesWithForagingMinerals()
+    {
+        return tilesWithForagingMinerals;
+    }
+
     public void setRandomForagingMinerals()
     {
-        if (foragingCount() < 200)
+        if (foragingCount() < 20)
         {
             ArrayList<Tile> freeTiles = getFreeQuarryTiles();
             for (Tile tile : freeTiles)
@@ -169,6 +199,8 @@ public class Farm extends Map
                     ForagingMineralType type = randomItem(ForagingMineralType.class);
                     tile.setObject(new ForagingMineral(type));
                     tile.setRandomForaging(true);
+                    tilesWithForagingMinerals.add(tile);
+                    tilesWithForagingMinerals.sort(Comparator.comparingInt(Tile::getY));
                 }
             }
         }
@@ -516,5 +548,58 @@ public class Farm extends Map
     public Point getExitPoint()
     {
         return exitPoint;
+    }
+
+    public ArrayList<Tile> getTilesWithCraftingItems()
+    {
+        return tilesWithCraftingItems;
+    }
+
+    public void addToTilesWithCraftingItems(Tile tile)
+    {
+        tilesWithCraftingItems.add(tile);
+        tilesWithCraftingItems.sort(Comparator.comparingInt(Tile::getY));
+    }
+
+    public void removeTileObject(Tile tile)
+    {
+        if (tilesWithForagingMinerals.contains(tile))
+        {
+            tilesWithForagingMinerals.remove(tile);
+            tilesWithForagingMinerals.sort(Comparator.comparingInt(Tile::getY));
+        }
+
+        if (tilesWithForagingTrees.contains(tile))
+        {
+            tilesWithForagingTrees.remove(tile);
+            tilesWithForagingTrees.sort(Comparator.comparingInt(Tile::getY));
+        }
+
+        if (tilesWithResources.contains(tile))
+        {
+            tilesWithResources.remove(tile);
+            tilesWithResources.sort(Comparator.comparingInt(Tile::getY));
+        }
+
+        if (tilesWithCraftingItems.contains(tile))
+        {
+            tilesWithCraftingItems.remove(tile);
+            tilesWithCraftingItems.sort(Comparator.comparingInt(Tile::getY));
+        }
+
+        if (tilesWithForagingItems.contains(tile))
+        {
+            tilesWithForagingItems.remove(tile);
+            tilesWithForagingItems.sort(Comparator.comparingInt(Tile::getY));
+        }
+
+        if (plantingTiles.contains(tile))
+        {
+            plantingTiles.remove(tile);
+            plantingTiles.sort(Comparator.comparingInt(Tile::getY));
+        }
+
+        tile.unPlant();
+        tile.setObject(null);
     }
 }

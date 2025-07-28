@@ -1,30 +1,26 @@
 package ap.project.control;
 
 import ap.project.model.App.App;
-import ap.project.model.App.Result;
+import ap.project.model.building.CraftingItem;
 import ap.project.model.enums.GameObjectType;
 import ap.project.model.enums.TileTexture;
 import ap.project.model.enums.Weather;
+import ap.project.model.enums.building_enums.CraftingRecipeEnums;
 import ap.project.model.enums.resources_enums.CropType;
+import ap.project.model.enums.resources_enums.ResourceItem;
 import ap.project.model.enums.resources_enums.TreeType;
 import ap.project.model.game.*;
-import ap.project.model.resources.Crop;
-import ap.project.model.resources.GiantCrop;
-import ap.project.model.resources.Plant;
-import ap.project.model.resources.Tree;
+import ap.project.model.resources.*;
 import ap.project.model.shops.Shop;
-import ap.project.model.tools.Hoe;
-import ap.project.model.tools.Seythe;
-import ap.project.model.tools.Tool;
-import ap.project.model.tools.WateringCan;
-import ap.project.view.GameMenu;
+import ap.project.model.tools.*;
+import ap.project.screen.WorldScreen;
 import ap.project.visual.UIRenderer;
 
-import javax.swing.plaf.PanelUI;
+import java.util.ArrayList;
 
 public class WorldController
 {
-    public static void processClickLeft(Tile tile)
+    public static void processClickLeft(WorldScreen worldScreen, Tile tile)
     {
         Game game = App.getCurrentGame();
         Player player = game.getCurrentPlayer();
@@ -42,6 +38,11 @@ public class WorldController
             return;
         }
 
+        if (processPickingUpForagingItem(tile))
+        {
+            return;
+        }
+
         if (processMapNavigation(tile))
         {
             return;
@@ -53,6 +54,35 @@ public class WorldController
         }
 
         if (processObjectUse(tile))
+        {
+            return;
+        }
+
+        if (processBuildings(worldScreen, tile, clicked))
+        {
+            return;
+        }
+    }
+
+    public static void processClickRight(WorldScreen worldScreen, Tile tile)
+    {
+        Game game = App.getCurrentGame();
+        Player player = game.getCurrentPlayer();
+
+        if (tile == null)
+        {
+            return;
+        }
+
+        Point clicked = tile.getPoint();
+        Point location = player.getLocation();
+
+        if (!Map.isNearOrOn(location, clicked))
+        {
+            return;
+        }
+
+        if (processCraftingStation(worldScreen, tile))
         {
             return;
         }
@@ -338,6 +368,116 @@ public class WorldController
 
         }
 
+        if (tool instanceof Pickaxe)
+        {
+            if (!tile.hasPlants() && tile.getObject() != null)
+            {
+                GameObject object = tile.getObject();
+                if (!player.inventoryHasCapacity())
+                {
+                    UIRenderer.showTextBox("you don't have enough space in your inventory");
+                    return true;
+                }
+
+                player.addToInventory(object);
+                tile.setObject(null);
+
+                if (tile.isHitByThunder())
+                {
+                    tile.unHitByThunder();
+                }
+
+                UIRenderer.showTextBox(object.getObjectType().toString() + " added to your inventory");
+                return true;
+            }
+
+            else if (tile.getObject() instanceof ForagingMineral)
+            {
+                if (player.getEnergy() <= (int)(weatherModifier * ((Pickaxe) tool).getLevel().getBaseEnergyUsage()))
+                {
+                    UIRenderer.showTextBox("you don't have enough energy");
+                    return true;
+                }
+
+                player.addToInventory(tile.getObject());
+                player.increaseEnergy(-((Pickaxe) tool).getLevel().getBaseEnergyUsage());
+                player.getForagingSkill().changeUnit(5);
+                tile.setObject(null);
+
+                UIRenderer.showTextBox("pickaxe used on mineral");
+                return true;
+            }
+
+            else if (tile.getTexture().equals(TileTexture.QUARRY) && tile.getObject() == null)
+            {
+                if (player.getEnergy() <= (int)(weatherModifier * ((Pickaxe) tool).getLevel().getBaseEnergyUsage()))
+                {
+                    UIRenderer.showTextBox("you don't have enough energy");
+                    return true;
+                }
+
+                if (player.getMiningSkill().getLevel() > 1)
+                {
+                    player.addToInventory(ResourceItem.STONE.getType(), 5);
+                } else
+                {
+                    player.addToInventory(ResourceItem.STONE.getType(), 3);
+                }
+
+                player.increaseEnergy((int)(weatherModifier * -((Pickaxe) tool).getLevel().getBaseEnergyUsage()));
+                player.getMiningSkill().changeUnit(10);
+
+                UIRenderer.showTextBox("pickaxe used on query");
+                return true;
+            } else if (tile.getTexture().equals(TileTexture.LAND))
+            {
+                if (player.getEnergy() <= (int)(weatherModifier * ((Pickaxe) tool).getLevel().getBaseEnergyUsage()))
+                {
+                    UIRenderer.showTextBox("you don't have enough energy");
+                    return true;
+                }
+
+                if (tile.isPloughed())
+                {
+                    if (tile.hasPlants())
+                    {
+                        tile.unPlant();
+                    }
+
+                    tile.ploghInverse();
+                    player.increaseEnergy((int)(weatherModifier * -((Pickaxe) tool).getLevel().getBaseEnergyUsage()));
+
+                    UIRenderer.showTextBox("tile is not ploughed anymore");
+                    return true;
+                } else
+                {
+                    if (player.getEnergy() <= (int)(weatherModifier * ((Pickaxe) tool).getLevel().getFailedEnergyUsage()))
+                    {
+                        UIRenderer.showTextBox("you don't have enough energy");
+                        return true;
+                    }
+
+                    player.increaseEnergy((int)(weatherModifier * -((Pickaxe) tool).getLevel().getFailedEnergyUsage()));
+
+                    UIRenderer.showTextBox("tile is not ploughed");
+                    return true;
+                }
+            } else if (tile.getObject() instanceof ForagingSeed)
+            {
+                tile.setObject(null);
+                player.increaseEnergy((int)(weatherModifier * -((Pickaxe) tool).getLevel().getBaseEnergyUsage()));
+
+                UIRenderer.showTextBox("seed is removed");
+                return true;
+            } else
+            {
+                player.increaseEnergy((int)(weatherModifier * -((Pickaxe) tool).getLevel().getFailedEnergyUsage()));
+
+                UIRenderer.showTextBox("you can't use pickaxe on this tile");
+                return true;
+            }
+        }
+
         return false;
     }
 
@@ -363,7 +503,117 @@ public class WorldController
             return true;
         }
 
+        if (processCraftingPlacement(tile))
+        {
+            return true;
+        }
+
         return false;
+    }
+
+    private static boolean processCraftingPlacement(Tile tile)
+    {
+        Game game = App.getCurrentGame();
+        Player player = game.getCurrentPlayer();
+        Map map = player.getCurrentMap();
+
+        if (!player.isInFarm() && !player.isInGreenHouse())
+        {
+            return false;
+        }
+
+        GameObject object = player.getCurrentObject();
+        if (object == null)
+        {
+            return false;
+        }
+
+        if (!(object instanceof CraftingItem))
+        {
+            return false;
+        }
+
+        CraftingItem craftingItem = (CraftingItem) object;
+        if (tile.getObject() != null)
+        {
+            UIRenderer.showTextBox("this tile is not empty");
+            return true;
+        }
+
+        if (tile.getTexture() != TileTexture.LAND && tile.getTexture() != TileTexture.GRASS)
+        {
+            UIRenderer.showTextBox("you can't put a crafting item on this type of tile");
+            return true;
+        }
+
+        CraftingItem newCraftedItem = new CraftingItem(craftingItem.getCraftingType(), tile);
+        tile.setObject(newCraftedItem);
+
+        if (object.getNumber() == 1)
+        {
+            player.setCurrentObject(null);
+        }
+        player.removeAmountFromInventory(object.getObjectType(), 1);
+
+        if (player.isInFarm())
+        {
+            Farm farm = (Farm) player.getFarm();
+            farm.addToTilesWithCraftingItems(tile);
+        } else if (player.isInGreenHouse())
+        {
+            GreenHouse greenHouse = (GreenHouse) player.getGreenHouse();
+            greenHouse.addToTilesWithCraftingItems(tile);
+        }
+
+        if (newCraftedItem.getCraftingType().getItemType() == CraftingItem.ItemType.PERMANENT)
+        {
+            if (newCraftedItem.getCraftingType() == CraftingRecipeEnums.SPRINKLER_RECIPE)
+            {
+                ArrayList<Point> neighbors = map.getDirectNeighbors(tile.getPoint());
+                for (Point neighbor : neighbors)
+                {
+                    Tile t = map.getTile(neighbor.getX(), neighbor.getY());
+                    if (t != null) t.setShouldBeWateredAutomatically(true);
+                }
+            } else if (newCraftedItem.getCraftingType() == CraftingRecipeEnums.QUALITY_SPRINKLER_RECIPE)
+            {
+                ArrayList<Point> neighbors = map.getSquareNeighbors(tile.getPoint(), 1);
+                for (Point neighbor : neighbors)
+                {
+                    Tile t = map.getTile(neighbor.getX(), neighbor.getY());
+                    if (t != null) t.setShouldBeWateredAutomatically(true);
+                }
+            } else if (newCraftedItem.getCraftingType() == CraftingRecipeEnums.IRIDIUM_SPRINKLER_RECIPE)
+            {
+                ArrayList<Point> neighbors = map.getSquareNeighbors(tile.getPoint(), 2);
+                for (Point neighbor : neighbors)
+                {
+                    Tile t = map.getTile(neighbor.getX(), neighbor.getY());
+                    if (t != null) t.setShouldBeWateredAutomatically(true);
+                }
+            }
+
+            else if (newCraftedItem.getCraftingType() == CraftingRecipeEnums.SCARECROW_RECIPE)
+            {
+                ArrayList<Point> neighbors = map.getCircularNeighbors(tile.getPoint(), 8);
+                for (Point neighbor : neighbors)
+                {
+                    Tile t = map.getTile(neighbor.getX(), neighbor.getY());
+                    if (t != null) t.makeImmuneFromCrows();
+                }
+            } else if (newCraftedItem.getCraftingType() == CraftingRecipeEnums.DELUXE_SCARECROW_RECIPE)
+            {
+                ArrayList<Point> neighbors = map.getCircularNeighbors(tile.getPoint(), 12);
+                for (Point neighbor : neighbors)
+                {
+                    Tile t = map.getTile(neighbor.getX(), neighbor.getY());
+                    if (t != null) t.makeImmuneFromCrows();
+                }
+            }
+        }
+
+        UIRenderer.showTextBox("successfully put " + object.getObjectType() + " on tile!");
+        return true;
     }
 
     private static boolean processFertilizerUse(Tile tile)
@@ -399,6 +649,7 @@ public class WorldController
         if (fertilizer.getObjectType() == GameObjectType.FERTILIZER)
         {
             tile.fertilize();
+            player.removeAmountFromInventory(fertilizer.getObjectType(), 1);
             tile.setWateringChance(0);
 
             UIRenderer.showTextBox("Tile fertilized with fertilizer.");
@@ -408,6 +659,7 @@ public class WorldController
         if (fertilizer.getObjectType() == GameObjectType.SPECIAL_FERTILIZER)
         {
             tile.fertilize();
+            player.removeAmountFromInventory(fertilizer.getObjectType(), 1);
             tile.setWateringChance(0);
             tile.setGrowFaster();
 
@@ -418,6 +670,7 @@ public class WorldController
         if (fertilizer.getObjectType() == GameObjectType.BASIC_RETAINING_SOIL)
         {
             tile.fertilize();
+            player.removeAmountFromInventory(fertilizer.getObjectType(), 1);
             tile.setWateringChance(40);
 
             UIRenderer.showTextBox("Tile fertilized with basic retaining soil.");
@@ -427,6 +680,7 @@ public class WorldController
         if (fertilizer.getObjectType() == GameObjectType.QUALITY_RETAINING_SOIL)
         {
             tile.fertilize();
+            player.removeAmountFromInventory(fertilizer.getObjectType(), 1);
             tile.setWateringChance(70);
 
             UIRenderer.showTextBox("Tile fertilized with quality retaining soil.");
@@ -436,9 +690,32 @@ public class WorldController
         if (fertilizer.getObjectType() == GameObjectType.DELUXE_RETAINING_SOIL)
         {
             tile.fertilize();
+            player.removeAmountFromInventory(fertilizer.getObjectType(), 1);
             tile.setWateringChance(100);
 
             UIRenderer.showTextBox("Tile fertilized with deluxe retaining soil.");
+            return true;
+        }
+
+        return false;
+    }
+
+    private static boolean processPickingUpForagingItem(Tile tile)
+    {
+        Game game = App.getCurrentGame();
+        Player player = game.getCurrentPlayer();
+
+        if (tile.getObject() == null)
+        {
+            return false;
+        }
+
+        if (tile.isRandomForaging())
+        {
+            GameObject object = tile.getObject();
+            player.addToInventory(object.getObjectType(), 1);
+            tile.setObject(null);
+            tile.setRandomForaging(false);
             return true;
         }
 
@@ -557,5 +834,59 @@ public class WorldController
         return (type == GameObjectType.FERTILIZER || type == GameObjectType.SPECIAL_FERTILIZER ||
             type == GameObjectType.BASIC_RETAINING_SOIL || type == GameObjectType.QUALITY_RETAINING_SOIL ||
             type == GameObjectType.DELUXE_RETAINING_SOIL);
+    }
+
+    private static boolean processBuildings(WorldScreen worldScreen, Tile tile, Point clicked)
+    {
+        if (processOvenMechanism(worldScreen, tile, clicked))
+        {
+            return true;
+        }
+
+
+
+        return processOvenMechanism(worldScreen, tile, clicked);
+    }
+
+    private static boolean processOvenMechanism(WorldScreen worldScreen, Tile tile, Point clicked)
+    {
+        Game game = App.getCurrentGame();
+        Player player = game.getCurrentPlayer();
+
+        if (player.isInHome())
+        {
+            Cabin cabin = player.getCabin();
+            if (cabin.getOvenPoint().equals(clicked))
+            {
+                worldScreen.toggleCookBookWindow();
+                return true;
+            }
+
+            if (cabin.getRefrigeratorPoint().equals(clicked))
+            {
+                worldScreen.toggleRefrigeratorWindow();
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static boolean processCraftingStation(WorldScreen worldScreen, Tile tile)
+    {
+        Game game = App.getCurrentGame();
+        Player player = game.getCurrentPlayer();
+
+        if (player.isInFarm() || player.isInGreenHouse())
+        {
+            if (tile.getObject() != null && tile.getObject() instanceof CraftingItem)
+            {
+                CraftingItem craftingItem = (CraftingItem) tile.getObject();
+                worldScreen.toggleCraftingWindow(craftingItem);
+                return true;
+            }
+        }
+
+        return false;
     }
 }

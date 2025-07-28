@@ -7,20 +7,27 @@ import java.util.List;
 
 public enum ForagingTreeType
 {
-    ACORNS(GameObjectType.ACORNS_TREE, List.of(Season.Spring, Season.Summer, Season.Fall, Season.Winter)),
-    MAPLE_SEEDS(GameObjectType.MAPLE_TREE, List.of(Season.Spring, Season.Summer, Season.Fall, Season.Winter)),
-    PINE_CONES(GameObjectType.PINE_TREE, List.of(Season.Spring, Season.Summer, Season.Fall, Season.Winter)),
-    MAHOGANY_SEEDS(GameObjectType.MAHOGANY_TREE, List.of(Season.Spring, Season.Summer, Season.Fall, Season.Winter)),
-    MUSHROOM_TREE_SEEDS(GameObjectType.MUSHROOM_TREE, List.of(Season.Spring, Season.Summer, Season.Fall, Season.Winter)),
+    ACORNS(GameObjectType.ACORNS, List.of(Season.Spring, Season.Summer, Season.Fall, Season.Winter), TreeType.OAK_TREE),
+    MAPLE_SEEDS(GameObjectType.MAPLE_TREE, List.of(Season.Spring, Season.Summer, Season.Fall, Season.Winter), TreeType.MAPLE_TREE),
+    PINE_CONES(GameObjectType.PINE_TREE, List.of(Season.Spring, Season.Summer, Season.Fall, Season.Winter), TreeType.PINE_TREE),
+    MAHOGANY_SEEDS(GameObjectType.MAHOGANY_TREE, List.of(Season.Spring, Season.Summer, Season.Fall, Season.Winter), TreeType.MAHOGANY_TREE),
+    MUSHROOM_TREE_SEEDS(GameObjectType.MUSHROOM_TREE, List.of(Season.Spring, Season.Summer, Season.Fall, Season.Winter), TreeType.MUSHROOM_TREE),
     ;
 
     private final GameObjectType type;
     private final List<Season> seasons;
+    private final TreeType treeType;
 
-    ForagingTreeType(GameObjectType type, List<Season> seasons)
+    ForagingTreeType(GameObjectType type, List<Season> seasons, TreeType treeType)
     {
         this.type = type;
         this.seasons = seasons;
+        this.treeType = treeType;
+    }
+
+    public TreeType getTreeType()
+    {
+        return treeType;
     }
 
     public List<Season> getSeasons()

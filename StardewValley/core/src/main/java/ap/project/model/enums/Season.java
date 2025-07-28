@@ -26,6 +26,11 @@ public enum Season
         return name;
     }
 
+    public int toInteger()
+    {
+        return id;
+    }
+
     public Season update(int num)
     {
         return values()[(this.id + num) % values().length];

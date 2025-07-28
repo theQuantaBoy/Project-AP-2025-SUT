@@ -2,12 +2,20 @@ package ap.project.screen;
 
 import ap.project.model.App.App;
 import ap.project.model.enums.GameObjectType;
+import ap.project.model.enums.GameObjectType;
+import ap.project.model.enums.building_enums.CraftingRecipeEnums;
+import ap.project.model.enums.building_enums.KitchenRecipe;
+import ap.project.model.building.CraftingItem;
 import ap.project.model.game.Player;
 import ap.project.model.player_data.Skill;
 import ap.project.model.tools.Tool;
+import ap.project.visual.UIRenderer;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
@@ -20,6 +28,10 @@ import ap.project.model.game.GameObject;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
+import com.badlogic.gdx.utils.Scaling;
+
+import java.util.ArrayList;
+import java.util.HashMap;
 
 public class InventoryWindow {
     private final Window popup;
@@ -48,6 +60,20 @@ public class InventoryWindow {
     private TabType lastTabOpenedByTabKey = TabType.INVENTORY;
     private ImageButton trashButton;
 
+    private TextButton craftingTab;
+    private Table craftingTable;
+    private CraftingRecipeEnums selectedCraftingRecipe = null;
+    private TextButton buildButton;
+    private Drawable craftingSelectionBorderDrawable;
+    private static final int CRAFTING_ROWS = 6;
+    private static final int CRAFTING_COLS = 6;
+    private static final int CRAFTING_SLOT_WIDTH = 48;
+    private static final int CRAFTING_SLOT_HEIGHT = 96;
+    private static final int CRAFTING_SLOT_PADDING = 8;
+
+    /**
+     * @param stage    the Stage to which this window will be added
+     */
     public InventoryWindow(Stage stage) {
         this.skin = GameAssetsManager.getGameAssetsManager().getSkin();
         this.stage = stage;
@@ -96,6 +122,23 @@ public class InventoryWindow {
         mapTable = buildMapTable();
         toolsTable = new Table(skin);
 
+        craftingTab = new TextButton("Crafting", skin);
+        craftingTable = new Table(skin);
+        craftingTable.setVisible(false);
+
+        // Create selection border drawable
+        Pixmap borderPixmap = new Pixmap(CRAFTING_SLOT_WIDTH, CRAFTING_SLOT_HEIGHT, Pixmap.Format.RGBA8888);
+        borderPixmap.setColor(0, 0, 0, 0);
+        borderPixmap.fill();
+        borderPixmap.setColor(new Color(101/255f, 67/255f, 33/255f, 1f));
+        borderPixmap.fillRectangle(0, 0, CRAFTING_SLOT_WIDTH, 4); // Top
+        borderPixmap.fillRectangle(0, CRAFTING_SLOT_HEIGHT - 4, CRAFTING_SLOT_WIDTH, 4); // Bottom
+        borderPixmap.fillRectangle(0, 0, 4, CRAFTING_SLOT_HEIGHT); // Left
+        borderPixmap.fillRectangle(CRAFTING_SLOT_WIDTH - 4, 0, 4, CRAFTING_SLOT_HEIGHT); // Right
+        craftingSelectionBorderDrawable = new TextureRegionDrawable(new TextureRegion(new Texture(borderPixmap)));
+        borderPixmap.dispose();
+
+        // Stack panels and hide non-inventory
         contentStack = new Stack(inventoryScrollPane, skillsTable, socialTable, mapTable, toolsTable);
         skillsTable.setVisible(false);
         socialTable.setVisible(false);
@@ -111,6 +154,7 @@ public class InventoryWindow {
                 socialTable.setVisible(false);
                 mapTable.setVisible(false);
                 toolsTable.setVisible(false);
+                craftingTable.setVisible(false);
                 popup.pack();
                 center(stage);
                 lastTabOpenedByTabKey = TabType.INVENTORY;
@@ -125,6 +169,7 @@ public class InventoryWindow {
                 socialTable.setVisible(false);
                 mapTable.setVisible(false);
                 toolsTable.setVisible(false);
+                craftingTable.setVisible(false);
                 popup.pack();
                 center(stage);
             }
@@ -138,6 +183,7 @@ public class InventoryWindow {
                 socialTable.setVisible(true);
                 mapTable.setVisible(false);
                 toolsTable.setVisible(false);
+                craftingTable.setVisible(false);
                 popup.pack();
                 center(stage);
             }
@@ -151,6 +197,7 @@ public class InventoryWindow {
                 socialTable.setVisible(false);
                 mapTable.setVisible(true);
                 toolsTable.setVisible(false);
+                craftingTable.setVisible(false);
                 popup.pack();
                 center(stage);
                 lastTabOpenedByTabKey = TabType.MAP;
@@ -165,10 +212,37 @@ public class InventoryWindow {
                 socialTable.setVisible(false);
                 mapTable.setVisible(false);
                 toolsTable.setVisible(true);
+                craftingTable.setVisible(false);
                 refreshToolTable();
                 popup.pack();
                 center(stage);
                 lastTabOpenedByTabKey = TabType.TOOLS;
+            }
+        });
+
+        craftingTab.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                inventoryTable.setVisible(false);
+                skillsTable.setVisible(false);
+                socialTable.setVisible(false);
+                mapTable.setVisible(false);
+                toolsTable.setVisible(false);
+                craftingTable.setVisible(true);
+                refreshCraftingTable();
+                popup.pack();
+                center(stage);
+            }
+        });
+
+        buildButton = new TextButton("Build", skin);
+        buildButton.setDisabled(true);
+        buildButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                if (selectedCraftingRecipe != null) {
+                    craftSelectedRecipe();
+                }
             }
         });
 
@@ -181,7 +255,9 @@ public class InventoryWindow {
         popup.add(trashButton).width(32).height(32).padLeft(10);
         popup.row();
         popup.add(contentStack).colspan(4).expand().fill(); // Important: use .fill
+        popup.add(craftingTab).expandX().fillX(); // Moved to top row
         popup.row();
+        popup.add(contentStack).colspan(6).expand().center().row(); // Increased colspan to 6
         popup.pack();
         center(stage);
         stage.addActor(popup);
@@ -197,6 +273,164 @@ public class InventoryWindow {
 //        else content = buildLimitedInventoryTable();
 
         inventoryTable.add(content).expand().center();
+    private void refreshCraftingTable()
+    {
+        craftingTable.clear();
+        craftingTable.defaults().pad(CRAFTING_SLOT_PADDING).center();
+
+        // Create main grid
+        Table gridTable = new Table();
+        gridTable.defaults().size(CRAFTING_SLOT_WIDTH, CRAFTING_SLOT_HEIGHT).pad(8);
+
+        BitmapFont tooltipFont = GameAssetsManager.generateFont("fonts/Roboto-Regular.ttf", 20, Color.WHITE);
+        Label.LabelStyle tooltipLabelStyle = new Label.LabelStyle(tooltipFont, Color.WHITE);
+
+        int count = 0;
+        for (CraftingRecipeEnums recipe : CraftingRecipeEnums.values())
+        {
+            Stack slotContainer = new Stack();
+            slotContainer.setSize(CRAFTING_SLOT_WIDTH, CRAFTING_SLOT_HEIGHT);
+
+            // Recipe texture
+            Texture texture = recipe.getProduct().getTexture();
+            Image image = new Image(new TextureRegionDrawable(new TextureRegion(texture)));
+            image.setScaling(Scaling.fit);
+
+            // Handle different texture sizes
+            if (recipe.isTall())
+            {
+                image.setSize(CRAFTING_SLOT_WIDTH, CRAFTING_SLOT_HEIGHT);
+            } else
+            {
+                image.setSize(CRAFTING_SLOT_WIDTH, CRAFTING_SLOT_WIDTH);
+            }
+
+            // Check if recipe is unlocked
+            Player player = App.getCurrentGame().getCurrentPlayer();
+            ArrayList<CraftingRecipeEnums> recipes = player.getCraftingRecipes();
+
+            if (!recipes.contains(recipe))
+            {
+                image.setColor(new Color(0.6f, 0.6f, 0.6f, 0.5f));
+            } else
+            {
+                image.setColor(Color.WHITE);
+            }
+
+            slotContainer.addActor(image);
+
+            // Center square textures vertically
+            if (!recipe.isTall())
+            {
+                image.setY((CRAFTING_SLOT_HEIGHT - CRAFTING_SLOT_WIDTH) / 2);
+            }
+
+            // Add click listener
+            slotContainer.addListener(new ClickListener()
+            {
+                @Override
+                public void clicked(InputEvent event, float x, float y)
+                {
+                    selectedCraftingRecipe = recipe;
+                    refreshCraftingTable();
+                    buildButton.setDisabled(false);
+                }
+            });
+
+            if (recipe == selectedCraftingRecipe)
+            {
+                Image borderImage = new Image(craftingSelectionBorderDrawable);
+                slotContainer.addActor(borderImage);
+            }
+
+
+            // Add tooltip
+            TooltipLabel tooltipLabel = new TooltipLabel(recipe.getInfo(), tooltipLabelStyle);
+            Tooltip<TooltipLabel> tooltip = new Tooltip<>(tooltipLabel, tooltipManager);
+            tooltip.getContainer().setBackground(tooltipBg);
+            tooltip.getContainer().pad(5);
+            slotContainer.addListener(tooltip);
+
+            gridTable.add(slotContainer);
+
+            if (++count % CRAFTING_COLS == 0)
+            {
+                gridTable.row();
+            }
+        }
+
+        // Add grid and build button to crafting table
+        craftingTable.add(gridTable).center().row();
+        craftingTable.add(buildButton).padTop(15);
+    }
+
+    // Helper class for better tooltip text wrapping
+    private static class TooltipLabel extends Label
+    {
+        public TooltipLabel(CharSequence text, LabelStyle style) {
+            super(text, style);
+            setWrap(true);
+        }
+
+        @Override
+        public float getPrefWidth()
+        {
+            return 400;
+        }
+    }
+
+    private void craftSelectedRecipe()
+    {
+        if (selectedCraftingRecipe == null) return;
+
+        Player player = App.getCurrentGame().getCurrentPlayer();
+
+        ArrayList<CraftingRecipeEnums> recipes = player.getCraftingRecipes();
+        if (!recipes.contains(selectedCraftingRecipe))
+        {
+            UIRenderer.showTextBox("You don't currently have access to this recipe.");
+            return;
+        }
+
+        HashMap<GameObjectType, Integer> ingredients = selectedCraftingRecipe.getIngredients();
+
+        for (GameObjectType type : ingredients.keySet())
+        {
+            if (!player.hasEnoughInInventory(type, ingredients.get(type)))
+            {
+                UIRenderer.showTextBox("You don't have enough of " + type + " in your inventory.");
+                return;
+            }
+        }
+
+        if (!player.inventoryHasCapacity())
+        {
+            UIRenderer.showTextBox("You don't have any capacity left in your backpack :(");
+            return;
+        }
+
+        for (GameObjectType type : ingredients.keySet())
+        {
+            player.removeAmountFromInventory(type, ingredients.get(type));
+        }
+
+        player.increaseEnergy(-2);
+        CraftingItem craftingItem = new CraftingItem(selectedCraftingRecipe, null);
+        player.addToInventory(craftingItem);
+
+        UIRenderer.showTextBox(selectedCraftingRecipe.getProduct() + " was added to your inventory.");
+
+        refreshInventoryTable();
+        refreshCraftingTable();
+    }
+
+    private Drawable createColoredDrawable(int width, int height, Color color) {
+        Pixmap pixmap = new Pixmap(width, height, Pixmap.Format.RGBA8888);
+        pixmap.setColor(color);
+        pixmap.fill();
+        Texture texture = new Texture(pixmap);
+        pixmap.dispose();
+        return new TextureRegionDrawable(new TextureRegion(texture));
     }
 
     public GameObject getSelectedInventoryObject() {
@@ -267,9 +501,25 @@ public class InventoryWindow {
         Table table = new Table(skin);
         table.defaults().size(SLOTS_SIZE).pad(2);
         table.center();
+
+        java.util.List<GameObject> slots = backpack.getNonEmptyItems();
         updatePlayer();
         java.util.List<GameObject> slots = backpack.getSlots();
         int capacity = backpack.getCapacity();
+        int counter = 0;
+
+        for (int slot = 0; slot < capacity; slot++)
+        {
+            final int slotIndex = slot; // needed for use in listener
+            GameObject obj;
+
+            if (slot < backpack.getItemCount())
+            {
+                obj = slots.get(counter++);
+            } else
+            {
+                obj = null;
+            }
 
         for (int slot = 0; slot < capacity; slot++) {
             final int slotIndex = slot;
@@ -300,12 +550,64 @@ public class InventoryWindow {
 
             slotContainer.addListener(new ClickListener() {
                 @Override
-                public void clicked(InputEvent event, float x, float y) {
+                public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
                     GameObject clickedObject = slotIndex < slots.size() ? slots.get(slotIndex) : null;
                     selectedInventorySlot = clickedObject != null ? slotIndex : -1;
                     refreshInventoryTable();
                     if (clickedObject != null)
                         System.out.println("Selected Inventory Item: " + clickedObject.getObjectType());
+
+                    System.out.println(event.getButton());
+                    System.out.println(getTapCount());
+
+                    if (event.getButton() == Input.Buttons.RIGHT)
+                    {
+                        if (clickedObject != null)
+                        {
+                            GameObjectType type = clickedObject.getObjectType();
+
+                            if (!KitchenRecipe.isEdible(type))
+                            {
+                                UIRenderer.showTextBox("This item is not edible :(");
+                                return true;
+                            }
+
+                            int count = player.howManyInInventory(type);
+                            if (count == 0)
+                            {
+                                UIRenderer.showTextBox("You don't currently have this food in your backpack.");
+                                return true;
+                            }
+
+                            KitchenRecipe food = KitchenRecipe.getKitchenRecipe(type.toString());
+                            if (food == null)
+                            {
+                                UIRenderer.showTextBox("This item is not edible :(");
+                                return true;
+                            }
+
+                            player.removeAmountFromInventory(type, 1);
+                            player.increaseEnergy(food.getEnergy());
+
+                            UIRenderer.showTextBox("Yum Yum, you just ate " + food.getType());
+                            refreshInventoryTable();
+                        }
+                    } else
+                    {
+                        if (player.getCurrentObject() != null && player.getCurrentObject().equals(clickedObject)) {
+                            player.setCurrentObject(null);
+                            selectedInventorySlot = -1; // Deselect if same object clicked
+                        } else
+                        {
+                            player.setCurrentObject(clickedObject);
+                            selectedInventorySlot = clickedObject != null ? slotIndex : -1;
+                        }
+
+                        refreshInventoryTable(); // re-render with highlight
+
+                    }
+
+                    return true;
                 }
             });
 
@@ -355,8 +657,17 @@ public class InventoryWindow {
                 @Override
                 public void clicked(InputEvent event, float x, float y) {
                     Tool clickedTool = slotIndex < tools.size() ? tools.get(slotIndex) : null;
-                    player.setCurrentTool(clickedTool);
-                    selectedToolSlot = clickedTool != null ? slotIndex : -1;
+
+                    if (player.getCurrentTool() != null && player.getCurrentTool().equals(clickedTool))
+                    {
+                        player.setCurrentTool(null);
+                        selectedToolSlot = -1; // Deselect if same tool clicked
+                    } else
+                    {
+                        player.setCurrentTool(clickedTool);
+                        selectedToolSlot = clickedTool != null ? slotIndex : -1;
+                    }
+
                     refreshToolTable();
                     if (player.getCurrentTool() != null)
                         System.out.println(player.getCurrentTool().getToolType().getName());

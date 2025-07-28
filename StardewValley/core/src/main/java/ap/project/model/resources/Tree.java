@@ -39,6 +39,30 @@ public class Tree extends Plant
         harvestWaitTime = fruitHarvestCycle;
     }
 
+    @Override
+    public int getCurrentStage()
+    {
+        int counter = 0;
+        int copy = currentStageDay;
+
+        if (currentStageDay == totalHarvestTime)
+        {
+            return stages.size();
+        }
+
+        for (int stage : stages)
+        {
+            copy -= stage;
+            if (copy <= 0)
+            {
+                return counter;
+            }
+            counter += 1;
+        }
+
+        return -1;
+    }
+
     public FruitType getFruit()
     {
         return fruit;

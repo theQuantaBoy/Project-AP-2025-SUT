@@ -8,6 +8,7 @@ import ap.project.model.animal.Animal;
 import ap.project.model.enums.Gender;
 import ap.project.model.enums.Season;
 import ap.project.model.enums.animal_enums.FarmAnimalsType;
+import ap.project.model.building.CraftingItem;
 import ap.project.model.enums.*;
 import ap.project.model.game.Game;
 import ap.project.screen.input.WorldScreenInputProcessor;
@@ -88,6 +89,9 @@ public final class WorldScreen implements Screen {
     private static StringBuilder dialogTextBuffer = new StringBuilder();
     private static Label dialogContentLabel;
     private InventoryWindow inventoryWindow;
+    private CookBookWindow cookBookWindow;
+    private RefrigeratorWindow refrigeratorWindow;
+    private CraftingItemWindow craftingItemWindow;
     private FriendsWindow friendsWindow;
     private CommunicationWindow communicationWindow;
 
@@ -95,6 +99,7 @@ public final class WorldScreen implements Screen {
     private boolean inputMultiplexerHadSetUp = false;
 
     private boolean cameraFixed = false;
+    private final boolean DEBUG_MODE = false;
 
     private FishingMinigameWindow fishingWindow;
 
@@ -159,6 +164,9 @@ public final class WorldScreen implements Screen {
 
         inventoryWindow = new InventoryWindow(uiStage);
         friendsWindow = new FriendsWindow(uiStage);
+        cookBookWindow = new CookBookWindow(uiStage);
+        refrigeratorWindow = new RefrigeratorWindow(uiStage);
+        craftingItemWindow = new CraftingItemWindow(uiStage);
         communicationWindow = new CommunicationWindow(uiStage, this);
         createTerminalDialog();
 
@@ -205,6 +213,12 @@ public final class WorldScreen implements Screen {
                     return true;
                 }
 
+
+                if (isCraftingWindowVisible())
+                {
+                    return false;
+                }
+
                 if (keycode == Input.Keys.E ||  keycode == Input.Keys.ESCAPE) {
                     boolean nowVisible = !inventoryWindow.isVisible();
                     inventoryWindow.toggleVisibility();
@@ -230,6 +244,22 @@ public final class WorldScreen implements Screen {
                     inventoryWindow.getMapTab().setChecked(true);
                     return true;
                 }
+
+                if (keycode == Input.Keys.R)
+                {
+                    if (isCookBookVisible())
+                    {
+                        toggleCookBookWindow();
+                    }
+
+                    if (isRefrigeratorVisible())
+                    {
+                        toggleRefrigeratorWindow();
+                    }
+
+                    return true;
+                }
+
                 return false;
             }
         });
@@ -250,12 +280,13 @@ public final class WorldScreen implements Screen {
         Gdx.gl.glClearColor(0f, 0f, 0f, 1f);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        if (!terminalDialog.isVisible() && !isInventoryVisible() && !isChatVisible())
+        if (!terminalDialog.isVisible() && !isInventoryVisible() && !isCookBookVisible() && !isRefrigeratorVisible())
         {
             update(dt);
             cam.update();
         }
 
+        UIRenderer.updateTextBoxes(dt);
         map.getMapVisual().render(cam);
 
         Batch batch = map.getMapVisual().getRenderer().getBatch();
@@ -263,21 +294,38 @@ public final class WorldScreen implements Screen {
         shapeRenderer.setProjectionMatrix(cam.combined);
         batch.begin();
 
-        if (map.getMapType().getMapKind() == MapKind.TOWN) {
-            for (Player p : game.getPlayers()) {
-                if (p.isInCity()) {
+        Vector3 mouseWorldPos = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0);
+        cam.unproject(mouseWorldPos);
+        float worldMouseX = mouseWorldPos.x;
+        float worldMouseY = mouseWorldPos.y;
+
+        if (map.getMapType().getMapKind() == MapKind.TOWN)
+        {
+            for (Player p : game.getPlayers())
+            {
+                if (p.isInCity())
+                {
                     characterRenderer.render(batch, p.getCharacter(), CHAR_SCALE);
                 }
             }
-        } else {
+        } else
+        {
             characterRenderer.render(batch, character, CHAR_SCALE);
         }
 
         if (SECOND_PLAYER) characterRenderer.render(batch, player2, CHAR_SCALE);
+
+        if (!isDialogVisible() && !isInventoryVisible() && !isCookBookVisible() && !isRefrigeratorVisible())
+        {
+            characterRenderer.renderToolOrObjectAtMouse(batch, character, worldMouseX, worldMouseY);
+        }
+
         batch.end();
 
         gameStage.getViewport().apply();
         gameStage.draw();
+
+        map.getMapVisual().renderInFrontOfCharacter(this);
 
         batch.setProjectionMatrix(uiCam.combined);
         batch.begin();
@@ -286,6 +334,9 @@ public final class WorldScreen implements Screen {
         batch.end();
 
         uiRenderer.renderDarkOverlay(uiCam);
+
+        map.getMapVisual().showAvailableTilesForArtisanEquipment(this);
+        map.getMapVisual().drawCraftingProgressBars();
 
         if (hoveredTile != null) {
             Gdx.gl.glEnable(GL20.GL_BLEND);
@@ -299,8 +350,9 @@ public final class WorldScreen implements Screen {
             Tile tile = map.getTile(hoveredTile.getX(), hoveredTile.getY() - 1);
             Vector2 location = map.tileToWorld(tile);
 
-            if (location != null) {
-                // shapeRenderer.rect(location.x, location.y - (16f * MAP_SCALE), (16f * MAP_SCALE), (16f * MAP_SCALE));
+            if (location != null && DEBUG_MODE)
+            {
+                shapeRenderer.rect(location.x, location.y - (16f * MAP_SCALE), (16f * MAP_SCALE), (16f * MAP_SCALE));
             }
 
             shapeRenderer.end();
@@ -326,7 +378,6 @@ public final class WorldScreen implements Screen {
         checkGameInfo();
         checkMapSeason();
         map.getMapVisual().update(dt);
-        UIRenderer.updateTextBoxes(dt);
 
         if (map.getMapType() == MapTypes.GREEN_HOUSE || map.getMapType() == MapTypes.CARPENTER_SHOP ||
             map.getMapType() == MapTypes.MARNIE_RANCH) {
@@ -362,31 +413,39 @@ public final class WorldScreen implements Screen {
             float rightEdgeSize = (map.getWidth() * MAP_SCALE * 16) - (cam.viewportWidth / 2);
             float upEdgeSize = (map.getHeight() * MAP_SCALE * 16) - (cam.viewportHeight / 2);
 
-            if (playerX < halfViewportW) {
+            if (playerX < halfViewportW)
+            {
                 camX = halfViewportW;
-            } else if (playerX >= rightEdgeSize) {
+            } else if (playerX >= rightEdgeSize)
+            {
                 camX = rightEdgeSize;
             }
 
-            if (playerY < halfViewportH) {
+            if (playerY < halfViewportH)
+            {
                 camY = halfViewportH;
-            } else if (playerY >= upEdgeSize) {
+            } else if (playerY >= upEdgeSize)
+            {
                 camY = upEdgeSize;
             }
 
-            if (map.getMapType() == MapTypes.JOJA_MART) {
+            if (map.getMapType() == MapTypes.JOJA_MART)
+            {
                 camX = (map.getWidth() * MAP_SCALE * 16) / 2;
             }
 
-            if (map.getMapType() == MapTypes.GREEN_HOUSE) {
+            if (map.getMapType() == MapTypes.GREEN_HOUSE)
+            {
                 camX = (map.getWidth() * MAP_SCALE * 16) / 2;
             }
 
-            if (map.getMapType() == MapTypes.CARPENTER_SHOP) {
+            if (map.getMapType() == MapTypes.CARPENTER_SHOP)
+            {
                 camX = (map.getWidth() * MAP_SCALE * 16) / 2;
             }
 
-            if (map.getMapType() == MapTypes.MARNIE_RANCH) {
+            if (map.getMapType() == MapTypes.MARNIE_RANCH)
+            {
                 camX = (map.getWidth() * MAP_SCALE * 16) / 2;
                 camY = (map.getHeight() * MAP_SCALE * 16) / 2;
             }
@@ -413,9 +472,9 @@ public final class WorldScreen implements Screen {
 
         if (currentRatio > targetRatio) {
             cam.viewportHeight = 15 * TILE_SIZE;
-            cam.viewportWidth = cam.viewportHeight * currentRatio;
-        } else {
-            cam.viewportWidth = 20 * TILE_SIZE;
+            cam.viewportWidth  = cam.viewportHeight * currentRatio;
+        } else {                                      // too tall → letterbox
+            cam.viewportWidth  = 20 * TILE_SIZE;
             cam.viewportHeight = cam.viewportWidth / currentRatio;
         }
 
@@ -443,18 +502,23 @@ public final class WorldScreen implements Screen {
         map.getMapVisual().dispose();
         uiRenderer.dispose();
         shapeRenderer.dispose();
+        cookBookWindow.dispose();
+        refrigeratorWindow.dispose();
         gameStage.dispose();
         communicationWindow.dispose();
     }
 
-    private void checkMapSeason() {
-        if (time.getSeason() != currentSeason) {
+    private void checkMapSeason()
+    {
+        if (time.getSeason() != currentSeason)
+        {
             updateMap();
         }
         currentSeason = time.getSeason();
     }
 
-    private void updateMap() {
+    private void updateMap()
+    {
         MapAssetLoader.LoadedMap loaded = MapAssetLoader.loadFromTmx(map.getMapType().getName(), time.getSeason(), map.getMapType().getMapKind());
         TiledMap tiledMap = loaded.tiledMap;
         map.setVisual(new MapVisual(map, tiledMap));
@@ -462,7 +526,8 @@ public final class WorldScreen implements Screen {
         float mapPixelWidth = map.getWidth() * TILE_SIZE;
         float mapPixelHeight = map.getHeight() * TILE_SIZE;
 
-        if (mapPixelWidth <= cam.viewportWidth || mapPixelHeight <= cam.viewportHeight) {
+        if (mapPixelWidth <= cam.viewportWidth || mapPixelHeight <= cam.viewportHeight)
+        {
             setCameraFixed(true);
 
             float centerX = (map.getWidth() * MAP_SCALE * 16) / 2;
@@ -472,29 +537,30 @@ public final class WorldScreen implements Screen {
             cam.update();
 
             map.getMapVisual().getRenderer().setView(cam);
-        } else {
+        } else
+        {
             setCameraFixed(false);
         }
     }
 
-    public Tile cursorToTile() {
+    public Tile cursorToTile()
+    {
         float mouseX = Gdx.input.getX();
-        float mouseY = Gdx.input.getY() + 60; // Hard-Coded
+        float mouseY = Gdx.input.getY() + (60); // Hard-Coded
 
         hoveredTile = map.screenToTile(mouseX, mouseY, cam);
-        if (hoveredTile == null) {
-            return null;
-        }
-
         Tile tile = map.getTile(hoveredTile.getX(), hoveredTile.getY() - 1);
+
         return tile;
     }
 
     private void createTerminalDialog() {
         terminalDialog = new Dialog("Game Console", skin) {
             @Override
-            protected void result(Object object) {
-                if (object != null && object.equals("SUBMIT")) {
+            protected void result(Object object)
+            {
+                if (object != null && object.equals("SUBMIT"))
+                {
                     processUserInput();
                 }
                 closeDialog();
@@ -591,7 +657,8 @@ public final class WorldScreen implements Screen {
         Gdx.input.setInputProcessor(uiStage);
     }
 
-    public static void appendToDialog(String text) {
+    public static void appendToDialog(String text)
+    {
         dialogTextBuffer.append(text).append("\n");
         updateDialogDisplay();
     }
@@ -626,7 +693,8 @@ public final class WorldScreen implements Screen {
         return inventoryWindow.isVisible();
     }
 
-    public void toggleInventoryWindow() {
+    public void toggleInventoryWindow()
+    {
         inventoryWindow.toggleVisibility();
     }
 
@@ -654,15 +722,18 @@ public final class WorldScreen implements Screen {
         friendsWindow.toggleVisibility();
     }
 
-    public static WorldScreen getInstance() {
+    public static WorldScreen getInstance()
+    {
         return INSTANCE;
     }
 
-    public void setCameraFixed(boolean cameraFixed) {
+    public void setCameraFixed(boolean cameraFixed)
+    {
         this.cameraFixed = cameraFixed;
 
-        if (cameraFixed) {
-            cam.position.set(character.getPosition().x + TILE_SIZE / 2, character.getPosition().y + TILE_SIZE / 2, 0);
+        if (cameraFixed)
+        {
+            cam.position.set(character.getPosition().x + TILE_SIZE/2, character.getPosition().y + TILE_SIZE/2, 0);
             cam.update();
         }
     }
@@ -674,6 +745,13 @@ public final class WorldScreen implements Screen {
     public Player getCurrentPlayer() {
         return this.player;
     }
+    public void toggleCookBookWindow() {
+        cookBookWindow.toggleVisibility();
+    }
+
+    public boolean isCookBookVisible() {
+        return cookBookWindow.isVisible();
+    }
 
     public void restoreInputFocus() {
         // Restore input focus to the world screen
@@ -682,5 +760,83 @@ public final class WorldScreen implements Screen {
 
     public boolean isChatVisible() {
         return communicationWindow.getChatScreen().isVisible();
+    }
+    public void toggleRefrigeratorWindow() {
+        refrigeratorWindow.toggleVisibility();
+    }
+
+    public boolean isRefrigeratorVisible()
+    {
+        return refrigeratorWindow.isVisible();
+    }
+
+    public void showSelectionOverTile(Tile tile)
+    {
+        Gdx.gl.glEnable(GL20.GL_BLEND);
+        Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA); // ← add this
+
+        Gdx.gl.glEnable(GL20.GL_BLEND);
+        shapeRenderer.setProjectionMatrix(cam.combined);
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        shapeRenderer.setColor(0f, 0f, 1f, 0.3f);
+
+        Vector2 location = map.tileToWorld(tile);
+
+        shapeRenderer.rect(location.x, location.y - (16f * MAP_SCALE), (16f * MAP_SCALE), (16f * MAP_SCALE));
+
+        shapeRenderer.end();
+        Gdx.gl.glDisable(GL20.GL_BLEND);
+    }
+
+    public void drawProgressBar(Vector2 location, float progress, boolean isTall)
+    {
+        Gdx.gl.glEnable(GL20.GL_BLEND);
+        Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
+
+        Gdx.gl.glEnable(GL20.GL_BLEND);
+        shapeRenderer.setProjectionMatrix(cam.combined);
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+
+        float barWidth = 14 * MAP_SCALE;
+        float barHeight = 3 * MAP_SCALE;
+        float barX = location.x + 1 * MAP_SCALE;
+        float barY;
+
+        // Position based on item height
+        if (isTall)
+        {
+            barY = location.y - (16 * MAP_SCALE) + (30 * MAP_SCALE);
+        } else
+        {
+            barY = location.y - (16 * MAP_SCALE) + (13 * MAP_SCALE);
+        }
+
+        // Draw background (dark gray)
+        shapeRenderer.setColor(0.3f, 0.3f, 0.3f, 0.8f);
+        shapeRenderer.rect(barX, barY, barWidth, barHeight);
+
+        // Draw progress (bright green)
+        shapeRenderer.setColor(0, 1, 0, 1);
+        float progressWidth = barWidth * progress;
+        shapeRenderer.rect(barX, barY, progressWidth, barHeight);
+
+        shapeRenderer.end();
+        Gdx.gl.glDisable(GL20.GL_BLEND);
+    }
+
+    public void toggleCraftingWindow(CraftingItem item)
+    {
+        craftingItemWindow.setItem(item);
+        craftingItemWindow.toggleVisibility();
+    }
+
+    public boolean isCraftingWindowVisible()
+    {
+        return craftingItemWindow.isVisible();
+    }
+
+    public OrthographicCamera getCamera()
+    {
+        return cam;
     }
 }

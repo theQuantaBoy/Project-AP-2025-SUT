@@ -54,19 +54,19 @@ public class CharacterRenderer
             PlayerCharacter playerCharacter = (PlayerCharacter) character;
             Player player = playerCharacter.getPlayer();
 
-            if (player.getCurrentTool() != null)
-            {
-                Tool tool = player.getCurrentTool();
-                Texture toolTexture = tool.getObjectType().getTexture();
-                batch.draw(toolTexture, pos.x + 12, pos.y + 5, (TILE_SIZE * 2) / 3, (TILE_SIZE * 2) / 3);
-            }
-
-            if (player.getCurrentObject() != null)
-            {
-                GameObject object = player.getCurrentObject();
-                Texture objectTexture = object.getObjectType().getTexture();
-                batch.draw(objectTexture, pos.x + 12, pos.y + 5, (TILE_SIZE * 2) / 3, (TILE_SIZE * 2) / 3);
-            }
+//            if (player.getCurrentTool() != null)
+//            {
+//                Tool tool = player.getCurrentTool();
+//                Texture toolTexture = tool.getObjectType().getTexture();
+//                batch.draw(toolTexture, pos.x + 12, pos.y + 5, (TILE_SIZE * 2) / 3, (TILE_SIZE * 2) / 3);
+//            }
+//
+//            if (player.getCurrentObject() != null)
+//            {
+//                GameObject object = player.getCurrentObject();
+//                Texture objectTexture = object.getObjectType().getTexture();
+//                batch.draw(objectTexture, pos.x + 12, pos.y + 5, (TILE_SIZE * 2) / 3, (TILE_SIZE * 2) / 3);
+//            }
         }
 
         String name = character.getNickName();
@@ -109,5 +109,29 @@ public class CharacterRenderer
     {
         nameBadgeFont.dispose();
         generator.dispose();
+    }
+
+    public void renderToolOrObjectAtMouse(Batch batch, PlayerCharacter playerCharacter, float mouseX, float mouseY)
+    {
+        Player player = playerCharacter.getPlayer();
+        Texture texture = null;
+
+        // Check for tool first, then object
+        if (player.getCurrentTool() != null)
+        {
+            texture = player.getCurrentTool().getObjectType().getTexture();
+        } else if (player.getCurrentObject() != null)
+        {
+            texture = player.getCurrentObject().getObjectType().getTexture();
+        }
+
+        if (texture != null)
+        {
+            float width = TILE_SIZE;
+            float height = (texture.getHeight() * width) / texture.getWidth();
+
+            // Draw at the mouse position
+            batch.draw(texture, mouseX, mouseY + 5, width, height);
+        }
     }
 }
