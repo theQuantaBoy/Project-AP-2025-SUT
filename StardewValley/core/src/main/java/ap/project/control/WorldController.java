@@ -543,7 +543,7 @@ public class WorldController
             return true;
         }
 
-        tile.setObject(craftingItem);
+        tile.setObject(new CraftingItem(craftingItem.getCraftingType()));
 
         if (object.getNumber() == 1)
         {
@@ -598,6 +598,7 @@ public class WorldController
         if (fertilizer.getObjectType() == GameObjectType.FERTILIZER)
         {
             tile.fertilize();
+            player.removeAmountFromInventory(fertilizer.getObjectType(), 1);
             tile.setWateringChance(0);
 
             UIRenderer.showTextBox("Tile fertilized with fertilizer.");
@@ -607,6 +608,7 @@ public class WorldController
         if (fertilizer.getObjectType() == GameObjectType.SPECIAL_FERTILIZER)
         {
             tile.fertilize();
+            player.removeAmountFromInventory(fertilizer.getObjectType(), 1);
             tile.setWateringChance(0);
             tile.setGrowFaster();
 
@@ -617,6 +619,7 @@ public class WorldController
         if (fertilizer.getObjectType() == GameObjectType.BASIC_RETAINING_SOIL)
         {
             tile.fertilize();
+            player.removeAmountFromInventory(fertilizer.getObjectType(), 1);
             tile.setWateringChance(40);
 
             UIRenderer.showTextBox("Tile fertilized with basic retaining soil.");
@@ -626,6 +629,7 @@ public class WorldController
         if (fertilizer.getObjectType() == GameObjectType.QUALITY_RETAINING_SOIL)
         {
             tile.fertilize();
+            player.removeAmountFromInventory(fertilizer.getObjectType(), 1);
             tile.setWateringChance(70);
 
             UIRenderer.showTextBox("Tile fertilized with quality retaining soil.");
@@ -635,6 +639,7 @@ public class WorldController
         if (fertilizer.getObjectType() == GameObjectType.DELUXE_RETAINING_SOIL)
         {
             tile.fertilize();
+            player.removeAmountFromInventory(fertilizer.getObjectType(), 1);
             tile.setWateringChance(100);
 
             UIRenderer.showTextBox("Tile fertilized with deluxe retaining soil.");

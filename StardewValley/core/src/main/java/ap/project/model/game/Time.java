@@ -51,6 +51,11 @@ public class Time
         day += dayNum;
         totalDaysPassed += dayNum;
 
+        if (hasCheated)
+        {
+            totalHoursPassed += (14 * dayNum);
+        }
+
         if (day > 28)
         {
             int seasonNum = ((day - 29) / 28) + 1;

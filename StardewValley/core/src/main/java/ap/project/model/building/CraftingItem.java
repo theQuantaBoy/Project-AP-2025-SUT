@@ -7,6 +7,8 @@ import ap.project.model.enums.building_enums.CraftingRecipeEnums;
 import ap.project.model.game.GameObject;
 import ap.project.model.game.Time;
 
+import java.util.ArrayList;
+
 public class CraftingItem extends GameObject
 {
     private final ItemType itemType;
@@ -20,6 +22,8 @@ public class CraftingItem extends GameObject
 
     private int neededDays;
     private int neededHours;
+
+    private ArrayList<GameObject> craftingIngredients = new ArrayList<>();
 
     public CraftingItem (CraftingRecipeEnums craftingType)
     {
@@ -85,6 +89,8 @@ public class CraftingItem extends GameObject
 
     public float getHowMuchDone()
     {
+        if (!isWorking || neededHours == 0) return 0f;
+
         if (isWorking)
         {
             if (neededDays != 0)
@@ -109,6 +115,41 @@ public class CraftingItem extends GameObject
     public boolean isWorking()
     {
         return isWorking;
+    }
+
+    public ArrayList<GameObject> getCraftingIngredients()
+    {
+        return craftingIngredients;
+    }
+
+    public void setCraftingIngredients(ArrayList<GameObject> ingredients)
+    {
+        this.craftingIngredients = ingredients;
+    }
+
+    public String getTimeRemaining()
+    {
+        if (!isWorking) return "Not started";
+
+        int hoursPassed = getHoursPassed();
+        int daysPassed = getDaysPassed();
+        int totalHoursPassed = daysPassed * 14 + hoursPassed;
+        int totalHoursNeeded = neededDays * 14 + neededHours;
+        int hoursLeft = totalHoursNeeded - totalHoursPassed;
+
+        if (hoursLeft <= 0) return "Ready!";
+
+        // Format as "Xd Xh" (e.g., "2d 5h")
+        int days = hoursLeft / 14;
+        int hours = hoursLeft % 14;
+
+        if (days > 0 && hours > 0) {
+            return String.format("%dd %dh", days, hours);
+        } else if (days > 0) {
+            return String.format("%dd", days);
+        } else {
+            return String.format("%dh", hours);
+        }
     }
 
     public enum ItemType

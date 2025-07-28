@@ -598,7 +598,7 @@ public enum ArtisanGoodsType
         return energy != -1;
     }
 
-    public static ArrayList<ArtisanGoodsType> getPossibleProducts(CraftingRecipeEnums recipe)
+    public static ArrayList<ArtisanGoodsType> getAvailableProducts(CraftingRecipeEnums recipe)
     {
         ArrayList<ArtisanGoodsType> products = new ArrayList<>();
 
@@ -611,5 +611,19 @@ public enum ArtisanGoodsType
         }
 
         return products;
+    }
+
+    public static String getPossibleIngredients(CraftingRecipeEnums recipe)
+    {
+        ArrayList<ArtisanGoodsType> products = getAvailableProducts(recipe);
+
+        StringBuilder sb = new StringBuilder();
+        sb.append(recipe.getType()).append("\n");
+        for (ArtisanGoodsType product : products)
+        {
+            sb.append("  ").append(product.getIngredient().getObjectType()).append(" - ").append(product.getIngredient().getNumber()).append("\n");
+        }
+
+        return sb.toString();
     }
 }

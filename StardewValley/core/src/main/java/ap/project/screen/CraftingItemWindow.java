@@ -3,7 +3,9 @@ package ap.project.screen;
 import ap.project.model.App.App;
 import ap.project.model.building.CraftingItem;
 import ap.project.model.App.GameAssetsManager;
+import ap.project.model.enums.GameObjectType;
 import ap.project.model.enums.building_enums.ArtisanGoodsType;
+import ap.project.model.game.Game;
 import ap.project.model.game.GameObject;
 import ap.project.model.game.Player;
 import ap.project.visual.UIRenderer;
@@ -55,9 +57,12 @@ public class CraftingItemWindow
     private TextButton getProductButton;
     private TextButton getInstantlyButton;
     private Label statusLabel;
+    private Label timeRemainingLabel;
     private Dialog confirmationDialog;
 
-    private ArrayList<GameObject> craftingIngredients = new ArrayList<>();
+    // Tooltip management
+    private final TooltipManager tooltipManager = TooltipManager.getInstance();
+    private Drawable tooltipBackground;
 
     public CraftingItemWindow(Stage stage)
     {
@@ -73,6 +78,10 @@ public class CraftingItemWindow
         createSelectionBorder();
         slotBackground = GameAssetsManager.getGameAssetsManager()
             .createColoredDrawable(SLOT_SIZE, SLOT_SIZE, new Color(0.3f, 0.3f, 0.3f, 0.7f));
+
+        // Create tooltip background
+        tooltipBackground = GameAssetsManager.getGameAssetsManager()
+            .createColoredDrawable(1, 1, new Color(0f, 0f, 0f, 0.8f));
 
         // Create confirmation dialog
         createConfirmationDialog();
@@ -105,6 +114,8 @@ public class CraftingItemWindow
                 {
                     // Handle instant completion
                     UIRenderer.showTextBox("Completed instantly!");
+                    GameObject product = currentItem.getProduct();
+                    App.getCurrentGame().getCurrentPlayer().addToInventory(product);
                     currentItem.reset();
                     refresh();
                 }
@@ -115,7 +126,8 @@ public class CraftingItemWindow
         confirmationDialog.text("Are you sure you want to complete instantly?");
         confirmationDialog.button("Yes", true);
         confirmationDialog.button("No", false);
-        confirmationDialog.setVisible(false);
+        confirmationDialog.setVisible(true); // Dialog should be visible when shown
+        confirmationDialog.hide(); // But initially hidden
         stage.addActor(confirmationDialog);
     }
 
@@ -127,8 +139,22 @@ public class CraftingItemWindow
 
     public void toggleVisibility()
     {
+        if (isVisible)
+        {
+            // Reset selection state when closing
+            currentItem = null;
+            selectedItem = null;
+            selectedIndex = -1;
+            isCraftingSource = false;
+        } else
+        {
+            // Reset UI when opening
+            refresh();
+        }
+
         isVisible = !isVisible;
         window.setVisible(isVisible);
+        WorldScreen.getInstance().resetInputProcessor();
         if (isVisible) center();
     }
 
@@ -154,7 +180,8 @@ public class CraftingItemWindow
                     if (currentItem.isDone())
                     {
                         buildPeriodicDoneUI();
-                    } else {
+                    } else
+                    {
                         buildPeriodicWorkingUI();
                     }
                 } else
@@ -176,6 +203,9 @@ public class CraftingItemWindow
         Table content = new Table();
         content.add(new Label("One-Time Crafting Device", skin)).padBottom(20).row();
 
+        Table buttonTable = new Table();
+        buttonTable.defaults().minWidth(120).pad(10);
+
         activateButton = new TextButton("Activate", skin);
         activateButton.addListener(new ClickListener()
         {
@@ -188,7 +218,19 @@ public class CraftingItemWindow
             }
         });
 
-        content.add(activateButton).size(150, 50).row();
+        TextButton closeButton = new TextButton("Close", skin);
+        closeButton.addListener(new ClickListener()
+        {
+            @Override
+            public void clicked(InputEvent event, float x, float y)
+            {
+                toggleVisibility();
+            }
+        });
+
+        buttonTable.add(activateButton).padRight(20);
+        buttonTable.add(closeButton);
+        content.add(buttonTable).row();
         window.add(content);
     }
 
@@ -203,7 +245,7 @@ public class CraftingItemWindow
         // Center the crafting grid in a wrapper table
         Table centerWrapper = new Table();
         craftingGrid = new Table();
-        buildGrid(craftingGrid, craftingIngredients, true, CRAFTING_COLS);
+        buildGrid(craftingGrid, getCraftingIngredients(), true, CRAFTING_COLS);
         centerWrapper.add(craftingGrid);
         mainLayout.add(centerWrapper).colspan(INVENTORY_COLS).padBottom(20).center().row();
 
@@ -243,6 +285,7 @@ public class CraftingItemWindow
                 ArtisanGoodsType goodsType = determineArtisanGoodsType();
                 if (goodsType != null)
                 {
+                    currentItem.setCraftingIngredients(new ArrayList<>());
                     currentItem.start(goodsType);
                     UIRenderer.showTextBox("Crafting started!");
                     refresh();
@@ -276,13 +319,12 @@ public class CraftingItemWindow
         content.defaults().pad(15);
 
         statusLabel = new Label("Crafting in progress...", skin);
-        content.add(statusLabel).padBottom(30).row();
+        content.add(statusLabel).padBottom(10).row();
 
-        // Progress bar
-        ProgressBar progressBar = new ProgressBar(0, 1, 0.01f, false, skin);
-        progressBar.setValue(currentItem.getHowMuchDone());
-        progressBar.setAnimateDuration(0.5f);
-        content.add(progressBar).width(300).height(30).padBottom(20).row();
+        // Time remaining display
+        timeRemainingLabel = new Label("", skin);
+        timeRemainingLabel.setText("Remaining Time: " + currentItem.getTimeRemaining());
+        content.add(timeRemainingLabel).padBottom(20).row();
 
         // Buttons
         Table buttonTable = new Table();
@@ -307,11 +349,23 @@ public class CraftingItemWindow
             public void clicked(InputEvent event, float x, float y)
             {
                 confirmationDialog.show(stage);
+                confirmationDialog.toFront();
+            }
+        });
+
+        TextButton closeButton = new TextButton("Close", skin);
+        closeButton.addListener(new ClickListener()
+        {
+            @Override
+            public void clicked(InputEvent event, float x, float y)
+            {
+                toggleVisibility();
             }
         });
 
         buttonTable.add(cancelButton).padRight(20);
-        buttonTable.add(getInstantlyButton);
+        buttonTable.add(getInstantlyButton).padRight(20);
+        buttonTable.add(closeButton);
         content.add(buttonTable).padTop(10);
 
         window.add(content);
@@ -322,8 +376,11 @@ public class CraftingItemWindow
         Table content = new Table();
         content.defaults().pad(20);
 
-        statusLabel = new Label("Crafting complete! Collect your item.", skin);
+        statusLabel = new Label("Crafting complete! You can collect your item.", skin);
         content.add(statusLabel).padBottom(30).row();
+
+        Table buttonTable = new Table();
+        buttonTable.defaults().minWidth(160).pad(10);
 
         getProductButton = new TextButton("Collect Product", skin);
         getProductButton.addListener(new ClickListener()
@@ -343,7 +400,20 @@ public class CraftingItemWindow
             }
         });
 
-        content.add(getProductButton).minWidth(200).minHeight(60).row();
+        TextButton closeButton = new TextButton("Close", skin);
+        closeButton.addListener(new ClickListener()
+        {
+            @Override
+            public void clicked(InputEvent event, float x, float y)
+            {
+                toggleVisibility();
+            }
+        });
+
+        buttonTable.add(getProductButton).padRight(20);
+        buttonTable.add(closeButton);
+        content.add(buttonTable).padTop(10);
+
         window.add(content);
     }
 
@@ -386,6 +456,7 @@ public class CraftingItemWindow
         grid.clear();
 
         BitmapFont quantityFont = GameAssetsManager.generateFont("fonts/Roboto-Regular.ttf", 16, Color.WHITE);
+        BitmapFont tooltipFont = GameAssetsManager.generateFont("fonts/Roboto-Regular.ttf", 20, Color.WHITE);
 
         int slots = isCraftingGrid ? CRAFTING_ROWS * CRAFTING_COLS : INVENTORY_ROWS * INVENTORY_COLS;
 
@@ -435,6 +506,14 @@ public class CraftingItemWindow
                     Image borderImage = new Image(selectionBorderDrawable);
                     slotStack.addActor(borderImage);
                 }
+
+                // Add tooltip for the item
+                Label tooltipLabel = new Label(item.getObjectType().toString(),
+                    new Label.LabelStyle(tooltipFont, Color.WHITE));
+                Tooltip<Label> tooltip = new Tooltip<>(tooltipLabel, tooltipManager);
+                tooltip.getContainer().setBackground(tooltipBackground);
+                tooltip.getContainer().pad(5);
+                slotStack.addListener(tooltip);
             }
 
             grid.add(slotStack);
@@ -492,13 +571,13 @@ public class CraftingItemWindow
             return;
         }
 
-        if (craftingIngredients.size() >= CRAFTING_COLS)
+        if (getCraftingIngredients().size() >= CRAFTING_COLS)
         {
             UIRenderer.showTextBox("the craft grid is full");
             return;
         }
 
-        for (GameObject item : craftingIngredients)
+        for (GameObject item : getCraftingIngredients())
         {
             if (item.getObjectType() == selectedItem.getObjectType())
             {
@@ -508,7 +587,7 @@ public class CraftingItemWindow
             }
         }
 
-        craftingIngredients.add(new GameObject(selectedItem.getObjectType(), 1));
+        getCraftingIngredients().add(new GameObject(selectedItem.getObjectType(), 1));
         player.removeAmountFromInventory(selectedItem.getObjectType(), 1);
     }
 
@@ -525,13 +604,25 @@ public class CraftingItemWindow
         if (selectedItem != null)
         {
             player.addToInventory(selectedItem);
-            craftingIngredients.remove(selectedItem);
+            getCraftingIngredients().remove(selectedItem);
         }
     }
 
     private ArtisanGoodsType determineArtisanGoodsType()
     {
-        // Placeholder - to be implemented later
+        ArrayList<ArtisanGoodsType> possibleArtisanTypes = ArtisanGoodsType.getAvailableProducts(currentItem.getCraftingType());
+
+        for (ArtisanGoodsType item : possibleArtisanTypes)
+        {
+            for (GameObject object : getCraftingIngredients())
+            {
+                if (object.getObjectType() == item.getIngredient().getObjectType() && object.getNumber() >= item.getIngredient().getNumber())
+                {
+                    return item;
+                }
+            }
+        }
+
         return null;
     }
 
@@ -542,9 +633,10 @@ public class CraftingItemWindow
         recipesDialog.setMovable(true);
         recipesDialog.setResizable(true);
 
-        ScrollPane scrollPane = new ScrollPane(new Label("Recipe list will be shown here", skin));
+        String ingredients = ArtisanGoodsType.getPossibleIngredients(currentItem.getCraftingType());
+        ScrollPane scrollPane = new ScrollPane(new Label(ingredients, skin));
         scrollPane.setFadeScrollBars(false);
-        recipesDialog.getContentTable().add(scrollPane).width(400).height(300);
+        recipesDialog.getContentTable().add(scrollPane).width(500).height(350).pad(20);
 
         TextButton closeButton = new TextButton("Close", skin);
         closeButton.addListener(new ClickListener()
@@ -558,7 +650,7 @@ public class CraftingItemWindow
         recipesDialog.getButtonTable().add(closeButton);
 
         recipesDialog.show(stage);
-        recipesDialog.setSize(500, 400);
+        recipesDialog.setSize(800, 550);
         recipesDialog.setPosition(
             (stage.getWidth() - recipesDialog.getWidth()) / 2,
             (stage.getHeight() - recipesDialog.getHeight()) / 2
@@ -570,5 +662,12 @@ public class CraftingItemWindow
         float w = stage.getViewport().getWorldWidth();
         float h = stage.getViewport().getWorldHeight();
         window.setPosition((w - window.getWidth()) / 2f, (h - window.getHeight()) / 2f);
+    }
+
+    private ArrayList<GameObject> getCraftingIngredients()
+    {
+        return currentItem != null && currentItem.getCraftingIngredients() != null
+            ? currentItem.getCraftingIngredients()
+            : new ArrayList<>();
     }
 }

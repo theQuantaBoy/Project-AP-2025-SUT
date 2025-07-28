@@ -702,6 +702,11 @@ public final class WorldScreen implements Screen
 
     public void toggleCraftingWindow(CraftingItem item)
     {
+        if (craftingItemWindow.isVisible())
+        {
+            craftingItemWindow.toggleVisibility(); // Close if open
+        }
+
         craftingItemWindow.setItem(item);
         craftingItemWindow.toggleVisibility();
     }
@@ -709,5 +714,13 @@ public final class WorldScreen implements Screen
     public boolean isCraftingWindowVisible()
     {
         return craftingItemWindow.isVisible();
+    }
+
+    public void resetInputProcessor()
+    {
+        inputMultiplexer.clear();
+        inputMultiplexer.addProcessor(uiStage);
+        inputMultiplexer.addProcessor(gameInputProcessor);
+        Gdx.input.setInputProcessor(inputMultiplexer);
     }
 }
