@@ -125,9 +125,9 @@ public class Crop extends Plant
         return map.getTile(x + offsets[0][0], y + offsets[0][1]); // root tile
     }
 
-    public int getCurrentStage()
+    public int getCurrentStageDay()
     {
-        return super.currentStage;
+        return super.currentStageDay;
     }
 
     public boolean becomeGiant(Tile rootTile)
@@ -143,9 +143,9 @@ public class Crop extends Plant
             {
                 Crop cropCrop = (Crop) tile.getObject();
 
-                if (cropCrop.getCurrentStage() > maxGrowth)
+                if (cropCrop.getCurrentStageDay() > maxGrowth)
                 {
-                    maxGrowth = cropCrop.getCurrentStage();
+                    maxGrowth = cropCrop.getCurrentStageDay();
                 }
 
                 if (cropCrop.getLastWatered() < lastWatered)

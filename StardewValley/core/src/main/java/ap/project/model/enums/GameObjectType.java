@@ -1,5 +1,7 @@
 package ap.project.model.enums;
 
+import com.badlogic.gdx.graphics.Texture;
+
 public enum GameObjectType
 {
     JAZZ_SEEDS("Jazz Seeds", "game_objects/seeds/Jazz_Seeds.png"),
@@ -159,7 +161,7 @@ public enum GameObjectType
     PUMPKIN("pumpkin", "game_objects/crops/Pumpkin.png"),
     WHEAT_FLOWER("wheat flower", "game_objects/crops/Wheat_Flour.png"),
     TOMATO("tomato", "game_objects/crops/Tomato.png"),
-    CHEESE("cheese", "game_objects/Artisan_good/Cheese.png"),
+    CHEESE("cheese", "game_objects/artisan_good/Cheese.png"),
     CORN("corn", "game_objects/crops/Corn.png"),
     RICE("rice", "game_objects/crops/Rice.png"),
     FIBER("fiber", "game_objects/seeds/Fiber_Seeds.png"),
@@ -412,6 +414,7 @@ public enum GameObjectType
 
     private final String name;
     private final String path;
+    private Texture texture = null;
 
     GameObjectType(String name, String path)
     {
@@ -440,5 +443,13 @@ public enum GameObjectType
             }
         }
         return null;
+    }
+
+    public void setTexture(Texture texture) {
+        this.texture = texture;
+    }
+
+    public Texture getTexture() {
+        return texture;
     }
 }

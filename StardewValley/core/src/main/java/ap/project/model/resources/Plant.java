@@ -21,7 +21,7 @@ public class Plant extends GameObject
 
     protected boolean hasStarted = false;
     protected int lastWatered = 1; // TODO: can this fix the problem?
-    protected int currentStage = 0;
+    protected int currentStageDay = 0;
     protected int lastHarvested = 0;
 
     protected boolean hasHarvested = false;
@@ -42,13 +42,31 @@ public class Plant extends GameObject
 
     private void grow()
     {
-        if (currentStage < totalHarvestTime)
+        if (currentStageDay < totalHarvestTime)
         {
             if (seasons.contains(App.getCurrentGame().getCurrentTime().getSeason()) || isInGreenhouse)
             {
-                currentStage += 1;
+                currentStageDay += 1;
             }
         }
+    }
+
+    public int getCurrentStage()
+    {
+        int counter = 0;
+        int copy = currentStageDay;
+
+        for (int stage : stages)
+        {
+            copy -= stage;
+            if (copy <= 0)
+            {
+                return counter;
+            }
+            counter += 1;
+        }
+
+        return -1;
     }
 
     public void update()
@@ -70,7 +88,7 @@ public class Plant extends GameObject
     {
         if (!hasHarvested)
         {
-            return (currentStage == totalHarvestTime);
+            return (currentStageDay == totalHarvestTime);
         }
 
         return lastHarvested >= harvestWaitTime;
@@ -105,8 +123,8 @@ public class Plant extends GameObject
 
         output.append("\n------------------------------------\n");
 
-        output.append("Remaining Time: ").append(totalHarvestTime - currentStage).append(" (days)\n");
-        output.append("Current Stage: ").append(currentStage).append(" (days ago)\n");
+        output.append("Remaining Time: ").append(totalHarvestTime - currentStageDay).append(" (days)\n");
+        output.append("Current Stage: ").append(currentStageDay).append(" (days ago)\n");
 
         output.append("------------------------------------\n");
         if (hasHarvested)

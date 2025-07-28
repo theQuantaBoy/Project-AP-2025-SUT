@@ -47,7 +47,7 @@ public class MainScreen implements Screen {
         this.background.setFillParent(true);
         this.logo = new Image(GameAssetsManager.getGameAssetsManager().getLogo());
         this.avatar = new Image(App.getCurrentUser().getAvatar());
-        this.menuName = new Label("MAIN\nMENU", GameAssetsManager.getGameAssetsManager().getSkin());
+        this.menuName = new Label("MAIN\nMENU", GameAssetsManager.getGameAssetsManager().getSkin(), "Impact");
         this.menuName.setAlignment(Align.center);
         this.menuName.setColor(Color.GOLD);
         this.nickname = new Label(App.getCurrentUser().getNickname(), GameAssetsManager.getGameAssetsManager().getSkin());

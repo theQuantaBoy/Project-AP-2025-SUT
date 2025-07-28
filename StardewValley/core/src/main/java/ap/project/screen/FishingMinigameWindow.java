@@ -23,7 +23,7 @@ public class FishingMinigameWindow extends Window {
     }
 
     private void initialize() {
-        gameState = new MiniGameState(MiniGameState.FishBehavior.DART, true);
+        gameState = new MiniGameState();
         backgroundTexture = new Texture("C:\\Users\\ArmanPC\\IdeaProjects\\advanced-programming-phase-1-group-26\\StardewValley\\core\\assets\\animals\\background.png");
         fishTexture = new Texture("C:\\Users\\ArmanPC\\IdeaProjects\\advanced-programming-phase-1-group-26\\StardewValley\\core\\assets\\animals\\fish_minigame.png");
         playerBarTexture = new Texture("C:\\Users\\ArmanPC\\IdeaProjects\\advanced-programming-phase-1-group-26\\StardewValley\\core\\assets\\animals\\bar.png");
