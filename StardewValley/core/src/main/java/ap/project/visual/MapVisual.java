@@ -12,9 +12,10 @@ import ap.project.model.resources.ForagingTree;
 import ap.project.model.resources.Plant;
 import ap.project.model.resources.Tree;
 import ap.project.screen.WorldScreen;
-import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.MathUtils;
@@ -65,7 +66,7 @@ public class MapVisual
 
         drawPlants();
         drawForagingTrees();
-        drawTilesWithCraftingItems();
+        drawTilesWithCraftingItems(worldScreen.getCamera());
 
         batch.end();
 
@@ -326,7 +327,7 @@ public class MapVisual
         }
     }
 
-    public void drawTilesWithCraftingItems()
+    public void drawTilesWithCraftingItems(OrthographicCamera cam)
     {
         if (map instanceof Farm)
         {
@@ -334,7 +335,7 @@ public class MapVisual
 
             for (Tile tile : farm.getTilesWithCraftingItems())
             {
-                drawTileCraftingItem(tile);
+                drawTileCraftingItem(tile, cam);
             }
         }
 
@@ -344,7 +345,7 @@ public class MapVisual
 
             for (Tile tile : greenHouse.getTilesWithCraftingItems())
             {
-                drawTileCraftingItem(tile);
+                drawTileCraftingItem(tile, cam);
             }
         }
     }
@@ -382,13 +383,14 @@ public class MapVisual
         }
     }
 
-    public static void drawTileCraftingItem(Tile tile)
+    public void drawTileCraftingItem(Tile tile, OrthographicCamera cam)
     {
         Vector2 location = map.tileToWorld(tile);
         if (tile.getObject() != null && tile.getObject() instanceof CraftingItem)
         {
             CraftingItem craftingItem = (CraftingItem) tile.getObject();
             CraftingRecipeEnums type = craftingItem.getCraftingType();
+            boolean isTall = type.isTall();
 
             if (type.isTall())
             {
@@ -396,6 +398,53 @@ public class MapVisual
             } else
             {
                 renderer.getBatch().draw(tile.getObject().getObjectType().getTexture(), location.x, location.y - (16 * MAP_SCALE), (16 * MAP_SCALE), (16 * MAP_SCALE));
+            }
+        }
+    }
+
+    public void drawCraftingProgressBars()
+    {
+        if (map instanceof Farm)
+        {
+            Farm farm = (Farm) map;
+
+            for (Tile tile : farm.getTilesWithCraftingItems())
+            {
+                if (tile.getObject() != null && tile.getObject() instanceof CraftingItem)
+                {
+                    Vector2 location = map.tileToWorld(tile);
+                    CraftingItem craftingItem = (CraftingItem) tile.getObject();
+                    CraftingRecipeEnums type = craftingItem.getCraftingType();
+                    boolean isTall = type.isTall();
+
+                    if (craftingItem.getItemType() == CraftingItem.ItemType.PERIODIC && craftingItem.isWorking())
+                    {
+                        float progress = craftingItem.getHowMuchDone();
+                        WorldScreen.getInstance().drawProgressBar(location, progress, isTall);
+                    }
+                }
+            }
+        }
+
+        else if (map instanceof GreenHouse)
+        {
+            GreenHouse greenHouse = (GreenHouse) map;
+
+            for (Tile tile : greenHouse.getTilesWithCraftingItems())
+            {
+                if (tile.getObject() != null && tile.getObject() instanceof CraftingItem)
+                {
+                    Vector2 location = map.tileToWorld(tile);
+                    CraftingItem craftingItem = (CraftingItem) tile.getObject();
+                    CraftingRecipeEnums type = craftingItem.getCraftingType();
+                    boolean isTall = type.isTall();
+
+                    if (craftingItem.getItemType() == CraftingItem.ItemType.PERIODIC && craftingItem.isWorking())
+                    {
+                        float progress = craftingItem.getHowMuchDone();
+                        WorldScreen.getInstance().drawProgressBar(location, progress, isTall);
+                    }
+                }
             }
         }
     }

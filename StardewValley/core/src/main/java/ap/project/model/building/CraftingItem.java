@@ -17,11 +17,11 @@ public class CraftingItem extends GameObject
     private ArtisanGoodsType artisanType = null;
     private boolean isWorking = false;
 
-    private int startDay;
-    private int startHour;
+    private int startDay = -1;
+    private int startHour = -1;
 
-    private int neededDays;
-    private int neededHours;
+    private int neededDays = -1;
+    private int neededHours = -1;
 
     private ArrayList<GameObject> craftingIngredients = new ArrayList<>();
 
@@ -89,26 +89,22 @@ public class CraftingItem extends GameObject
 
     public float getHowMuchDone()
     {
-        if (!isWorking || neededHours == 0) return 0f;
+        if (!isWorking ) return 0f;
 
-        if (isWorking)
-        {
-            if (neededDays != 0)
-            {
-                return ((float) getDaysPassed() / neededDays);
-            }
+        int totalNeededHours = neededHours + (14 *  neededDays);
+        int totalDoneHours = getHoursPassed() + (14 * getDaysPassed());
 
-            return ((float) getHoursPassed() / neededHours);
-        }
-
-        return 0;
+        float progress = ((float) totalDoneHours / (float)totalNeededHours);
+        return Math.min(progress, 1f);
     }
 
     public void reset()
     {
         this.artisanType = null;
-        this.neededDays = 0;
-        this.neededHours = 0;
+        this.startDay = -1;
+        this.startHour = -1;
+        this.neededDays = -1;
+        this.neededHours = -1;
         this.isWorking = false;
     }
 
@@ -137,19 +133,24 @@ public class CraftingItem extends GameObject
         int totalHoursNeeded = neededDays * 14 + neededHours;
         int hoursLeft = totalHoursNeeded - totalHoursPassed;
 
-        if (hoursLeft <= 0) return "Ready!";
+        if (isDone()) return "Ready!";
 
         // Format as "Xd Xh" (e.g., "2d 5h")
         int days = hoursLeft / 14;
         int hours = hoursLeft % 14;
 
-        if (days > 0 && hours > 0) {
+        if (neededDays > 0 && neededHours > 0) {
             return String.format("%dd %dh", days, hours);
-        } else if (days > 0) {
+        } else if (neededDays > 0) {
             return String.format("%dd", days);
         } else {
             return String.format("%dh", hours);
         }
+    }
+
+    public ItemType getItemType()
+    {
+        return itemType;
     }
 
     public enum ItemType

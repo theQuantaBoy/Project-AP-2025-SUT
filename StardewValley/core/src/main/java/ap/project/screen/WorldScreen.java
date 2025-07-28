@@ -143,7 +143,6 @@ public final class WorldScreen implements Screen
         craftingItemWindow = new CraftingItemWindow(uiStage);
         createTerminalDialog();
 
-
         inputMultiplexer = new InputMultiplexer();
         checkGameInfo();
     }
@@ -313,6 +312,7 @@ public final class WorldScreen implements Screen
         uiRenderer.renderDarkOverlay(uiCam);
 
         map.getMapVisual().showAvailableTilesForArtisanEquipment(this);
+        map.getMapVisual().drawCraftingProgressBars();
 
         if (hoveredTile != null) {
             Gdx.gl.glEnable(GL20.GL_BLEND);
@@ -706,6 +706,42 @@ public final class WorldScreen implements Screen
         Gdx.gl.glDisable(GL20.GL_BLEND);
     }
 
+    public void drawProgressBar(Vector2 location, float progress, boolean isTall)
+    {
+        Gdx.gl.glEnable(GL20.GL_BLEND);
+        Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
+
+        Gdx.gl.glEnable(GL20.GL_BLEND);
+        shapeRenderer.setProjectionMatrix(cam.combined);
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+
+        float barWidth = 14 * MAP_SCALE;
+        float barHeight = 3 * MAP_SCALE;
+        float barX = location.x + 1 * MAP_SCALE;
+        float barY;
+
+        // Position based on item height
+        if (isTall)
+        {
+            barY = location.y - (16 * MAP_SCALE) + (30 * MAP_SCALE);
+        } else
+        {
+            barY = location.y - (16 * MAP_SCALE) + (13 * MAP_SCALE);
+        }
+
+        // Draw background (dark gray)
+        shapeRenderer.setColor(0.3f, 0.3f, 0.3f, 0.8f);
+        shapeRenderer.rect(barX, barY, barWidth, barHeight);
+
+        // Draw progress (bright green)
+        shapeRenderer.setColor(0, 1, 0, 1);
+        float progressWidth = barWidth * progress;
+        shapeRenderer.rect(barX, barY, progressWidth, barHeight);
+
+        shapeRenderer.end();
+        Gdx.gl.glDisable(GL20.GL_BLEND);
+    }
+
     public void toggleCraftingWindow(CraftingItem item)
     {
         craftingItemWindow.setItem(item);
@@ -715,5 +751,10 @@ public final class WorldScreen implements Screen
     public boolean isCraftingWindowVisible()
     {
         return craftingItemWindow.isVisible();
+    }
+
+    public OrthographicCamera getCamera()
+    {
+        return cam;
     }
 }

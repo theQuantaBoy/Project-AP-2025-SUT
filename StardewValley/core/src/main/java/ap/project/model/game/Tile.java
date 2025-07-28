@@ -30,6 +30,7 @@ public class Tile
     private Fish fish = null;
 
     private String typeName;
+    private boolean shouldBeWateredAutomatically = false;
 
     public void setInCity()
     {
@@ -724,5 +725,15 @@ public class Tile
     public void setFish(Fish fish)
     {
         this.fish = fish;
+    }
+
+    public boolean isShouldBeWateredAutomatically()
+    {
+        return shouldBeWateredAutomatically;
+    }
+
+    public void setShouldBeWateredAutomatically(boolean shouldBeWateredAutomatically)
+    {
+        this.shouldBeWateredAutomatically = shouldBeWateredAutomatically;
     }
 }
