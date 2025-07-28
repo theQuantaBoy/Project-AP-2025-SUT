@@ -136,7 +136,8 @@ public class GeneralController
 
     public Result energyUnlimited() {
         Player currentPlayer = App.getCurrentGame().getCurrentPlayer();
-        currentPlayer.setEnergy(-1); //might change later
+        currentPlayer.setEnergy(currentPlayer.getMaxEnergy()); //might change later
+        currentPlayer.setMaxEnergySet(true);
         return new Result(true,"your energy is now unlimited eshghohal");
 
     }

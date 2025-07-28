@@ -461,4 +461,9 @@ public class InventoryWindow {
         player = App.getCurrentGame().getCurrentPlayer();
         backpack = player.getCurrentBackPack();
     }
+    public void clearSelection() {
+        selectedInventorySlot = -1;
+    }
+
 }
+

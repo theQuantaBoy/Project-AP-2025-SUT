@@ -40,6 +40,7 @@ public class Player {
 
     private float energy;
     private float maxEnergy = 200f;
+    private boolean isMaxEnergySet = false;
     private boolean fainted = false;
 
     private Skill farmingSkill = new Skill(SkillType.Farming);
@@ -217,7 +218,7 @@ public class Player {
 
     public void increaseEnergy(float energy)
     {
-        if (energy != -1)
+        if (!isMaxEnergySet)
         {
            this.energy += energy;
         }
@@ -881,6 +882,14 @@ public class Player {
         return allPlants;
     }
 
+    public boolean isMaxEnergySet() {
+        return isMaxEnergySet;
+    }
+
+    public void setMaxEnergySet(boolean maxEnergySet) {
+        isMaxEnergySet = maxEnergySet;
+    }
+
     public Result newMessages() {
         Player currentPlayer = App.getCurrentGame().getCurrentPlayer();
         if (currentPlayer.isNewMessage()) {
@@ -1173,8 +1182,13 @@ public class Player {
 
     public List<Gift> getGiftHistoryWith(Player selectedFriend) {
         List<Gift> gifts = new ArrayList<>();
-        for (Gift gift : getArchiveGifts()) {
+        for (Gift gift : archiveGifts) {
             if (gift.getGiver().equals(selectedFriend)) {
+                gifts.add(gift);
+            }
+        }
+        for  (Gift gift : givenGifts) {
+            if (gift.getTaker().equals(selectedFriend)) {
                 gifts.add(gift);
             }
         }

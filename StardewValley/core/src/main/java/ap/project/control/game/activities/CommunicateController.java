@@ -1,6 +1,7 @@
 package ap.project.control.game.activities;
 
 import ap.project.model.App.App;
+import ap.project.model.App.GameAssetsManager;
 import ap.project.model.App.Result;
 import ap.project.model.game.GameObject;
 import ap.project.model.game.Gift;
@@ -8,11 +9,21 @@ import ap.project.model.game.Player;
 import ap.project.model.enums.Gender;
 import ap.project.model.player_data.FriendshipData;
 import ap.project.model.enums.GameObjectType;
+import ap.project.screen.FriendsWindow;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.ui.*;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 
 import java.util.Map;
 import java.util.regex.Matcher;
 
 public class CommunicateController {
+
+    private FriendsWindow friendsWindow;
+
+    public void setFriendsWindow(FriendsWindow friendsWindow) {
+        this.friendsWindow = friendsWindow;
+    }
 
     /* friendship methods */
 
@@ -212,28 +223,100 @@ public class CommunicateController {
         return new Result(true, "gift rated successfully");
     }
 
-    public void giftHistory (Matcher matcher) {
-        Player player = App.getCurrentGame().getPlayerByNickname(matcher.group("username"));
-        Player currentPlayer = App.getCurrentGame().getCurrentPlayer();
-        System.out.println("gits given: ");
-        for (Gift object : currentPlayer.getGivenGifts())  {
-            if (object.getTaker().getNickName().equalsIgnoreCase(player.getNickName())) {
-                System.out.println("id: " + object.getId() +
-                        " item: " + object.getGameObject().name() +
-                        " amount: " + object.getAmount());
-                System.out.println("----");
-            }
+//      for (Gift gift : giftList) {
+//                Label name = new Label("Gift: " + gift.toString() + " x" + gift.getAmount() + "        ", skin);
+//                historyContent.add(name).pad(5);
+//                if (gift.isRated()) {
+//                    Label rate = new Label("Rate: " + gift.getRate(), skin);
+//                    historyContent.add(rate).pad(5);
+//                } else {
+//                    TextButton rateButton = new TextButton("Rate", skin);
+//                    historyContent.add(rateButton).pad(5).row();
+//                    rateButton.addListener(new ClickListener() {
+//                        @Override
+//                        public void clicked(InputEvent event, float x, float y) {
+//                            showRatingDialog(gift);
+//                        }
+//                    });
+//                }
+//            }
+//        historyContent.add(new Label(controller.giftHistory(selectedFriend), skin));
+
+    public void giftHistory(Player player, Table table) {
+        Skin skin = GameAssetsManager.getGameAssetsManager().getSkin();
+        Player current = App.getCurrentGame().getCurrentPlayer();
+
+        // --- Gifts Given ---
+        Label givenTitle = new Label("Gifts Given", skin, "Impact");
+        table.add(givenTitle).colspan(4).center().padBottom(15).row();
+
+        // Create header row with proper spacing
+        Table givenTable = new Table(skin);
+        givenTable.defaults().pad(5).center();
+        givenTable.add(new Label("ID", skin)).width(60);
+        givenTable.add(new Label("Item", skin)).width(180).padRight(15);
+        givenTable.add(new Label("Amount", skin)).width(100).padRight(15);
+        givenTable.add(new Label("Rate", skin)).width(100);
+        givenTable.row();
+
+        // Populate given gifts
+        for (Gift g : current.getGivenGifts()) {
+            if (!g.getTaker().getNickName().equalsIgnoreCase(player.getNickName()))
+                continue;
+
+            givenTable.add(new Label(String.valueOf(g.getId()), skin)).width(60);
+            givenTable.add(new Label(g.getGameObject().name(), skin)).width(180).padRight(15);
+            givenTable.add(new Label(String.valueOf(g.getAmount()), skin)).width(100).padRight(10);
+
+            String rateText = g.isRated()
+                ? String.valueOf(g.getRate())
+                : "—";
+            givenTable.add(new Label(rateText, skin)).width(80);
+            givenTable.row();
         }
-        System.out.println("gifts taken: ");
-        for (Gift object : currentPlayer.getArchiveGifts()) {
-            if (object.getGiver().getNickName().equalsIgnoreCase(player.getNickName())) {
-                System.out.println("id: " + object.getId() +
-                        " item: " + object.getGameObject().name() +
-                        " amount: " + object.getAmount());
-                System.out.println("----");
+
+        table.add(givenTable).colspan(4).fillX().padBottom(20).row();
+
+        // --- Gifts Received ---
+        Label receivedTitle = new Label("Gifts Received", skin, "Impact");
+        table.add(receivedTitle).colspan(4).center().padBottom(15).row();
+
+        Table recvTable = new Table(skin);
+        recvTable.defaults().pad(5).center();
+        recvTable.add(new Label("ID", skin)).width(60);
+        recvTable.add(new Label("Item", skin)).width(180).padRight(15);
+        recvTable.add(new Label("Amount", skin)).width(100).padRight(15);
+        recvTable.add(new Label("Action", skin)).width(100);
+        recvTable.row();
+
+        // Populate received gifts
+        for (Gift g : current.getArchiveGifts()) {
+            if (!g.getGiver().getNickName().equalsIgnoreCase(player.getNickName()))
+                continue;
+
+            recvTable.add(new Label(String.valueOf(g.getId()), skin)).width(60);
+            recvTable.add(new Label(g.getGameObject().name(), skin)).width(180).padRight(15);
+            recvTable.add(new Label(String.valueOf(g.getAmount()), skin)).width(100).padRight(10);
+
+            if (g.isRated()) {
+                recvTable.add(new Label(String.valueOf(g.getRate()), skin)).width(100);
+            } else {
+                TextButton rateBtn = new TextButton("Rate", skin);
+                rateBtn.addListener(new ClickListener() {
+                    @Override public void clicked(InputEvent e, float x, float y) {
+                        friendsWindow.showRatingDialog(g);
+                    }
+                });
+                recvTable.add(rateBtn).width(80);
             }
+            recvTable.row();
         }
+
+        table.add(recvTable).colspan(4).fillX().row();
     }
+
+
+
 
 
     //hugging
