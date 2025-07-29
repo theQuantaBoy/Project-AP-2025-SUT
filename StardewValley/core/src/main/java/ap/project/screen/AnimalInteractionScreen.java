@@ -49,7 +49,7 @@ public class AnimalInteractionScreen {
         window.getTitleLabel().setAlignment(Align.center);
 
         // Set background with some transparency
-        window.setBackground(skin.newDrawable("white", 0.2f, 0.2f, 0.2f, 0.9f));
+        window.setBackground(skin.getDrawable("background"));
 
         // Add interaction buttons
         addButton("🐾 Pet", () -> {

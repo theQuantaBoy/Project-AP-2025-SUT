@@ -212,7 +212,6 @@ public final class WorldScreen implements Screen {
 
                     return true;
                 } else if (keycode == Input.Keys.TAB) {
-                } else if (keycode == Input.Keys.TAB) {
                     boolean nowVisible = !inventoryWindow.isVisible();
                     inventoryWindow.toggleVisibility();
 

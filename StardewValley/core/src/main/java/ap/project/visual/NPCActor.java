@@ -8,6 +8,7 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Window;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 
@@ -25,7 +26,7 @@ public class NPCActor extends Actor {
         setBounds(npc.getLocation().getX(), npc.getLocation().getY(), 1, 1);
 
         // Create dialogue button (hidden initially)
-        dialogueButton = new Button(skin);
+        dialogueButton = new TextButton("Dialogue", skin);
         dialogueButton.setSize(30, 30);
         dialogueButton.addListener(new ClickListener() {
             @Override

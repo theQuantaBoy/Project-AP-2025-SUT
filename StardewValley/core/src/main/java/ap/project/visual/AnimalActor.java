@@ -11,6 +11,7 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 
@@ -25,6 +26,7 @@ public class AnimalActor extends Actor {
         this.interactionScreen = interactionScreen;
         setPosition(animal.getX(), animal.getY());
         setSize(16, 16);
+        setTouchable(Touchable.enabled);
 
         // Right-click listener for animal interaction
         addListener(new ClickListener(Input.Buttons.RIGHT) {
