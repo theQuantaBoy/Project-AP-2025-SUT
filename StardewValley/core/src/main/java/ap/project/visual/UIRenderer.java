@@ -44,7 +44,6 @@ public class UIRenderer
 
     private final TextButton friends;
 
-
     private final Texture weatherOverlay;
     private static final Array<TextBox> activeTextBoxes = new Array<>();
 

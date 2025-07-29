@@ -2,7 +2,6 @@ package ap.project.model.shops;
 
 import ap.project.model.App.App;
 import ap.project.model.game.GameObject;
-import ap.project.model.building.CraftingItems.FishSmoker;
 import ap.project.model.enums.GameObjectType;
 import ap.project.model.enums.ShopType;
 import ap.project.model.enums.shop_enums.FishShopStock;
@@ -71,12 +70,11 @@ public class FishShop extends Shop{
         {
             case FISH_SMOKER_RECIPE ->
             {
-                FishSmoker fishSmoker = new FishSmoker();
                 if (FishShopStock.FISH_SMOKER_RECIPE.getDailyLimit() != 0)
                 {
                     App.getCurrentGame().getCurrentPlayer().decreaseMoney
                             (FishShopStock.FISH_SMOKER_RECIPE.getPrice() * gameObject.getNumber());
-                    App.getCurrentGame().getCurrentPlayer().getCurrentBackPack().getSlots().add(fishSmoker);
+                    App.getCurrentGame().getCurrentPlayer().addToInventory(gameObject);
                     FishShopStock.FISH_SMOKER_RECIPE.decreaseDailyLimit();
                     fishShopStocks.remove(FishShopStock.FISH_SMOKER_RECIPE);
                 }

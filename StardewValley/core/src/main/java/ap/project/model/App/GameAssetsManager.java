@@ -151,4 +151,15 @@ public class GameAssetsManager {
         if (generator != null) generator.dispose();
         if (skin != null) skin.dispose();
     }
+
+    public static BitmapFont generateFont(String path, int size, Color color)
+    {
+        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal(path));
+        FreeTypeFontGenerator.FreeTypeFontParameter param = new FreeTypeFontGenerator.FreeTypeFontParameter();
+        param.size = size;
+        param.color = color;
+        BitmapFont font = generator.generateFont(param);
+        generator.dispose();
+        return font;
+    }
 }

@@ -63,4 +63,9 @@ public class GameObject
     {
         return Objects.hash(ObjectType, number);
     }
+
+    public void setNumber(int number)
+    {
+        this.number = number;
+    }
 }

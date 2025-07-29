@@ -12,25 +12,33 @@ import ap.project.model.resources.Crop;
 import ap.project.model.resources.ForagingCrop;
 import ap.project.model.resources.Tree;
 
+import java.util.ArrayList;
 import java.util.Random;
 
 public enum ArtisanGoodsType
 {
+    // Bee House
     HONEY(GameObjectType.HONEY, CraftingRecipeEnums.BEE_HOUSE_RECIPE, "It's a sweet syrup produced by bees.",
             75, 56, null, 350),
 
 
+    // Cheese Press
+    //  cheese - start
     CHEESE_1(GameObjectType.CHEESE, CraftingRecipeEnums.CHEESE_PRESS_RECIPE, "It's your basic cheese.", 100,
             3, new GameObject(GameObjectType.MILK, 1), 230),
     CHEESE_2(GameObjectType.CHEESE, CraftingRecipeEnums.CHEESE_PRESS_RECIPE, "It's your basic cheese.", 100,
-            3, new GameObject(GameObjectType.MILK, 1), 345),
+            3, new GameObject(GameObjectType.LARGE_MILK, 1), 345),
+    //  cheese - end
 
+    //  goat cheese - start
     GOAT_CHEESE_1(GameObjectType.GOAT_CHEESE, CraftingRecipeEnums.CHEESE_PRESS_RECIPE, "Soft cheese made from goat's milk.",
             100, 3, new GameObject(GameObjectType.GOAT_MILK, 1), 400),
     GOAT_CHEESE_2(GameObjectType.GOAT_CHEESE, CraftingRecipeEnums.CHEESE_PRESS_RECIPE, "Soft cheese made from goat's milk.",
             100, 3, new GameObject(GameObjectType.LARGE_GOAT_MILK, 1), 600),
+    //  goat cheese - end
 
 
+    // Keg
     BEER(GameObjectType.BEER, CraftingRecipeEnums.KEG_RECIPE, "Drink in moderation.",
             50, 14, new GameObject(GameObjectType.WHEAT, 1), 200),
 
@@ -40,8 +48,76 @@ public enum ArtisanGoodsType
     COFFEE(GameObjectType.COFFEE, CraftingRecipeEnums.KEG_RECIPE, "It smells delicious. This is sure to give you a boost.",
             75, 2, new GameObject(GameObjectType.COFFEE_BEAN, 5), 150),
 
-    JUICE(GameObjectType.JUICE, CraftingRecipeEnums.KEG_RECIPE, "A sweet, nutritious beverage.",
-            -1, 56, null, -1),
+    //  juice - start
+    JUICE_01(GameObjectType.JUICE, CraftingRecipeEnums.KEG_RECIPE, "A sweet, nutritious beverage.",
+            50, 56, new GameObject(GameObjectType.AMARANTH, 1), 50),
+
+    JUICE_02(GameObjectType.JUICE, CraftingRecipeEnums.KEG_RECIPE, "A sweet, nutritious beverage.",
+        50, 56, new GameObject(GameObjectType.ARTICHOKE_CROP, 1), 50),
+
+    JUICE_03(GameObjectType.JUICE, CraftingRecipeEnums.KEG_RECIPE, "A sweet, nutritious beverage.",
+        50, 56, new GameObject(GameObjectType.BEET, 1), 50),
+
+    JUICE_04(GameObjectType.JUICE, CraftingRecipeEnums.KEG_RECIPE, "A sweet, nutritious beverage.",
+        50, 56, new GameObject(GameObjectType.BOK_CHOY_CROP, 1), 50),
+
+    JUICE_05(GameObjectType.JUICE, CraftingRecipeEnums.KEG_RECIPE, "A sweet, nutritious beverage.",
+        50, 56, new GameObject(GameObjectType.BROCCOLI_CROP, 1), 50),
+
+    JUICE_06(GameObjectType.JUICE, CraftingRecipeEnums.KEG_RECIPE, "A sweet, nutritious beverage.",
+        50, 56, new GameObject(GameObjectType.CARROT, 1), 50),
+
+    JUICE_07(GameObjectType.JUICE, CraftingRecipeEnums.KEG_RECIPE, "A sweet, nutritious beverage.",
+        50, 56, new GameObject(GameObjectType.CAULIFLOWER_CROP, 1), 50),
+
+    JUICE_08(GameObjectType.JUICE, CraftingRecipeEnums.KEG_RECIPE, "A sweet, nutritious beverage.",
+        50, 56, new GameObject(GameObjectType.CORN, 1), 50),
+
+    JUICE_09(GameObjectType.JUICE, CraftingRecipeEnums.KEG_RECIPE, "A sweet, nutritious beverage.",
+        50, 56, new GameObject(GameObjectType.EGGPLANT, 1), 50),
+
+    JUICE_10(GameObjectType.JUICE, CraftingRecipeEnums.KEG_RECIPE, "A sweet, nutritious beverage.",
+        50, 56, new GameObject(GameObjectType.FIDDLEHEAD_FERN_FORAGING_CROP, 1), 50),
+
+    JUICE_11(GameObjectType.JUICE, CraftingRecipeEnums.KEG_RECIPE, "A sweet, nutritious beverage.",
+        50, 56, new GameObject(GameObjectType.GARLIC_CROP, 1), 50),
+
+    JUICE_12(GameObjectType.JUICE, CraftingRecipeEnums.KEG_RECIPE, "A sweet, nutritious beverage.",
+        50, 56, new GameObject(GameObjectType.GREEN_BEAN_CROP, 1), 50),
+
+    JUICE_13(GameObjectType.JUICE, CraftingRecipeEnums.KEG_RECIPE, "A sweet, nutritious beverage.",
+        50, 56, new GameObject(GameObjectType.HOPS_CROP, 1), 50),
+
+    JUICE_14(GameObjectType.JUICE, CraftingRecipeEnums.KEG_RECIPE, "A sweet, nutritious beverage.",
+        50, 56, new GameObject(GameObjectType.KALE, 1), 50),
+
+    JUICE_15(GameObjectType.JUICE, CraftingRecipeEnums.KEG_RECIPE, "A sweet, nutritious beverage.",
+        50, 56, new GameObject(GameObjectType.PARSNIP, 1), 50),
+
+    JUICE_16(GameObjectType.JUICE, CraftingRecipeEnums.KEG_RECIPE, "A sweet, nutritious beverage.",
+        50, 56, new GameObject(GameObjectType.POTATO, 1), 50),
+
+    JUICE_17(GameObjectType.JUICE, CraftingRecipeEnums.KEG_RECIPE, "A sweet, nutritious beverage.",
+        50, 56, new GameObject(GameObjectType.PUMPKIN, 1), 50),
+
+    JUICE_18(GameObjectType.JUICE, CraftingRecipeEnums.KEG_RECIPE, "A sweet, nutritious beverage.",
+        50, 56, new GameObject(GameObjectType.RADISH, 1), 50),
+
+    JUICE_19(GameObjectType.JUICE, CraftingRecipeEnums.KEG_RECIPE, "A sweet, nutritious beverage.",
+        50, 56, new GameObject(GameObjectType.RED_CABBAGE, 1), 50),
+
+    JUICE_20(GameObjectType.JUICE, CraftingRecipeEnums.KEG_RECIPE, "A sweet, nutritious beverage.",
+        50, 56, new GameObject(GameObjectType.SUMMER_SQUASH_CROP, 1), 50),
+
+    JUICE_21(GameObjectType.JUICE, CraftingRecipeEnums.KEG_RECIPE, "A sweet, nutritious beverage.",
+        50, 56, new GameObject(GameObjectType.TOMATO, 1), 50),
+
+    JUICE_22(GameObjectType.JUICE, CraftingRecipeEnums.KEG_RECIPE, "A sweet, nutritious beverage.",
+        50, 56, new GameObject(GameObjectType.UNMILLED_RICE_CROP, 1), 50),
+
+    JUICE_23(GameObjectType.JUICE, CraftingRecipeEnums.KEG_RECIPE, "A sweet, nutritious beverage.",
+        50, 56, new GameObject(GameObjectType.WHEAT, 1), 50),
+    //  juice - end
 
     MEAD(GameObjectType.MEAD, CraftingRecipeEnums.KEG_RECIPE, "A fermented beverage made from honey. Drink in moderation.",
             100, 10, new GameObject(GameObjectType.HONEY, 1), 300),
@@ -49,34 +125,178 @@ public enum ArtisanGoodsType
     PALE_ALE(GameObjectType.PALE_ALE, CraftingRecipeEnums.KEG_RECIPE, "Drink in moderation.",
             50, 42, new GameObject(GameObjectType.HOPS_CROP, 1), 300),
 
-    WINE(GameObjectType.WINE, CraftingRecipeEnums.KEG_RECIPE, "Drink in moderation.",
-            -1, 98, null, -1),
+    //  wine - start
+    WINE_01(GameObjectType.WINE, CraftingRecipeEnums.KEG_RECIPE, "Drink in moderation.",
+            50, 98, new GameObject(GameObjectType.ANCIENT_FRUIT_CROP, 1), 300),
+
+    WINE_02(GameObjectType.WINE, CraftingRecipeEnums.KEG_RECIPE, "Drink in moderation.",
+        50, 98, new GameObject(GameObjectType.APPLE, 1), 300),
+
+    WINE_03(GameObjectType.WINE, CraftingRecipeEnums.KEG_RECIPE, "Drink in moderation.",
+        50, 98, new GameObject(GameObjectType.APRICOT, 1), 300),
+
+    WINE_04(GameObjectType.WINE, CraftingRecipeEnums.KEG_RECIPE, "Drink in moderation.",
+        50, 98, new GameObject(GameObjectType.BANANA, 1), 300),
+
+    WINE_05(GameObjectType.WINE, CraftingRecipeEnums.KEG_RECIPE, "Drink in moderation.",
+        50, 98, new GameObject(GameObjectType.BLACKBERRY_FORAGING_CROP, 1), 300),
+
+    WINE_06(GameObjectType.WINE, CraftingRecipeEnums.KEG_RECIPE, "Drink in moderation.",
+        50, 98, new GameObject(GameObjectType.BLUEBERRY, 1), 300),
+
+    WINE_07(GameObjectType.WINE, CraftingRecipeEnums.KEG_RECIPE, "Drink in moderation.",
+        50, 98, new GameObject(GameObjectType.CHERRY, 1), 300),
+
+    WINE_08(GameObjectType.WINE, CraftingRecipeEnums.KEG_RECIPE, "Drink in moderation.",
+        50, 98, new GameObject(GameObjectType.CRANBERRIES_CROP, 1), 300),
+
+    WINE_09(GameObjectType.WINE, CraftingRecipeEnums.KEG_RECIPE, "Drink in moderation.",
+        50, 98, new GameObject(GameObjectType.CRYSTAL_FRUIT_FORAGING_CROP, 1), 300),
+
+    WINE_10(GameObjectType.WINE, CraftingRecipeEnums.KEG_RECIPE, "Drink in moderation.",
+        200, 98, new GameObject(GameObjectType.GRAPE, 1), 1000),
+
+    WINE_11(GameObjectType.WINE, CraftingRecipeEnums.KEG_RECIPE, "Drink in moderation.",
+        50, 98, new GameObject(GameObjectType.HOT_PEPPER_CROP, 1), 300),
+
+    WINE_12(GameObjectType.WINE, CraftingRecipeEnums.KEG_RECIPE, "Drink in moderation.",
+        50, 98, new GameObject(GameObjectType.MANGO, 1), 300),
+
+    WINE_13(GameObjectType.WINE, CraftingRecipeEnums.KEG_RECIPE, "Drink in moderation.",
+        50, 98, new GameObject(GameObjectType.MELON, 1), 300),
+
+    WINE_14(GameObjectType.WINE, CraftingRecipeEnums.KEG_RECIPE, "Drink in moderation.",
+        50, 98, new GameObject(GameObjectType.ORANGE, 1), 300),
+
+    WINE_15(GameObjectType.WINE, CraftingRecipeEnums.KEG_RECIPE, "Drink in moderation.",
+        50, 98, new GameObject(GameObjectType.PEACH, 1), 300),
+
+    WINE_16(GameObjectType.WINE, CraftingRecipeEnums.KEG_RECIPE, "Drink in moderation.",
+        50, 98, new GameObject(GameObjectType.POMEGRANATE, 1), 300),
+
+    WINE_17(GameObjectType.WINE, CraftingRecipeEnums.KEG_RECIPE, "Drink in moderation.",
+        50, 98, new GameObject(GameObjectType.POWDERMELON_CROP, 1), 300),
+
+    WINE_18(GameObjectType.WINE, CraftingRecipeEnums.KEG_RECIPE, "Drink in moderation.",
+        50, 98, new GameObject(GameObjectType.RHUBARB_CROP, 1), 300),
+
+    WINE_19(GameObjectType.WINE, CraftingRecipeEnums.KEG_RECIPE, "Drink in moderation.",
+    50, 98, new GameObject(GameObjectType.SALMONBERRY_FORAGING_CROP, 1), 300),
+
+    WINE_20(GameObjectType.WINE, CraftingRecipeEnums.KEG_RECIPE, "Drink in moderation.",
+        50, 98, new GameObject(GameObjectType.SPICE_BERRY_FORAGING_CROP, 1), 300),
+
+    WINE_21(GameObjectType.WINE, CraftingRecipeEnums.KEG_RECIPE, "Drink in moderation.",
+        50, 98, new GameObject(GameObjectType.STARFRUIT_CROP, 1), 300),
+
+    WINE_22(GameObjectType.WINE, CraftingRecipeEnums.KEG_RECIPE, "Drink in moderation.",
+        50, 98, new GameObject(GameObjectType.STRAWBERRY_CROP, 1), 300),
+
+    WINE_23(GameObjectType.WINE, CraftingRecipeEnums.KEG_RECIPE, "Drink in moderation.",
+        50, 98, new GameObject(GameObjectType.WILD_PLUM_FORAGING_CROP, 1), 300),
+    //  wine - end
 
 
-    DRIED_MUSHROOMS(GameObjectType.DRIED_MUSHROOM, CraftingRecipeEnums.DEHYDRATOR_RECIPE, "A package of gourmet mushrooms.",
-            50, -1, null, -1),
+    // Dehydrator
+    //  dried mushroom - start
+    DRIED_MUSHROOMS_1(GameObjectType.DRIED_MUSHROOM, CraftingRecipeEnums.DEHYDRATOR_RECIPE, "A package of gourmet mushrooms.",
+            50, 14, new GameObject(GameObjectType.COMMON_MUSHROOM, 5), 150),
 
-    DRIED_FRUIT(GameObjectType.DRIED_FRUIT, CraftingRecipeEnums.DEHYDRATOR_RECIPE, "Chewy pieces of dried fruit.",
-            75, -1, null, -1),
+    DRIED_MUSHROOMS_2(GameObjectType.DRIED_MUSHROOM, CraftingRecipeEnums.DEHYDRATOR_RECIPE, "A package of gourmet mushrooms.",
+        50, 14, new GameObject(GameObjectType.RED_MUSHROOM_FORAGING_CROP, 5), 150),
+
+    DRIED_MUSHROOMS_3(GameObjectType.DRIED_MUSHROOM, CraftingRecipeEnums.DEHYDRATOR_RECIPE, "A package of gourmet mushrooms.",
+        50, 14, new GameObject(GameObjectType.PURPLE_MUSHROOM_FORAGING_CROP, 5), 150),
+    //  dried mushroom - end
+
+    //  dried fruit - start
+    DRIED_FRUIT_01(GameObjectType.DRIED_FRUIT, CraftingRecipeEnums.DEHYDRATOR_RECIPE, "Chewy pieces of dried fruit.",
+        75, 14, new GameObject(GameObjectType.ANCIENT_FRUIT_CROP, 5), 150),
+
+    DRIED_FRUIT_02(GameObjectType.DRIED_FRUIT, CraftingRecipeEnums.DEHYDRATOR_RECIPE, "Chewy pieces of dried fruit.",
+        75, 14, new GameObject(GameObjectType.APPLE, 5), 150),
+
+    DRIED_FRUIT_03(GameObjectType.DRIED_FRUIT, CraftingRecipeEnums.DEHYDRATOR_RECIPE, "Chewy pieces of dried fruit.",
+        75, 14, new GameObject(GameObjectType.APRICOT, 5), 150),
+
+    DRIED_FRUIT_04(GameObjectType.DRIED_FRUIT, CraftingRecipeEnums.DEHYDRATOR_RECIPE, "Chewy pieces of dried fruit.",
+        75, 14, new GameObject(GameObjectType.BANANA, 5), 150),
+
+    DRIED_FRUIT_05(GameObjectType.DRIED_FRUIT, CraftingRecipeEnums.DEHYDRATOR_RECIPE, "Chewy pieces of dried fruit.",
+        75, 14, new GameObject(GameObjectType.BLACKBERRY_FORAGING_CROP, 5), 150),
+
+    DRIED_FRUIT_06(GameObjectType.DRIED_FRUIT, CraftingRecipeEnums.DEHYDRATOR_RECIPE, "Chewy pieces of dried fruit.",
+        75, 14, new GameObject(GameObjectType.BLUEBERRY, 5), 150),
+
+    DRIED_FRUIT_07(GameObjectType.DRIED_FRUIT, CraftingRecipeEnums.DEHYDRATOR_RECIPE, "Chewy pieces of dried fruit.",
+        75, 14, new GameObject(GameObjectType.CHERRY, 5), 150),
+
+    DRIED_FRUIT_08(GameObjectType.DRIED_FRUIT, CraftingRecipeEnums.DEHYDRATOR_RECIPE, "Chewy pieces of dried fruit.",
+        75, 14, new GameObject(GameObjectType.CRANBERRIES_CROP, 5), 150),
+
+    DRIED_FRUIT_09(GameObjectType.DRIED_FRUIT, CraftingRecipeEnums.DEHYDRATOR_RECIPE, "Chewy pieces of dried fruit.",
+        75, 14, new GameObject(GameObjectType.CRYSTAL_FRUIT_FORAGING_CROP, 5), 150),
+
+    DRIED_FRUIT_10(GameObjectType.DRIED_FRUIT, CraftingRecipeEnums.DEHYDRATOR_RECIPE, "Chewy pieces of dried fruit.",
+        75, 14, new GameObject(GameObjectType.MANGO, 5), 150),
+
+    DRIED_FRUIT_11(GameObjectType.DRIED_FRUIT, CraftingRecipeEnums.DEHYDRATOR_RECIPE, "Chewy pieces of dried fruit.",
+        75, 14, new GameObject(GameObjectType.MELON, 5), 150),
+
+    DRIED_FRUIT_12(GameObjectType.DRIED_FRUIT, CraftingRecipeEnums.DEHYDRATOR_RECIPE, "Chewy pieces of dried fruit.",
+        75, 14, new GameObject(GameObjectType.ORANGE, 5), 150),
+
+    DRIED_FRUIT_13(GameObjectType.DRIED_FRUIT, CraftingRecipeEnums.DEHYDRATOR_RECIPE, "Chewy pieces of dried fruit.",
+        75, 14, new GameObject(GameObjectType.PEACH, 5), 150),
+
+    DRIED_FRUIT_14(GameObjectType.DRIED_FRUIT, CraftingRecipeEnums.DEHYDRATOR_RECIPE, "Chewy pieces of dried fruit.",
+        75, 14, new GameObject(GameObjectType.POMEGRANATE, 5), 150),
+
+    DRIED_FRUIT_15(GameObjectType.DRIED_FRUIT, CraftingRecipeEnums.DEHYDRATOR_RECIPE, "Chewy pieces of dried fruit.",
+        75, 14, new GameObject(GameObjectType.POWDERMELON_CROP, 5), 150),
+
+    DRIED_FRUIT_16(GameObjectType.DRIED_FRUIT, CraftingRecipeEnums.DEHYDRATOR_RECIPE, "Chewy pieces of dried fruit.",
+        75, 14, new GameObject(GameObjectType.RHUBARB_CROP, 5), 150),
+
+    DRIED_FRUIT_17(GameObjectType.DRIED_FRUIT, CraftingRecipeEnums.DEHYDRATOR_RECIPE, "Chewy pieces of dried fruit.",
+        75, 14, new GameObject(GameObjectType.SALMONBERRY_FORAGING_CROP, 5), 150),
+
+    DRIED_FRUIT_18(GameObjectType.DRIED_FRUIT, CraftingRecipeEnums.DEHYDRATOR_RECIPE, "Chewy pieces of dried fruit.",
+        75, 14, new GameObject(GameObjectType.SPICE_BERRY_FORAGING_CROP, 5), 150),
+
+    DRIED_FRUIT_19(GameObjectType.DRIED_FRUIT, CraftingRecipeEnums.DEHYDRATOR_RECIPE, "Chewy pieces of dried fruit.",
+        75, 14, new GameObject(GameObjectType.STARFRUIT_CROP, 5), 150),
+
+    DRIED_FRUIT_20(GameObjectType.DRIED_FRUIT, CraftingRecipeEnums.DEHYDRATOR_RECIPE, "Chewy pieces of dried fruit.",
+        75, 14, new GameObject(GameObjectType.STRAWBERRY_CROP, 5), 150),
+
+    DRIED_FRUIT_21(GameObjectType.DRIED_FRUIT, CraftingRecipeEnums.DEHYDRATOR_RECIPE, "Chewy pieces of dried fruit.",
+        75, 14, new GameObject(GameObjectType.WILD_PLUM_FORAGING_CROP, 5), 150),
+    //  dried fruit - end
 
     RAISINS(GameObjectType.RAISIN, CraftingRecipeEnums.DEHYDRATOR_RECIPE, "It's said to be the Junimos' favorite food.",
-            125, -1, new GameObject(GameObjectType.GRAPE, 5), 600),
+            125, 14, new GameObject(GameObjectType.GRAPE, 5), 600),
 
 
+
+    // Charcoal Klin
     COAL(GameObjectType.COAL, CraftingRecipeEnums.CHARCOAL_KILN_RECIPE, "Turns 10 pieces of wood into one piece of coal.",
             -1, 1, new GameObject(GameObjectType.WOOD, 10), 50),
 
 
+    // Loom
     CLOTH(GameObjectType.CLOTH, CraftingRecipeEnums.LOOM_RECIPE, "A bolt of fine wool cloth.",
             -1, 4, new GameObject(GameObjectType.WOOL, 1), 470),
 
 
+    // Mayonnaise Machine
+    //  mayonnaise - start
     MAYONNAISE_1(GameObjectType.MAYONNAISE, CraftingRecipeEnums.MAYONNAISE_MACHINE_RECIPE, "It looks spreadable.",
             50, 3, new GameObject(GameObjectType.EGG, 1), 190),
 
     MAYONNAISE_2(GameObjectType.MAYONNAISE, CraftingRecipeEnums.MAYONNAISE_MACHINE_RECIPE, "It looks spreadable.",
             50, 3, new GameObject(GameObjectType.LARGE_EGG, 1), 237),
-
+    // mayonnaise - end
 
     DUCK_MAYONNAISE(GameObjectType.DUCK_MAYONNAISE, CraftingRecipeEnums.MAYONNAISE_MACHINE_RECIPE, "It's a rich, yellow mayonnaise.",
             75, 3, new GameObject(GameObjectType.DUCK_EGG, 1), 37),
@@ -85,9 +305,11 @@ public enum ArtisanGoodsType
             125, 3, new GameObject(GameObjectType.DINOSAUR_EGG, 1), 800),
 
 
+    // Oil Maker
     TRUFFLE_OIL(GameObjectType.TRUFFLE_OIL, CraftingRecipeEnums.OIL_MAKER_RECIPE, "A gourmet cooking ingredient.",
             38, 6, new GameObject(GameObjectType.TRUFFLE, 1), 1065),
 
+    //  oil - start
     OIL_1(GameObjectType.OIL, CraftingRecipeEnums.OIL_MAKER_RECIPE, "All purpose cooking oil.",
             13, 6, new GameObject(GameObjectType.CORN, 1), 100),
 
@@ -96,19 +318,201 @@ public enum ArtisanGoodsType
 
     OIL_3(GameObjectType.OIL, CraftingRecipeEnums.OIL_MAKER_RECIPE, "All purpose cooking oil.",
             13, 1, new GameObject(GameObjectType.SUNFLOWER, 1), 100),
+    //  oil - end
 
 
-    PICKLES(GameObjectType.PICKLE, CraftingRecipeEnums.PRESERVES_JAR_RECIPE, "A jar of your home-made pickles.",
-            -1, 6, null, -1),
+    // Preserves Jar
+    //  pickle - start
+    PICKLES_01(GameObjectType.PICKLE, CraftingRecipeEnums.PRESERVES_JAR_RECIPE, "A jar of your home-made pickles.",
+        15, 6, new GameObject(GameObjectType.AMARANTH, 1), 200),
 
-    JELLY(GameObjectType.JELLY, CraftingRecipeEnums.PRESERVES_JAR_RECIPE, "Gooey.",
-            -1, 42, null, -1),
+    PICKLES_02(GameObjectType.PICKLE, CraftingRecipeEnums.PRESERVES_JAR_RECIPE, "A jar of your home-made pickles.",
+        15, 6, new GameObject(GameObjectType.BEET, 1), 200),
 
-    SMOKED_FISH(GameObjectType.SMOKED_FISH, CraftingRecipeEnums.FISH_SMOKER_RECIPE, "A whole fish, smoked to perfection.",
-            -1, 1, null, -1),
+    PICKLES_03(GameObjectType.PICKLE, CraftingRecipeEnums.PRESERVES_JAR_RECIPE, "A jar of your home-made pickles.",
+        15, 6, new GameObject(GameObjectType.BOK_CHOY_CROP, 1), 200),
 
-    ANY_METAL_BAR(null, CraftingRecipeEnums.FURNACE_RECIPE, "Turns ore and coal into metal bars.",
-            -1, 4, null, -1)
+    PICKLES_04(GameObjectType.PICKLE, CraftingRecipeEnums.PRESERVES_JAR_RECIPE, "A jar of your home-made pickles.",
+        15, 6, new GameObject(GameObjectType.BROCCOLI_CROP, 1), 200),
+
+    PICKLES_05(GameObjectType.PICKLE, CraftingRecipeEnums.PRESERVES_JAR_RECIPE, "A jar of your home-made pickles.",
+        15, 6, new GameObject(GameObjectType.CARROT, 1), 200),
+
+    PICKLES_06(GameObjectType.PICKLE, CraftingRecipeEnums.PRESERVES_JAR_RECIPE, "A jar of your home-made pickles.",
+        15, 6, new GameObject(GameObjectType.CAULIFLOWER_CROP, 1), 200),
+
+    PICKLES_07(GameObjectType.PICKLE, CraftingRecipeEnums.PRESERVES_JAR_RECIPE, "A jar of your home-made pickles.",
+        15, 6, new GameObject(GameObjectType.CORN, 1), 200),
+
+    PICKLES_08(GameObjectType.PICKLE, CraftingRecipeEnums.PRESERVES_JAR_RECIPE, "A jar of your home-made pickles.",
+        15, 6, new GameObject(GameObjectType.EGGPLANT, 1), 200),
+
+    PICKLES_09(GameObjectType.PICKLE, CraftingRecipeEnums.PRESERVES_JAR_RECIPE, "A jar of your home-made pickles.",
+        15, 6, new GameObject(GameObjectType.FIDDLEHEAD_FERN_FORAGING_CROP, 1), 200),
+
+    PICKLES_10(GameObjectType.PICKLE, CraftingRecipeEnums.PRESERVES_JAR_RECIPE, "A jar of your home-made pickles.",
+        15, 6, new GameObject(GameObjectType.GARLIC_CROP, 1), 200),
+
+    PICKLES_11(GameObjectType.PICKLE, CraftingRecipeEnums.PRESERVES_JAR_RECIPE, "A jar of your home-made pickles.",
+        15, 6, new GameObject(GameObjectType.GREEN_BEAN_CROP, 1), 200),
+
+    PICKLES_12(GameObjectType.PICKLE, CraftingRecipeEnums.PRESERVES_JAR_RECIPE, "A jar of your home-made pickles.",
+        15, 6, new GameObject(GameObjectType.HOPS_CROP, 1), 200),
+
+    PICKLES_13(GameObjectType.PICKLE, CraftingRecipeEnums.PRESERVES_JAR_RECIPE, "A jar of your home-made pickles.",
+        15, 6, new GameObject(GameObjectType.KALE, 1), 200),
+
+    PICKLES_14(GameObjectType.PICKLE, CraftingRecipeEnums.PRESERVES_JAR_RECIPE, "A jar of your home-made pickles.",
+        15, 6, new GameObject(GameObjectType.PARSNIP, 1), 200),
+
+    PICKLES_15(GameObjectType.PICKLE, CraftingRecipeEnums.PRESERVES_JAR_RECIPE, "A jar of your home-made pickles.",
+        15, 6, new GameObject(GameObjectType.POTATO, 1), 200),
+
+    PICKLES_16(GameObjectType.PICKLE, CraftingRecipeEnums.PRESERVES_JAR_RECIPE, "A jar of your home-made pickles.",
+        15, 6, new GameObject(GameObjectType.PUMPKIN, 1), 200),
+
+    PICKLES_17(GameObjectType.PICKLE, CraftingRecipeEnums.PRESERVES_JAR_RECIPE, "A jar of your home-made pickles.",
+        15, 6, new GameObject(GameObjectType.RADISH, 1), 200),
+
+    PICKLES_18(GameObjectType.PICKLE, CraftingRecipeEnums.PRESERVES_JAR_RECIPE, "A jar of your home-made pickles.",
+        15, 6, new GameObject(GameObjectType.RED_CABBAGE_CROP, 1), 200),
+
+    PICKLES_19(GameObjectType.PICKLE, CraftingRecipeEnums.PRESERVES_JAR_RECIPE, "A jar of your home-made pickles.",
+        15, 6, new GameObject(GameObjectType.SUMMER_SQUASH_CROP, 1), 200),
+
+    PICKLES_20(GameObjectType.PICKLE, CraftingRecipeEnums.PRESERVES_JAR_RECIPE, "A jar of your home-made pickles.",
+        15, 6, new GameObject(GameObjectType.TOMATO, 1), 200),
+
+    PICKLES_21(GameObjectType.PICKLE, CraftingRecipeEnums.PRESERVES_JAR_RECIPE, "A jar of your home-made pickles.",
+        15, 6, new GameObject(GameObjectType.UNMILLED_RICE_CROP, 1), 200),
+
+    PICKLES_22(GameObjectType.PICKLE, CraftingRecipeEnums.PRESERVES_JAR_RECIPE, "A jar of your home-made pickles.",
+        15, 6, new GameObject(GameObjectType.WHEAT, 1), 200),
+
+    PICKLES_23(GameObjectType.PICKLE, CraftingRecipeEnums.PRESERVES_JAR_RECIPE, "A jar of your home-made pickles.",
+        15, 6, new GameObject(GameObjectType.YAM_CROP, 1), 200),
+    //  pickle - end
+
+    //  jelly - start
+    JELLY_01(GameObjectType.JELLY, CraftingRecipeEnums.PRESERVES_JAR_RECIPE, "Gooey.",
+            10, 42, new GameObject(GameObjectType.ANCIENT_FRUIT_CROP, 1), 300),
+
+    JELLY_02(GameObjectType.JELLY, CraftingRecipeEnums.PRESERVES_JAR_RECIPE, "Gooey.",
+        10, 42, new GameObject(GameObjectType.APPLE, 1), 300),
+
+    JELLY_03(GameObjectType.JELLY, CraftingRecipeEnums.PRESERVES_JAR_RECIPE, "Gooey.",
+        10, 42, new GameObject(GameObjectType.APRICOT, 1), 300),
+
+    JELLY_04(GameObjectType.JELLY, CraftingRecipeEnums.PRESERVES_JAR_RECIPE, "Gooey.",
+        10, 42, new GameObject(GameObjectType.BANANA, 1), 300),
+
+    JELLY_05(GameObjectType.JELLY, CraftingRecipeEnums.PRESERVES_JAR_RECIPE, "Gooey.",
+        10, 42, new GameObject(GameObjectType.BLACKBERRY_FORAGING_CROP, 1), 300),
+
+    JELLY_06(GameObjectType.JELLY, CraftingRecipeEnums.PRESERVES_JAR_RECIPE, "Gooey.",
+        10, 42, new GameObject(GameObjectType.BLUEBERRY, 1), 300),
+
+    JELLY_07(GameObjectType.JELLY, CraftingRecipeEnums.PRESERVES_JAR_RECIPE, "Gooey.",
+        10, 42, new GameObject(GameObjectType.CHERRY, 1), 300),
+
+    JELLY_08(GameObjectType.JELLY, CraftingRecipeEnums.PRESERVES_JAR_RECIPE, "Gooey.",
+        10, 42, new GameObject(GameObjectType.CRANBERRIES_CROP, 1), 300),
+
+    JELLY_09(GameObjectType.JELLY, CraftingRecipeEnums.PRESERVES_JAR_RECIPE, "Gooey.",
+        10, 42, new GameObject(GameObjectType.GRAPE, 1), 300),
+
+    JELLY_10(GameObjectType.JELLY, CraftingRecipeEnums.PRESERVES_JAR_RECIPE, "Gooey.",
+        10, 42, new GameObject(GameObjectType.MANGO, 1), 300),
+
+    JELLY_11(GameObjectType.JELLY, CraftingRecipeEnums.PRESERVES_JAR_RECIPE, "Gooey.",
+        10, 42, new GameObject(GameObjectType.MELON, 1), 300),
+
+    JELLY_12(GameObjectType.JELLY, CraftingRecipeEnums.PRESERVES_JAR_RECIPE, "Gooey.",
+        10, 42, new GameObject(GameObjectType.ORANGE, 1), 300),
+
+    JELLY_13(GameObjectType.JELLY, CraftingRecipeEnums.PRESERVES_JAR_RECIPE, "Gooey.",
+        10, 42, new GameObject(GameObjectType.PEACH, 1), 300),
+
+    JELLY_14(GameObjectType.JELLY, CraftingRecipeEnums.PRESERVES_JAR_RECIPE, "Gooey.",
+        10, 42, new GameObject(GameObjectType.POMEGRANATE, 1), 300),
+
+    JELLY_15(GameObjectType.JELLY, CraftingRecipeEnums.PRESERVES_JAR_RECIPE, "Gooey.",
+        10, 42, new GameObject(GameObjectType.POWDERMELON_CROP, 1), 300),
+
+    JELLY_16(GameObjectType.JELLY, CraftingRecipeEnums.PRESERVES_JAR_RECIPE, "Gooey.",
+        10, 42, new GameObject(GameObjectType.RHUBARB_CROP, 1), 300),
+
+    JELLY_17(GameObjectType.JELLY, CraftingRecipeEnums.PRESERVES_JAR_RECIPE, "Gooey.",
+        10, 42, new GameObject(GameObjectType.SPICE_BERRY_FORAGING_CROP, 1), 300),
+
+    JELLY_18(GameObjectType.JELLY, CraftingRecipeEnums.PRESERVES_JAR_RECIPE, "Gooey.",
+        10, 42, new GameObject(GameObjectType.STARFRUIT_CROP, 1), 300),
+
+    JELLY_19(GameObjectType.JELLY, CraftingRecipeEnums.PRESERVES_JAR_RECIPE, "Gooey.",
+        10, 42, new GameObject(GameObjectType.STRAWBERRY_CROP, 1), 300),
+
+    JELLY_20(GameObjectType.JELLY, CraftingRecipeEnums.PRESERVES_JAR_RECIPE, "Gooey.",
+        10, 42, new GameObject(GameObjectType.WILD_PLUM_FORAGING_CROP, 1), 300),
+    //  jelly - end
+
+
+    // Fish Smoker
+    //  smoked fish - start
+    SMOKED_FISH_01(GameObjectType.SMOKED_FISH, CraftingRecipeEnums.FISH_SMOKER_RECIPE, "A whole fish, smoked to perfection.",
+            50, 1, new GameObject(GameObjectType.FISH, 1), 60),
+
+    SMOKED_FISH_02(GameObjectType.SMOKED_FISH, CraftingRecipeEnums.FISH_SMOKER_RECIPE, "A whole fish, smoked to perfection.",
+        50, 1, new GameObject(GameObjectType.TUNA, 1), 60),
+
+    SMOKED_FISH_03(GameObjectType.SMOKED_FISH, CraftingRecipeEnums.FISH_SMOKER_RECIPE, "A whole fish, smoked to perfection.",
+        50, 1, new GameObject(GameObjectType.SARDINE, 1), 60),
+
+    SMOKED_FISH_04(GameObjectType.SMOKED_FISH, CraftingRecipeEnums.FISH_SMOKER_RECIPE, "A whole fish, smoked to perfection.",
+        50, 1, new GameObject(GameObjectType.SALMON, 1), 60),
+
+    SMOKED_FISH_05(GameObjectType.SMOKED_FISH, CraftingRecipeEnums.FISH_SMOKER_RECIPE, "A whole fish, smoked to perfection.",
+        50, 1, new GameObject(GameObjectType.PERCH, 1), 60),
+
+    SMOKED_FISH_06(GameObjectType.SMOKED_FISH, CraftingRecipeEnums.FISH_SMOKER_RECIPE, "A whole fish, smoked to perfection.",
+        50, 1, new GameObject(GameObjectType.MIDNIGHT_CARP, 1), 60),
+
+    SMOKED_FISH_07(GameObjectType.SMOKED_FISH, CraftingRecipeEnums.FISH_SMOKER_RECIPE, "A whole fish, smoked to perfection.",
+        50, 1, new GameObject(GameObjectType.HERRING, 1), 60),
+
+    SMOKED_FISH_08(GameObjectType.SMOKED_FISH, CraftingRecipeEnums.FISH_SMOKER_RECIPE, "A whole fish, smoked to perfection.",
+        50, 1, new GameObject(GameObjectType.SQUID, 1), 60),
+
+    SMOKED_FISH_09(GameObjectType.SMOKED_FISH, CraftingRecipeEnums.FISH_SMOKER_RECIPE, "A whole fish, smoked to perfection.",
+        50, 1, new GameObject(GameObjectType.GHOSTFISH, 1), 60),
+
+    SMOKED_FISH_10(GameObjectType.SMOKED_FISH, CraftingRecipeEnums.FISH_SMOKER_RECIPE, "A whole fish, smoked to perfection.",
+        50, 1, new GameObject(GameObjectType.TILAPIA, 1), 60),
+
+    SMOKED_FISH_11(GameObjectType.SMOKED_FISH, CraftingRecipeEnums.FISH_SMOKER_RECIPE, "A whole fish, smoked to perfection.",
+        50, 1, new GameObject(GameObjectType.DORADO, 1), 60),
+
+    SMOKED_FISH_12(GameObjectType.SMOKED_FISH, CraftingRecipeEnums.FISH_SMOKER_RECIPE, "A whole fish, smoked to perfection.",
+        50, 1, new GameObject(GameObjectType.SHAD, 1), 60),
+
+    SMOKED_FISH_13(GameObjectType.SMOKED_FISH, CraftingRecipeEnums.FISH_SMOKER_RECIPE, "A whole fish, smoked to perfection.",
+        50, 1, new GameObject(GameObjectType.LIONFISH, 1), 60),
+    // smoked fish - end
+
+
+    // Furnace
+    //  metal bar - start
+    METAL_BAR_01(GameObjectType.COPPER_BAR, CraftingRecipeEnums.FURNACE_RECIPE, "Turns ore and coal into metal bars.",
+            -1, 4, new GameObject(GameObjectType.COPPER_ORE, 5), 500),
+
+    METAL_BAR_02(GameObjectType.IRON_BAR, CraftingRecipeEnums.FURNACE_RECIPE, "Turns ore and coal into metal bars.",
+        -1, 4, new GameObject(GameObjectType.IRON_ORE, 5), 500),
+
+    METAL_BAR_03(GameObjectType.GOLD_BAR, CraftingRecipeEnums.FURNACE_RECIPE, "Turns ore and coal into metal bars.",
+        -1, 4, new GameObject(GameObjectType.GOLD_ORE, 5), 500),
+
+    METAL_BAR_04(GameObjectType.IRIDIUM_BAR, CraftingRecipeEnums.FURNACE_RECIPE, "Turns ore and coal into metal bars.",
+        -1, 4, new GameObject(GameObjectType.IRIDIUM_ORE, 5), 500)
+    //  metal bar - end
     ;
 
     private final GameObjectType type;
@@ -191,135 +595,35 @@ public enum ArtisanGoodsType
 
     public boolean isEdible()
     {
-        if ( type == null || type.equals(GameObjectType.COAL) || type.equals(GameObjectType.CLOTH))
-        {
-            return false;
-        }
-
-        return true;
+        return energy != -1;
     }
 
-    public static ArtisanGoodsType getArtisanType(String name)
+    public static ArrayList<ArtisanGoodsType> getAvailableProducts(CraftingRecipeEnums recipe)
     {
-        CraftingRecipeEnums craft = CraftingRecipeEnums.getRecipeFromItemName(name);
-
-        if (craft == null)
-        {
-            return null;
-        }
+        ArrayList<ArtisanGoodsType> products = new ArrayList<>();
 
         for (ArtisanGoodsType type : ArtisanGoodsType.values())
         {
-            if (type.getDevice() == craft)
+            if (type.getDevice() == recipe)
             {
-                return type;
+                products.add(type);
             }
         }
 
-        return null;
+        return products;
     }
 
-    private GameObject isIngredient(GameObjectType type)
+    public static String getPossibleIngredients(CraftingRecipeEnums recipe)
     {
-        switch (this)
+        ArrayList<ArtisanGoodsType> products = getAvailableProducts(recipe);
+
+        StringBuilder sb = new StringBuilder();
+        sb.append(recipe.getType()).append("\n");
+        for (ArtisanGoodsType product : products)
         {
-            case JUICE, PICKLES:
-            {
-                CropType c = CropType.getCrop(type);
-                if (c != null)
-                {
-                    return new Crop(c, null);
-                } else
-                {
-                    return null;
-                }
-            }
-
-            case WINE, JELLY:
-            {
-                TreeType t = TreeType.getTreeByFruit(FruitType.getFruitByType(type));
-                if (t != null)
-                {
-                    return new Tree(t, null);
-                } else
-                {
-                    return null;
-                }
-            }
-
-            case DRIED_FRUIT:
-            {
-                if (type == GameObjectType.GRAPE)
-                {
-                    return null;
-                }
-
-                TreeType tt = TreeType.getTreeByFruit(FruitType.getFruitByType(type));
-                if (tt != null)
-                {
-                    return new Tree(tt, null);
-                } else
-                {
-                    return null;
-                }
-            }
-
-            case DRIED_MUSHROOMS:
-            {
-                ForagingCropType mushroom = ForagingCropType.getMushroom(type);
-                if (mushroom != null)
-                {
-                    return new ForagingCrop(mushroom);
-                } else
-                {
-                    return null;
-                }
-            }
-
-            case SMOKED_FISH:
-            {
-                FishType f = FishType.getFishFromType(type);
-                if (f != null)
-                {
-                    return new Fish(f);
-                } else
-                {
-                    return null;
-                }
-            }
-
-            case ANY_METAL_BAR:
-            {
-
-            }
-
-            default:
-            {
-                if (this.ingredient.getObjectType() == type)
-                {
-                    return this.ingredient;
-                } else
-                {
-                    return null;
-                }
-            }
-        }
-    }
-
-    public static ArtisanGoodsType getTypeFromDevicesAndIngredient(CraftingRecipeEnums craftingItem, GameObjectType ingredient)
-    {
-        for (ArtisanGoodsType type : ArtisanGoodsType.values())
-        {
-            if (type.getDevice().equals(craftingItem) && type.getIngredient() != null &&
-                    type.getIngredient().getObjectType().equals(ingredient))
-            {
-                if (type.isIngredient(ingredient) != null)
-                {
-                    return type;
-                }
-            }
+            sb.append("  ").append(product.getIngredient().getObjectType()).append(" - ").append(product.getIngredient().getNumber()).append("\n");
         }
 
-        return null;
+        return sb.toString();
     }
 }

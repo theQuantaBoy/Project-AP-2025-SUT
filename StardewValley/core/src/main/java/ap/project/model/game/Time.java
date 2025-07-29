@@ -26,12 +26,13 @@ public class Time
     public void updateHour(int hourNum)
     {
         hour += hourNum;
+        totalHoursPassed += hourNum;
 
         if (hour > 22)
         {
             int dayNum = ((hour - 23) / 14) + 1;
             hour = ((hour - 23) % 14) + 9;
-            updateDay(dayNum, false); // TODO: if uses cheat code for advance time in large amount,
+            updateDay(dayNum, false);
         }
 
         if(hour > 9 && hour <= 12) timeOfDay = TimeOfDay.MORNING;
@@ -49,6 +50,11 @@ public class Time
 
         day += dayNum;
         totalDaysPassed += dayNum;
+
+        if (hasCheated)
+        {
+            totalHoursPassed += (14 * dayNum);
+        }
 
         if (day > 28)
         {
@@ -133,5 +139,10 @@ public class Time
     public int getTotalDaysPassed()
     {
         return totalDaysPassed;
+    }
+
+    public int getTotalHoursPassed()
+    {
+        return totalHoursPassed;
     }
 }

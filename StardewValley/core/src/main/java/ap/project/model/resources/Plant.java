@@ -71,7 +71,7 @@ public class Plant extends GameObject
 
     public void update()
     {
-        if (hasBeenWateredToday() || (Math.random() < tile.getWateringChance() / 100.0))
+        if (hasBeenWateredToday() || (Math.random() < tile.getWateringChance() / 100.0) || tile.isShouldBeWateredAutomatically())
         {
             grow();
         }
@@ -86,6 +86,11 @@ public class Plant extends GameObject
 
     public boolean canHarvest() // would be overridden
     {
+        if (!seasons.contains(App.getCurrentGame().getCurrentTime().getSeason()) && !isInGreenhouse)
+        {
+            return false;
+        }
+
         if (!hasHarvested)
         {
             return (currentStageDay == totalHarvestTime);

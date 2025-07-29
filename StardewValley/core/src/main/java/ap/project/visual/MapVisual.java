@@ -1,15 +1,21 @@
 package ap.project.visual;
 
 import ap.project.model.App.App;
-import ap.project.model.enums.EffectType;
-import ap.project.model.enums.GameAnimationType;
-import ap.project.model.enums.Weather;
+import ap.project.model.building.CraftingItem;
+import ap.project.model.enums.*;
+import ap.project.model.enums.building_enums.CraftingRecipeEnums;
 import ap.project.model.enums.resources_enums.CropType;
+import ap.project.model.enums.resources_enums.TreeType;
 import ap.project.model.game.*;
 import ap.project.model.resources.Crop;
+import ap.project.model.resources.ForagingTree;
 import ap.project.model.resources.Plant;
-import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Texture;
+import ap.project.model.resources.Tree;
+import ap.project.screen.WorldScreen;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.*;
+import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.MathUtils;
@@ -43,20 +49,30 @@ public class MapVisual
         this.renderer = new OrthogonalTiledMapRenderer(tiledMap, 1.0f);
     }
 
-    public void updateMap(TiledMap tiledMap)
-    {
-        this.tiledMap = tiledMap;
-    }
-
     public void render(OrthographicCamera cam)
     {
         renderer.setView(cam);
         renderer.render();
-        drawResources(cam);
+        drawPlantingTiles();
+        drawResources();
+        drawForagingItems();
+        renderer.getBatch().setShader(null);
+    }
+
+    public void renderInFrontOfCharacter(WorldScreen worldScreen)
+    {
+        Batch batch = renderer.getBatch();
+        batch.begin();
+
+        drawPlants();
+        drawForagingTrees();
+        drawTilesWithCraftingItems(worldScreen.getCamera());
+
+        batch.end();
+
+        // Weather effects (draw last)
         drawRainAnimations();
         drawSnowAnimations();
-        drawPlantingTiles();
-        renderer.getBatch().setShader(null);
     }
 
     public void dispose()
@@ -75,7 +91,7 @@ public class MapVisual
     {
         if (map instanceof Farm)
         {
-            Farm  farm = (Farm)map;
+            Farm farm = (Farm)map;
             ArrayList<Tile> plantingTiles = farm.getPlantingTiles();
 
             renderer.getBatch().begin();
@@ -96,6 +112,25 @@ public class MapVisual
                     {
                         drawTileEffect(tile, EffectType.WATERED_TILE);
                     }
+                }
+            }
+
+            renderer.getBatch().end();
+        }
+    }
+
+    public void drawPlants()
+    {
+        if (map instanceof Farm)
+        {
+            Farm farm = (Farm)map;
+            ArrayList<Tile> plantingTiles = farm.getPlantingTiles();
+
+            for (Tile tile : plantingTiles)
+            {
+                if (tile.hasPlants())
+                {
+                    Plant plant = (Plant) tile.getObject();
 
                     if (plant instanceof Crop)
                     {
@@ -104,10 +139,32 @@ public class MapVisual
                         Texture currentStage = cropType.getStageTextures().get(crop.getCurrentStage());
                         drawTileTexture(tile, currentStage);
                     }
+
+                    if (plant instanceof Tree)
+                    {
+                        Tree tree = (Tree) plant;
+                        int currentStage = tree.getCurrentStage();
+
+                        Texture texture;
+                        if (currentStage < 4)
+                        {
+                            texture = tree.getTreeType().getStageTextures().get(currentStage);
+                        } else
+                        {
+                            if (tree.canHarvest())
+                            {
+                                texture = tree.getTreeType().getWithProductTexture();
+                            } else
+                            {
+                                Season season = App.getCurrentGame().getCurrentTime().getSeason();
+                                texture = tree.getTreeType().getSeasonTextures().get(season.toInteger());
+                            }
+                        }
+
+                        drawTileTreeTexture(tile, texture);
+                    }
                 }
             }
-
-            renderer.getBatch().end();
         }
     }
 
@@ -218,7 +275,7 @@ public class MapVisual
         renderer.getBatch().end();
     }
 
-    public void drawResources(OrthographicCamera cam)
+    public void drawResources()
     {
         if (map instanceof Farm)
         {
@@ -226,16 +283,94 @@ public class MapVisual
 
             renderer.getBatch().begin();
 
-//            for (Tile tile : farm.getTilesWithResources())
-//            {
-//                switch (tile.getObject().getObjectType())
-//                {
-//                    case WOOD -> drawTileObject(tile);
-//                    case STONE -> drawTileObject(tile);
-//                }
-//            }
+            for (Tile tile : farm.getTilesWithResources())
+            {
+               drawTileObject(tile);
+            }
 
             renderer.getBatch().end();
+        }
+    }
+
+    public void drawForagingTrees()
+    {
+        if (map instanceof Farm)
+        {
+            Farm farm = (Farm) map;
+
+            Season season = App.getCurrentGame().getCurrentTime().getSeason();
+
+            for (Tile tile : farm.getTilesWithForagingTrees())
+            {
+                ForagingTree tree = (ForagingTree) tile.getObject();
+                TreeType type = tree.getTreeType().getTreeType();
+                Texture texture = type.getSeasonTextures().get(season.toInteger());
+                drawTileTreeTexture(tile, texture);
+            }
+        }
+    }
+
+    public void drawForagingItems()
+    {
+        if (map instanceof Farm)
+        {
+            Farm farm = (Farm) map;
+
+            renderer.getBatch().begin();
+
+            for (Tile tile : farm.getTilesWithForagingItems())
+            {
+                drawTileObject(tile);
+            }
+
+            renderer.getBatch().end();
+        }
+    }
+
+    public void drawTilesWithCraftingItems(OrthographicCamera cam)
+    {
+        if (map instanceof Farm)
+        {
+            Farm farm = (Farm) map;
+
+            for (Tile tile : farm.getTilesWithCraftingItems())
+            {
+                drawTileCraftingItem(tile, cam);
+            }
+        }
+
+        else if (map instanceof GreenHouse)
+        {
+            GreenHouse greenHouse = (GreenHouse) map;
+
+            for (Tile tile : greenHouse.getTilesWithCraftingItems())
+            {
+                drawTileCraftingItem(tile, cam);
+            }
+        }
+    }
+
+    public void showAvailableTilesForArtisanEquipment(WorldScreen worldScreen)
+    {
+        if (map instanceof Farm || map instanceof GreenHouse)
+        {
+            Game game = App.getCurrentGame();
+            Player player = game.getCurrentPlayer();
+
+            if (player.getCurrentObject() != null && player.getCurrentObject() instanceof CraftingItem)
+            {
+                ArrayList<Point> availablePoint = map.getNeighbors(player.getLocation());
+
+                for (Point p : availablePoint)
+                {
+                    Tile tile = map.getTile(p.getX(), p.getY());
+                    if (tile.getObject() == null &&
+                        (tile.getTexture() == TileTexture.LAND || tile.getTexture() == TileTexture.GRASS))
+                    {
+                        worldScreen.showSelectionOverTile(tile);
+                    }
+                }
+            }
         }
     }
 
@@ -245,6 +380,72 @@ public class MapVisual
         if (tile.getObject() != null)
         {
             renderer.getBatch().draw(tile.getObject().getObjectType().getTexture(), location.x, location.y - (16 * MAP_SCALE), (16 * MAP_SCALE), (16 * MAP_SCALE));
+        }
+    }
+
+    public void drawTileCraftingItem(Tile tile, OrthographicCamera cam)
+    {
+        Vector2 location = map.tileToWorld(tile);
+        if (tile.getObject() != null && tile.getObject() instanceof CraftingItem)
+        {
+            CraftingItem craftingItem = (CraftingItem) tile.getObject();
+            CraftingRecipeEnums type = craftingItem.getCraftingType();
+            boolean isTall = type.isTall();
+
+            if (type.isTall())
+            {
+                renderer.getBatch().draw(tile.getObject().getObjectType().getTexture(), location.x, location.y - (16 * MAP_SCALE), (16 * MAP_SCALE), (32 * MAP_SCALE));
+            } else
+            {
+                renderer.getBatch().draw(tile.getObject().getObjectType().getTexture(), location.x, location.y - (16 * MAP_SCALE), (16 * MAP_SCALE), (16 * MAP_SCALE));
+            }
+        }
+    }
+
+    public void drawCraftingProgressBars()
+    {
+        if (map instanceof Farm)
+        {
+            Farm farm = (Farm) map;
+
+            for (Tile tile : farm.getTilesWithCraftingItems())
+            {
+                if (tile.getObject() != null && tile.getObject() instanceof CraftingItem)
+                {
+                    Vector2 location = map.tileToWorld(tile);
+                    CraftingItem craftingItem = (CraftingItem) tile.getObject();
+                    CraftingRecipeEnums type = craftingItem.getCraftingType();
+                    boolean isTall = type.isTall();
+
+                    if (craftingItem.getItemType() == CraftingItem.ItemType.PERIODIC && craftingItem.isWorking())
+                    {
+                        float progress = craftingItem.getHowMuchDone();
+                        WorldScreen.getInstance().drawProgressBar(location, progress, isTall);
+                    }
+                }
+            }
+        }
+
+        else if (map instanceof GreenHouse)
+        {
+            GreenHouse greenHouse = (GreenHouse) map;
+
+            for (Tile tile : greenHouse.getTilesWithCraftingItems())
+            {
+                if (tile.getObject() != null && tile.getObject() instanceof CraftingItem)
+                {
+                    Vector2 location = map.tileToWorld(tile);
+                    CraftingItem craftingItem = (CraftingItem) tile.getObject();
+                    CraftingRecipeEnums type = craftingItem.getCraftingType();
+                    boolean isTall = type.isTall();
+
+                    if (craftingItem.getItemType() == CraftingItem.ItemType.PERIODIC && craftingItem.isWorking())
+                    {
+                        float progress = craftingItem.getHowMuchDone();
+                        WorldScreen.getInstance().drawProgressBar(location, progress, isTall);
+                    }
+                }
+            }
         }
     }
 
@@ -258,6 +459,17 @@ public class MapVisual
     {
         Vector2 location = map.tileToWorld(tile);
         renderer.getBatch().draw(texture, location.x, location.y - (16 * MAP_SCALE), (16 * MAP_SCALE), (16 * MAP_SCALE));
+    }
+
+    public static void drawTileTreeTexture(Tile tile, Texture texture)
+    {
+        Vector2 location = map.tileToWorld(tile);
+        int width = texture.getWidth();
+        int height = texture.getHeight();
+//        renderer.getBatch().draw(texture, location.x - (1f * (16 * MAP_SCALE)), location.y - (0.75f * (16 * MAP_SCALE)),
+//            (0.5f * width), (0.5f * height));
+        renderer.getBatch().draw(texture, location.x - (1f * (16 * MAP_SCALE)), location.y - (1f * (16 * MAP_SCALE)),
+            (0.5f * width), (0.5f * height));
     }
 
     public TiledMap getTiledMap()
