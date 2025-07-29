@@ -414,6 +414,7 @@ public final class WorldScreen implements Screen
         if (!terminalDialog.isVisible() && !isInventoryVisible() && !isCookBookVisible() && !isRefrigeratorVisible())
         {
             update(dt);
+            character.updateAnimation(dt);
             cam.update();
         }
 

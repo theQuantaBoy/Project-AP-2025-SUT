@@ -25,6 +25,8 @@ public abstract class AbstractCharacter
     protected float maxWidth;
     protected float maxHeight;
 
+    protected final Texture avatar;
+
     public AbstractCharacter(CharacterType type, Vector2 spawnPoint, String nickName)
     {
         this.type = type;
@@ -41,6 +43,8 @@ public abstract class AbstractCharacter
         animations.put(Direction.DOWN,  createAnim(atlas, type.getName() + "_0_walk_down_"));
         animations.put(Direction.LEFT,  createAnim(atlas, type.getName() + "_0_walk_left_"));
         animations.put(Direction.RIGHT, createAnim(atlas, type.getName() + "_0_walk_right_"));
+
+        this.avatar = new Texture(type.getAvatarPath());
 
         this.currentAnimation = animations.get(Direction.DOWN);
         this.nickName = nickName;
@@ -133,5 +137,10 @@ public abstract class AbstractCharacter
     public void setPosition(Vector2 position)
     {
         this.position.set(position);
+    }
+
+    public Texture getAvatar()
+    {
+        return avatar;
     }
 }

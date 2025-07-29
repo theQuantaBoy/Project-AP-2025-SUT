@@ -7,6 +7,6 @@ public class NPCCharacter extends AbstractCharacter
 {
     public NPCCharacter(CharacterType type, Vector2 spawnPoint, String nickName)
     {
-        super(type, spawnPoint,   nickName);
+        super(type, spawnPoint, nickName);
     }
 }
