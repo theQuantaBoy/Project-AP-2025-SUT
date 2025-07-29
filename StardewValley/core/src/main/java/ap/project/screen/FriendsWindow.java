@@ -117,7 +117,7 @@ public class FriendsWindow {
                 }
             });
 
-            stage.addActor(tooltip.getContainer());
+            //stage.addActor(tooltip.getContainer());
 
             friendsTable.add(nameLabel).left().padRight(10).padBottom(5);
             friendsTable.add(bar).width(120).padRight(10).padBottom(5);

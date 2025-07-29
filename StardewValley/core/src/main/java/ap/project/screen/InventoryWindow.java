@@ -380,7 +380,7 @@ public class InventoryWindow {
                 tooltip.getContainer().setBackground(tooltipBg);
                 tooltip.getContainer().pad(8);
                 slotContainer.addListener(tooltip);
-                stage.addActor(tooltip.getContainer());
+                //stage.addActor(tooltip.getContainer());
             }
 
             // Add slot number label for better UX
@@ -692,7 +692,7 @@ public class InventoryWindow {
                 tooltip.getContainer().setBackground(tooltipBg);
                 tooltip.getContainer().pad(8);
                 slotContainer.addListener(tooltip);
-                stage.addActor(tooltip.getContainer());
+                //stage.addActor(tooltip.getContainer());
             }
 
             slotContainer.addListener(new ClickListener() {
@@ -812,7 +812,7 @@ public class InventoryWindow {
                 tooltip.getContainer().setBackground(tooltipBg);
                 tooltip.getContainer().pad(8);
                 slotContainer.addListener(tooltip);
-                stage.addActor(tooltip.getContainer());
+                //stage.addActor(tooltip.getContainer());
             }
 
             final int slotIndex = i;
@@ -876,7 +876,7 @@ public class InventoryWindow {
 
             // Tooltip content (can be customized)
             String tooltipText = s.getName() + " (Level " + s.getLevel() + ")\n" +
-                "XP: " + s.getUnit() + "/" + s.getThresholdForLevel(s.getLevel());
+                "XP: " + s.getUnit();
 
             Label tooltipLabel = new Label(tooltipText, skin);
             Tooltip<Label> tooltip = new Tooltip<>(tooltipLabel, tooltipManager);
@@ -889,7 +889,7 @@ public class InventoryWindow {
             bar.addListener(tooltip);
 
             // Ensure tooltips work properly
-            stage.addActor(tooltip.getContainer());
+            //stage.addActor(tooltip.getContainer());
 
             table.add(skillLabel);
             table.add(bar).width(120);
