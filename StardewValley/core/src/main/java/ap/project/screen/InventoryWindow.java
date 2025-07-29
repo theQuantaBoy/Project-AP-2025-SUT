@@ -27,6 +27,7 @@ import ap.project.model.game.GameObject;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
+import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Scaling;
 
 import java.util.ArrayList;
@@ -68,6 +69,10 @@ public class InventoryWindow {
     private static final int CRAFTING_SLOT_HEIGHT = 96;
     private static final int CRAFTING_SLOT_PADDING = 8;
 
+    private Table hotbarTable;
+    private int selectedHotbarSlot = -1;
+    private static final int HOTBAR_SLOTS = 8;
+
     private final ScrollPane inventoryScrollPane;
     private ImageButton trashButton;
 
@@ -84,6 +89,7 @@ public class InventoryWindow {
 
         Drawable trashDrawable = getIconForGameObject(new GameObject(GameObjectType.TRASH_CAN, 1));
         trashButton = new ImageButton(trashDrawable);
+        trashButton.setScale(1.5f); // Slightly larger trash icon
         trashButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
@@ -91,7 +97,6 @@ public class InventoryWindow {
                     // remove from backpack
                     GameObject selected = backpack.getSlots().get(selectedInventorySlot);
                     player.removeAmountFromInventory(selected.getObjectType(), 1);
-                    // Create tab buttons
                     // reset selection
                     if (backpack.getSlots().get(selectedInventorySlot) == null) selectedInventorySlot = -1;
                     // rebuild UI
@@ -124,6 +129,11 @@ public class InventoryWindow {
         mapTable       = buildMapTable();
         toolsTable     = new Table(skin);
 
+        hotbarTable = new Table(skin);
+        hotbarTable.defaults().size(SLOTS_SIZE).pad(2);
+        hotbarTable.center();
+
+
         craftingTab = new TextButton("Crafting", skin);
         craftingTable = new Table(skin);
         craftingTable.setVisible(false);
@@ -146,6 +156,7 @@ public class InventoryWindow {
         socialTable.setVisible(false);
         mapTable.setVisible(false);
         toolsTable.setVisible(false);
+        craftingTable.setVisible(false);
 
         // Tab switching with inventory refresh
         invTab.addListener(new ChangeListener() {
@@ -252,24 +263,125 @@ public class InventoryWindow {
         popup.add(socialTab).expandX().fillX();
         popup.add(mapTab).expandX().fillX();
         popup.add(toolsTab).expandX().fillX();
-        popup.add(craftingTab).expandX().fillX(); // Moved to top row
-        popup.add(trashButton).width(32).height(32).padLeft(10);
+        popup.add(craftingTab).expandX().fillX();
         popup.row();
-        popup.add(contentStack).colspan(6).expand().center().row(); // Increased colspan to 6
+        popup.add(contentStack).colspan(6).expand().fill().center().row();
         popup.pack();
         center(stage);
         stage.addActor(popup);
+
+        refreshHotbar();
+    }
+
+    private void refreshHotbar() {
+        hotbarTable.clear();
+        updatePlayer();
+        java.util.List<GameObject> hotbarSlots = backpack.getHotbarSlots();
+
+        for (int slot = 0; slot < HOTBAR_SLOTS; slot++) {
+            final int slotIndex = slot;
+            GameObject obj = slot < hotbarSlots.size() ? hotbarSlots.get(slot) : null;
+
+            Table slotContainer = new Table();
+            slotContainer.setBackground(slotIndex == selectedHotbarSlot ? slotHighlight : slotBackground);
+            slotContainer.setSize(SLOTS_SIZE, SLOTS_SIZE);
+
+            if (obj != null) {
+                Drawable icon = getSafeIcon(obj);
+                Stack itemStack = new Stack();
+                itemStack.add(new Image(icon));
+
+                if (obj.getNumber() > 1) {
+                    Label countLabel = new Label(String.valueOf(obj.getNumber()), skin);
+                    countLabel.setFontScale(0.8f); // Smaller font for hotbar
+                    countLabel.setAlignment(Align.bottomRight);
+
+                    // Create container for padding
+                    Table countContainer = new Table();
+                    countContainer.setFillParent(true);
+                    countContainer.bottom().right();
+                    countContainer.add(countLabel).pad(0, 0, 4, 4); // Bottom and right padding
+
+                    slotContainer.add(itemStack).expand().fill();
+                    slotContainer.add(countContainer);
+                } else {
+                    slotContainer.add(itemStack).expand().fill();
+                }
+
+                // Tooltip
+                String tooltipText = obj.getObjectType().toString();
+                Label tooltipLabel = new Label(tooltipText, skin);
+                Tooltip<Label> tooltip = new Tooltip<>(tooltipLabel, tooltipManager);
+                tooltip.getContainer().setBackground(tooltipBg);
+                tooltip.getContainer().pad(8);
+                slotContainer.addListener(tooltip);
+                stage.addActor(tooltip.getContainer());
+            }
+
+            slotContainer.addListener(new ClickListener() {
+                @Override
+                public void clicked(InputEvent event, float x, float y) {
+                    GameObject clickedObject = slotIndex < hotbarSlots.size() ?
+                        hotbarSlots.get(slotIndex) : null;
+
+                    // Right-click to consume food
+                    if (event.getButton() == Input.Buttons.RIGHT) {
+                        handleConsumableClick(clickedObject);
+                        refreshHotbar();
+                    }
+                    // Left-click to select
+                    else {
+                        // Clear other selections
+                        selectedInventorySlot = -1;
+                        selectedToolSlot = -1;
+
+                        // Toggle hotbar selection
+                        if (selectedHotbarSlot == slotIndex) {
+                            selectedHotbarSlot = -1;
+                            player.setCurrentObject(null);
+                        } else {
+                            selectedHotbarSlot = slotIndex;
+                            player.setCurrentObject(clickedObject);
+                        }
+                        refreshInventoryTable();
+                        refreshToolTable();
+                        refreshHotbar();
+                    }
+                }
+            });
+
+            hotbarTable.add(slotContainer).size(SLOTS_SIZE, SLOTS_SIZE).pad(2);
+        }
+    }
+
+    // New method to handle consumable items
+    private void handleConsumableClick(GameObject clickedObject) {
+        if (clickedObject != null) {
+            GameObjectType type = clickedObject.getObjectType();
+
+            if (!KitchenRecipe.isEdible(type)) {
+                UIRenderer.showTextBox("This item is not edible :(");
+                return;
+            }
+
+            KitchenRecipe food = KitchenRecipe.getKitchenRecipe(type.toString());
+            if (food == null) {
+                UIRenderer.showTextBox("This item is not edible :(");
+                return;
+            }
+
+            player.removeAmountFromInventory(type, 1);
+            player.increaseEnergy(food.getEnergy());
+            UIRenderer.showTextBox("Yum Yum, you just ate " + food.getType());
+        }
     }
 
 
-    private void refreshInventoryTable()
-    {
+    private void refreshInventoryTable() {
         inventoryTable.clear();
-        Table content;
-//        if (backpack.getCapacity() == -1)
-        content = buildLimitedInventoryTable();
-//        else content = buildLimitedInventoryTable();
-        inventoryTable.add(content).expand().center();
+        Table content = buildLimitedInventoryTable();
+        inventoryTable.add(content).expand().fill().center();
+        refreshHotbar();
     }
 
     private void refreshCraftingTable()
@@ -441,32 +553,30 @@ public class InventoryWindow {
 
     private int selectedObjectSlot = -1;
 
-    public Table buildLimitedInventoryTable()
-    {
-        Table table = new Table(skin);
-        table.defaults().size(SLOTS_SIZE).pad(2);
-        table.center();
+    public Table buildLimitedInventoryTable() {
+        // Create main container table (vertical layout)
+        Table mainTable = new Table(skin);
+        mainTable.defaults().pad(2);
+        mainTable.center();
+
+        // Add hotbar at the top
+        mainTable.add(hotbarTable).colspan(COLS).padBottom(15).row();
+
+        // Create inventory grid
+        Table inventoryGrid = new Table(skin);
+        inventoryGrid.defaults().size(SLOTS_SIZE).pad(2);
+        inventoryGrid.center();
+
         updatePlayer();
         java.util.List<GameObject> slots = backpack.getNonEmptyItems();
         int capacity = backpack.getCapacity();
-
         int counter = 0;
 
-        for (int slot = 0; slot < capacity; slot++)
-        {
-            final int slotIndex = slot; // needed for use in listener
-            GameObject obj;
-
-            if (slot < backpack.getItemCount())
-            {
-                obj = slots.get(counter++);
-            } else
-            {
-                obj = null;
-            }
+        for (int slot = 0; slot < capacity; slot++) {
+            final int slotIndex = slot;
+            GameObject obj = slot < backpack.getItemCount() ? slots.get(counter++) : null;
 
             Table slotContainer = new Table();
-
             slotContainer.setBackground(slotIndex == selectedInventorySlot ? slotHighlight : slotBackground);
             slotContainer.setSize(SLOTS_SIZE, SLOTS_SIZE);
 
@@ -477,10 +587,18 @@ public class InventoryWindow {
 
                 if (obj.getNumber() > 1) {
                     Label countLabel = new Label(String.valueOf(obj.getNumber()), skin);
-                    itemStack.add(countLabel);
-                }
 
-                slotContainer.add(itemStack).expand().fill();
+                    // Create container for padding
+                    Table countContainer = new Table();
+                    itemStack.setFillParent(true);
+                    countContainer.bottom().right();
+                    countContainer.add(countLabel);// Bottom and right padding
+
+                    slotContainer.add(itemStack).expand().fill();
+                    slotContainer.add(countContainer);
+                } else {
+                    slotContainer.add(itemStack).expand().fill();
+                }
 
                 String tooltipText = obj.getObjectType().toString();
                 Label tooltipLabel = new Label(tooltipText, skin);
@@ -496,28 +614,23 @@ public class InventoryWindow {
                 public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
                     GameObject clickedObject = slotIndex < slots.size() ? slots.get(slotIndex) : null;
 
-                    if (event.getButton() == Input.Buttons.RIGHT)
-                    {
-                        if (clickedObject != null)
-                        {
+                    if (event.getButton() == Input.Buttons.RIGHT) {
+                        if (clickedObject != null) {
                             GameObjectType type = clickedObject.getObjectType();
 
-                            if (!KitchenRecipe.isEdible(type))
-                            {
+                            if (!KitchenRecipe.isEdible(type)) {
                                 UIRenderer.showTextBox("This item is not edible :(");
                                 return true;
                             }
 
                             int count = player.howManyInInventory(type);
-                            if (count == 0)
-                            {
+                            if (count == 0) {
                                 UIRenderer.showTextBox("You don't currently have this food in your backpack.");
                                 return true;
                             }
 
                             KitchenRecipe food = KitchenRecipe.getKitchenRecipe(type.toString());
-                            if (food == null)
-                            {
+                            if (food == null) {
                                 UIRenderer.showTextBox("This item is not edible :(");
                                 return true;
                             }
@@ -528,17 +641,18 @@ public class InventoryWindow {
                             UIRenderer.showTextBox("Yum Yum, you just ate " + food.getType());
                             refreshInventoryTable();
                         }
-                    } else
-                    {
+                    } else {
                         if (player.getCurrentObject() != null && player.getCurrentObject().equals(clickedObject)) {
                             player.setCurrentObject(null);
                             selectedInventorySlot = -1; // Deselect if same object clicked
-                        } else
-                        {
+                        } else {
                             player.setCurrentObject(clickedObject);
                             selectedInventorySlot = clickedObject != null ? slotIndex : -1;
                         }
 
+                        // Clear hotbar selection
+                        selectedHotbarSlot = -1;
+                        refreshHotbar();
                         refreshInventoryTable();
                     }
 
@@ -546,14 +660,22 @@ public class InventoryWindow {
                 }
             });
 
-            table.add(slotContainer).size(SLOTS_SIZE, SLOTS_SIZE).pad(2);
+            inventoryGrid.add(slotContainer).size(SLOTS_SIZE, SLOTS_SIZE).pad(2);
 
             if ((slot + 1) % COLS == 0) {
-                table.row();
+                inventoryGrid.row();
             }
         }
 
-        return table;
+        // Add inventory grid to main container
+        mainTable.add(inventoryGrid).colspan(COLS).row();
+
+        // Add trash button below the inventory grid
+        Table trashContainer = new Table();
+        trashContainer.add(trashButton).size(128, 128).padTop(20);
+        mainTable.add(trashContainer).colspan(COLS);
+
+        return mainTable;
     }
 
     public GameObject getSelectedInventoryObject() {
@@ -569,7 +691,6 @@ public class InventoryWindow {
     private int selectedInventorySlot = -1;
 
 
-    // Replace your existing method with this:
     private void refreshToolTable() {
         toolsTable.clear();
         toolsTable.defaults().size(SLOTS_SIZE).pad(4);
@@ -605,15 +726,17 @@ public class InventoryWindow {
                 public void clicked(InputEvent event, float x, float y) {
                     Tool clickedTool = slotIndex < tools.size() ? tools.get(slotIndex) : null;
 
-                    if (player.getCurrentTool() != null && player.getCurrentTool().equals(clickedTool))
-                    {
+                    if (player.getCurrentTool() != null && player.getCurrentTool().equals(clickedTool)) {
                         player.setCurrentTool(null);
                         selectedToolSlot = -1; // Deselect if same tool clicked
-                    } else
-                    {
+                    } else {
                         player.setCurrentTool(clickedTool);
                         selectedToolSlot = clickedTool != null ? slotIndex : -1;
                     }
+
+                    // Clear hotbar selection when selecting a tool
+                    selectedHotbarSlot = -1;
+                    refreshHotbar();
 
                     refreshToolTable();
                 }
@@ -715,7 +838,15 @@ public class InventoryWindow {
     public void toggleVisibility() {
         isVisible = !isVisible;
         popup.setVisible(isVisible);
-        if (isVisible) refreshInventoryTable();
+        if (isVisible) {
+            refreshInventoryTable();
+            refreshHotbar();
+        }
+    }
+
+    public void clearSelection() {
+        selectedInventorySlot = -1;
+        selectedHotbarSlot = -1;
     }
 
     public boolean isVisible() {
@@ -736,10 +867,5 @@ public class InventoryWindow {
 
     public TabType getLastTabOpenedByTabKey() {
         return lastTabOpenedByTabKey;
-    }
-
-    public void clearSelection()
-    {
-        selectedInventorySlot = -1;
     }
 }

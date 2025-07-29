@@ -50,7 +50,7 @@ public class Player {
     private Skill fishingSkill = new Skill(SkillType.Fishing);
 
     BackPack currentBackPack = new BackPack();
-    private HashMap<Player, FriendshipData> friendships = new HashMap<>(); //TODO: might change to nested hashmap
+    private HashMap<Player, FriendshipData> friendships = new HashMap<>();
     private ArrayList<Trade> sentTrades = new ArrayList<>();
     private ArrayList<Trade> receivedTrades = new ArrayList<>();
     private ArrayList<Trade> archiveTrades = new ArrayList<>();
@@ -136,11 +136,13 @@ public class Player {
         this.energy = 200f;
         this.fainted = false;
         this.money = 0;
-        addTool(new Axe());
-        addTool(new Hoe());
-        addTool(new Pickaxe());
-        addTool(new WateringCan());
-        addTool(new Seythe());
+        Axe axe = new Axe(); Hoe hoe = new Hoe(); Pickaxe  pickaxe = new Pickaxe();
+        WateringCan wateringCan = new WateringCan(); Seythe seythe = new Seythe();
+        addTool(axe); addToInventory(axe);
+        addTool(hoe); addToInventory(hoe);
+        addTool(pickaxe);  addToInventory(pickaxe);
+        addTool(wateringCan); addToInventory(wateringCan);
+        addTool(seythe); addToInventory(seythe);
         addToInventory(GameObjectType.MILK, 2);
 
         this.zeidy = null;

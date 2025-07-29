@@ -6,6 +6,7 @@ import ap.project.model.enums.tool_enums.BackPackLevel;
 import ap.project.model.enums.tool_enums.ToolType;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -13,6 +14,7 @@ public class BackPack extends Tool {
     private BackPackLevel level;
     private List<GameObject> slots; // Represents all slots (filled and empty)
     private List<Tool> tools = new LinkedList<>();
+    private ArrayList<GameObject> hotbarSlots = new ArrayList<>(Collections.nCopies(8, null));
     private int itemCount; // Count of actual items
 
     public BackPack() {
@@ -130,5 +132,23 @@ public class BackPack extends Tool {
 
     public List<Tool> getTools() {
         return tools;
+    }
+
+    public ArrayList<GameObject> getHotbarSlots() {
+        return hotbarSlots;
+    }
+
+    public boolean addToHotbar(GameObject item, int slot) {
+        if (slot >= 0 && slot < hotbarSlots.size()) {
+            hotbarSlots.set(slot, item);
+            return true;
+        }
+        return false;
+    }
+
+    public void removeFromHotbar(int slot) {
+        if (slot >= 0 && slot < hotbarSlots.size()) {
+            hotbarSlots.set(slot, null);
+        }
     }
 }

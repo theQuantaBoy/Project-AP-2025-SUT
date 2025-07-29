@@ -3,8 +3,8 @@ package ap.project.model.enums.tool_enums;
 import ap.project.model.enums.GameObjectType;
 
 public enum BackPackLevel {
-    base (12, GameObjectType.BASE_PACK),
-    Large (24, GameObjectType.LARGE_PACK),
+    base (24, GameObjectType.BASE_PACK),
+    Large (48, GameObjectType.LARGE_PACK),
     Deluxe (10000, GameObjectType.DELUXE_PACK); /* Unlimited */
 
     private final int capacity;
