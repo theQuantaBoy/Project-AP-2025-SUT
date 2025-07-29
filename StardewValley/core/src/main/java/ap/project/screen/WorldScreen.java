@@ -114,7 +114,7 @@ public final class WorldScreen implements Screen
         cam.setToOrtho(false);
 
         this.game = new Game(new ArrayList<>(List.of(
-            new Player(new User("mohsen","","mohsen","", Gender.MALE, "", ""), MapTypes.STANDARD, 0),
+            new Player(new User("mohsen","","mohsen","", Gender.MALE, "", ""), MapTypes.COMBAT, 0),
             new Player(new User("arash","","arash","", Gender.FEMALE, "", ""), MapTypes.FISHING, 0),
             new Player(new User("moshtagh","","moshtagh","", Gender.FEMALE, "", ""), MapTypes.FORAGING, 0),
             new Player(new User("ottie","","ottie","", Gender.FEMALE, "", ""), MapTypes.COMBAT, 0)

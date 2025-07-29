@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <tileset version="1.10" tiledversion="1.11.2" name="v16_Outdoors2" tilewidth="16" tileheight="16" tilecount="1120" columns="16">
- <image source="../../spring/spring_outdoorsTileSheet2.png" width="256" height="1120"/>
+ <image source="../../fall/fall_outdoorsTileSheet2.png" width="256" height="1120"/>
  <tile id="0">
   <properties>
    <property name="type" value="unpassable"/>
