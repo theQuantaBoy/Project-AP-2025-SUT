@@ -1,10 +1,13 @@
 package ap.project.control;
 
 import ap.project.model.App.App;
+import ap.project.model.App.Result;
+import ap.project.model.animal.Animal;
 import ap.project.model.building.CraftingItem;
 import ap.project.model.enums.GameObjectType;
 import ap.project.model.enums.TileTexture;
 import ap.project.model.enums.Weather;
+import ap.project.model.enums.animal_enums.FarmAnimalsType;
 import ap.project.model.enums.building_enums.CraftingRecipeEnums;
 import ap.project.model.enums.resources_enums.CropType;
 import ap.project.model.enums.resources_enums.ResourceItem;
@@ -15,6 +18,7 @@ import ap.project.model.shops.Shop;
 import ap.project.model.tools.*;
 import ap.project.screen.CommunicationWindow;
 import ap.project.screen.WorldScreen;
+import ap.project.view.GameMenu;
 import ap.project.visual.UIRenderer;
 import com.badlogic.gdx.math.Vector2;
 
@@ -50,12 +54,18 @@ public class WorldController
             return;
         }
 
-        if (processPickingUpForagingItem(tile))
+        // redundant code ?
+//        if (processPickingUpForagingItem(tile))
+//        {
+//            return;
+//        }
+
+        if (processMapNavigation(tile))
         {
             return;
         }
 
-        if (processMapNavigation(tile))
+        if (processBuildings(worldScreen, tile, clicked))
         {
             return;
         }
@@ -66,11 +76,6 @@ public class WorldController
         }
 
         if (processObjectUse(tile))
-        {
-            return;
-        }
-
-        if (processBuildings(worldScreen, tile, clicked))
         {
             return;
         }
@@ -308,6 +313,8 @@ public class WorldController
                 UIRenderer.showTextBox("you can't use watering can on this type of tile.");
                 return true;
             }
+
+            return false;
         }
 
         if (tool instanceof Seythe)
@@ -384,6 +391,7 @@ public class WorldController
                 return true;
             }
 
+            return false;
         }
 
         if (tool instanceof Pickaxe)
@@ -409,7 +417,7 @@ public class WorldController
                 return true;
             }
 
-            else if (tile.getObject() instanceof ForagingMineral)
+            else if (tile.getObject() != null && tile.getObject() instanceof ForagingMineral)
             {
                 if (player.getEnergy() <= (int)(weatherModifier * ((Pickaxe) tool).getLevel().getBaseEnergyUsage()))
                 {
@@ -447,7 +455,9 @@ public class WorldController
 
                 UIRenderer.showTextBox("pickaxe used on query");
                 return true;
-            } else if (tile.getTexture().equals(TileTexture.LAND))
+            }
+
+            else if (tile.getTexture().equals(TileTexture.LAND))
             {
                 if (player.getEnergy() <= (int)(weatherModifier * ((Pickaxe) tool).getLevel().getBaseEnergyUsage()))
                 {
@@ -480,20 +490,133 @@ public class WorldController
                     UIRenderer.showTextBox("tile is not ploughed");
                     return true;
                 }
-            } else if (tile.getObject() instanceof ForagingSeed)
+            }
+
+            else if (tile.getObject() != null &&tile.getObject() instanceof ForagingSeed)
             {
                 tile.setObject(null);
                 player.increaseEnergy((int)(weatherModifier * -((Pickaxe) tool).getLevel().getBaseEnergyUsage()));
 
                 UIRenderer.showTextBox("seed is removed");
                 return true;
-            } else
+            }
+
+            else
             {
                 player.increaseEnergy((int)(weatherModifier * -((Pickaxe) tool).getLevel().getFailedEnergyUsage()));
 
                 UIRenderer.showTextBox("you can't use pickaxe on this tile");
                 return true;
             }
+        }
+
+        if (tool instanceof Axe)
+        {
+            if (tile.getObject() == null)
+            {
+                return false;
+            }
+
+            if (tile.getObject() instanceof Tree || tile.getObject() instanceof ForagingTree ||
+                tile.getObject().getObjectType().equals(ResourceItem.WOOD.getType()))
+            {
+                if (player.getEnergy() <= (int)(weatherModifier * ((Axe) tool).getLevel().getBaseEnergyUsage()))
+                {
+                    UIRenderer.showTextBox("you don't have enough energy");
+                    return true;
+                }
+
+                player.increaseEnergy((int)(weatherModifier * -((Axe) tool).getLevel().getBaseEnergyUsage()));
+                player.addToInventory(ResourceItem.WOOD.getType(), 3);
+
+                UIRenderer.showTextBox("3 units of wood added to inventory.");
+
+                if (tile.getObject() instanceof Tree)
+                {
+                    if (((Tree) tile.getObject()).getTreeType().equals(TreeType.MAPLE_TREE))
+                    {
+                        Tree tree = (Tree) tile.getObject();
+                        tree.harvest();
+                        player.addToInventory(new GameObject(GameObjectType.MAPLE_SYRUP, 3));
+                        UIRenderer.showTextBox("3 units of wood added to inventory.");
+                    } else if (((Tree) tile.getObject()).getTreeType().equals(TreeType.MYSTIC_TREE))
+                    {
+                        Tree tree = (Tree) tile.getObject();
+                        tree.harvest();
+                        player.addToInventory(new GameObject(GameObjectType.MYSTIC_SYRUP, 3));
+                    }
+                }
+
+                tile.setObject(null);
+
+                UIRenderer.showTextBox("axe used successfully");
+                return true;
+            }
+
+            return false;
+        }
+
+        if (tool instanceof MilkPail)
+        {
+            if (player.getEnergy() <= (int)(weatherModifier * ((MilkPail) tool).getEnergyUsage()))
+            {
+                UIRenderer.showTextBox("you don't have enough energy!");
+                return true;
+            }
+
+            if (tile.getObject() != null && tile.getObject().getObjectType() != null && tile.getObject() instanceof Animal)
+            {
+                Animal animal = (Animal) tile.getObject();
+                if (animal.getAnimalType().equals(FarmAnimalsType.SHEEP) ||
+                    animal.getAnimalType().equals(FarmAnimalsType.COW))
+                {
+                    player.addToInventory(GameObjectType.MILK, 1);
+                    player.increaseEnergy((int)(weatherModifier * -((MilkPail) tool).getEnergyUsage()));
+
+                    UIRenderer.showTextBox("milk added to your inventory!");
+                    return true;
+                } else if (animal.getAnimalType().equals(FarmAnimalsType.GOAT))
+                {
+                    player.addToInventory(GameObjectType.GOAT_MILK, 1);
+                    player.increaseEnergy((int)(weatherModifier * -((MilkPail) tool).getEnergyUsage()));
+
+                    UIRenderer.showTextBox("goat milk added to your inventory!");
+                    return true;
+                }
+
+                UIRenderer.showTextBox("no Daam animal found in this barn");
+                return true;
+            }
+
+            return false;
+        }
+
+        else if (tool instanceof Shear)
+        {
+            if (player.getEnergy() <= (int)(weatherModifier * ((Shear) tool).getEnergyUsage()))
+            {
+                UIRenderer.showTextBox("you don't have enough energy!");
+                return true;
+            }
+
+            if (tile.getObject() != null && tile.getObject().getObjectType() != null && tile.getObject() instanceof Animal)
+            {
+                Animal animal = (Animal) tile.getObject();
+
+                if (animal.getAnimalType().equals(FarmAnimalsType.SHEEP))
+                {
+                    player.addToInventory(GameObjectType.WOOL, 3);
+                    player.increaseEnergy((int)(weatherModifier * -((Shear) tool).getEnergyUsage()));
+
+                    UIRenderer.showTextBox("3 wools added to your inventory!");
+                    return true;
+                }
+
+                UIRenderer.showTextBox("no sheep found in this barn");
+                return true;
+            }
+
+            return false;
         }
 
         return false;
@@ -860,8 +983,6 @@ public class WorldController
         {
             return true;
         }
-
-
 
         return processOvenMechanism(worldScreen, tile, clicked);
     }

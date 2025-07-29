@@ -39,6 +39,7 @@ public class CookBookWindow
     private final TooltipManager tooltipManager = TooltipManager.getInstance();
     private KitchenRecipe selectedRecipe = null;
     private TextButton cookButton;
+    private TextButton closeButton;
     private Drawable selectionBorderDrawable;
 
     private static final int BORDER_THICKNESS = 4; // Customizable border thickness
@@ -88,10 +89,24 @@ public class CookBookWindow
             }
         });
 
+        closeButton = new TextButton("Close", skin);
+        closeButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                toggleVisibility(); // Close the window
+            }
+        });
+
+        // Create button container
+        Table buttonContainer = new Table();
+        buttonContainer.defaults().pad(5);
+        buttonContainer.add(cookButton).width(200);
+        buttonContainer.add(closeButton).width(200);
+
         // Main container for recipes and button
         Table container = new Table();
         container.add(recipesTable).row();
-        container.add(cookButton).padTop(15).padBottom(10); // Natural size with padding
+        container.add(buttonContainer).padTop(15).padBottom(10);
 
         // Calculate window size to fit all recipes and button
         float width = (SLOT_SIZE + 16) * (COLS) + 160;
