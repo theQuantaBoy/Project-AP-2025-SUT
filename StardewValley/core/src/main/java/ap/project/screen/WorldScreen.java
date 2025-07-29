@@ -1,6 +1,7 @@
 package ap.project.screen;
 
 import ap.project.control.CharacterController;
+import ap.project.control.WorldController;
 import ap.project.model.App.App;
 import ap.project.model.App.GameAssetsManager;
 import ap.project.model.App.User;
@@ -95,7 +96,7 @@ public final class WorldScreen implements Screen
     private CraftingItemWindow craftingItemWindow;
     private FriendsWindow friendsWindow;
     private CommunicationWindow communicationWindow;
-
+    private WorldController worldController;
     private InputMultiplexer inputMultiplexer;
     private boolean inputMultiplexerHadSetUp = false;
 
@@ -170,7 +171,8 @@ public final class WorldScreen implements Screen
         craftingItemWindow = new CraftingItemWindow(uiStage);
         communicationWindow = new CommunicationWindow(uiStage, this);
         createTerminalDialog();
-
+        worldController = new WorldController();
+        worldController.setCommunicationWindow(communicationWindow);
         inputMultiplexer = new InputMultiplexer();
         checkGameInfo();
     }

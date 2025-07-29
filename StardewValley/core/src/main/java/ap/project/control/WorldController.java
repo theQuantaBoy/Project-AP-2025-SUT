@@ -13,13 +13,25 @@ import ap.project.model.game.*;
 import ap.project.model.resources.*;
 import ap.project.model.shops.Shop;
 import ap.project.model.tools.*;
+import ap.project.screen.CommunicationWindow;
 import ap.project.screen.WorldScreen;
 import ap.project.visual.UIRenderer;
+import com.badlogic.gdx.math.Vector2;
 
 import java.util.ArrayList;
 
 public class WorldController
 {
+    private static CommunicationWindow communicationWindow;
+
+    public void setCommunicationWindow(CommunicationWindow communicationWindow) {
+        WorldController.communicationWindow = communicationWindow;
+    }
+
+    public CommunicationWindow getCommunicationWindow() {
+        return communicationWindow;
+    }
+
     public static void processClickLeft(WorldScreen worldScreen, Tile tile)
     {
         Game game = App.getCurrentGame();
@@ -69,22 +81,28 @@ public class WorldController
         Game game = App.getCurrentGame();
         Player player = game.getCurrentPlayer();
 
-        if (tile == null)
-        {
+        if (tile == null) {
             return;
         }
 
         Point clicked = tile.getPoint();
-        Point location = player.getLocation();
 
-        if (!Map.isNearOrOn(location, clicked))
-        {
-            return;
-        }
+        Player nearbyPlayer = findNearbyPlayer(clicked, 1); // radius 1 (8-neighbors)
 
-        if (processCraftingStation(worldScreen, tile))
-        {
-            return;
+        if (nearbyPlayer != null) {
+            communicationWindow.show(nearbyPlayer);
+        } else {
+            Point location = player.getLocation();
+
+            if (!Map.isNearOrOn(location, clicked))
+            {
+                return;
+            }
+
+            if (processCraftingStation(worldScreen, tile))
+            {
+                return;
+            }
         }
     }
 
@@ -888,5 +906,20 @@ public class WorldController
         }
 
         return false;
+    }
+
+    private static Player findNearbyPlayer(Point center, int radius) {
+        for (int dx = -radius; dx <= radius; dx++) {
+            for (int dy = -radius; dy <= radius; dy++) {
+                int tx = center.getX() + dx;
+                int ty = center.getY() + dy;
+
+                Player found = App.getCurrentGame().getPlayerByLocation(new Point(tx, ty));
+                if (found != null) {
+                    return found;
+                }
+            }
+        }
+        return null;
     }
 }
