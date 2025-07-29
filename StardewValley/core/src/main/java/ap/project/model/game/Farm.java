@@ -9,6 +9,7 @@ import ap.project.model.enums.MapTypes;
 import ap.project.model.enums.Season;
 import ap.project.model.enums.TileTexture;
 import ap.project.model.enums.animal_enums.FarmAnimalsType;
+import ap.project.model.enums.animal_enums.FarmBuildingType;
 import ap.project.model.enums.animal_enums.FishType;
 import ap.project.model.enums.resources_enums.*;
 import ap.project.model.resources.*;
@@ -601,5 +602,43 @@ public class Farm extends Map
 
         tile.unPlant();
         tile.setObject(null);
+    }
+
+    public void constructBuilding(FarmBuildingType buildingType, Point location) {
+        Tile startTile = getTile(location.getX(), location.getY());
+        AnimalBuilding building = new AnimalBuilding(startTile, buildingType);
+        animalBuildings.add(building);
+
+        // Mark tiles as occupied by building
+        for (Tile tile : building.getTiles()) {
+            tile.setTexture(TileTexture.ANIMAL_BUILDING);
+            tile.setObject(building);
+        }
+    }
+
+    public Point findSuitableLocation(Point size) {
+        // Find first available location that can fit the building
+        for (int y = 0; y < HEIGHT - size.getY(); y++) {
+            for (int x = 0; x < WIDTH - size.getX(); x++) {
+                boolean suitable = true;
+                // Check if all tiles in area are suitable
+                for (int dy = 0; dy < size.getY(); dy++) {
+                    for (int dx = 0; dx < size.getX(); dx++) {
+                        Tile tile = getTile(x + dx, y + dy);
+                        if (!((tile.getTexture() == TileTexture.LAND ||
+                            tile.getTexture() == TileTexture.GRASS) &&
+                            tile.getObject() == null)) {
+                            suitable = false;
+                            break;
+                        }
+                    }
+                    if (!suitable) break;
+                }
+                if (suitable) {
+                    return new Point(x, y);
+                }
+            }
+        }
+        return null;
     }
 }

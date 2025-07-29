@@ -1,6 +1,7 @@
 package ap.project.model.shops;
 
 import ap.project.model.App.App;
+import ap.project.model.enums.GameObjectType;
 import ap.project.model.game.GameObject;
 import ap.project.model.enums.ShopType;
 import ap.project.model.enums.shop_enums.PierresGeneralStoreBackpacks;
@@ -10,6 +11,7 @@ import ap.project.model.enums.shop_enums.PierresGeneralStoreYearRoundStock;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.List;
 
 public class PierresGeneralStore extends Shop{
     private ArrayList<PierresGeneralStoreSeasonalStock> seasonalStocks = new ArrayList<>();

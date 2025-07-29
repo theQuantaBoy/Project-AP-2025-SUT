@@ -103,6 +103,8 @@ public final class WorldScreen implements Screen
     private boolean cameraFixed = false;
     private final boolean DEBUG_MODE = false;
 
+    private ShopWindow shopWindow;
+
 //    private FishingMinigameWindow fishingWindow;
 
     public WorldScreen() {
@@ -148,6 +150,7 @@ public final class WorldScreen implements Screen
         }
 
         this.map = game.getCurrentPlayer().getCurrentMap();
+        this.shopWindow = new ShopWindow(uiStage, null);
         time = game.getCurrentTime();
         currentSeason = time.getSeason();
 
@@ -193,7 +196,7 @@ public final class WorldScreen implements Screen
         characterController = new CharacterController(character, map, PLAYER_SPEED, TILE_SIZE);
 
         gameInputProcessor = new WorldScreenInputProcessor(map, character, characterController, cam, this,
-            inventoryWindow, communicationWindow);
+            inventoryWindow, communicationWindow, shopWindow);
 
         if (inputMultiplexer != null && inputMultiplexerHadSetUp) {
             inputMultiplexer.removeProcessor(1);

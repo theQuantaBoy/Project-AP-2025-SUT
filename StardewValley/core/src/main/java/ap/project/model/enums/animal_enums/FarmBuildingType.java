@@ -2,6 +2,7 @@ package ap.project.model.enums.animal_enums;
 
 import ap.project.model.game.GameObject;
 import ap.project.model.enums.GameObjectType;
+import ap.project.model.game.Point;
 import com.badlogic.gdx.graphics.Texture;
 
 import java.util.List;
@@ -135,5 +136,10 @@ public enum FarmBuildingType
     public int getHeight()
     {
         return size.get(1);
+    }
+
+    public Point getSize()
+    {
+        return new Point(size.get(2), size.get(1));
     }
 }

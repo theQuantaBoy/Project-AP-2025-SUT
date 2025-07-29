@@ -71,6 +71,18 @@ public abstract class Map
             cabin.setOvenPoint(loaded.ovenPoint);
         }
 
+        if (this instanceof City)
+        {
+            City city = (City)this;
+            city.setBlacksmithDoor(loaded.blacksmithDoor);
+            city.setCarpenterDoor(loaded.carpenterDoor);
+            city.setFishShopDoor(loaded.fishShopDoor);
+            city.setJojamartDoor(loaded.jojamartDoor);
+            city.setPierreDoor(loaded.pierreDoor);
+            city.setMarnieDoor(loaded.marnieDoor);
+            city.setSaloonDoor(loaded.saloonDoor);
+        }
+
         this.visual = new MapVisual(this, loaded.tiledMap);
     }
 
@@ -199,7 +211,7 @@ public abstract class Map
         if (object != null)
         {
             if (object instanceof Tree || object instanceof ForagingTree ||
-                    object instanceof ForagingCrop || object instanceof Resource)
+                object instanceof ForagingCrop || object instanceof Resource)
             {
                 return false;
             }
@@ -587,7 +599,7 @@ public abstract class Map
                 if (isInBounds(col, row))
                 {
                     Tile tile = tiles[row][col];
-                        output.append(tile.getAppearance());
+                    output.append(tile.getAppearance());
                 }
                 else
                 {

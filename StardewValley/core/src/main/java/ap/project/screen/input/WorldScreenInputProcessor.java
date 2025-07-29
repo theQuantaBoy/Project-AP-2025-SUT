@@ -3,10 +3,14 @@ package ap.project.screen.input;
 import ap.project.control.CharacterController;
 import ap.project.control.WorldController;
 import ap.project.model.App.App;
+import ap.project.model.enums.MapKind;
 import ap.project.model.game.*;
+import ap.project.model.shops.Shop;
 import ap.project.screen.CommunicationWindow;
 import ap.project.screen.InventoryWindow;
+import ap.project.screen.ShopWindow;
 import ap.project.screen.WorldScreen;
+import ap.project.visual.UIRenderer;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
@@ -24,10 +28,12 @@ public class WorldScreenInputProcessor implements InputProcessor
     private final WorldScreen worldScreen;
     private final InventoryWindow inventoryWindow;
     private final CommunicationWindow communicationWindow;
+    private final ShopWindow shopWindow;
 
     public WorldScreenInputProcessor(Map map, PlayerCharacter player, CharacterController controller,
                                      OrthographicCamera cam, WorldScreen worldScreen, InventoryWindow inventoryWindow,
-                                     CommunicationWindow communicationWindow)
+                                     CommunicationWindow communicationWindow,
+                                     ShopWindow shopWindow)
     {
         this.map = map;
         this.player = player;
@@ -36,6 +42,7 @@ public class WorldScreenInputProcessor implements InputProcessor
         this.worldScreen = worldScreen;
         this.inventoryWindow = inventoryWindow;
         this.communicationWindow = communicationWindow;
+        this.shopWindow = shopWindow;
     }
 
     @Override
@@ -96,6 +103,23 @@ public class WorldScreenInputProcessor implements InputProcessor
 //                    characterController.moveToPath(path);
 //                }
 //            }
+        }
+
+        if (map.getMapType().getMapKind() == MapKind.TOWN) {
+            City city = (City) map;
+            Point tilePoint = map.screenToTile(screenX, screenY, cam);
+            Shop shop = city.getShopDoors().get(tilePoint);
+
+            if (shop != null) {
+                if (shop.isOpen(App.getCurrentGame().getCurrentTime())) {
+                    shopWindow.setShop(shop);
+                    shopWindow.toggleVisibility();
+                    return true;
+                } else {
+                    UIRenderer.showTextBox("This shop is closed!");
+                    return true;
+                }
+            }
         }
 
         return true;

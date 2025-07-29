@@ -106,10 +106,10 @@ public class NPCActor extends Actor {
 
     private void showFriendship() {
         // Show friendship level
-        int friendshipLevel = WorldScreen.getInstance()
-            .getPlayer()
-            .getNpcFriendship(npc)
-            .getLevel();
-        System.out.println("Friendship Level: " + friendshipLevel);
+//        int friendshipLevel = WorldScreen.getInstance()
+//            .getPlayer()
+//            .getNpcFriendship(npc)
+//            .getLevel();
+//        System.out.println("Friendship Level: " + friendshipLevel);
     }
 }

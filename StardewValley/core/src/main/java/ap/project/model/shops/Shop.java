@@ -1,11 +1,14 @@
 package ap.project.model.shops;
 
+import ap.project.model.enums.GameObjectType;
 import ap.project.model.enums.MapTypes;
 import ap.project.model.game.GameObject;
 import ap.project.model.game.Map;
 import ap.project.model.game.Point;
 import ap.project.model.game.Time;
 import ap.project.model.enums.ShopType;
+
+import java.util.List;
 
 public abstract class Shop extends Map
 {
