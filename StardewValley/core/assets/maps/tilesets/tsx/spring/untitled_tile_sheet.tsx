@@ -4558,7 +4558,7 @@
   <properties>
    <property name="NoSpawn" value="All"/>
    <property name="Type" value="Stone"/>
-   <property name="type" value="building"/>
+   <property name="type" value="path"/>
   </properties>
  </tile>
  <tile id="813">
@@ -4692,7 +4692,7 @@
   <properties>
    <property name="NoSpawn" value="All"/>
    <property name="Type" value="Stone"/>
-   <property name="type" value="building"/>
+   <property name="type" value="path"/>
   </properties>
  </tile>
  <tile id="839">
