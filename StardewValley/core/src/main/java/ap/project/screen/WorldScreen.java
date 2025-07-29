@@ -21,8 +21,7 @@ import ap.project.model.game.*;
 import ap.project.visual.MapVisual;
 import ap.project.visual.UIRenderer;
 import com.badlogic.gdx.*;
-import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
@@ -35,6 +34,9 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
+import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
@@ -100,6 +102,13 @@ public final class WorldScreen implements Screen
     private InputMultiplexer inputMultiplexer;
     private boolean inputMultiplexerHadSetUp = false;
 
+    private Table hotbarUI = new Table();
+    private static final int HOTBAR_SLOTS = 8;
+    private static final int HOTBAR_SLOT_SIZE = 48; // Smaller than inventory slots
+    private Drawable hotbarSlotBackground;
+    private Drawable hotbarSlotHighlight;
+    private int selectedHotbarSlot = -1;
+
     private boolean cameraFixed = false;
     private final boolean DEBUG_MODE = false;
 
@@ -164,8 +173,8 @@ public final class WorldScreen implements Screen
         ShaderProgram.pedantic = false;
         uiRenderer = new UIRenderer(time);
 
-        inventoryWindow = new InventoryWindow(uiStage);
-        friendsWindow = new FriendsWindow(uiStage);
+        inventoryWindow = new InventoryWindow(uiStage, this);
+        friendsWindow = new FriendsWindow(uiStage, this);
         cookBookWindow = new CookBookWindow(uiStage);
         refrigeratorWindow = new RefrigeratorWindow(uiStage);
         craftingItemWindow = new CraftingItemWindow(uiStage);
@@ -175,11 +184,126 @@ public final class WorldScreen implements Screen
         worldController.setCommunicationWindow(communicationWindow);
         inputMultiplexer = new InputMultiplexer();
         checkGameInfo();
+        initializeHotbar();
+    }
+
+    private void initializeHotbar() {
+        // Create hotbar slot backgrounds
+        hotbarSlotBackground = GameAssetsManager.getGameAssetsManager()
+            .createColoredDrawable(HOTBAR_SLOT_SIZE, HOTBAR_SLOT_SIZE, new Color(0.2f, 0.2f, 0.2f, 0.8f));
+        hotbarSlotHighlight = GameAssetsManager.getGameAssetsManager()
+            .createColoredDrawable(HOTBAR_SLOT_SIZE, HOTBAR_SLOT_SIZE, new Color(0.4f, 0.4f, 0.4f, 0.9f));
+
+        // Create hotbar table
+        hotbarUI = new Table();
+        hotbarUI.defaults().size(HOTBAR_SLOT_SIZE).pad(2);
+
+        // Position hotbar at bottom center of screen
+        hotbarUI.setFillParent(false);
+        hotbarUI.bottom();
+
+        // Add hotbar to UI stage
+        uiStage.addActor(hotbarUI);
+
+        // Build initial hotbar
+        refreshHotbarUI();
+    }
+
+    public void refreshHotbarUI() {
+        hotbarUI.clear();
+
+        if (player == null || player.getCurrentBackPack() == null) {
+            return;
+        }
+
+        java.util.List<GameObject> hotbarSlots = player.getCurrentBackPack().getHotbarSlots();
+
+        for (int slot = 0; slot < HOTBAR_SLOTS; slot++) {
+            final int slotIndex = slot;
+            GameObject obj = slot < hotbarSlots.size() ? hotbarSlots.get(slot) : null;
+
+            // Create slot container
+            Table slotContainer = new Table();
+            slotContainer.setBackground(slotIndex == selectedHotbarSlot ? hotbarSlotHighlight : hotbarSlotBackground);
+            slotContainer.setSize(HOTBAR_SLOT_SIZE, HOTBAR_SLOT_SIZE);
+
+            if (obj != null) {
+                try {
+                    // Create item icon
+                    Drawable icon = getIconForGameObject(obj);
+                    Stack itemStack = new Stack();
+                    Image iconImage = new Image(icon);
+                    itemStack.add(iconImage);
+
+                    // Add quantity label if more than 1
+                    if (obj.getNumber() > 1) {
+                        Label countLabel = new Label(String.valueOf(obj.getNumber()), skin);
+                        countLabel.setFontScale(0.7f); // Smaller font for hotbar
+                        countLabel.setAlignment(Align.bottomRight);
+                        countLabel.setColor(Color.WHITE);
+
+                        // Create container for padding
+                        Table countContainer = new Table();
+                        slotContainer.setFillParent(true);
+                        countContainer.bottom().right();
+                        countContainer.add(countLabel).pad(0, 0, 2, 2);
+
+                        slotContainer.add(itemStack).expand().fill();
+                        slotContainer.add(countContainer);
+                    } else {
+                        slotContainer.add(itemStack).expand().fill();
+                    }
+                } catch (Exception e) {
+                    // Handle missing textures gracefully
+                    System.err.println("Failed to load icon for: " + obj.getObjectType());
+                }
+            }
+
+            // Add slot number label
+            Label slotNumberLabel = new Label(String.valueOf(slot + 1), skin);
+            slotNumberLabel.setFontScale(0.5f);
+            slotNumberLabel.setColor(Color.LIGHT_GRAY);
+            Table slotNumberContainer = new Table();
+            slotContainer.setFillParent(true);
+            slotNumberContainer.top().left();
+            slotNumberContainer.add(slotNumberLabel).pad(1, 1, 0, 0);
+
+            // Combine slot content and number
+            Stack slotStack = new Stack();
+            slotStack.add(slotContainer);
+            slotStack.add(slotNumberContainer);
+
+            hotbarUI.add(slotStack).size(HOTBAR_SLOT_SIZE, HOTBAR_SLOT_SIZE).pad(1);
+        }
+
+        // Position the hotbar at bottom center
+        hotbarUI.pack();
+        hotbarUI.setPosition(
+            (uiStage.getWidth() - hotbarUI.getWidth()) / 2f,
+            20f // 20 pixels from bottom
+        );
+    }
+
+    private Drawable getIconForGameObject(GameObject obj) {
+        try {
+            String path = obj.getObjectType().getPath();
+            Texture texture = new Texture(Gdx.files.internal(path));
+            return new TextureRegionDrawable(new TextureRegion(texture));
+        } catch (Exception e) {
+            // Return a default texture or create a colored rectangle
+            Pixmap pixmap = new Pixmap(HOTBAR_SLOT_SIZE, HOTBAR_SLOT_SIZE, Pixmap.Format.RGBA8888);
+            pixmap.setColor(Color.GRAY);
+            pixmap.fill();
+            Texture texture = new Texture(pixmap);
+            pixmap.dispose();
+            return new TextureRegionDrawable(new TextureRegion(texture));
+        }
     }
 
     public void checkGameInfo() {
         if (player == null || !App.getCurrentGame().getCurrentPlayer().equals(player)) {
             updateGameInfo();
+            refreshHotbarUI(); // Add this line
         }
     }
 
@@ -201,6 +325,7 @@ public final class WorldScreen implements Screen
         }
 
         uiRenderer.updatePlayer();
+        refreshHotbarUI();
     }
 
     @Override
@@ -223,17 +348,31 @@ public final class WorldScreen implements Screen
             @Override
             public boolean keyDown(int keycode) {
                 // Handle chat input first
+                if (inventoryWindow.isVisible() &&
+                    keycode >= Input.Keys.NUM_1 && keycode <= Input.Keys.NUM_8) {
+                    inventoryWindow.handleHotbarAssignment(keycode);
+                    // Refresh the main screen hotbar after assignment
+                    refreshHotbarUI();
+                    return true;
+                }
+
+                // Handle hotbar selection (when inventory is closed)
+                if (!inventoryWindow.isVisible() &&
+                    keycode >= Input.Keys.NUM_1 && keycode <= Input.Keys.NUM_8) {
+                    handleHotbarSelection(keycode);
+                    return true;
+                }
+
+                // Handle chat input first
                 if (communicationWindow.getChatScreen().handleKeyDown(keycode)) {
                     return true;
                 }
 
-                if (isCraftingWindowVisible())
-                {
+                if (isCraftingWindowVisible()) {
                     return false;
                 }
 
-                if (keycode == Input.Keys.E ||  keycode == Input.Keys.ESCAPE)
-                {
+                if (keycode == Input.Keys.E || keycode == Input.Keys.ESCAPE) {
                     boolean nowVisible = !inventoryWindow.isVisible();
                     inventoryWindow.toggleVisibility();
 
@@ -241,36 +380,30 @@ public final class WorldScreen implements Screen
                         inventoryWindow.getToolsTab().setChecked(false);
 
                     return true;
-                } else if (keycode == Input.Keys.TAB)
-                {
+                } else if (keycode == Input.Keys.TAB) {
                     boolean nowVisible = !inventoryWindow.isVisible();
                     inventoryWindow.toggleVisibility();
 
                     if (nowVisible) {
-                        if (inventoryWindow.getLastTabOpenedByTabKey() == InventoryWindow.TabType.TOOLS)
-                        {
+                        if (inventoryWindow.getLastTabOpenedByTabKey() == InventoryWindow.TabType.TOOLS) {
                             inventoryWindow.getToolsTab().toggle();
                         } else {
                             inventoryWindow.getToolsTab().setChecked(false);
                         }
                     }
                     return true;
-                } else if (keycode == Input.Keys.M)
-                {
+                } else if (keycode == Input.Keys.M) {
                     inventoryWindow.toggleVisibility();
                     inventoryWindow.getMapTab().setChecked(true);
                     return true;
                 }
 
-                if (keycode == Input.Keys.R)
-                {
-                    if (isCookBookVisible())
-                    {
+                if (keycode == Input.Keys.R) {
+                    if (isCookBookVisible()) {
                         toggleCookBookWindow();
                     }
 
-                    if (isRefrigeratorVisible())
-                    {
+                    if (isRefrigeratorVisible()) {
                         toggleRefrigeratorWindow();
                     }
 
@@ -487,6 +620,13 @@ public final class WorldScreen implements Screen
 
 //        animalInteractionScreen.getStage().getViewport().update(w, h, true);
         uiStage.getViewport().update(w, h, true);
+
+        if (hotbarUI != null) {
+            hotbarUI.setPosition(
+                (uiStage.getWidth() - hotbarUI.getWidth()) / 2f,
+                20f
+            );
+        }
     }
 
     @Override
@@ -511,6 +651,50 @@ public final class WorldScreen implements Screen
 //        gameStage.dispose();
         communicationWindow.dispose();
     }
+
+    private void handleHotbarSelection(int keycode) {
+        if (player == null || player.getCurrentBackPack() == null) {
+            return;
+        }
+
+        int hotbarSlot = -1;
+
+        // Map keycodes to hotbar slots (1-8 keys map to slots 0-7)
+        switch (keycode) {
+            case Input.Keys.NUM_1: hotbarSlot = 0; break;
+            case Input.Keys.NUM_2: hotbarSlot = 1; break;
+            case Input.Keys.NUM_3: hotbarSlot = 2; break;
+            case Input.Keys.NUM_4: hotbarSlot = 3; break;
+            case Input.Keys.NUM_5: hotbarSlot = 4; break;
+            case Input.Keys.NUM_6: hotbarSlot = 5; break;
+            case Input.Keys.NUM_7: hotbarSlot = 6; break;
+            case Input.Keys.NUM_8: hotbarSlot = 7; break;
+            default: return;
+        }
+
+        java.util.List<GameObject> hotbarSlots = player.getCurrentBackPack().getHotbarSlots();
+
+        if (hotbarSlot < hotbarSlots.size()) {
+            GameObject selectedItem = hotbarSlots.get(hotbarSlot);
+
+            // Toggle selection - if same slot is pressed again, deselect
+            if (selectedHotbarSlot == hotbarSlot) {
+                selectedHotbarSlot = -1;
+                player.setCurrentObject(null);
+            } else {
+                selectedHotbarSlot = hotbarSlot;
+                player.setCurrentObject(selectedItem);
+            }
+
+            // Clear inventory window selection to avoid conflicts
+            inventoryWindow.clearSelection();
+
+            // Refresh the hotbar display
+            refreshHotbarUI();
+        }
+    }
+
+
 
     private void checkMapSeason()
     {

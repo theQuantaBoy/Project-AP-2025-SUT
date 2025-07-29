@@ -104,6 +104,14 @@ public class WorldScreenInputProcessor implements InputProcessor
     @Override
     public boolean keyDown(int keycode)
     {
+
+        if (inventoryWindow.isVisible()) {
+            if (keycode >= Input.Keys.NUM_1 && keycode <= Input.Keys.NUM_8) {
+                inventoryWindow.handleHotbarAssignment(keycode);
+                return true; // Consume the input
+            }
+        }
+
         if (worldScreen.isDialogVisible() || worldScreen.isInventoryVisible() ||
             worldScreen.isCookBookVisible() || worldScreen.isRefrigeratorVisible() ||
         worldScreen.isCraftingWindowVisible() || worldScreen.isChatVisible())

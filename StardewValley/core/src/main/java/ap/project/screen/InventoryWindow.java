@@ -57,6 +57,7 @@ public class InventoryWindow {
     public enum TabType { INVENTORY, SKILL, SOCIAL, MAP, TOOLS}
 
     private TabType lastTabOpenedByTabKey = TabType.INVENTORY;
+    private WorldScreen worldScreen;
 
     private TextButton craftingTab;
     private Table craftingTable;
@@ -76,11 +77,15 @@ public class InventoryWindow {
     private final ScrollPane inventoryScrollPane;
     private ImageButton trashButton;
 
-    public InventoryWindow(Stage stage) {
+    // New field to track which inventory item is selected for hotbar assignment
+    private GameObject selectedInventoryItemForHotbar = null;
+
+    public InventoryWindow(Stage stage, WorldScreen worldScreen) {
         this.player = App.getCurrentGame().getCurrentPlayer();
         this.backpack = player.getCurrentBackPack();
         this.skin = GameAssetsManager.getGameAssetsManager().getSkin();
         this.stage = stage;
+        this.worldScreen = worldScreen;
         // Create popup Window
         popup = new Window("Menu", skin);
         popup.setVisible(false);
@@ -89,7 +94,6 @@ public class InventoryWindow {
 
         Drawable trashDrawable = getIconForGameObject(new GameObject(GameObjectType.TRASH_CAN, 1));
         trashButton = new ImageButton(trashDrawable);
-        trashButton.setScale(1.5f); // Slightly larger trash icon
         trashButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
@@ -273,6 +277,67 @@ public class InventoryWindow {
         refreshHotbar();
     }
 
+    /**
+     * NEW METHOD: Handle number key presses for hotbar assignment
+     * Call this method from your main input handler when number keys 1-8 are pressed
+     */
+    public void handleHotbarAssignment(int keycode) {
+        if (!isVisible || selectedInventoryItemForHotbar == null) {
+            return; // Only work when inventory is open and item is selected
+        }
+
+        int hotbarSlot = -1;
+
+        // Map keycodes to hotbar slots (1-8 keys map to slots 0-7)
+        switch (keycode) {
+            case Input.Keys.NUM_1: hotbarSlot = 0; break;
+            case Input.Keys.NUM_2: hotbarSlot = 1; break;
+            case Input.Keys.NUM_3: hotbarSlot = 2; break;
+            case Input.Keys.NUM_4: hotbarSlot = 3; break;
+            case Input.Keys.NUM_5: hotbarSlot = 4; break;
+            case Input.Keys.NUM_6: hotbarSlot = 5; break;
+            case Input.Keys.NUM_7: hotbarSlot = 6; break;
+            case Input.Keys.NUM_8: hotbarSlot = 7; break;
+            default: return; // Invalid key
+        }
+
+        // Assign the selected item to the hotbar slot
+        assignItemToHotbar(selectedInventoryItemForHotbar, hotbarSlot);
+
+        // Show feedback to player
+        UIRenderer.showTextBox(selectedInventoryItemForHotbar.getObjectType().toString() +
+            " assigned to hotbar slot " + (hotbarSlot + 1));
+
+        // Refresh the hotbar to show the change
+        refreshHotbar();
+    }
+
+    /**
+     * NEW METHOD: Assign an item to a specific hotbar slot
+     */
+    private void assignItemToHotbar(GameObject item, int hotbarSlot) {
+        if (item == null || hotbarSlot < 0 || hotbarSlot >= HOTBAR_SLOTS) {
+            return;
+        }
+
+        // Get the current hotbar slots
+        java.util.List<GameObject> hotbarSlots = backpack.getHotbarSlots();
+
+        // Ensure the hotbar list is large enough
+        while (hotbarSlots.size() <= hotbarSlot) {
+            hotbarSlots.add(null);
+        }
+
+        // Create a copy of the item for the hotbar (item stays in inventory)
+        GameObject hotbarItem = new GameObject(item.getObjectType(), item.getNumber());
+        hotbarSlots.set(hotbarSlot, hotbarItem);
+
+        // ADDED: Notify WorldScreen to refresh its hotbar
+        if (worldScreen != null) {
+            worldScreen.refreshHotbarUI();
+        }
+    }
+
     private void refreshHotbar() {
         hotbarTable.clear();
         updatePlayer();
@@ -298,7 +363,7 @@ public class InventoryWindow {
 
                     // Create container for padding
                     Table countContainer = new Table();
-                    countContainer.setFillParent(true);
+                    itemStack.setFillParent(true);
                     countContainer.bottom().right();
                     countContainer.add(countLabel).pad(0, 0, 4, 4); // Bottom and right padding
 
@@ -317,6 +382,15 @@ public class InventoryWindow {
                 slotContainer.addListener(tooltip);
                 stage.addActor(tooltip.getContainer());
             }
+
+            // Add slot number label for better UX
+            Label slotNumberLabel = new Label(String.valueOf(slot + 1), skin);
+            slotNumberLabel.setFontScale(0.6f);
+            slotNumberLabel.setColor(Color.GRAY);
+            Table slotNumberContainer = new Table();
+            slotNumberContainer.setFillParent(true);
+            slotNumberContainer.top().left();
+            slotNumberContainer.add(slotNumberLabel).pad(2, 2, 0, 0);
 
             slotContainer.addListener(new ClickListener() {
                 @Override
@@ -350,7 +424,16 @@ public class InventoryWindow {
                 }
             });
 
-            hotbarTable.add(slotContainer).size(SLOTS_SIZE, SLOTS_SIZE).pad(2);
+            // Add both the main content and the slot number
+            Stack slotStack = new Stack();
+            slotStack.add(slotContainer);
+            slotStack.add(slotNumberContainer);
+
+            hotbarTable.add(slotStack).size(SLOTS_SIZE, SLOTS_SIZE).pad(2);
+        }
+
+        if (worldScreen != null) {
+            worldScreen.refreshHotbarUI();
         }
     }
 
@@ -373,6 +456,9 @@ public class InventoryWindow {
             player.removeAmountFromInventory(type, 1);
             player.increaseEnergy(food.getEnergy());
             UIRenderer.showTextBox("Yum Yum, you just ate " + food.getType());
+        }
+        if (worldScreen != null) {
+            worldScreen.refreshHotbarUI();
         }
     }
 
@@ -642,18 +728,27 @@ public class InventoryWindow {
                             refreshInventoryTable();
                         }
                     } else {
+                        // Left-click handling
                         if (player.getCurrentObject() != null && player.getCurrentObject().equals(clickedObject)) {
                             player.setCurrentObject(null);
                             selectedInventorySlot = -1; // Deselect if same object clicked
+                            selectedInventoryItemForHotbar = null; // Clear hotbar assignment selection
                         } else {
                             player.setCurrentObject(clickedObject);
                             selectedInventorySlot = clickedObject != null ? slotIndex : -1;
+                            selectedInventoryItemForHotbar = clickedObject; // Set for hotbar assignment
                         }
 
                         // Clear hotbar selection
                         selectedHotbarSlot = -1;
                         refreshHotbar();
                         refreshInventoryTable();
+
+                        // Show instruction for hotbar assignment
+                        if (selectedInventoryItemForHotbar != null) {
+                            UIRenderer.showTextBox("Press 1-8 to assign " +
+                                selectedInventoryItemForHotbar.getObjectType().toString() + " to hotbar");
+                        }
                     }
 
                     return true;
@@ -672,7 +767,7 @@ public class InventoryWindow {
 
         // Add trash button below the inventory grid
         Table trashContainer = new Table();
-        trashContainer.add(trashButton).size(128, 128).padTop(20);
+        trashContainer.add(trashButton).size(SLOTS_SIZE, SLOTS_SIZE).padTop(20);
         mainTable.add(trashContainer).colspan(COLS);
 
         return mainTable;
@@ -847,6 +942,7 @@ public class InventoryWindow {
     public void clearSelection() {
         selectedInventorySlot = -1;
         selectedHotbarSlot = -1;
+        selectedInventoryItemForHotbar = null; // Clear hotbar assignment selection
     }
 
     public boolean isVisible() {

@@ -38,11 +38,12 @@ public class FriendsWindow {
     private CommunicateController controller;
     private InventoryWindow inventoryWindow;
     private Table inventoryTable;
+    private WorldScreen  worldScreen;
 
-    public FriendsWindow(Stage stage) {
+    public FriendsWindow(Stage stage, WorldScreen worldScreen) {
         this.stage = stage;
         this.skin = GameAssetsManager.getGameAssetsManager().getSkin();
-
+        this.worldScreen = worldScreen;
         popup = new Window("Friends", skin);
         popup.setVisible(false);
         popup.setMovable(true);
@@ -79,7 +80,7 @@ public class FriendsWindow {
         center(stage);
         stage.addActor(popup);
         this.controller = new  CommunicateController();
-        this.inventoryWindow = new InventoryWindow(stage);
+        this.inventoryWindow = new InventoryWindow(stage, worldScreen);
         controller.setFriendsWindow(this);
     }
 
