@@ -30,6 +30,7 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
@@ -123,7 +124,7 @@ public final class WorldScreen implements Screen
         cam.setToOrtho(false);
 
         this.game = new Game(new ArrayList<>(List.of(
-            new Player(new User("mohsen","","mohsen","", Gender.MALE, "", ""), MapTypes.STANDARD, 0),
+            new Player(new User("mohsen","","mohsen","", Gender.MALE, "", ""), MapTypes.MINING, 0),
             new Player(new User("arash","","arash","", Gender.FEMALE, "", ""), MapTypes.FISHING, 0),
             new Player(new User("moshtagh","","moshtagh","", Gender.FEMALE, "", ""), MapTypes.FORAGING, 0),
             new Player(new User("ottie","","ottie","", Gender.FEMALE, "", ""), MapTypes.COMBAT, 0)
@@ -395,18 +396,6 @@ public final class WorldScreen implements Screen
                 } else if (keycode == Input.Keys.M) {
                     inventoryWindow.toggleVisibility();
                     inventoryWindow.getMapTab().setChecked(true);
-                    return true;
-                }
-
-                if (keycode == Input.Keys.R) {
-                    if (isCookBookVisible()) {
-                        toggleCookBookWindow();
-                    }
-
-                    if (isRefrigeratorVisible()) {
-                        toggleRefrigeratorWindow();
-                    }
-
                     return true;
                 }
 
@@ -747,11 +736,10 @@ public final class WorldScreen implements Screen
             @Override
             protected void result(Object object)
             {
-                if (object != null && object.equals("SUBMIT"))
+                if (object != null && object.equals("CLOSE"))
                 {
-                    processUserInput();
+                    closeDialog();
                 }
-                closeDialog();
             }
         };
 
@@ -808,7 +796,18 @@ public final class WorldScreen implements Screen
         contentTable.row();
         contentTable.add(buttonTable).padTop(10).right();
 
-        terminalDialog.key(Input.Keys.ENTER, "SUBMIT");
+        userInputField.addListener(new InputListener() {
+            @Override
+            public boolean keyDown(InputEvent event, int keycode) {
+                if (keycode == Input.Keys.ENTER) {
+                    processUserInput();
+                    userInputField.setText("");
+                    return true;
+                }
+                return false;
+            }
+        });
+
         terminalDialog.key(Input.Keys.ESCAPE, "CLOSE");
 
         terminalDialog.setModal(true);

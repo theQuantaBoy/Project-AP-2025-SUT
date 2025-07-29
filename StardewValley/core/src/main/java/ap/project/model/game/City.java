@@ -16,6 +16,14 @@ public class City extends Map
     Point[] playerPoints = new Point[4];
     HashMap<Point, Shop> shopDoors = new HashMap<>();
 
+    private Point blacksmithDoor;
+    private Point carpenterDoor;
+    private Point fishShopDoor;
+    private Point jojamartDoor;
+    private Point marnieDoor;
+    private Point pierreDoor;
+    private Point saloonDoor;
+
     private final ArrayList<Shop> shops = new ArrayList<>();
 
     public City()
@@ -215,18 +223,29 @@ public class City extends Map
 
     private void initializeShops()
     {
-        shops.add (new Blacksmith());
-        shops.add (new JojaMart());
-        shops.add (new TheStardropSaloon());
-        shops.add (new PierresGeneralStore());
-        shops.add (new FishShop());
-        shops.add (new MarniesRanch());
-        shops.add (new CarpentersShop());
+        Blacksmith blacksmith = new Blacksmith();
+        JojaMart jojaMart = new JojaMart();
+        TheStardropSaloon theStardropSaloon = new TheStardropSaloon();
+        PierresGeneralStore pierresGeneralStore = new PierresGeneralStore();
+        FishShop fishShop = new FishShop();
+        MarniesRanch marniesRanch = new MarniesRanch();
+        CarpentersShop carpentersShop = new CarpentersShop();
 
-        for(Shop shop : shops)
-        {
-            shopDoors.put(shop.getExteriorDoor(), shop);
-        }
+        shops.add (blacksmith);
+        shops.add (jojaMart);
+        shops.add (theStardropSaloon);
+        shops.add (pierresGeneralStore);
+        shops.add (fishShop);
+        shops.add (marniesRanch);
+        shops.add (carpentersShop);
+
+        shopDoors.put(blacksmithDoor, blacksmith);
+        shopDoors.put(jojamartDoor, jojaMart);
+        shopDoors.put(saloonDoor, theStardropSaloon);
+        shopDoors.put(pierreDoor, pierresGeneralStore);
+        shopDoors.put(fishShopDoor, fishShop);
+        shopDoors.put(marnieDoor, marniesRanch);
+        shopDoors.put(carpenterDoor, carpentersShop);
     }
 
     public Shop getShop(ShopType type)
@@ -258,5 +277,40 @@ public class City extends Map
         }
 
         return null;
+    }
+
+    public void setBlacksmithDoor(Point blacksmithDoor)
+    {
+        this.blacksmithDoor = blacksmithDoor;
+    }
+
+    public void setCarpenterDoor(Point carpenterDoor)
+    {
+        this.carpenterDoor = carpenterDoor;
+    }
+
+    public void setFishShopDoor(Point fishShopDoor)
+    {
+        this.fishShopDoor = fishShopDoor;
+    }
+
+    public void setJojamartDoor(Point jojamartDoor)
+    {
+        this.jojamartDoor = jojamartDoor;
+    }
+
+    public void setMarnieDoor(Point marnieDoor)
+    {
+        this.marnieDoor = marnieDoor;
+    }
+
+    public void setPierreDoor(Point pierreDoor)
+    {
+        this.pierreDoor = pierreDoor;
+    }
+
+    public void setSaloonDoor(Point saloonDoor)
+    {
+        this.saloonDoor = saloonDoor;
     }
 }

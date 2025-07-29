@@ -65,6 +65,7 @@ public enum TileTexture
     OBJECT("object"),
     PLOUGHED_LAND("ploughed-land"),
     VEHICLE("vehicle"),
+    RIP("rip")
     ;
 
     private final String name;

@@ -302,10 +302,13 @@ public class MapVisual
 
             for (Tile tile : farm.getTilesWithForagingTrees())
             {
-                ForagingTree tree = (ForagingTree) tile.getObject();
-                TreeType type = tree.getTreeType().getTreeType();
-                Texture texture = type.getSeasonTextures().get(season.toInteger());
-                drawTileTreeTexture(tile, texture);
+                if (tile.getObject() instanceof ForagingTree)
+                {
+                    ForagingTree tree = (ForagingTree) tile.getObject();
+                    TreeType type = tree.getTreeType().getTreeType();
+                    Texture texture = type.getSeasonTextures().get(season.toInteger());
+                    drawTileTreeTexture(tile, texture);
+                }
             }
         }
     }
