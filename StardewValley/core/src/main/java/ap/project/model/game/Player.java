@@ -781,11 +781,9 @@ public class Player {
         this.isInFarm = false;
         this.isInCity = true;
         this.currentMap = this.user.getCurrentGame().getCity();
-//        this.location = this.user.getCurrentGame().getCity().findFreeStartingPoint();
-//        setLocation(this.user.getCurrentGame().getCity().findFreeStartingPoint());
         setLocation(this.user.getCurrentGame().getCity().getStartingPoint());
-//        city.getPlayerPoints()[App.getCurrentGame().getPlayerIndex()] = this.location;
         WorldScreen.getInstance().updateGameInfo();
+        App.setCurrentMenu(Menu.CityMenu);
     }
 
     public void goToCity(Point door)

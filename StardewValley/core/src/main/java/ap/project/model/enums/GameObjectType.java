@@ -408,7 +408,7 @@ public enum GameObjectType
     AXE("Axe", "game_objects/Tools/Axe/Axe.png"),
     BackPack("BackPack", "game_objects/Tools/Backpack.png"),
     FISHING_POLE("Fishing Pole", "game_objects/Fishing_Pole/Iridium_Rod.png"),
-    HOE("Hoe", "game_objects/Tools/Hoe/Iridium_Hoe.png"),
+    HOE("Hoe", "game_objects/Tools/Hoe/Hoe.png"),
     PICKAXE("Pickaxe", "game_objects/Tools/Pickaxe/Pickaxe.png"),
     SCYTHE("Scythe", "game_objects/Tools/Scythe.png"),
     SHEAR("Shear", "game_objects/Tools/Shears.png"),
