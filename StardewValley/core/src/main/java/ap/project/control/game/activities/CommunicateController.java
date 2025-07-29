@@ -1,6 +1,7 @@
 package ap.project.control.game.activities;
 
 import ap.project.model.App.App;
+import ap.project.model.App.GameAssetsManager;
 import ap.project.model.App.Result;
 import ap.project.model.game.GameObject;
 import ap.project.model.game.Gift;
@@ -8,11 +9,23 @@ import ap.project.model.game.Player;
 import ap.project.model.enums.Gender;
 import ap.project.model.player_data.FriendshipData;
 import ap.project.model.enums.GameObjectType;
+import ap.project.screen.FriendsWindow;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.ui.*;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 
+import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.regex.Matcher;
 
 public class CommunicateController {
+
+    private FriendsWindow friendsWindow;
+
+    public void setFriendsWindow(FriendsWindow friendsWindow) {
+        this.friendsWindow = friendsWindow;
+    }
 
     /* friendship methods */
 
@@ -56,7 +69,7 @@ public class CommunicateController {
         return new Result(true, "xp upgraded cheater");
     }
 
-    public static boolean checkFriendship(Player player1, Player player2, String command) { //TODO: might change string to command
+    private static boolean checkFriendship(Player player1, Player player2, String command) { //TODO: might change string to command
 
         int level = player1.getFriendships().get(player2).getLevel();
 
@@ -83,40 +96,39 @@ public class CommunicateController {
         return false;
     }
 
-    public Result talk(Matcher matcher) {
-        Player player = App.getCurrentGame().getPlayerByNickname(matcher.group("username"));
+    public Result talk(Player player) {
         Player currentPlayer = App.getCurrentGame().getCurrentPlayer();
         if (currentPlayer.equals(player)) {
-            return new Result(false, "you can't gift yourself");
+            return new Result(false, "you can't talk to yourself");
         }
-        String message = matcher.group("message");
+//        String message = "";
 
-        if (currentPlayer.isNear(player.getLocation())) {
-            FriendshipData data1 = currentPlayer.getFriendships().get(player);
-            FriendshipData data2 = player.getFriendships().get(currentPlayer);
-            data1.getMessageHistory().add(message);
-            data2.getMessageHistory().add(message);
-            player.setNewMessage(true);
+//        if (currentPlayer.isNear(player.getLocation())) {
+        FriendshipData data1 = currentPlayer.getFriendships().get(player);
+        FriendshipData data2 = player.getFriendships().get(currentPlayer);
+//        data1.getMessageHistory().add(message);
+//        data2.getMessageHistory().add(message);
+        player.setNewMessage(true);
 
-            if (!data1.isIntrcatedToday()) {
-                data1.changeXp(20, currentPlayer, player);
-                data2.changeXp(20, currentPlayer, player);
-                if (player.getFriendships().get(currentPlayer).isNewLevel()) {
-                    System.out.println("your friendship with " + player.getNickName() +
-                        " changed to " + player.getFriendships().get(currentPlayer).getLevel());
-                    player.getFriendships().get(currentPlayer).setNewLevel(false);
-                    currentPlayer.getFriendships().get(player).setNewLevel(false);
-                }
-                data1.setIntrcatedToday(true);
-                data2.setIntrcatedToday(true);
+        if (!data1.isIntrcatedToday()) {
+            data1.changeXp(20, currentPlayer, player);
+            data2.changeXp(20, currentPlayer, player);
+            if (player.getFriendships().get(currentPlayer).isNewLevel()) {
+                System.out.println("your friendship with " + player.getNickName() +
+                    " changed to " + player.getFriendships().get(currentPlayer).getLevel());
+                player.getFriendships().get(currentPlayer).setNewLevel(false);
+                currentPlayer.getFriendships().get(player).setNewLevel(false);
             }
-            if (player.equals(currentPlayer.getZeidy())) {
-                player.increaseEnergy(50);
-                currentPlayer.increaseEnergy(50);
-            }
-            return new Result(true, "you talked to " + player.getUser().getNickname());
+            data1.setIntrcatedToday(true);
+            data2.setIntrcatedToday(true);
         }
-        return new Result(false, "you can't talk to someone who's not near you!");
+        if (player.equals(currentPlayer.getZeidy())) {
+            player.increaseEnergy(50);
+            currentPlayer.increaseEnergy(50);
+        }
+        return new Result(true, "you talked to " + player.getUser().getNickname());
+//        }
+//        return new Result(false, "you can't talk to someone who's not near you!");
     }
 
     public void talkHistory(Matcher matcher) {
@@ -182,16 +194,16 @@ public class CommunicateController {
         }
     }
 
-    public Result giftRate (Matcher matcher) {
-        int id = Integer.parseInt(matcher.group("giftNumber"));
-        int rate = Integer.parseInt(matcher.group("rate"));
+    public Result giftRate (Gift targetGift, int rate) {
+//        int id = Integer.parseInt(matcher.group("giftNumber"));
+//        int rate = Integer.parseInt(matcher.group("rate"));
         Player currentPlayer = App.getCurrentGame().getCurrentPlayer();
-        Gift targetGift = currentPlayer.getGiftById(id);
-        if (targetGift == null) {
-            return new Result(false, "there's no gift with this id");
-        } else if (rate < 1 || rate > 5) {
-            return new Result(false, "your rate should be between 1 to 5");
-        }
+//        Gift targetGift = currentPlayer.getGiftById(id);
+//        if (targetGift == null) {
+//            return new Result(false, "there's no gift with this id");
+//        } else if (rate < 1 || rate > 5) {
+//            return new Result(false, "your rate should be between 1 to 5");
+//        }
 
         targetGift.setRate(rate);
         Player giver = targetGift.getGiver();
@@ -213,36 +225,108 @@ public class CommunicateController {
         return new Result(true, "gift rated successfully");
     }
 
-    public void giftHistory (Matcher matcher) {
-        Player player = App.getCurrentGame().getPlayerByNickname(matcher.group("username"));
-        Player currentPlayer = App.getCurrentGame().getCurrentPlayer();
-        System.out.println("gits given: ");
-        for (Gift object : currentPlayer.getGivenGifts())  {
-            if (object.getTaker().getNickName().equalsIgnoreCase(player.getNickName())) {
-                System.out.println("id: " + object.getId() +
-                        " item: " + object.getGameObject().name() +
-                        " amount: " + object.getAmount());
-                System.out.println("----");
-            }
+//      for (Gift gift : giftList) {
+//                Label name = new Label("Gift: " + gift.toString() + " x" + gift.getAmount() + "        ", skin);
+//                historyContent.add(name).pad(5);
+//                if (gift.isRated()) {
+//                    Label rate = new Label("Rate: " + gift.getRate(), skin);
+//                    historyContent.add(rate).pad(5);
+//                } else {
+//                    TextButton rateButton = new TextButton("Rate", skin);
+//                    historyContent.add(rateButton).pad(5).row();
+//                    rateButton.addListener(new ClickListener() {
+//                        @Override
+//                        public void clicked(InputEvent event, float x, float y) {
+//                            showRatingDialog(gift);
+//                        }
+//                    });
+//                }
+//            }
+//        historyContent.add(new Label(controller.giftHistory(selectedFriend), skin));
+
+    public void giftHistory(Player player, Table table) {
+        Skin skin = GameAssetsManager.getGameAssetsManager().getSkin();
+        Player current = App.getCurrentGame().getCurrentPlayer();
+
+        // --- Gifts Given ---
+        Label givenTitle = new Label("Gifts Given", skin, "Impact");
+        table.add(givenTitle).colspan(4).center().padBottom(15).row();
+
+        // Create header row with proper spacing
+        Table givenTable = new Table(skin);
+        givenTable.defaults().pad(5).center();
+        givenTable.add(new Label("ID", skin)).width(60);
+        givenTable.add(new Label("Item", skin)).width(180).padRight(15);
+        givenTable.add(new Label("Amount", skin)).width(100).padRight(15);
+        givenTable.add(new Label("Rate", skin)).width(100);
+        givenTable.row();
+
+        // Populate given gifts
+        for (Gift g : current.getGivenGifts()) {
+            if (!g.getTaker().getNickName().equalsIgnoreCase(player.getNickName()))
+                continue;
+
+            givenTable.add(new Label(String.valueOf(g.getId()), skin)).width(60);
+            givenTable.add(new Label(g.getGameObject().name(), skin)).width(180).padRight(15);
+            givenTable.add(new Label(String.valueOf(g.getAmount()), skin)).width(100).padRight(10);
+
+            String rateText = g.isRated()
+                ? String.valueOf(g.getRate())
+                : "—";
+            givenTable.add(new Label(rateText, skin)).width(80);
+            givenTable.row();
         }
-        System.out.println("gifts taken: ");
-        for (Gift object : currentPlayer.getArchiveGifts()) {
-            if (object.getGiver().getNickName().equalsIgnoreCase(player.getNickName())) {
-                System.out.println("id: " + object.getId() +
-                        " item: " + object.getGameObject().name() +
-                        " amount: " + object.getAmount());
-                System.out.println("----");
+
+        table.add(givenTable).colspan(4).fillX().padBottom(20).row();
+
+        // --- Gifts Received ---
+        Label receivedTitle = new Label("Gifts Received", skin, "Impact");
+        table.add(receivedTitle).colspan(4).center().padBottom(15).row();
+
+        Table recvTable = new Table(skin);
+        recvTable.defaults().pad(5).center();
+        recvTable.add(new Label("ID", skin)).width(60);
+        recvTable.add(new Label("Item", skin)).width(180).padRight(15);
+        recvTable.add(new Label("Amount", skin)).width(100).padRight(15);
+        recvTable.add(new Label("Action", skin)).width(100);
+        recvTable.row();
+
+        // Populate received gifts
+        for (Gift g : current.getArchiveGifts()) {
+            if (!g.getGiver().getNickName().equalsIgnoreCase(player.getNickName()))
+                continue;
+
+            recvTable.add(new Label(String.valueOf(g.getId()), skin)).width(60);
+            recvTable.add(new Label(g.getGameObject().name(), skin)).width(180).padRight(15);
+            recvTable.add(new Label(String.valueOf(g.getAmount()), skin)).width(100).padRight(10);
+
+            if (g.isRated()) {
+                recvTable.add(new Label(String.valueOf(g.getRate()), skin)).width(100);
+            } else {
+                TextButton rateBtn = new TextButton("Rate", skin);
+                rateBtn.addListener(new ClickListener() {
+                    @Override public void clicked(InputEvent e, float x, float y) {
+                        friendsWindow.showRatingDialog(g);
+                    }
+                });
+                recvTable.add(rateBtn).width(80);
             }
+            recvTable.row();
         }
+
+        table.add(recvTable).colspan(4).fillX().row();
     }
+
+
+
 
 
     //hugging
 
-    public Result giveHug (Matcher matcher) {
-        Player player = App.getCurrentGame().getPlayerByNickname(matcher.group("username"));
+    public Result giveHug (Player player) {
+        //Player player = App.getCurrentGame().getPlayerByNickname(matcher.group("username"));
         Player currentPlayer = App.getCurrentGame().getCurrentPlayer();
-        if (currentPlayer.isNear(player.getLocation())) {
+//        if (currentPlayer.isNear(player.getLocation())) {
             if (checkFriendship(currentPlayer, player, "hug")) {
                 if (!currentPlayer.getFriendships().get(player).isIntrcatedToday()) {
                     player.getFriendships().get(currentPlayer).changeXp(60, currentPlayer, player);
@@ -264,31 +348,22 @@ public class CommunicateController {
             } else {
                 return new Result(false, "your friendship is not good enough to hug!");
             }
-        } else {
-            return new Result(false, "you can't hug someone who's not near you!");
-        }
+//        } else {
+//            return new Result(false, "you can't hug someone who's not near you!");
+//        }
     }
 
     //flowering
 
-    public Result giveFlower (Matcher matcher) {
-        Player player = App.getCurrentGame().getPlayerByNickname(matcher.group("username"));
+    public Result giveFlower (Player player) {
+        //Player player = App.getCurrentGame().getPlayerByNickname(matcher.group("username"));
         Player currentPlayer = App.getCurrentGame().getCurrentPlayer();
-        if (currentPlayer.isNear(player.getLocation())) {
+//        if (currentPlayer.isNear(player.getLocation())) {
             if (checkFriendship(currentPlayer, player, "flower")) {
                 if (currentPlayer.getFriendships().get(player).getXp() >= 300) {
                     if (currentPlayer.getItemInInventory(GameObjectType.BOUQUET) != null) {
-                        currentPlayer.getItemInInventory(GameObjectType.BOUQUET).addNumber(-1);
-                        if (currentPlayer.getItemInInventory(GameObjectType.BOUQUET).getNumber() < 1) {
-                            currentPlayer.getCurrentBackPack().getSlots().
-                                    remove(currentPlayer.getItemInInventory(GameObjectType.BOUQUET));
-                        }
-
-                        if (player.getItemInInventory(GameObjectType.BOUQUET) != null) {
-                            player.getItemInInventory(GameObjectType.BOUQUET).addNumber(1);
-                        } else {
-                            player.getCurrentBackPack().getSlots().add(new GameObject(GameObjectType.BOUQUET, 1));
-                        }
+                        currentPlayer.removeAmountFromInventory(GameObjectType.BOUQUET, 1);
+                        player.addToInventory(GameObjectType.BOUQUET, 1);
 
                         if (!currentPlayer.getFriendships().get(player).isIntrcatedToday()) {
                             currentPlayer.getFriendships().get(player).setBouquetBought(true);
@@ -317,55 +392,56 @@ public class CommunicateController {
                 }
             } else {
                 return new Result(false,
-                        "your friendship is not good enough to give each other flowers");
+                        "your friendship is not good enough to\n give each other flowers");
             }
-        } else {
-            return new Result(false, "you can't give flower to someone who's not near you!");
-        }
+//        } else {
+//            return new Result(false, "you can't give flower to someone who's not near you!");
+//        }
     }
 
     //marriage
 
-    public Result purposeAsk (Matcher matcher) {
-        Player player = App.getCurrentGame().getPlayerByNickname(matcher.group("username"));
-        GameObjectType ring = GameObjectType.WEDDING_RING;
+    public Result purposeAsk (Player player, GameObject ring) {
+        //Player player = App.getCurrentGame().getPlayerByNickname(matcher.group("username"));
+
         Player currentPlayer = App.getCurrentGame().getCurrentPlayer();
-        if (currentPlayer.isNear(player.getLocation())) {
-            if (checkFriendship(currentPlayer, player, "marriage")) {
-                if (currentPlayer.getFriendships().get(player).getXp() >= 400) {
-                    if (currentPlayer.getGender().equals(Gender.FEMALE)) {
-                        return new Result(false, "you can't purpose ask doost pesaret");
-                    } else if (player.getGender().equals(Gender.MALE)) {
-                        return new Result(false,
-                                "unfortunately this item is not supported in your country");
-                    } else if (currentPlayer.getItemInInventory(ring) == null) {
-                        return new Result(false, "you don't have a ring. buy one");
-                    } else {
-                        player.getPurposeList().put(currentPlayer, ring);
-                        return new Result(true, "you purposed");
-                    }
+//        if (currentPlayer.isNear(player.getLocation())) {
+        if (checkFriendship(currentPlayer, player, "marriage")) {
+            if (currentPlayer.getFriendships().get(player).getXp() >= 400) {
+                if (currentPlayer.getGender().equals(Gender.FEMALE)) {
+                    return new Result(false, "you can't purpose ask doost pesaret");
+                } else if (player.getGender().equals(Gender.MALE)) {
+                    return new Result(false,
+                            "unfortunately this item is not supported in your country");
+                } else if (currentPlayer.getItemInInventory(ring.getObjectType()) == null) {
+                    return new Result(false, "you don't have a ring. buy one");
                 } else {
-                    return new Result(false, "you can't purpose. upgrade your friendship xp!");
+                    player.getPurposeList().put(currentPlayer, ring.getObjectType());
+                    return new Result(true, "you purposed");
                 }
             } else {
-                return new Result(false, "your friendship is not good enough to purpose!");
+                return new Result(false, "you can't purpose. upgrade your friendship xp!");
             }
         } else {
-            return new Result(false, "you can't purpose to someone who's not near you!");
+            return new Result(false, "your friendship is not good enough to purpose!");
         }
+//        } else {
+//            return new Result(false, "you can't purpose to someone who's not near you!");
+//        }
     }
 
-    public void purposeRespond (Matcher matcher) {
-        Player player = App.getCurrentGame().getPlayerByNickname(matcher.group("username"));
-        boolean answer = true;
-        String respond = matcher.group("respond");
-        if (respond.equalsIgnoreCase("cancel")) answer = false;
+    public Result purposeRespond (Player player, boolean answer) {
+//        Player player = App.getCurrentGame().getPlayerByNickname(matcher.group("username"));
+//        boolean answer = true;
+//        String respond = matcher.group("respond");
+//        if (respond.equalsIgnoreCase("cancel")) answer = false;
         Player currentPlayer = App.getCurrentGame().getCurrentPlayer();
         GameObject ring = player.getItemInInventory(currentPlayer.getPurposeList().get(player));
-
+        String message = "";
+        boolean isSuccessful;
         if (answer) {
-            player.getCurrentBackPack().getSlots().remove(ring);
-            currentPlayer.getCurrentBackPack().getSlots().add(ring);
+            currentPlayer.addToInventory(ring);
+            player.removeFromInventory(ring);
             player.setZeidy(currentPlayer);
             currentPlayer.setZeidy(player);
             player.getFriendships().get(currentPlayer).setMarried(true);
@@ -378,7 +454,8 @@ public class CommunicateController {
                 player.getFriendships().get(currentPlayer).setNewLevel(false);
                 currentPlayer.getFriendships().get(player).setNewLevel(false);
             }
-            System.out.println("you are husband and wife now");
+            message = "you are husband and wife now";
+            isSuccessful = true;
             //TODO: add energy things
         } else {
             FriendshipData data1 =currentPlayer.getFriendships().get(player);
@@ -389,8 +466,10 @@ public class CommunicateController {
             data2.setLevel(0);
             data2.setXp(0);
             data2.setBouquetBought(false);
-            System.out.println("go kill yourself");
+            message = "go kill yourself";
+            isSuccessful = false;
         }
         currentPlayer.getPurposeList().remove(player);
+        return new Result(isSuccessful, message);
     }
 }

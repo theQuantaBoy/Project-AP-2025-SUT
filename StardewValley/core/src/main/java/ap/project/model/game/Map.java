@@ -64,6 +64,13 @@ public abstract class Map
             shop.setExteriorDoor(startingPoint);
         }
 
+        if (this instanceof Cabin)
+        {
+            Cabin cabin = (Cabin) this;
+            cabin.setRefrigeratorPoint(loaded.refrigeratorPoint);
+            cabin.setOvenPoint(loaded.ovenPoint);
+        }
+
         this.visual = new MapVisual(this, loaded.tiledMap);
     }
 
@@ -269,6 +276,136 @@ public abstract class Map
             if (isInBounds(newX, newY) && isWalkable(getTile(newX, newY)))
             {
                 neighbors.add(new Point(newX, newY));
+            }
+        }
+
+        return neighbors;
+    }
+
+    /**
+     * Returns at most 4 direct neighbors (top, bottom, left, right) of the given point.
+     * Similar to getNeighbors but with a different name for clarity.
+     * @param p The center point to get neighbors for
+     * @return List of neighboring points (max 4)
+     */
+    public ArrayList<Point> getDirectNeighbors(Point p) {
+        ArrayList<Point> neighbors = new ArrayList<>();
+
+        int[] dx = {-1, 0, 1, 0};
+        int[] dy = {0, 1, 0, -1};
+
+        for (int dir = 0; dir < 4; dir++) {
+            int newX = p.getX() + dx[dir];
+            int newY = p.getY() + dy[dir];
+
+            if (isInBounds(newX, newY))
+            {
+                neighbors.add(new Point(newX, newY));
+            }
+        }
+
+        return neighbors;
+    }
+
+    /**
+     * Returns all tiles in a square around the original point with given radius.
+     * For radius=1: 8 surrounding tiles (3x3 square)
+     * For radius=2: 24 surrounding tiles (5x5 square minus center)
+     * @param p The center point
+     * @param radius The radius of the square (1 or 2)
+     * @return List of surrounding points
+     */
+    public ArrayList<Point> getSquareNeighbors(Point p, int radius) {
+        ArrayList<Point> neighbors = new ArrayList<>();
+
+        if (radius < 1 || radius > 2) {
+            return neighbors; // Only support radius 1 or 2
+        }
+
+        for (int x = p.getX() - radius; x <= p.getX() + radius; x++) {
+            for (int y = p.getY() - radius; y <= p.getY() + radius; y++) {
+                // Skip the center point
+                if (x == p.getX() && y == p.getY()) continue;
+
+                if (isInBounds(x, y)) {
+                    neighbors.add(new Point(x, y));
+                }
+            }
+        }
+
+        return neighbors;
+    }
+
+    /**
+     * Returns all tiles within a circular radius of the original point.
+     * Uses Euclidean distance to determine inclusion.
+     * @param p The center point
+     * @param radius The radius of the circle
+     * @return List of points within the circular radius
+     */
+    public ArrayList<Point> getCircularNeighbors(Point p, float radius) {
+        ArrayList<Point> neighbors = new ArrayList<>();
+
+        if (radius <= 0) {
+            return neighbors;
+        }
+
+        // Calculate bounds to check (square area that contains the circle)
+        int minX = (int) Math.floor(p.getX() - radius);
+        int maxX = (int) Math.ceil(p.getX() + radius);
+        int minY = (int) Math.floor(p.getY() - radius);
+        int maxY = (int) Math.ceil(p.getY() + radius);
+
+        for (int x = minX; x <= maxX; x++) {
+            for (int y = minY; y <= maxY; y++) {
+                // Skip the center point
+                if (x == p.getX() && y == p.getY()) continue;
+
+                if (isInBounds(x, y)) {
+                    // Calculate Euclidean distance
+                    double distance = Math.sqrt(Math.pow(x - p.getX(), 2) + Math.pow(y - p.getY(), 2));
+                    if (distance <= radius) {
+                        neighbors.add(new Point(x, y));
+                    }
+                }
+            }
+        }
+
+        return neighbors;
+    }
+
+    /**
+     * Returns walkable tiles in a circular radius of the original point.
+     * Similar to getCircularNeighbors but only includes walkable tiles.
+     * @param p The center point
+     * @param radius The radius of the circle
+     * @return List of walkable points within the circular radius
+     */
+    public ArrayList<Point> getWalkableCircularNeighbors(Point p, float radius) {
+        ArrayList<Point> neighbors = new ArrayList<>();
+
+        if (radius <= 0) {
+            return neighbors;
+        }
+
+        // Calculate bounds to check (square area that contains the circle)
+        int minX = (int) Math.floor(p.getX() - radius);
+        int maxX = (int) Math.ceil(p.getX() + radius);
+        int minY = (int) Math.floor(p.getY() - radius);
+        int maxY = (int) Math.ceil(p.getY() + radius);
+
+        for (int x = minX; x <= maxX; x++) {
+            for (int y = minY; y <= maxY; y++) {
+                // Skip the center point
+                if (x == p.getX() && y == p.getY()) continue;
+
+                if (isInBounds(x, y)) {
+                    // Calculate Euclidean distance
+                    double distance = Math.sqrt(Math.pow(x - p.getX(), 2) + Math.pow(y - p.getY(), 2));
+                    if (distance <= radius && isWalkable(getTile(x, y))) {
+                        neighbors.add(new Point(x, y));
+                    }
+                }
             }
         }
 
@@ -561,7 +698,7 @@ public abstract class Map
         int dx = Math.abs(point.getX() - other.getX());
         int dy = Math.abs(point.getY() - other.getY());
 
-        return (dx <= 2 && dy <= 2);
+        return (dx <= 1 && dy <= 1);
     }
 }
 

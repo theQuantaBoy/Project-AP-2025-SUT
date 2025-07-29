@@ -35,10 +35,12 @@ public class GeneralController
         System.out.println("your items:");
         System.out.println("----");
         for (GameObject object : inventory) {
-            int number = object.getNumber();
-            if (object instanceof Tool) number = 1;
-            System.out.println(object.getObjectType().toString() + " x" + number);
-            System.out.println("----");
+            if (object != null) {
+                int number = object.getNumber();
+                if (object instanceof Tool) number = 1;
+                System.out.println(object.getObjectType().toString() + " x" + number);
+                System.out.println("----");
+            }
         }
     }
     public Result inventoryTrash(Matcher matcher) {
@@ -134,7 +136,8 @@ public class GeneralController
 
     public Result energyUnlimited() {
         Player currentPlayer = App.getCurrentGame().getCurrentPlayer();
-        currentPlayer.setEnergy(-1); //might change later
+        currentPlayer.setEnergy(currentPlayer.getMaxEnergy()); //might change later
+        currentPlayer.setMaxEnergySet(true);
         return new Result(true,"your energy is now unlimited eshghohal");
 
     }

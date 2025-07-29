@@ -5,6 +5,9 @@ import ap.project.model.enums.GameObjectType;
 import ap.project.model.enums.MapTypes;
 import ap.project.model.enums.TileTexture;
 
+import java.util.ArrayList;
+import java.util.Comparator;
+
 public class GreenHouse extends Map
 {
     private final String mapPath;
@@ -12,6 +15,7 @@ public class GreenHouse extends Map
 
     private static final int woodCost = 500;
     private static final int moneyCost = 1000;
+    private ArrayList<Tile> tilesWithCraftingItems = new ArrayList<>();
 
     public GreenHouse()
     {
@@ -88,5 +92,26 @@ public class GreenHouse extends Map
         return woodCost;
     }
 
-    // TODO: add other greenhouse functionalities later
+    public ArrayList<Tile> getTilesWithCraftingItems()
+    {
+        return tilesWithCraftingItems;
+    }
+
+    public void addToTilesWithCraftingItems(Tile tile)
+    {
+        tilesWithCraftingItems.add(tile);
+        tilesWithCraftingItems.sort(Comparator.comparingInt(Tile::getY));
+    }
+
+    public void removeTileObject(Tile tile)
+    {
+        if (tilesWithCraftingItems.contains(tile))
+        {
+            tilesWithCraftingItems.remove(tile);
+            tilesWithCraftingItems.sort(Comparator.comparingInt(Tile::getY));
+        }
+
+        tile.unPlant();
+        tile.setObject(null);
+    }
 }

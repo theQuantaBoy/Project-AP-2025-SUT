@@ -177,13 +177,13 @@ public enum KitchenRecipe
     {
         StringBuilder output = new StringBuilder();
 
-        output.append("Name: ").append(type).append("\n");
+        output.append(type).append("\n");
         output.append("------------------\n");
 
         output.append("Ingredients: \n");
         for (Map.Entry<GameObjectType, Integer> entry : ingredients.entrySet())
         {
-            output.append("\t").append(entry.getKey()).append(": ").append(entry.getValue()).append('\n');
+            output.append("    ").append(entry.getKey()).append(": ").append(entry.getValue()).append('\n');
         }
 
         output.append("------------------\n");

@@ -223,26 +223,26 @@ public class GameMenu implements AppMenu
             println(comController.cheatUpgradeFriendship(matcher));
         } else if ((matcher = CommunicateCommands.CHEAT_UPGRADE_XP.getMatcher(input)) != null) {
             println(comController.cheatUpgradeFriendshipLevel(matcher));
-        } else if ((matcher = CommunicateCommands.TALK.getMatcher(input)) != null) {
-            println(comController.talk(matcher));
+//        } else if ((matcher = CommunicateCommands.TALK.getMatcher(input)) != null) {
+//            println(comController.talk(matcher));
         } else if ((matcher = CommunicateCommands.TALK_HISTORY.getMatcher(input)) != null) {
             comController.talkHistory(matcher);
 //        } else if ((matcher = CommunicateCommands.GIFT.getMatcher(input)) != null) {
 //            comController.gift(matcher);
         } else if (CommunicateCommands.GIFT_LIST.getMatcher(input) != null) {
             comController.giftList();
-        } else if ((matcher = CommunicateCommands.GIFT_RATE.getMatcher(input)) != null) {
-            println(comController.giftRate(matcher));
-        } else if ((matcher = CommunicateCommands.GIFT_HISTORY.getMatcher(input)) != null) {
-            comController.giftHistory(matcher);
-        } else if ((matcher = CommunicateCommands.HUG.getMatcher(input)) != null) {
-            println(comController.giveHug(matcher));
-        } else if ((matcher = CommunicateCommands.FLOWER.getMatcher(input)) != null) {
-            println(comController.giveFlower(matcher));
-        } else if ((matcher = CommunicateCommands.ASK_MARRIAGE.getMatcher(input)) != null) {
-            println(comController.purposeAsk(matcher));
-        } else if ((matcher = CommunicateCommands.RESPOND.getMatcher(input)) != null) {
-            comController.purposeRespond(matcher);
+//        } else if ((matcher = CommunicateCommands.GIFT_RATE.getMatcher(input)) != null) {
+//            println(comController.giftRate(matcher));
+//        } else if ((matcher = CommunicateCommands.GIFT_HISTORY.getMatcher(input)) != null) {
+//            comController.giftHistory(matcher);
+//        } else if ((matcher = CommunicateCommands.HUG.getMatcher(input)) != null) {
+//            println(comController.giveHug(matcher));
+//        } else if ((matcher = CommunicateCommands.FLOWER.getMatcher(input)) != null) {
+//            println(comController.giveFlower(matcher));
+//        } else if ((matcher = CommunicateCommands.ASK_MARRIAGE.getMatcher(input)) != null) {
+//            println(comController.purposeAsk(matcher));
+//        } else if ((matcher = CommunicateCommands.RESPOND.getMatcher(input)) != null) {
+//            comController.purposeRespond(matcher);
         }
 
         else if(GameCommands.BUILD_ANIMAL_HOUSE.getMatcher(input) != null)
@@ -512,26 +512,26 @@ public class GameMenu implements AppMenu
             println(comController.cheatUpgradeFriendship(matcher));
         } else if ((matcher = CommunicateCommands.CHEAT_UPGRADE_XP.getMatcher(input)) != null) {
             println(comController.cheatUpgradeFriendshipLevel(matcher));
-        } else if ((matcher = CommunicateCommands.TALK.getMatcher(input)) != null) {
-            println(comController.talk(matcher));
+//        } else if ((matcher = CommunicateCommands.TALK.getMatcher(input)) != null) {
+//            println(comController.talk(matcher));
         } else if ((matcher = CommunicateCommands.TALK_HISTORY.getMatcher(input)) != null) {
             comController.talkHistory(matcher);
 //        } else if ((matcher = CommunicateCommands.GIFT.getMatcher(input)) != null) {
 //            comController.gift(matcher);
         } else if (CommunicateCommands.GIFT_LIST.getMatcher(input) != null) {
             comController.giftList();
-        } else if ((matcher = CommunicateCommands.GIFT_RATE.getMatcher(input)) != null) {
-            println(comController.giftRate(matcher));
-        } else if ((matcher = CommunicateCommands.GIFT_HISTORY.getMatcher(input)) != null) {
-            comController.giftHistory(matcher);
-        } else if ((matcher = CommunicateCommands.HUG.getMatcher(input)) != null) {
-            println(comController.giveHug(matcher));
-        } else if ((matcher = CommunicateCommands.FLOWER.getMatcher(input)) != null) {
-            println(comController.giveFlower(matcher));
-        } else if ((matcher = CommunicateCommands.ASK_MARRIAGE.getMatcher(input)) != null) {
-            println(comController.purposeAsk(matcher));
-        } else if ((matcher = CommunicateCommands.RESPOND.getMatcher(input)) != null) {
-            comController.purposeRespond(matcher);
+//        } else if ((matcher = CommunicateCommands.GIFT_RATE.getMatcher(input)) != null) {
+//            println(comController.giftRate(matcher));
+//        } else if ((matcher = CommunicateCommands.GIFT_HISTORY.getMatcher(input)) != null) {
+//            comController.giftHistory(matcher);
+//        } else if ((matcher = CommunicateCommands.HUG.getMatcher(input)) != null) {
+//            println(comController.giveHug(matcher));
+//        } else if ((matcher = CommunicateCommands.FLOWER.getMatcher(input)) != null) {
+//            println(comController.giveFlower(matcher));
+//        } else if ((matcher = CommunicateCommands.ASK_MARRIAGE.getMatcher(input)) != null) {
+//            println(comController.purposeAsk(matcher));
+//        } else if ((matcher = CommunicateCommands.RESPOND.getMatcher(input)) != null) {
+//            comController.purposeRespond(matcher);
         }
 
         else if(GameCommands.BUILD_ANIMAL_HOUSE.getMatcher(input) != null)

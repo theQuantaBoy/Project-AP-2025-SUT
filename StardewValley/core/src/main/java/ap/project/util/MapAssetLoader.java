@@ -42,6 +42,8 @@ public final class MapAssetLoader
         public Point cabinDoor;
         public Point greenhouseDoor;
         public Point exitPoint;
+        public Point refrigeratorPoint;
+        public Point ovenPoint;
 
         public LoadedMap(String tmxPath, MapKind mapKind)
         {
@@ -68,6 +70,17 @@ public final class MapAssetLoader
                 int exitPointX = tiledMap.getProperties().get("exit_x", Integer.class);
                 int exitPointY = tiledMap.getProperties().get("exit_y", Integer.class);
                 exitPoint = new Point(exitPointX, exitPointY);
+            }
+
+            if (mapKind == MapKind.HOUSE)
+            {
+                int refrigeratorPointX = tiledMap.getProperties().get("refrigerator_point_x", Integer.class);
+                int refrigeratorPointY = tiledMap.getProperties().get("refrigerator_point_y", Integer.class);
+                refrigeratorPoint = new Point(refrigeratorPointX, refrigeratorPointY);
+
+                int ovenPointX = tiledMap.getProperties().get("oven_point_x", Integer.class);
+                int ovenPointY = tiledMap.getProperties().get("oven_point_y", Integer.class);
+                ovenPoint = new Point(ovenPointX, ovenPointY);
             }
 
             tiles = new Tile[height][width]; // [y][x]

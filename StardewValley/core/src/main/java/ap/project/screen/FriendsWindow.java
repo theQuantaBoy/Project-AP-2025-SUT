@@ -8,8 +8,10 @@ import ap.project.model.game.GameObject;
 import ap.project.model.game.Gift;
 import ap.project.model.game.Player;
 import ap.project.model.player_data.FriendshipData;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
@@ -35,6 +37,7 @@ public class FriendsWindow {
     private Player selectedFriend;
     private CommunicateController controller;
     private InventoryWindow inventoryWindow;
+    private Table inventoryTable;
 
     public FriendsWindow(Stage stage) {
         this.stage = stage;
@@ -69,7 +72,7 @@ public class FriendsWindow {
         contentStack.add(giftHistoryTable);
         contentStack.add(newGiftTable);
 
-        popup.setSize(1000, 700);
+        popup.setSize(1200, 700);
         popup.add(contentStack).expand().fill();
         popup.row();
 
@@ -77,6 +80,7 @@ public class FriendsWindow {
         stage.addActor(popup);
         this.controller = new  CommunicateController();
         this.inventoryWindow = new InventoryWindow(stage);
+        controller.setFriendsWindow(this);
     }
 
     private void refreshFriendsTable() {
@@ -96,7 +100,7 @@ public class FriendsWindow {
             bar.setValue(data.getXp());
 
             String tooltipText = friend.getNickName() + " (Level " + data.getLevel() + ")\n"
-                    + "XP: " + data.getXp() + "/" + data.getThresholdForLevel(data.getLevel());
+                    + "XP: " + data.getXp();
             Label tooltipLabel = new Label(tooltipText, skin, "WhiteText");
             Tooltip<Label> tooltip = new Tooltip<>(tooltipLabel, tooltipManager);
             tooltip.getContainer().setBackground(tooltipBg);
@@ -158,6 +162,7 @@ public class FriendsWindow {
             public void clicked(InputEvent event, float x, float y) {
                 giftOptionsTable.setVisible(false);
                 friendsTable.setVisible(true);
+                refreshFriendsTable();
             }
         });
 
@@ -177,32 +182,51 @@ public class FriendsWindow {
         Label title = new Label("Send Gift to " + selectedFriend.getNickName(), skin);
         title.setFontScale(1.2f);
 
-        // Back button
+        // Back button - fixed with proper UI reset
         TextButton backButton = new TextButton("Back", skin);
         backButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
+                // Reset UI state properly
+                inventoryWindow.clearSelection();  // Add this method to InventoryWindow
+                stage.setKeyboardFocus(null);      // Clear keyboard focus
                 newGiftTable.setVisible(false);
                 giftOptionsTable.setVisible(true);
             }
         });
 
-        // Inventory
-        Table inventoryTable = inventoryWindow.buildInventoryTable();
+        // Inventory - ensure fresh state
+        inventoryTable = inventoryWindow.buildLimitedInventoryTable();
 
-        // Amount input field
+        // Amount input field - fixed with proper input handling
         final TextField amountField = new TextField("1", skin);
         amountField.setAlignment(Align.center);
         amountField.setMaxLength(3);
-        amountField.setTextFieldFilter(new TextField.TextFieldFilter.DigitsOnlyFilter());
+        amountField.setTextFieldFilter((textField, c) ->
+            Character.isDigit(c) || c == '\b' || c == 127);
         amountField.setMessageText("Amount");
         amountField.setWidth(60);
+
+        // Add key listener to handle Enter/ESC
+        amountField.addListener(new InputListener() {
+            @Override
+            public boolean keyDown(InputEvent event, int keycode) {
+                if (keycode == Input.Keys.ENTER) {
+                    stage.setKeyboardFocus(null);  // Defocus on Enter
+                    return true;
+                } else if (keycode == Input.Keys.ESCAPE) {
+                    backButton.toggle();  // Simulate back button press
+                    return true;
+                }
+                return false;
+            }
+        });
 
         Table amountTable = new Table();
         amountTable.add(new Label("Amount:", skin)).padRight(10);
         amountTable.add(amountField);
 
-        // ❗ Initialize error label first
+        // Initialize error label
         final Label errorLabel = new Label("", skin);
         errorLabel.setColor(Color.RED);
 
@@ -222,7 +246,7 @@ public class FriendsWindow {
                 try {
                     amount = Integer.parseInt(amountField.getText());
                     if (amount <= 0 || amount > selected.getNumber()) {
-                        errorLabel.setText("Invalid amount.");
+                        errorLabel.setText("Invalid amount (1-" + selected.getNumber() + ")");
                         errorLabel.setColor(Color.RED);
                         return;
                     }
@@ -235,6 +259,14 @@ public class FriendsWindow {
                 Result result = controller.gift(selectedFriend, selected.getObjectType(), amount);
                 errorLabel.setText(result.message());
                 errorLabel.setColor(result.isSuccessful() ? Color.GREEN : Color.RED);
+
+                // Reset UI on success
+                if (result.isSuccessful()) {
+                    amountField.setText("1");
+                    inventoryWindow.clearSelection();
+                    inventoryTable = inventoryWindow.buildLimitedInventoryTable();
+                    newGiftTable.getCells().get(1).setActor(inventoryTable);
+                }
             }
         });
 
@@ -242,9 +274,9 @@ public class FriendsWindow {
         newGiftTable.add(title).padBottom(10).row();
         newGiftTable.add(inventoryTable).padBottom(10).row();
         newGiftTable.add(amountTable).padBottom(10).row();
-        newGiftTable.add(giftButton).padBottom(10).row();
-        newGiftTable.add(backButton).padTop(10).row();
-        newGiftTable.add(errorLabel).padTop(10).row();
+        newGiftTable.add(giftButton).padBottom(5).row();
+        newGiftTable.add(backButton).padTop(5).row();
+        newGiftTable.add(errorLabel).padTop(5).row();
     }
 
 
@@ -267,23 +299,24 @@ public class FriendsWindow {
         } else {
             giftHistoryTable.add(title).padBottom(5).row();
 
-            for (Gift gift : giftList) {
-                Label name = new Label("Gift: " + gift.toString() + " x" + gift.getAmount() + "        ", skin);
-                historyContent.add(name).pad(5);
-                if (gift.isRated()) {
-                    Label rate = new Label("Rate: " + gift.getRate(), skin);
-                    historyContent.add(rate).pad(5);
-                } else {
-                    TextButton rateButton = new TextButton("Rate", skin);
-                    historyContent.add(rateButton).pad(5).row();
-                    rateButton.addListener(new ClickListener() {
-                        @Override
-                        public void clicked(InputEvent event, float x, float y) {
-                            showRatingDialog(gift);
-                        }
-                    });
-                }
-            }
+//            for (Gift gift : giftList) {
+//                Label name = new Label("Gift: " + gift.toString() + " x" + gift.getAmount() + "        ", skin);
+//                historyContent.add(name).pad(5);
+//                if (gift.isRated()) {
+//                    Label rate = new Label("Rate: " + gift.getRate(), skin);
+//                    historyContent.add(rate).pad(5);
+//                } else {
+//                    TextButton rateButton = new TextButton("Rate", skin);
+//                    historyContent.add(rateButton).pad(5).row();
+//                    rateButton.addListener(new ClickListener() {
+//                        @Override
+//                        public void clicked(InputEvent event, float x, float y) {
+//                            showRatingDialog(gift);
+//                        }
+//                    });
+//                }
+//            }
+            controller.giftHistory(selectedFriend, historyContent);
         }
 
         TextButton backButton = new TextButton("Back", skin);
@@ -301,7 +334,7 @@ public class FriendsWindow {
     }
 
 
-    private void showRatingDialog(Gift gift) {
+    public void showRatingDialog(Gift gift) {
         Dialog dialog = new Dialog("Rate Gift", skin);
 
         // Rating selection
@@ -314,7 +347,7 @@ public class FriendsWindow {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 int rating = ratingSelect.getSelected();
-                gift.setRate(rating);
+                controller.giftRate(gift, rating);
                 dialog.hide();
                 showGiftHistoryUI(selectedFriend); // Refresh to show updated rating
             }

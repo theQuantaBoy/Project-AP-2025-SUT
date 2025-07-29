@@ -32,11 +32,17 @@ public class BackPack extends Tool {
 
     private void initializeSlots() {
         int capacity = level.getCapacity();
-        this.slots = new ArrayList<>(capacity);
-        for (int i = 0; i < capacity; i++) {
-            slots.add(null); // Initialize all slots as empty
+        if (capacity >= 0) {
+            // fixed-size: placeholder nulls
+            slots = new ArrayList<>(capacity);
+            for (int i = 0; i < capacity; i++) {
+                slots.add(null);
+            }
+        } else {
+            // unlimited: start empty, will grow
+            slots = new ArrayList<>();
         }
-        this.itemCount = 0;
+        itemCount = 0;
     }
 
     public BackPackLevel getLevel() {
@@ -61,24 +67,36 @@ public class BackPack extends Tool {
     }
 
     public boolean addItem(GameObject item) {
-        for (int i = 0; i < slots.size(); i++) {
-            if (slots.get(i) == null) {
-                slots.set(i, item);
-                itemCount++;
-                return true;
+        if (level.getCapacity() < 0) {
+            // unlimited: add to end
+            slots.add(item);
+            itemCount++;
+            return true;
+        } else {
+            // fixed: fill first null
+            for (int i = 0; i < slots.size(); i++) {
+                if (slots.get(i) == null) {
+                    slots.set(i, item);
+                    itemCount++;
+                    return true;
+                }
             }
+            return false; // full
         }
-        return false; // No space available
     }
 
-    public GameObject removeItem(int slotIndex) {
-        if (slotIndex >= 0 && slotIndex < slots.size()) {
-            GameObject item = slots.get(slotIndex);
+    public boolean removeItem(int slotIndex) {
+        if (slotIndex < 0 || slotIndex >= slots.size()) return false;
+        if (slots.get(slotIndex) == null) return false;
+        if (level.getCapacity() < 0) {
+            // unlimited: remove and shift
+            slots.remove(slotIndex);
+        } else {
+            // fixed: just clear
             slots.set(slotIndex, null);
-            if (item != null) itemCount--;
-            return item;
         }
-        return null;
+        itemCount--;
+        return true;
     }
 
     public boolean removeItem(GameObject item) {

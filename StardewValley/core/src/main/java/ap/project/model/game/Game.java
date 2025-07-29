@@ -19,6 +19,7 @@ import ap.project.model.player_data.FriendshipWithNpcData;
 import ap.project.model.resources.Plant;
 import ap.project.view.GameMenu;
 import ap.project.view.HomeMenu;
+import ap.project.visual.UIRenderer;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -496,6 +497,18 @@ public class Game
         {
             App.setCurrentMenu(Menu.HomeMenu);
         }
+        if (currentPlayer.isNewShohar()) {
+            UIRenderer.showTextBox("someone has purposed!");
+            currentPlayer.setNewShohar(false);
+        }
+        if (!currentPlayer.getNewGifts().isEmpty()) {
+            UIRenderer.showTextBox("you received a new gift!");
+            currentPlayer.getNewGifts().clear();
+        }
+        if (currentPlayer.isNewMessage()) {
+            UIRenderer.showTextBox("you received a new message!");
+            currentPlayer.setNewMessage(false);
+        }
     }
 
     public void unleashTheCrows()
@@ -643,6 +656,15 @@ public class Game
             }
 
         }
+    }
+
+    public Player getPlayerByLocation(Point point) { //TODO: bug in spawn point
+        for (Player player : players) {
+            if (!player.equals(App.getCurrentGame().currentPlayer)) {
+                if (player.getLocation().equals(point)) return player;
+            }
+        }
+        return null;
     }
 
 //    public void resetTurnEnergy()

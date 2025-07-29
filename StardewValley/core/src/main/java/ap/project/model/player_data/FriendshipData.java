@@ -75,6 +75,42 @@ public class FriendshipData {
         return messageHistory;
     }
 
+    public void setMessageHistory(ArrayList<String> messageHistory) {
+        this.messageHistory = messageHistory;
+    }
+
+    // Add a message to the chat history
+    public void addMessage(String message) {
+        messageHistory.add(message);
+    }
+
+    // Clear all chat messages
+    public void clearMessageHistory() {
+        messageHistory.clear();
+    }
+
+    // Get the last N messages
+    public ArrayList<String> getLastMessages(int count) {
+        ArrayList<String> lastMessages = new ArrayList<>();
+        int start = Math.max(0, messageHistory.size() - count);
+
+        for (int i = start; i < messageHistory.size(); i++) {
+            lastMessages.add(messageHistory.get(i));
+        }
+
+        return lastMessages;
+    }
+
+    // Check if there are any messages
+    public boolean hasMessages() {
+        return !messageHistory.isEmpty();
+    }
+
+    // Get message count
+    public int getMessageCount() {
+        return messageHistory.size();
+    }
+
     public void changeXp(int delta, Player owner, Player friend) {
         this.xp += delta;
 
@@ -141,5 +177,4 @@ public class FriendshipData {
             default -> Integer.MAX_VALUE;
         };
     }
-
 }

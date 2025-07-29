@@ -2,6 +2,10 @@ package ap.project.model.enums;
 
 import com.badlogic.gdx.graphics.Texture;
 
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+
 public enum GameObjectType
 {
     JAZZ_SEEDS("Jazz Seeds", "game_objects/seeds/Jazz_Seeds.png"),
@@ -144,7 +148,7 @@ public enum GameObjectType
     MAHOGANY_TREE("Mahogany Tree", ""),
     MUSHROOM_TREE("Mushroom Tree", ""),
     MYSTIC_TREE("Mystic Tree", ""),
-    ACORNS_TREE("Acorns", ""),
+    ACORNS("Acorns", ""),
 
     Spring_MIXED_SEED("Spring Mixed Seed", "game_objects/seeds/Spring_Seeds.png"),
     SUMMER_MIXED_SEED("Summer Mixed Seed", "game_objects/seeds/Summer_Seeds.png"),
@@ -335,7 +339,37 @@ public enum GameObjectType
     SALMON_DINNER_RECIPE("salmon dinner recipe", "game_objects/recipe/Salmon_Dinner.png"),
 
     BOUQUET("Bouquet", "game_objects/Bouquet.png"),
-    WEDDING_RING("Wedding Ring", "game_objects/Ring/Warrior_Ring.png"),
+
+    AMETHYST_RING("Amethyst Ring", "game_objects/Ring/Amethyst_Ring.png"),
+    AQUAMARINE_RING("Aquamarine Ring", "game_objects/Ring/Aquamarine_Ring.png"),
+    BURGLAR_RING("Burglar Ring", "game_objects/Ring/Burglar%27s_Ring.png"),
+    COMBINED_RING("Combined Ring", "game_objects/Ring/Combined_Ring.png"),
+    CRABSHELL_RING("Crabshell Ring", "game_objects/Ring/Crabshell_Ring.png"),
+    EMERALD_RING("Emerald Ring", "game_objects/Ring/Emerald_Ring.png"),
+    GLOW_RING("Glow Ring", "game_objects/Ring/Glow_Ring.png"),
+    GLOWSTONE_RING("Glowstone Ring", "game_objects/Ring/Glowstone_Ring.png"),
+    HOT_JAVA_RING("Hot Java Ring", "game_objects/Ring/Hot_Java_Ring.png"),
+    IMMUNITY_BAND("Immunity Band", "game_objects/Ring/Immunity_Band.png"),
+    IRIDIUM_BAND("Iridium Band", "game_objects/Ring/Iridium_Band.png"),
+    JADE_RING("Jade Ring", "game_objects/Ring/Jade_Ring.png"),
+    JUKEBOX_RING("Jukebox Ring", "game_objects/Ring/Jukebox_Ring.png"),
+    LUCKY_RING("Lucky Ring", "game_objects/Ring/Lucky_Ring.png"),
+    MAGNET_RING("Magnet Ring", "game_objects/Ring/Magnet_Ring.png"),
+    NAPALM_RING("Napalm Ring", "game_objects/Ring/Napalm_Ring.png"),
+    PHOENIX_RING("Phoenix Ring", "game_objects/Ring/Phoenix_Ring.png"),
+    PROTECTION_RING("Protection Ring", "game_objects/Ring/Protection_Ring.png"),
+    RING_OF_YOBA("Ring of Yoba", "game_objects/Ring/Ring_of_Yoba.png"),
+    RUBY_RING("Ruby Ring", "game_objects/Ring/Ruby_Ring.png"),
+    SAVAGE_RING("Savage Ring", "game_objects/Ring/Savage_Ring.png"),
+    SLIME_CHARMER_RING("Slime Charmer Ring", "game_objects/Ring/Slime_Charmer_Ring.png"),
+    SMALL_GLOW_RING("Small Glow Ring", "game_objects/Ring/Small_Glow_Ring.png"),
+    SMALL_MAGNET_RING("Small Magnet Ring", "game_objects/Ring/Small_Magnet_Ring.png"),
+    SOUL_SAPPER_RING("Soul Sapper Ring", "game_objects/Ring/Soul_Sapper_Ring.png"),
+    STURDY_RING("Sturdy Ring", "game_objects/Ring/Sturdy_Ring.png"),
+    THORNS_RING("Thorns Ring", "game_objects/Ring/Thorns_Ring.png"),
+    TOPAZ_RING("Topaz Ring", "game_objects/Ring/Topaz_Ring.png"),
+    VAMPIRE_RING("Vampire Ring", "game_objects/Ring/Vampire_Ring.png"),
+    WARRIOR_RING("Warrior Ring", "game_objects/Ring/Warrior_Ring.png"),
 
     COPPER_TOOL("copper tool", ""),
     COPPER_TRASH_CAN("copper trash can", "game_objects/Tools/Trash_Can_Copper.png"),
@@ -374,7 +408,7 @@ public enum GameObjectType
     AXE("Axe", "game_objects/Tools/Axe/Axe.png"),
     BackPack("BackPack", "game_objects/Tools/Backpack.png"),
     FISHING_POLE("Fishing Pole", "game_objects/Fishing_Pole/Iridium_Rod.png"),
-    HOE("Hoe", "game_objects/Tools/Hoe/Iridium_Hoe.png"),
+    HOE("Hoe", "game_objects/Tools/Hoe/Hoe.png"),
     PICKAXE("Pickaxe", "game_objects/Tools/Pickaxe/Pickaxe.png"),
     SCYTHE("Scythe", "game_objects/Tools/Scythe.png"),
     SHEAR("Shear", "game_objects/Tools/Shears.png"),
@@ -451,5 +485,42 @@ public enum GameObjectType
 
     public Texture getTexture() {
         return texture;
+    }
+
+    public static List<GameObjectType> getRings() {
+        List<GameObjectType> list = new LinkedList<>();
+        Collections.addAll(list,
+            AMETHYST_RING,
+            AQUAMARINE_RING,
+            BURGLAR_RING,
+            COMBINED_RING,
+            CRABSHELL_RING,
+            EMERALD_RING,
+            GLOW_RING,
+            GLOWSTONE_RING,
+            HOT_JAVA_RING,
+            IMMUNITY_BAND,
+            IRIDIUM_BAND,
+            JADE_RING,
+            JUKEBOX_RING,
+            LUCKY_RING,
+            MAGNET_RING,
+            NAPALM_RING,
+            PHOENIX_RING,
+            PROTECTION_RING,
+            RING_OF_YOBA,
+            RUBY_RING,
+            SAVAGE_RING,
+            SLIME_CHARMER_RING,
+            SMALL_GLOW_RING,
+            SMALL_MAGNET_RING,
+            SOUL_SAPPER_RING,
+            STURDY_RING,
+            THORNS_RING,
+            TOPAZ_RING,
+            VAMPIRE_RING,
+            WARRIOR_RING
+        );
+        return list;
     }
 }
