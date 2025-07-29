@@ -71,6 +71,18 @@ public abstract class Map
             cabin.setOvenPoint(loaded.ovenPoint);
         }
 
+        if (this instanceof City)
+        {
+            City city = (City)this;
+            city.setBlacksmithDoor(loaded.blacksmithDoor);
+            city.setCarpenterDoor(loaded.carpenterDoor);
+            city.setFishShopDoor(loaded.fishShopDoor);
+            city.setJojamartDoor(loaded.jojamartDoor);
+            city.setPierreDoor(loaded.pierreDoor);
+            city.setMarnieDoor(loaded.marnieDoor);
+            city.setSaloonDoor(loaded.saloonDoor);
+        }
+
         this.visual = new MapVisual(this, loaded.tiledMap);
     }
 

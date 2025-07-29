@@ -44,6 +44,13 @@ public final class MapAssetLoader
         public Point exitPoint;
         public Point refrigeratorPoint;
         public Point ovenPoint;
+        public Point blacksmithDoor;
+        public Point carpenterDoor;
+        public Point fishShopDoor;
+        public Point jojamartDoor;
+        public Point marnieDoor;
+        public Point pierreDoor;
+        public Point saloonDoor;
 
         public LoadedMap(String tmxPath, MapKind mapKind)
         {
@@ -81,6 +88,37 @@ public final class MapAssetLoader
                 int ovenPointX = tiledMap.getProperties().get("oven_point_x", Integer.class);
                 int ovenPointY = tiledMap.getProperties().get("oven_point_y", Integer.class);
                 ovenPoint = new Point(ovenPointX, ovenPointY);
+            }
+
+            if (mapKind == MapKind.TOWN)
+            {
+                int blacksmithPointX = tiledMap.getProperties().get("blacksmith_door_x", Integer.class);
+                int blacksmithPointY = tiledMap.getProperties().get("blacksmith_door_y", Integer.class);
+                blacksmithDoor = new Point(blacksmithPointX, blacksmithPointY);
+
+                int carpenterPointX = tiledMap.getProperties().get("carpenter_door_x", Integer.class);
+                int carpenterPointY = tiledMap.getProperties().get("carpenter_door_y", Integer.class);
+                carpenterDoor = new Point(carpenterPointX, carpenterPointY);
+
+                int fishShopPointX = tiledMap.getProperties().get("fishshop_door_x", Integer.class);
+                int fishShopPointY = tiledMap.getProperties().get("fishshop_door_y", Integer.class);
+                fishShopDoor = new Point(fishShopPointX, fishShopPointY);
+
+                int jojamartPointX = tiledMap.getProperties().get("jojamart_door_x", Integer.class);
+                int jojamartPointY = tiledMap.getProperties().get("jojamart_door_y", Integer.class);
+                jojamartDoor  = new Point(jojamartPointX, jojamartPointY);
+
+                int marniePointX = tiledMap.getProperties().get("marnie_door_x", Integer.class);
+                int marniePointY = tiledMap.getProperties().get("marnie_door_y", Integer.class);
+                marnieDoor = new Point(marniePointX, marniePointY);
+
+                int pierrePointX = tiledMap.getProperties().get("pierre_door_x", Integer.class);
+                int pierrePointY = tiledMap.getProperties().get("pierre_door_y", Integer.class);
+                pierreDoor = new Point(pierrePointX, pierrePointY);
+
+                int saloonPointX = tiledMap.getProperties().get("saloon_door_x", Integer.class);
+                int saloonPointY = tiledMap.getProperties().get("saloon_door_y", Integer.class);
+                saloonDoor = new Point(saloonPointX, saloonPointY);
             }
 
             tiles = new Tile[height][width]; // [y][x]
