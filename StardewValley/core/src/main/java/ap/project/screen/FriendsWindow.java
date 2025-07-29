@@ -196,7 +196,7 @@ public class FriendsWindow {
         });
 
         // Inventory - ensure fresh state
-        inventoryTable = inventoryWindow.buildLimitedInventoryTable();
+        inventoryTable = inventoryWindow.buildInventoryTable();
 
         // Amount input field - fixed with proper input handling
         final TextField amountField = new TextField("1", skin);
@@ -264,7 +264,7 @@ public class FriendsWindow {
                 if (result.isSuccessful()) {
                     amountField.setText("1");
                     inventoryWindow.clearSelection();
-                    inventoryTable = inventoryWindow.buildLimitedInventoryTable();
+                    inventoryTable = inventoryWindow.buildInventoryTable();
                     newGiftTable.getCells().get(1).setActor(inventoryTable);
                 }
             }

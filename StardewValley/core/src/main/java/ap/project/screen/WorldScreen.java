@@ -41,14 +41,15 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import java.util.ArrayList;
 import java.util.List;
 
-public final class WorldScreen implements Screen {
+public final class WorldScreen implements Screen
+{
 
-    private final com.badlogic.gdx.Game miniGame;
+//    private final com.badlogic.gdx.Game miniGame;
 
-    private final Stage gameStage;
-    private final Array<AnimalActor> animalActors;
-    private final AnimalInteractionScreen animalInteractionScreen;
-    private float animalMoveTimer = 0f;
+//    private final Stage gameStage;
+//    private final Array<AnimalActor> animalActors;
+//    private final AnimalInteractionScreen animalInteractionScreen;
+//    private float animalMoveTimer = 0f;
 
     private static WorldScreen INSTANCE;
 
@@ -101,13 +102,13 @@ public final class WorldScreen implements Screen {
     private boolean cameraFixed = false;
     private final boolean DEBUG_MODE = false;
 
-    private FishingMinigameWindow fishingWindow;
+//    private FishingMinigameWindow fishingWindow;
 
     public WorldScreen() {
         INSTANCE = this;
 
         this.shapeRenderer = new ShapeRenderer();
-        this.miniGame = new FishingGame();
+//        this.miniGame = new FishingGame();
         cam = new OrthographicCamera(20 * TILE_SIZE, 15 * TILE_SIZE);
         cam.setToOrtho(false);
 
@@ -123,17 +124,17 @@ public final class WorldScreen implements Screen {
         App.setCurrentUser(game.getPlayers().get(0).getUser());
         game.setCurrentPlayer(game.getPlayers().get(0));
 
-        gameStage = new Stage(new ExtendViewport(20 * TILE_SIZE, 15 * TILE_SIZE, cam));
-        animalActors = new Array<>();
-        animalInteractionScreen = new AnimalInteractionScreen(uiStage.getViewport(), skin);
-
-        Animal testChicken = new Animal("Clucky", FarmAnimalsType.CHICKEN);
-        testChicken.setX(20 * TILE_SIZE);
-        testChicken.setY(15 * TILE_SIZE);
-        testChicken.goOut(); // Make sure it's set to be outside
-        AnimalActor chickenActor = new AnimalActor(testChicken, animalInteractionScreen);
-        animalActors.add(chickenActor);
-        gameStage.addActor(chickenActor);
+//        gameStage = new Stage(new ExtendViewport(20 * TILE_SIZE, 15 * TILE_SIZE, cam));
+//        animalActors = new Array<>();
+//        animalInteractionScreen = new AnimalInteractionScreen(uiStage.getViewport(), skin);
+//
+//        Animal testChicken = new Animal("Clucky", FarmAnimalsType.CHICKEN);
+//        testChicken.setX(20 * TILE_SIZE);
+//        testChicken.setY(15 * TILE_SIZE);
+//        testChicken.goOut(); // Make sure it's set to be outside
+//        AnimalActor chickenActor = new AnimalActor(testChicken, animalInteractionScreen);
+//        animalActors.add(chickenActor);
+//        gameStage.addActor(chickenActor);
 
         for (Player p : game.getPlayers()) {
             Farm f = new Farm(p.getMapType());
@@ -201,7 +202,18 @@ public final class WorldScreen implements Screen {
     }
 
     @Override
-    public void show() {
+    public void show()
+    {
+        TextButton friends = uiRenderer.getFriends();
+        uiStage.addActor(friends);
+        friends.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y)
+            {
+                toggleFriendsWindow();
+            }
+        });
+
         inputMultiplexer.clear();
         inputMultiplexer.addProcessor(uiStage);
         inputMultiplexer.addProcessor(gameInputProcessor);
@@ -213,13 +225,13 @@ public final class WorldScreen implements Screen {
                     return true;
                 }
 
-
                 if (isCraftingWindowVisible())
                 {
                     return false;
                 }
 
-                if (keycode == Input.Keys.E ||  keycode == Input.Keys.ESCAPE) {
+                if (keycode == Input.Keys.E ||  keycode == Input.Keys.ESCAPE)
+                {
                     boolean nowVisible = !inventoryWindow.isVisible();
                     inventoryWindow.toggleVisibility();
 
@@ -227,19 +239,22 @@ public final class WorldScreen implements Screen {
                         inventoryWindow.getToolsTab().setChecked(false);
 
                     return true;
-                } else if (keycode == Input.Keys.TAB) {
+                } else if (keycode == Input.Keys.TAB)
+                {
                     boolean nowVisible = !inventoryWindow.isVisible();
                     inventoryWindow.toggleVisibility();
 
                     if (nowVisible) {
-                        if (inventoryWindow.getLastTabOpenedByTabKey() == InventoryWindow.TabType.TOOLS) {
+                        if (inventoryWindow.getLastTabOpenedByTabKey() == InventoryWindow.TabType.TOOLS)
+                        {
                             inventoryWindow.getToolsTab().toggle();
                         } else {
                             inventoryWindow.getToolsTab().setChecked(false);
                         }
                     }
                     return true;
-                } else if (keycode == Input.Keys.M) {
+                } else if (keycode == Input.Keys.M)
+                {
                     inventoryWindow.toggleVisibility();
                     inventoryWindow.getMapTab().setChecked(true);
                     return true;
@@ -265,14 +280,6 @@ public final class WorldScreen implements Screen {
         });
         Gdx.input.setInputProcessor(inputMultiplexer);
         inputMultiplexerHadSetUp = true;
-        TextButton friends = uiRenderer.getFriends();
-        uiStage.addActor(friends);
-        friends.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                toggleFriendsWindow();
-            }
-        });
     }
 
     @Override
@@ -322,8 +329,8 @@ public final class WorldScreen implements Screen {
 
         batch.end();
 
-        gameStage.getViewport().apply();
-        gameStage.draw();
+//        gameStage.getViewport().apply();
+//        gameStage.draw();
 
         map.getMapVisual().renderInFrontOfCharacter(this);
 
@@ -362,18 +369,19 @@ public final class WorldScreen implements Screen {
         uiStage.act(dt);
         uiStage.draw();
 
-        if (fishingWindow != null) {
-            fishingWindow.update(Gdx.graphics.getDeltaTime());
-        }
-        animalInteractionScreen.render();
+//        if (fishingWindow != null)
+//        {
+//            fishingWindow.update(Gdx.graphics.getDeltaTime());
+//        }
+//        animalInteractionScreen.render();
     }
 
     private void update(float dt) {
         characterController.update(dt);
         if (SECOND_PLAYER) controller2.update(dt);
 
-        gameStage.act(dt);
-        updateAnimalMovement(dt);
+//        gameStage.act(dt);
+//        updateAnimalMovement(dt);
         updateSeason();
         checkGameInfo();
         checkMapSeason();
@@ -384,12 +392,12 @@ public final class WorldScreen implements Screen {
             cameraFixed = false;
         }
 
-        Vector2 targetPos = new Vector2(
-            player.getPosition().x + TILE_SIZE / 2,
-            player.getPosition().y + TILE_SIZE / 2
-        );
-
-        cam.position.lerp(new Vector3(targetPos.x, targetPos.y, 0), 5f * dt);
+//        Vector2 targetPos = new Vector2(
+//            player.getPosition().x + TILE_SIZE / 2,
+//            player.getPosition().y + TILE_SIZE / 2
+//        );
+//
+//        cam.position.lerp(new Vector3(targetPos.x, targetPos.y, 0), 5f * dt);
 
         if (!cameraFixed) {
             float playerX = character.getPosition().x + TILE_SIZE / 2;
@@ -398,15 +406,6 @@ public final class WorldScreen implements Screen {
             float camX = playerX;
             float camY = playerY;
 
-            float mapPixelW = map.getWidth() * TILE_SIZE;
-            float mapPixelH = map.getHeight() * TILE_SIZE;
-
-            cam.position.x = MathUtils.clamp(cam.position.x,
-                cam.viewportWidth / 2, mapPixelW - cam.viewportWidth / 2);
-            cam.position.y = MathUtils.clamp(cam.position.y,
-                cam.viewportHeight / 2, mapPixelH - cam.viewportHeight / 2);
-
-            gameStage.getViewport().apply();
             float halfViewportW = cam.viewportWidth / 2;
             float halfViewportH = cam.viewportHeight / 2;
 
@@ -421,7 +420,7 @@ public final class WorldScreen implements Screen {
                 camX = rightEdgeSize;
             }
 
-            if (playerY < halfViewportH)
+            if (playerY <  halfViewportH)
             {
                 camY = halfViewportH;
             } else if (playerY >= upEdgeSize)
@@ -453,16 +452,19 @@ public final class WorldScreen implements Screen {
             cam.position.set(camX, camY, 0);
         }
 
-        if (Gdx.input.isKeyJustPressed(Input.Keys.F)) {
-            if (fishingWindow == null) {
-                fishingWindow = new FishingMinigameWindow(skin);
-                uiStage.clear();
-                uiStage.addActor(fishingWindow);
-            } else {
-                fishingWindow.remove();
-                fishingWindow = null;
-            }
-        }
+//        if (Gdx.input.isKeyJustPressed(Input.Keys.F))
+//        {
+//            if (fishingWindow == null)
+//            {
+//                fishingWindow = new FishingMinigameWindow(skin);
+//                uiStage.clear();
+//                uiStage.addActor(fishingWindow);
+//            } else
+//            {
+//                fishingWindow.remove();
+//                fishingWindow = null;
+//            }
+//        }
     }
 
     @Override
@@ -481,7 +483,7 @@ public final class WorldScreen implements Screen {
         uiCam.setToOrtho(false, w, h);
         uiCam.update();
 
-        animalInteractionScreen.getStage().getViewport().update(w, h, true);
+//        animalInteractionScreen.getStage().getViewport().update(w, h, true);
         uiStage.getViewport().update(w, h, true);
     }
 
@@ -504,7 +506,7 @@ public final class WorldScreen implements Screen {
         shapeRenderer.dispose();
         cookBookWindow.dispose();
         refrigeratorWindow.dispose();
-        gameStage.dispose();
+//        gameStage.dispose();
         communicationWindow.dispose();
     }
 
@@ -698,25 +700,25 @@ public final class WorldScreen implements Screen {
         inventoryWindow.toggleVisibility();
     }
 
-    private void updateAnimalMovement(float dt) {
-        animalMoveTimer += dt;
-        if (animalMoveTimer > 3f) {
-            animalMoveTimer = 0;
-            for (AnimalActor actor : animalActors) {
-                Animal animal = actor.getAnimal();
-                if (!animal.isIn() && animal.getCurrentState() == Animal.State.IDLE && MathUtils.randomBoolean(0.5f)) {
-                    float moveDist = 50f;
-                    float targetX = actor.getX() + MathUtils.random(-moveDist, moveDist);
-                    float targetY = actor.getY() + MathUtils.random(-moveDist, moveDist);
-
-                    targetX = MathUtils.clamp(targetX, 0, map.getWidth() * TILE_SIZE - actor.getWidth());
-                    targetY = MathUtils.clamp(targetY, 0, map.getHeight() * TILE_SIZE - actor.getHeight());
-
-                    actor.moveTo(targetX, targetY);
-                }
-            }
-        }
-    }
+//    private void updateAnimalMovement(float dt) {
+//        animalMoveTimer += dt;
+//        if (animalMoveTimer > 3f) {
+//            animalMoveTimer = 0;
+//            for (AnimalActor actor : animalActors) {
+//                Animal animal = actor.getAnimal();
+//                if (!animal.isIn() && animal.getCurrentState() == Animal.State.IDLE && MathUtils.randomBoolean(0.5f)) {
+//                    float moveDist = 50f;
+//                    float targetX = actor.getX() + MathUtils.random(-moveDist, moveDist);
+//                    float targetY = actor.getY() + MathUtils.random(-moveDist, moveDist);
+//
+//                    targetX = MathUtils.clamp(targetX, 0, map.getWidth() * TILE_SIZE - actor.getWidth());
+//                    targetY = MathUtils.clamp(targetY, 0, map.getHeight() * TILE_SIZE - actor.getHeight());
+//
+//                    actor.moveTo(targetX, targetY);
+//                }
+//            }
+//        }
+//    }
 
     public void toggleFriendsWindow() {
         friendsWindow.toggleVisibility();
@@ -738,7 +740,8 @@ public final class WorldScreen implements Screen {
         }
     }
 
-    private void updateSeason() {
+    private void updateSeason()
+    {
         // Implement season update logic if needed
     }
 

@@ -52,7 +52,7 @@ public class Main extends com.badlogic.gdx.Game
 //        app.setScreen(new RegisterScreen(new RegisterController()));
 
         app.setScreen(new WorldScreen());
-        //setScreen(new FishingMinigameScreen(this));
+//        setScreen(new FishingMinigameScreen(this));
     }
 
     @Override
