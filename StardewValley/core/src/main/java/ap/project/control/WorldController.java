@@ -9,6 +9,7 @@ import ap.project.model.enums.TileTexture;
 import ap.project.model.enums.Weather;
 import ap.project.model.enums.animal_enums.FarmAnimalsType;
 import ap.project.model.enums.building_enums.CraftingRecipeEnums;
+import ap.project.model.enums.building_enums.KitchenRecipe;
 import ap.project.model.enums.resources_enums.CropType;
 import ap.project.model.enums.resources_enums.ResourceItem;
 import ap.project.model.enums.resources_enums.TreeType;
@@ -75,7 +76,7 @@ public class WorldController
             return;
         }
 
-        if (processObjectUse(tile))
+        if (processObjectUse(tile, location,  clicked))
         {
             return;
         }
@@ -631,7 +632,7 @@ public class WorldController
         return false;
     }
 
-    private static boolean processObjectUse(Tile tile)
+    private static boolean processObjectUse(Tile tile, Point location, Point clicked)
     {
         Game game = App.getCurrentGame();
         Player player = game.getCurrentPlayer();
@@ -656,6 +657,44 @@ public class WorldController
         if (processCraftingPlacement(tile))
         {
             return true;
+        }
+
+        if (processEatingFood(tile, location, clicked))
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    private static boolean processEatingFood(Tile tile, Point location, Point clicked)
+    {
+        Game game = App.getCurrentGame();
+        Player player = game.getCurrentPlayer();
+        GameObject object = player.getCurrentObject();
+
+        if (object == null)
+        {
+            return false;
+        }
+
+        GameObjectType type = object.getObjectType();
+        if (!KitchenRecipe.isEdible(type))
+        {
+            UIRenderer.showTextBox("This item is not edible :(");
+            return true;
+        }
+
+        KitchenRecipe food = KitchenRecipe.getKitchenRecipe(type.toString());
+        if (food == null)
+        {
+            UIRenderer.showTextBox("This item is not edible :(");
+            return true;
+        } else
+        {
+            player.removeAmountFromInventory(type, 1);
+            player.increaseEnergy(food.getEnergy());
+            UIRenderer.showTextBox("Yum Yum, you just ate " + food.getType());
         }
 
         return false;

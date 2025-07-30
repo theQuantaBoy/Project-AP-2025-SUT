@@ -12,6 +12,7 @@ import ap.project.model.enums.animal_enums.FarmAnimalsType;
 import ap.project.model.building.CraftingItem;
 import ap.project.model.enums.*;
 import ap.project.model.game.Game;
+import ap.project.model.tools.BackPack;
 import ap.project.model.tools.Tool;
 import ap.project.screen.input.WorldScreenInputProcessor;
 import ap.project.util.MapAssetLoader;
@@ -222,7 +223,8 @@ public final class WorldScreen implements Screen
 
         java.util.List<GameObject> hotbarSlots = player.getCurrentBackPack().getHotbarSlots();
 
-        for (int slot = 0; slot < HOTBAR_SLOTS; slot++) {
+        for (int slot = 0; slot < HOTBAR_SLOTS; slot++)
+        {
             final int slotIndex = slot;
             GameObject obj = slot < hotbarSlots.size() ? hotbarSlots.get(slot) : null;
 
@@ -257,7 +259,37 @@ public final class WorldScreen implements Screen
                     } else {
                         slotContainer.add(itemStack).expand().fill();
                     }
-                } catch (Exception e) {
+
+                    if (obj.getNumber() <= 0)
+                    {
+                        BackPack backpack = player.getCurrentBackPack();
+
+                        GameObjectType type = obj.getObjectType();
+                        player.removeAmountFromInventory(type, 1);
+
+                        if (player.getCurrentObject() != null && player.getCurrentObject().getObjectType() == type)
+                        {
+                            selectedHotbarSlot = -1;
+                            player.setCurrentObject(null);
+                        }
+
+                        if (player.getCurrentTool() != null && player.getCurrentTool().getObjectType() == type)
+                        {
+                            selectedHotbarSlot = -1;
+                            player.setCurrentTool(null);
+                        }
+
+                        for (int i = 0; i < backpack.getHotbarSlots().size(); i++)
+                        {
+                            GameObject temp = backpack.getHotbarSlots().get(i);
+                            if (temp != null && temp.getObjectType() == type)
+                            {
+                                backpack.removeFromHotbar(i);
+                            }
+                        }
+                    }
+                } catch (Exception e)
+                {
                     // Handle missing textures gracefully
                     System.err.println("Failed to load icon for: " + obj.getObjectType());
                 }
@@ -417,6 +449,7 @@ public final class WorldScreen implements Screen
         && !greenHouseBuildWindow.isVisible())
         {
             update(dt);
+            refreshHotbarUI();
             character.updateAnimation(dt);
             cam.update();
         }

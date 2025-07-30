@@ -465,13 +465,8 @@ public class InventoryWindow {
                     GameObject clickedObject = slotIndex < hotbarSlots.size() ?
                         hotbarSlots.get(slotIndex) : null;
 
-                    // Right-click to consume food
-                    if (event.getButton() == Input.Buttons.RIGHT) {
-                        handleConsumableClick(clickedObject);
-                        refreshHotbar();
-                    }
-                    // Left-click to select
-                    else {
+                    if (event.getButton() == Input.Buttons.LEFT)
+                    {
                         // Clear other selections
                         selectedInventorySlot = -1;
                         selectedToolSlot = -1;
@@ -503,32 +498,6 @@ public class InventoryWindow {
             worldScreen.refreshHotbarUI();
         }
     }
-
-    // New method to handle consumable items
-    private void handleConsumableClick(GameObject clickedObject) {
-        if (clickedObject != null) {
-            GameObjectType type = clickedObject.getObjectType();
-
-            if (!KitchenRecipe.isEdible(type)) {
-                UIRenderer.showTextBox("This item is not edible :(");
-                return;
-            }
-
-            KitchenRecipe food = KitchenRecipe.getKitchenRecipe(type.toString());
-            if (food == null) {
-                UIRenderer.showTextBox("This item is not edible :(");
-                return;
-            }
-
-            player.removeAmountFromInventory(type, 1);
-            player.increaseEnergy(food.getEnergy());
-            UIRenderer.showTextBox("Yum Yum, you just ate " + food.getType());
-        }
-        if (worldScreen != null) {
-            worldScreen.refreshHotbarUI();
-        }
-    }
-
 
     private void refreshInventoryTable() {
         inventoryTable.clear();
