@@ -17,6 +17,8 @@ import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.utils.Pool;
+import com.badlogic.gdx.utils.Pools;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -32,12 +34,14 @@ public class MapVisual
     private static OrthogonalTiledMapRenderer renderer;
 
     private ArrayList<GameAnimation> rainAnimations = new ArrayList<>();
-    private final int RAIN_AMOUNT = 40;
+    private final int RAIN_AMOUNT = 400;
     private double rainSpawnTimer = 0f;
 
     private ArrayList<GameAnimation> snowAnimations = new ArrayList<>();
-    private final int SNOW_AMOUNT = 40;
+    private final int SNOW_AMOUNT = 400;
     private double snowSpawnTimer = 0f;
+
+    private final Pool<GameAnimation> weatherPool = Pools.get(GameAnimation.class);
 
     public MapVisual(Map map, TiledMap tiledMap)
     {
@@ -178,39 +182,41 @@ public class MapVisual
 
         if (shouldRain())
         {
-            if (rainSpawnTimer >= 0.45f)
+            if (rainSpawnTimer >= 0.15f && rainAnimations.size() < RAIN_AMOUNT)
             {
-                for (int i = 0; i < RAIN_AMOUNT; i++)
+                int toAdd = Math.min(60, RAIN_AMOUNT - rainAnimations.size());
+
+                for (int i = 0; i < toAdd; i++)
                 {
-                    int width = (int) (map.getWidth() * TILE_SIZE);
-                    int height = (int) (map.getHeight() * TILE_SIZE);
-
-                    int x = MathUtils.random(0, width);
-                    int y = MathUtils.random(0, height);
-                    Vector2 position = new Vector2(x, y);
-
-                    if (Math.random() < 0.5f)
-                    {
-                        rainAnimations.add(new GameAnimation(GameAnimationType.RAIN_TYPE_1, position));
-                    } else
-                    {
-                        rainAnimations.add(new GameAnimation(GameAnimationType.RAIN_TYPE_2, position));
-                    }
+                    GameAnimation anim = initWeatherParticle(
+                        MathUtils.randomBoolean() ?
+                            GameAnimationType.RAIN_TYPE_1 :
+                            GameAnimationType.RAIN_TYPE_2
+                    );
+                    rainAnimations.add(anim);
                 }
 
                 rainSpawnTimer = 0f;
             }
+
+            for (Iterator<GameAnimation> it = rainAnimations.iterator(); it.hasNext();)
+            {
+                GameAnimation a = it.next();
+                a.update(delta);
+                if (a.isFinished())
+                {
+                    weatherPool.free(a);
+                    it.remove();
+                }
+            }
         }
 
-        for (Iterator<GameAnimation> it = rainAnimations.iterator(); it.hasNext();)
+        else
         {
-            GameAnimation a = it.next();
-            a.update(delta);
-            if (a.isFinished()) it.remove();
-        }
-
-        if (!shouldRain())
-        {
+            for (GameAnimation anim : rainAnimations)
+            {
+                weatherPool.free(anim);
+            }
             rainAnimations.clear();
             rainSpawnTimer = 0f;
         }
@@ -222,19 +228,14 @@ public class MapVisual
 
         if (shouldSnow())
         {
-            if (snowSpawnTimer >= 0.45f)
+            if (snowSpawnTimer >= 0.15f && snowAnimations.size() < SNOW_AMOUNT)
             {
-                for (int i = 0; i < SNOW_AMOUNT; i++)
+                int toAdd = Math.min(60, SNOW_AMOUNT - snowAnimations.size());
+
+                for (int i = 0; i < toAdd; i++)
                 {
-                    int width = (int) (map.getWidth() * TILE_SIZE);
-                    int height = (int) (map.getHeight() * TILE_SIZE);
-
-                    int x = MathUtils.random(0, width);
-                    int y = MathUtils.random(0, height);
-                    Vector2 position = new Vector2(x, y);
-
-
-                    snowAnimations.add(new GameAnimation(GameAnimationType.SNOW, position));
+                    GameAnimation anim = initWeatherParticle(GameAnimationType.SNOW);
+                    snowAnimations.add(anim);
                 }
 
                 snowSpawnTimer = 0f;
@@ -245,11 +246,19 @@ public class MapVisual
         {
             GameAnimation a = it.next();
             a.update(delta);
-            if (a.isFinished()) it.remove();
+            if (a.isFinished())
+            {
+                weatherPool.free(a);
+                it.remove();
+            }
         }
 
         if (!shouldSnow())
         {
+            for (GameAnimation anim : snowAnimations)
+            {
+                weatherPool.free(anim);
+            }
             snowAnimations.clear();
             snowSpawnTimer = 0f;
         }
@@ -519,5 +528,22 @@ public class MapVisual
         Player player = game.getCurrentPlayer();
 
         return ((time.getCurrentWeather() == Weather.Snow) && (player.isInCity() || player.isInFarm()));
+    }
+
+    private GameAnimation initWeatherParticle(GameAnimationType type)
+    {
+        int width = (int) (map.getWidth() * TILE_SIZE);
+        int height = (int) (map.getHeight() * TILE_SIZE);
+        Vector2 position = new Vector2(
+            MathUtils.random(0, width),
+            MathUtils.random(0, height)
+        );
+
+        GameAnimation anim = weatherPool.obtain();
+        if (anim != null)
+        {
+            anim.init(type, position);
+        }
+        return anim;
     }
 }

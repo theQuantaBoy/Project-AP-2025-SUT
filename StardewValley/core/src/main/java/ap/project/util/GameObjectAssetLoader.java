@@ -1,11 +1,14 @@
 package ap.project.util;
 
 import ap.project.model.enums.EffectType;
+import ap.project.model.enums.GameAnimationType;
 import ap.project.model.enums.GameObjectType;
 import ap.project.model.enums.resources_enums.CropType;
 import ap.project.model.enums.resources_enums.TreeType;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Animation;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
 import java.util.List;
 
@@ -64,6 +67,17 @@ public class GameObjectAssetLoader
             if(!withFruitPath.equals(""))
             {
                 assetManager.load(withFruitPath, Texture.class);
+            }
+        }
+
+        for (GameAnimationType type : GameAnimationType.values())
+        {
+            for (String path : type.getFramePaths())
+            {
+                if (!assetManager.isLoaded(path))
+                {
+                    assetManager.load(path, Texture.class);
+                }
             }
         }
     }
@@ -146,6 +160,18 @@ public class GameObjectAssetLoader
                 texture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
                 type.setWithProductTexture(texture);
             }
+        }
+
+        for (GameAnimationType type : GameAnimationType.values())
+        {
+            TextureRegion[] regions = new TextureRegion[type.getFramePaths().length];
+            for (int i = 0; i < type.getFramePaths().length; i++)
+            {
+                Texture texture = assetManager.get(type.getFramePaths()[i], Texture.class);
+                texture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
+                regions[i] = new TextureRegion(texture);
+            }
+            type.setAnimation(new Animation<>(type.getFrameDuration(), regions));
         }
     }
 

@@ -6,20 +6,24 @@ import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.utils.Pool;
 
-public class GameAnimation
+public class GameAnimation implements Pool.Poolable
 {
-    private final Animation<TextureRegion> animation;
-    private final Vector2 position;
+    private Animation<TextureRegion> animation;
+    private Vector2 position;
     private float stateTime;
-    private final float maxDuration;
+    private float maxDuration;
+
+    public GameAnimation()
+    {
+        this.position = new Vector2();
+    }
 
     public GameAnimation(GameAnimationType type, Vector2 position)
     {
-        this.animation = type.createAnimation();
-        this.position = position;
-        this.maxDuration = animation.getAnimationDuration();
-        this.stateTime = 0f;
+        this();
+        init(type, position);
     }
 
     public boolean isFinished()
@@ -36,5 +40,22 @@ public class GameAnimation
     {
         TextureRegion frame = animation.getKeyFrame(stateTime, false);
         batch.draw(frame, position.x, position.y);
+    }
+
+    public void init(GameAnimationType type, Vector2 position)
+    {
+        this.animation = type.getAnimation();
+        this.position.set(position);
+        this.maxDuration = animation.getAnimationDuration();
+        this.stateTime = 0f;
+    }
+
+    @Override
+    public void reset()
+    {
+        this.animation = null;
+        this.position.set(0, 0);
+        this.stateTime = 0f;
+        this.maxDuration = 0f;
     }
 }
