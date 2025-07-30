@@ -2,11 +2,15 @@ package ap.project.screen;
 
 import ap.project.model.App.App;
 import ap.project.model.enums.GameObjectType;
+import ap.project.model.enums.MapKind;
+import ap.project.model.enums.MapTypes;
+import ap.project.model.enums.Season;
 import ap.project.model.enums.building_enums.CraftingRecipeEnums;
 import ap.project.model.enums.building_enums.KitchenRecipe;
 import ap.project.model.building.CraftingItem;
-import ap.project.model.game.Player;
+import ap.project.model.game.*;
 import ap.project.model.player_data.Skill;
+import ap.project.model.shops.Shop;
 import ap.project.model.tools.Tool;
 import ap.project.visual.UIRenderer;
 import com.badlogic.gdx.Gdx;
@@ -14,16 +18,19 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import ap.project.model.App.GameAssetsManager;
 import ap.project.model.tools.BackPack;
-import ap.project.model.game.GameObject;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
@@ -33,6 +40,8 @@ import com.badlogic.gdx.utils.Scaling;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import static ap.project.model.game.Map.TILE_SIZE;
+
 public class InventoryWindow {
     private final Window popup;
     private final Stage stage;
@@ -41,6 +50,7 @@ public class InventoryWindow {
     private final Table socialTable;
     private final Table mapTable;
     private final Table toolsTable;
+    private final Table settingsTable;
     private final Stack contentStack;
     private BackPack backpack;
     private final Skin skin;
@@ -54,7 +64,8 @@ public class InventoryWindow {
     private Drawable tooltipBg;
     private TextButton toolsTab;
     private TextButton mapTab;
-    public enum TabType { INVENTORY, SKILL, SOCIAL, MAP, TOOLS}
+    private TextButton settingsTab;
+    public enum TabType { INVENTORY, SKILL, SOCIAL, MAP, TOOLS, SETTINGS}
 
     private TabType lastTabOpenedByTabKey = TabType.INVENTORY;
     private WorldScreen worldScreen;
@@ -76,6 +87,13 @@ public class InventoryWindow {
 
     private final ScrollPane inventoryScrollPane;
     private ImageButton trashButton;
+
+    private static final int MAP_PADDING = 4;
+    private static final int CITY_WIDTH = 406;
+    private static final int FARM_WIDTH = 209;
+    private static final int FARM_HEIGHT = 170;
+    private static final int CITY_HEIGHT = FARM_HEIGHT * 2 + MAP_PADDING;
+    private static final int AVATAR_SIZE = 48;
 
     // New field to track which inventory item is selected for hotbar assignment
     private GameObject selectedInventoryItemForHotbar = null;
@@ -130,14 +148,18 @@ public class InventoryWindow {
 
         skillsTable    = buildSkillsTable();
         socialTable    = buildSocialTable();
+
         mapTable       = buildMapTable();
+        refreshMapTable();
+
         toolsTable     = new Table(skin);
+        settingsTable = buildSettingsTable();
 
         hotbarTable = new Table(skin);
         hotbarTable.defaults().size(SLOTS_SIZE).pad(2);
         hotbarTable.center();
 
-
+        settingsTab = new TextButton("Settings", skin);
         craftingTab = new TextButton("Crafting", skin);
         craftingTable = new Table(skin);
         craftingTable.setVisible(false);
@@ -155,12 +177,13 @@ public class InventoryWindow {
         borderPixmap.dispose();
 
         // Stack panels and hide non-inventory
-        contentStack = new Stack(inventoryScrollPane, skillsTable, socialTable, mapTable, toolsTable, craftingTable);
+        contentStack = new Stack(inventoryScrollPane, skillsTable, socialTable, mapTable, toolsTable, craftingTable, settingsTable);
         skillsTable.setVisible(false);
         socialTable.setVisible(false);
         mapTable.setVisible(false);
         toolsTable.setVisible(false);
         craftingTable.setVisible(false);
+        settingsTable.setVisible(false);
 
         // Tab switching with inventory refresh
         invTab.addListener(new ChangeListener() {
@@ -173,6 +196,7 @@ public class InventoryWindow {
                 mapTable.setVisible(false);
                 toolsTable.setVisible(false);
                 craftingTable.setVisible(false);
+                settingsTable.setVisible(false);
                 popup.pack();
                 center(stage);
                 lastTabOpenedByTabKey = TabType.INVENTORY;
@@ -187,6 +211,7 @@ public class InventoryWindow {
                 mapTable.setVisible(false);
                 toolsTable.setVisible(false);
                 craftingTable.setVisible(false);
+                settingsTable.setVisible(false);
                 popup.pack();
                 center(stage);
             }
@@ -200,6 +225,7 @@ public class InventoryWindow {
                 mapTable.setVisible(false);
                 toolsTable.setVisible(false);
                 craftingTable.setVisible(false);
+                settingsTable.setVisible(false);
                 popup.pack();
                 center(stage);
             }
@@ -213,6 +239,8 @@ public class InventoryWindow {
                 mapTable.setVisible(true);
                 toolsTable.setVisible(false);
                 craftingTable.setVisible(false);
+                settingsTable.setVisible(false);
+                refreshMapTable();
                 popup.pack();
                 center(stage);
                 lastTabOpenedByTabKey = TabType.MAP;
@@ -227,6 +255,7 @@ public class InventoryWindow {
                 mapTable.setVisible(false);
                 toolsTable.setVisible(true);
                 craftingTable.setVisible(false);
+                settingsTable.setVisible(false);
                 refreshToolTable();
                 popup.pack();
                 center(stage);
@@ -244,9 +273,25 @@ public class InventoryWindow {
                 mapTable.setVisible(false);
                 toolsTable.setVisible(false);
                 craftingTable.setVisible(true);
+                settingsTable.setVisible(false);
                 refreshCraftingTable();
                 popup.pack();
                 center(stage);
+            }
+        });
+
+        settingsTab.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                inventoryScrollPane.setVisible(false);
+                skillsTable.setVisible(false);
+                socialTable.setVisible(false);
+                mapTable.setVisible(false);
+                toolsTable.setVisible(false);
+                craftingTable.setVisible(false);
+                settingsTable.setVisible(true);
+                popup.pack();
+                lastTabOpenedByTabKey = TabType.SETTINGS;
             }
         });
 
@@ -268,6 +313,7 @@ public class InventoryWindow {
         popup.add(mapTab).expandX().fillX();
         popup.add(toolsTab).expandX().fillX();
         popup.add(craftingTab).expandX().fillX();
+        popup.add(settingsTab).expandX().fillX();
         popup.row();
         popup.add(contentStack).colspan(6).expand().fill().center().row();
         popup.pack();
@@ -910,14 +956,117 @@ public class InventoryWindow {
         return table;
     }
 
-    private Table buildMapTable() {
-        Table table = new Table(skin);
-        table.defaults().pad(4);
-        for (int i = 1; i <= 10; i++) {
-            table.add(new Label("Map #" + i, skin));
-            table.add(new Label("x" + (int) (Math.random() * 50), skin));
-            table.row();
+    // Helper method to get map display name
+    private String getMapDisplayName(MapTypes mapType)
+    {
+        switch (mapType)
+        {
+            case MINING: return "Mining Farm";
+            case FISHING: return "Fishing Farm";
+            case FORAGING: return "Foraging Farm";
+            case COMBAT: return "Combat Farm";
+            case TOWN: return "Town Center";
+            default: return mapType.getName();
         }
+    }
+
+    private Table buildMapTable()
+    {
+        Table mainTable = new Table(skin);
+        mainTable.defaults().pad(10);
+        return mainTable;
+    }
+
+    private void refreshMapTable() {
+        mapTable.clear();
+
+        // Get current season for map textures
+        Season season = App.getCurrentGame().getCurrentTime().getSeason();
+        ArrayList<Player> players = App.getCurrentGame().getPlayers();
+
+        // Create tooltip style
+        BitmapFont tooltipFont = GameAssetsManager.generateFont("fonts/Roboto-Regular.ttf", 20, Color.WHITE);
+        Label.LabelStyle tooltipLabelStyle = new Label.LabelStyle(tooltipFont, Color.WHITE);
+
+        // Left column (farms 0 and 2)
+        Table leftColumn = new Table();
+        leftColumn.defaults().padBottom(MAP_PADDING); // Add vertical padding between farms
+
+        if (players.size() > 0) {
+            MapContainer farm0 = createFarmMapContainer(players.get(0), season, tooltipLabelStyle);
+            leftColumn.add(farm0).size(FARM_WIDTH, FARM_HEIGHT).row();
+        }
+
+        if (players.size() > 2) {
+            MapContainer farm2 = createFarmMapContainer(players.get(2), season, tooltipLabelStyle);
+            leftColumn.add(farm2).size(FARM_WIDTH, FARM_HEIGHT);
+        }
+
+        // Center column (city)
+        MapContainer cityContainer = createCityMapContainer(season, tooltipLabelStyle);
+
+        // Right column (farms 1 and 3)
+        Table rightColumn = new Table();
+        rightColumn.defaults().padBottom(MAP_PADDING); // Add vertical padding between farms
+
+        if (players.size() > 1) {
+            MapContainer farm1 = createFarmMapContainer(players.get(1), season, tooltipLabelStyle);
+            rightColumn.add(farm1).size(FARM_WIDTH, FARM_HEIGHT).row();
+        }
+
+        if (players.size() > 3) {
+            MapContainer farm3 = createFarmMapContainer(players.get(3), season, tooltipLabelStyle);
+            rightColumn.add(farm3).size(FARM_WIDTH, FARM_HEIGHT);
+        }
+
+        // Add columns to outer grid
+        Table outerGrid = new Table();
+        outerGrid.defaults().pad(MAP_PADDING).center();
+        outerGrid.add(leftColumn);
+        outerGrid.add(cityContainer).size(CITY_WIDTH, CITY_HEIGHT).pad(MAP_PADDING);
+        outerGrid.add(rightColumn);
+
+        mapTable.add(outerGrid);
+    }
+
+    private MapContainer createFarmMapContainer(Player player, Season season, Label.LabelStyle tooltipStyle) {
+        Farm farm = player.getFarm();
+        MapContainer container = new MapContainer(farm, FARM_WIDTH, FARM_HEIGHT, season, tooltipStyle);
+        return container;
+    }
+
+    private MapContainer createCityMapContainer(Season season, Label.LabelStyle tooltipStyle) {
+        City city = App.getCurrentGame().getCity();
+        MapContainer container = new MapContainer(city, CITY_WIDTH, CITY_HEIGHT, season, tooltipStyle);
+        return container;
+    }
+
+    private Table buildSettingsTable()
+    {
+        Table table = new Table(skin);
+        table.defaults().pad(20).width(350).height(120); // Bigger buttons
+
+        TextButton exitButton = new TextButton("Exit Game", skin);
+        exitButton.getLabel().setFontScale(1.2f); // Larger text
+        exitButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                System.out.println("Exit Game clicked");
+            }
+        });
+
+        TextButton removeButton = new TextButton("Remove Player", skin);
+        removeButton.getLabel().setFontScale(1.2f); // Larger text
+        removeButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                System.out.println("Remove Player clicked");
+            }
+        });
+
+        table.add(exitButton).row();
+        table.add(removeButton);
+
         return table;
     }
 
@@ -936,6 +1085,7 @@ public class InventoryWindow {
         if (isVisible) {
             refreshInventoryTable();
             refreshHotbar();
+            refreshMapTable();
         }
     }
 
@@ -963,5 +1113,117 @@ public class InventoryWindow {
 
     public TabType getLastTabOpenedByTabKey() {
         return lastTabOpenedByTabKey;
+    }
+
+    private static class MapContainer extends Group
+    {
+        private final Texture mapTexture;
+        private final Map map;
+        private final java.util.List<Player> players;
+        private final int width;
+        private final int height;
+        private final Season season;
+        private final TooltipManager tooltipManager;
+
+        private final BitmapFont tooltipFont = GameAssetsManager.generateFont("fonts/Roboto-Regular.ttf", 20, Color.WHITE);
+        private final Label.LabelStyle tooltipLabelStyle = new Label.LabelStyle(tooltipFont, Color.WHITE);
+
+        public MapContainer(Map map, int width, int height, Season season, Label.LabelStyle tooltipStyle)
+        {
+            this.map = map;
+            this.width = width;
+            this.height = height;
+            this.season = season;
+            this.mapTexture = MapTypes.getMiniMapTexture(map.getMapType(), season);
+            this.tooltipManager = TooltipManager.getInstance();
+
+            // Add players based on map type
+            if (map instanceof Farm)
+            {
+                this.players = new ArrayList<>();
+                for (Player p : App.getCurrentGame().getPlayers())
+                {
+                    if ((p.isInFarm() || p.isInHome() || p.isInGreenHouse()) && p.getFarm() == map)
+                    {
+                        players.add(p);
+                    }
+                }
+            } else
+            {
+                this.players = new ArrayList<>();
+                for (Player p : App.getCurrentGame().getPlayers())
+                {
+                    if (p.isInCity() || p.isInShop())
+                    {
+                        players.add(p);
+                    }
+                }
+            }
+
+            setSize(width, height);
+        }
+
+        @Override
+        public void draw(Batch batch, float parentAlpha)
+        {
+            // Draw map texture
+            batch.draw(mapTexture, getX(), getY(), width, height);
+
+            // Draw player avatars
+            for (Player player : players)
+            {
+                drawPlayerAvatar(batch, player);
+            }
+        }
+
+        private void drawPlayerAvatar(Batch batch, Player player)
+        {
+            // Get avatar texture
+            Texture avatarTexture = player.getCharacter().getAvatar();
+
+            // Calculate position
+            Point playerLoc = getPlayerLocation(player);
+            float xRatio = (float) playerLoc.getX() / map.getWidth();
+            float yRatio = (float) playerLoc.getY() / map.getHeight();
+            float flipYRatio = 1 - yRatio;
+
+            float avatarX = getX() + xRatio * width - AVATAR_SIZE / 2f;
+            float avatarY = getY() + flipYRatio * height - AVATAR_SIZE / 2f;
+
+            // Draw downscaled avatar - REMOVED THE UNNECESSARY FLIP
+            batch.draw(avatarTexture,
+                avatarX, avatarY,
+                AVATAR_SIZE, AVATAR_SIZE,
+                0, 0,
+                avatarTexture.getWidth(), avatarTexture.getHeight(),
+                false, false); // Changed flipY from true to false
+        }
+
+        private Point getPlayerLocation(Player player)
+        {
+            if (player.isInHome())
+            {
+                return player.getFarm().getHomePoint();
+            }
+
+            if (player.isInGreenHouse())
+            {
+                return player.getFarm().getGreenhousePoint();
+            }
+
+            if (player.isInShop())
+            {
+                City city = App.getCurrentGame().getCity();
+                for (java.util.Map.Entry<Point, Shop> entry : city.getShopDoors().entrySet())
+                {
+                    if (player.getCurrentMap() == entry.getValue())
+                    {
+                        return entry.getKey();
+                    }
+                }
+            }
+
+            return player.getLocation();
+        }
     }
 }

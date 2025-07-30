@@ -1,5 +1,7 @@
 package ap.project.model.enums;
 
+import com.badlogic.gdx.graphics.Texture;
+
 import java.util.ArrayList;
 
 public enum MapTypes
@@ -121,5 +123,22 @@ public enum MapTypes
     public MapKind getMapKind()
     {
         return mapKind;
+    }
+
+    public static Texture getMiniMapTexture(MapTypes mapTypes, Season season)
+    {
+        MapKind mapKind = mapTypes.getMapKind();
+
+        if (mapKind == MapKind.FARM)
+        {
+            return new Texture(String.format("maps/farm/%s/mini-maps/mini_%s_%s.png",  mapTypes.getName(), mapTypes.getName(), season.getName()));
+        }
+
+        else if (mapKind == MapKind.TOWN)
+        {
+            return new Texture(String.format("maps/general/town/mini-maps/mini_town_%s.png", season.getName()));
+        }
+
+        return null;
     }
 }

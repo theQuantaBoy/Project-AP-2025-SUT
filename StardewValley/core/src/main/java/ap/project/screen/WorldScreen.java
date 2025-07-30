@@ -394,8 +394,7 @@ public final class WorldScreen implements Screen
                     }
                     return true;
                 } else if (keycode == Input.Keys.M) {
-                    inventoryWindow.toggleVisibility();
-                    inventoryWindow.getMapTab().setChecked(true);
+                    openMapTab();
                     return true;
                 }
 
@@ -1027,5 +1026,11 @@ public final class WorldScreen implements Screen
     public OrthographicCamera getCamera()
     {
         return cam;
+    }
+
+    public void openMapTab()
+    {
+        inventoryWindow.toggleVisibility();
+        inventoryWindow.getMapTab().setChecked(true);
     }
 }

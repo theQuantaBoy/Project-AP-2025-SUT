@@ -152,7 +152,6 @@ public final class MapAssetLoader
                         TileTexture texture = TileTexture.mapTypeNameToTexture(typeName);
                         if (texture == null)
                         {
-                            Gdx.app.log("MapAssetLoader", "Unknown TileTexture \"" + typeName + "\" @ " + x + "," + y);
                             continue;
                         }
 

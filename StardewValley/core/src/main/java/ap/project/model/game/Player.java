@@ -21,6 +21,7 @@ import ap.project.model.resources.Plant;
 import ap.project.screen.WorldScreen;
 import ap.project.view.CityMenu;
 import com.badlogic.gdx.math.Vector2;
+import com.fasterxml.jackson.databind.type.MapType;
 
 import javax.swing.text.Position;
 import java.util.*;
@@ -799,6 +800,7 @@ public class Player {
         this.currentMap = this.user.getCurrentGame().getCity();
         setLocation(door);
         WorldScreen.getInstance().updateGameInfo();
+        App.setCurrentMenu(Menu.CityMenu);
     }
 
     public boolean isInShop()
