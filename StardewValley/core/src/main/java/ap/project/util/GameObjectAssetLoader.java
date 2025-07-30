@@ -39,6 +39,11 @@ public class GameObjectAssetLoader
             {
                 assetManager.load(path, Texture.class);
             }
+
+            if (!type.getGiantModePath().equals(""))
+            {
+                assetManager.load(type.getGiantModePath(), Texture.class);
+            }
         }
 
         for (TreeType type : TreeType.values()) {
@@ -99,6 +104,13 @@ public class GameObjectAssetLoader
                 Texture texture = assetManager.get(path, Texture.class);
                 texture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
                 type.addStage(texture);
+            }
+
+            if (type.isCanBecomeGiant())
+            {
+                Texture texture = assetManager.get(type.getGiantModePath(), Texture.class);
+                texture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
+                type.setGiantModeTexture(texture);
             }
         }
 

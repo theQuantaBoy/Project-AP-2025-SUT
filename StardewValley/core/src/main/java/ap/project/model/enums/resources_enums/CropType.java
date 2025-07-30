@@ -16,13 +16,13 @@ public enum CropType
             "objects/farming/crops/blue-jazz/Blue_Jazz_Stage_2.png",
             "objects/farming/crops/blue-jazz/Blue_Jazz_Stage_3.png",
             "objects/farming/crops/blue-jazz/Blue_Jazz_Stage_4.png",
-            "objects/farming/crops/blue-jazz/Blue_Jazz_Stage_5.png")),
+            "objects/farming/crops/blue-jazz/Blue_Jazz_Stage_5.png"), ""),
 
     CARROT(GameObjectType.CARROT_CROP, "Carrot", ForagingSeedType.CARROT_SEEDS, List.of(1,1,1), 3, true, -1, 35, true, 75, List.of(Season.Spring), false,
         List.of("objects/farming/crops/carrot/Carrot_Stage_1.png",
             "objects/farming/crops/carrot/Carrot_Stage_2.png",
             "objects/farming/crops/carrot/Carrot_Stage_3.png",
-            "objects/farming/crops/carrot/Carrot_Stage_4.png")),
+            "objects/farming/crops/carrot/Carrot_Stage_4.png"), ""),
 
     CAULIFLOWER(GameObjectType.CAULIFLOWER_CROP, "Cauliflower", ForagingSeedType.CAULIFLOWER_SEEDS, List.of(1,2,4,4,1), 12, true, -1, 175, true, 75, List.of(Season.Spring), true,
         List.of("objects/farming/crops/cauliflower/Cauliflower_Stage_1.png",
@@ -30,7 +30,7 @@ public enum CropType
             "objects/farming/crops/cauliflower/Cauliflower_Stage_3.png",
             "objects/farming/crops/cauliflower/Cauliflower_Stage_4.png",
             "objects/farming/crops/cauliflower/Cauliflower_Stage_5.png",
-            "objects/farming/crops/cauliflower/Cauliflower_Stage_6.png")),
+            "objects/farming/crops/cauliflower/Cauliflower_Stage_6.png"), "objects/farming/crops/giant/Giant_Cauliflower.png"),
 
     COFFEE_BEAN(GameObjectType.COFFEE_BEAN_CROP, "Coffee Bean", ForagingSeedType.COFFEE_BEAN, List.of(1,2,2,3,2), 10, false, 2, 15, false, -1, List.of(Season.Spring, Season.Summer), false,
         List.of("objects/farming/crops/coffee-bean/Coffee_Stage_1.png",
@@ -39,14 +39,14 @@ public enum CropType
             "objects/farming/crops/coffee-bean/Coffee_Stage_4.png",
             "objects/farming/crops/coffee-bean/Coffee_Stage_5.png",
             "objects/farming/crops/coffee-bean/Coffee_Stage_6.png",
-            "objects/farming/crops/coffee-bean/Coffee_Stage_7.png")),
+            "objects/farming/crops/coffee-bean/Coffee_Stage_7.png"), ""),
 
     GARLIC(GameObjectType.GARLIC_CROP, "Garlic", ForagingSeedType.GARLIC_SEEDS, List.of(1,1,1,1), 4, true, -1, 60, true, 20, List.of(Season.Spring), false,
         List.of("objects/farming/crops/garlic/Garlic_Stage_1.png",
             "objects/farming/crops/garlic/Garlic_Stage_2.png",
             "objects/farming/crops/garlic/Garlic_Stage_3.png",
             "objects/farming/crops/garlic/Garlic_Stage_4.png",
-            "objects/farming/crops/garlic/Garlic_Stage_5.png")),
+            "objects/farming/crops/garlic/Garlic_Stage_5.png"), ""),
 
     GREEN_BEAN(GameObjectType.GREEN_BEAN_CROP, "Green Bean", ForagingSeedType.BEAN_STARTER, List.of(1,1,1,3,4), 10, false, 3, 40, true, 25, List.of(Season.Spring), false,
         List.of("objects/farming/crops/green-bean/Green_Bean_Stage_1.png",
@@ -55,21 +55,21 @@ public enum CropType
             "objects/farming/crops/green-bean/Green_Bean_Stage_4.png",
             "objects/farming/crops/green-bean/Green_Bean_Stage_5.png",
             "objects/farming/crops/green-bean/Green_Bean_Stage_6.png",
-            "objects/farming/crops/green-bean/Green_Bean_Stage_7.png")),
+            "objects/farming/crops/green-bean/Green_Bean_Stage_7.png"), ""),
 
     KALE(GameObjectType.KALE_CROP, "Kale", ForagingSeedType.KALE_SEEDS, List.of(1,2,2,1), 6, true, -1, 110, true, 50, List.of(Season.Spring), false,
         List.of("objects/farming/crops/kale/Kale_Stage_1.png",
             "objects/farming/crops/kale/Kale_Stage_2.png",
             "objects/farming/crops/kale/Kale_Stage_3.png",
             "objects/farming/crops/kale/Kale_Stage_4.png",
-            "objects/farming/crops/kale/Kale_Stage_5.png")),
+            "objects/farming/crops/kale/Kale_Stage_5.png"), ""),
 
     PARSNIP(GameObjectType.PARSNIP_CROP, "Parsnip", ForagingSeedType.PARSNIP_SEEDS, List.of(1,1,1,1), 4, true, -1, 35, true, 25, List.of(Season.Spring), false,
         List.of("objects/farming/crops/parsnip/Parsnip_Stage_1.png",
             "objects/farming/crops/parsnip/Parsnip_Stage_2.png",
             "objects/farming/crops/parsnip/Parsnip_Stage_3.png",
             "objects/farming/crops/parsnip/Parsnip_Stage_4.png",
-            "objects/farming/crops/parsnip/Parsnip_Stage_5.png")),
+            "objects/farming/crops/parsnip/Parsnip_Stage_5.png"), ""),
 
     POTATO(GameObjectType.POTATO_CROP, "Potato", ForagingSeedType.POTATO_SEEDS, List.of(1,1,1,2,1), 6, true, -1, 80, true, 25, List.of(Season.Spring), false,
         List.of("objects/farming/crops/potato/Potato_Stage_1.png",
@@ -77,7 +77,7 @@ public enum CropType
             "objects/farming/crops/potato/Potato_Stage_3.png",
             "objects/farming/crops/potato/Potato_Stage_4.png",
             "objects/farming/crops/potato/Potato_Stage_5.png",
-            "objects/farming/crops/potato/Potato_Stage_6.png")),
+            "objects/farming/crops/potato/Potato_Stage_6.png"), ""),
 
     RHUBARB(GameObjectType.RHUBARB_CROP, "Rhubarb", ForagingSeedType.RHUBARB_SEEDS, List.of(2,2,2,3,4), 13, true, -1, 220, false, -1, List.of(Season.Spring), false,
         List.of("objects/farming/crops/rhubarb/Rhubarb_Stage_1.png",
@@ -85,7 +85,7 @@ public enum CropType
             "objects/farming/crops/rhubarb/Rhubarb_Stage_3.png",
             "objects/farming/crops/rhubarb/Rhubarb_Stage_4.png",
             "objects/farming/crops/rhubarb/Rhubarb_Stage_5.png",
-            "objects/farming/crops/rhubarb/Rhubarb_Stage_6.png")),
+            "objects/farming/crops/rhubarb/Rhubarb_Stage_6.png"), ""),
 
     STRAWBERRY(GameObjectType.STRAWBERRY_CROP, "Strawberry", ForagingSeedType.STRAWBERRY_SEEDS, List.of(1,1,2,2,2), 8, false, 4, 120, true, 50, List.of(Season.Spring), false,
         List.of("objects/farming/crops/strawberry/Strawberry_Stage_1.png",
@@ -94,21 +94,21 @@ public enum CropType
             "objects/farming/crops/strawberry/Strawberry_Stage_4.png",
             "objects/farming/crops/strawberry/Strawberry_Stage_5.png",
             "objects/farming/crops/strawberry/Strawberry_Stage_6.png",
-            "objects/farming/crops/strawberry/Strawberry_Stage_7.png")),
+            "objects/farming/crops/strawberry/Strawberry_Stage_7.png"), ""),
 
     TULIP(GameObjectType.TULIP_CROP, "Tulip", ForagingSeedType.TULIP_BULB, List.of(1,1,2,2), 6, true, -1, 30, true, 45, List.of(Season.Spring), false,
         List.of("objects/farming/crops/tulip/Tulip_Stage_1.png",
             "objects/farming/crops/tulip/Tulip_Stage_2.png",
             "objects/farming/crops/tulip/Tulip_Stage_3.png",
             "objects/farming/crops/tulip/Tulip_Stage_4.png",
-            "objects/farming/crops/tulip/Tulip_Stage_5.png")),
+            "objects/farming/crops/tulip/Tulip_Stage_5.png"), ""),
 
     UNMILLED_RICE(GameObjectType.UNMILLED_RICE_CROP, "Unmilled Rice", ForagingSeedType.RICE_SHOOT, List.of(1,2,2,3), 8, true, -1, 30, true, 3, List.of(Season.Spring), false,
         List.of("objects/farming/crops/unmilled-rice/Unmilled_Rice_Stage_1.png",
             "objects/farming/crops/unmilled-rice/Unmilled_Rice_Stage_2.png",
             "objects/farming/crops/unmilled-rice/Unmilled_Rice_Stage_3.png",
             "objects/farming/crops/unmilled-rice/Unmilled_Rice_Stage_4.png",
-            "objects/farming/crops/unmilled-rice/Unmilled_Rice_Stage_5.png")),
+            "objects/farming/crops/unmilled-rice/Unmilled_Rice_Stage_5.png"), ""),
 
     BLUEBERRY(GameObjectType.BLUEBERRY_CROP, "Blueberry", ForagingSeedType.BLUEBERRY_SEEDS, List.of(1,3,3,4,2), 13, false, 4, 50, true, 25, List.of(Season.Summer), false,
         List.of("objects/farming/crops/blueberry/Blueberry_Stage_1.png",
@@ -117,7 +117,7 @@ public enum CropType
             "objects/farming/crops/blueberry/Blueberry_Stage_4.png",
             "objects/farming/crops/blueberry/Blueberry_Stage_5.png",
             "objects/farming/crops/blueberry/Blueberry_Stage_6.png",
-            "objects/farming/crops/blueberry/Blueberry_Stage_7.png")),
+            "objects/farming/crops/blueberry/Blueberry_Stage_7.png"), ""),
 
     CORN(GameObjectType.CORN_CROP, "Corn", ForagingSeedType.CORN_SEEDS, List.of(2,3,3,3,3), 14, false, 4, 50, true, 25, List.of(Season.Summer, Season.Fall), false,
         List.of("objects/farming/crops/corn/Corn_Stage_1.png",
@@ -126,7 +126,7 @@ public enum CropType
             "objects/farming/crops/corn/Corn_Stage_4.png",
             "objects/farming/crops/corn/Corn_Stage_5.png",
             "objects/farming/crops/corn/Corn_Stage_6.png",
-            "objects/farming/crops/corn/Corn_Stage_7.png")),
+            "objects/farming/crops/corn/Corn_Stage_7.png"), ""),
 
     HOPS(GameObjectType.HOPS_CROP, "Hops", ForagingSeedType.HOPS_STARTER, List.of(1,1,2,3,4), 11, false, 1, 25, true, 45, List.of(Season.Summer), false,
         List.of("objects/farming/crops/hops/Hops_Stage_1.png",
@@ -135,7 +135,7 @@ public enum CropType
             "objects/farming/crops/hops/Hops_Stage_4.png",
             "objects/farming/crops/hops/Hops_Stage_5.png",
             "objects/farming/crops/hops/Hops_Stage_6.png",
-            "objects/farming/crops/hops/Hops_Stage_7.png")),
+            "objects/farming/crops/hops/Hops_Stage_7.png"), ""),
 
     HOT_PEPPER(GameObjectType.HOT_PEPPER_CROP, "Hot Pepper", ForagingSeedType.PEPPER_SEEDS, List.of(1,1,1,1,1), 5, false, 3, 40, true, 13, List.of(Season.Summer), false,
         List.of("objects/farming/crops/hot-pepper/Hot_Pepper_Stage_1.png",
@@ -144,7 +144,7 @@ public enum CropType
             "objects/farming/crops/hot-pepper/Hot_Pepper_Stage_4.png",
             "objects/farming/crops/hot-pepper/Hot_Pepper_Stage_5.png",
             "objects/farming/crops/hot-pepper/Hot_Pepper_Stage_6.png",
-            "objects/farming/crops/hot-pepper/Hot_Pepper_Stage_7.png")),
+            "objects/farming/crops/hot-pepper/Hot_Pepper_Stage_7.png"), ""),
 
     MELON(GameObjectType.MELON_CROP, "Melon", ForagingSeedType.MELON_SEEDS, List.of(1,2,3,3,3), 12, true, -1, 250, true, 113, List.of(Season.Summer), true,
         List.of("objects/farming/crops/melon/Melon_Stage_1.png",
@@ -152,21 +152,21 @@ public enum CropType
             "objects/farming/crops/melon/Melon_Stage_3.png",
             "objects/farming/crops/melon/Melon_Stage_4.png",
             "objects/farming/crops/melon/Melon_Stage_5.png",
-            "objects/farming/crops/melon/Melon_Stage_6.png")),
+            "objects/farming/crops/melon/Melon_Stage_6.png"), "objects/farming/crops/giant/Giant_Melon.png"),
 
     POPPY(GameObjectType.POPPY_CROP, "Poppy", ForagingSeedType.POPPY_SEEDS, List.of(1,2,2,2), 7, true, -1, 140, true, 45, List.of(Season.Summer), false,
         List.of("objects/farming/crops/poppy/Poppy_Stage_1.png",
             "objects/farming/crops/poppy/Poppy_Stage_2.png",
             "objects/farming/crops/poppy/Poppy_Stage_3.png",
             "objects/farming/crops/poppy/Poppy_Stage_4.png",
-            "objects/farming/crops/poppy/Poppy_Stage_5.png")),
+            "objects/farming/crops/poppy/Poppy_Stage_5.png"), ""),
 
     RADISH(GameObjectType.RADISH_CROP, "Radish", ForagingSeedType.RADISH_SEEDS, List.of(2,1,2,1), 6, true, -1, 90, true, 45, List.of(Season.Summer), false,
         List.of("objects/farming/crops/radish/Radish_Stage_1.png",
             "objects/farming/crops/radish/Radish_Stage_2.png",
             "objects/farming/crops/radish/Radish_Stage_3.png",
             "objects/farming/crops/radish/Radish_Stage_4.png",
-            "objects/farming/crops/radish/Radish_Stage_5.png")),
+            "objects/farming/crops/radish/Radish_Stage_5.png"), ""),
 
     RED_CABBAGE(GameObjectType.RED_CABBAGE_CROP, "Red Cabbage", ForagingSeedType.RED_CABBAGE_SEEDS, List.of(2,1,2,2,2), 9, true, -1, 260, true, 75, List.of(Season.Summer), false,
         List.of("objects/farming/crops/red-cabbage/Red_Cabbage_Stage_1.png",
@@ -174,7 +174,7 @@ public enum CropType
             "objects/farming/crops/red-cabbage/Red_Cabbage_Stage_3.png",
             "objects/farming/crops/red-cabbage/Red_Cabbage_Stage_4.png",
             "objects/farming/crops/red-cabbage/Red_Cabbage_Stage_5.png",
-            "objects/farming/crops/red-cabbage/Red_Cabbage_Stage_6.png")),
+            "objects/farming/crops/red-cabbage/Red_Cabbage_Stage_6.png"), ""),
 
     STARFRUIT(GameObjectType.STARFRUIT_CROP, "Starfruit", ForagingSeedType.STARFRUIT_SEEDS, List.of(2,3,2,3,3), 13, true, -1, 750, true, 125, List.of(Season.Summer), false,
         List.of("objects/farming/crops/starfruit/Starfruit_Stage_1.png",
@@ -182,14 +182,14 @@ public enum CropType
             "objects/farming/crops/starfruit/Starfruit_Stage_3.png",
             "objects/farming/crops/starfruit/Starfruit_Stage_4.png",
             "objects/farming/crops/starfruit/Starfruit_Stage_5.png",
-            "objects/farming/crops/starfruit/Starfruit_Stage_6.png")),
+            "objects/farming/crops/starfruit/Starfruit_Stage_6.png"), ""),
 
     SUMMER_SPANGLE(GameObjectType.SUMMER_SPANGLE_CROP, "Summer Spangle", ForagingSeedType.SPANGLE_SEEDS, List.of(1,2,3,1), 8, true, -1, 90, true, 45, List.of(Season.Summer), false,
         List.of("objects/farming/crops/summer-spangle/Summer_Spangle_Stage_1.png",
             "objects/farming/crops/summer-spangle/Summer_Spangle_Stage_2.png",
             "objects/farming/crops/summer-spangle/Summer_Spangle_Stage_3.png",
             "objects/farming/crops/summer-spangle/Summer_Spangle_Stage_4.png",
-            "objects/farming/crops/summer-spangle/Summer_Spangle_Stage_5.png")),
+            "objects/farming/crops/summer-spangle/Summer_Spangle_Stage_5.png"), ""),
 
     SUMMER_SQUASH(GameObjectType.SUMMER_SQUASH_CROP, "Summer Squash", ForagingSeedType.SUMMER_SQUASH_SEEDS, List.of(1,1,1,2,1), 6, false, 3, 45, true, 63, List.of(Season.Summer), false,
         List.of("objects/farming/crops/summer-squash/Summer_Squash_Stage_1.png",
@@ -198,14 +198,14 @@ public enum CropType
             "objects/farming/crops/summer-squash/Summer_Squash_Stage_4.png",
             "objects/farming/crops/summer-squash/Summer_Squash_Stage_5.png",
             "objects/farming/crops/summer-squash/Summer_Squash_Stage_6.png",
-            "objects/farming/crops/summer-squash/Summer_Squash_Stage_7.png")),
+            "objects/farming/crops/summer-squash/Summer_Squash_Stage_7.png"), ""),
 
     SUNFLOWER(GameObjectType.SUNFLOWER_CROP, "Sunflower", ForagingSeedType.SUNFLOWER_SEEDS, List.of(1,2,3,2), 8, true, -1, 80, true, 45, List.of(Season.Summer, Season.Fall), false,
         List.of("objects/farming/crops/sunflower/Sunflower_Stage_1.png",
             "objects/farming/crops/sunflower/Sunflower_Stage_2.png",
             "objects/farming/crops/sunflower/Sunflower_Stage_3.png",
             "objects/farming/crops/sunflower/Sunflower_Stage_4.png",
-            "objects/farming/crops/sunflower/Sunflower_Stage_5.png")),
+            "objects/farming/crops/sunflower/Sunflower_Stage_5.png"), ""),
 
     TOMATO(GameObjectType.TOMATO_CROP, "Tomato", ForagingSeedType.TOMATO_SEEDS, List.of(2,2,2,2,3), 11, false, 4, 60, true, 20, List.of(Season.Summer), false,
         List.of("objects/farming/crops/tomato/Tomato_Stage_1.png",
@@ -214,21 +214,21 @@ public enum CropType
             "objects/farming/crops/tomato/Tomato_Stage_4.png",
             "objects/farming/crops/tomato/Tomato_Stage_5.png",
             "objects/farming/crops/tomato/Tomato_Stage_6.png",
-            "objects/farming/crops/tomato/Tomato_Stage_7.png")),
+            "objects/farming/crops/tomato/Tomato_Stage_7.png"), ""),
 
     WHEAT(GameObjectType.WHEAT_CROP, "Wheat", ForagingSeedType.WHEAT_SEEDS, List.of(1,1,1,1), 4, true, -1, 25, false, -1, List.of(Season.Summer, Season.Fall), false,
         List.of("objects/farming/crops/wheat/Wheat_Stage_1.png",
             "objects/farming/crops/wheat/Wheat_Stage_2.png",
             "objects/farming/crops/wheat/Wheat_Stage_3.png",
             "objects/farming/crops/wheat/Wheat_Stage_4.png",
-            "objects/farming/crops/wheat/Wheat_Stage_5.png")),
+            "objects/farming/crops/wheat/Wheat_Stage_5.png"), ""),
 
     AMARANTH(GameObjectType.AMARANTH_CROP, "Amaranth", ForagingSeedType.AMARANTH_SEEDS, List.of(1,2,2,2), 7, true, -1, 150, true, 50, List.of(Season.Fall), false,
         List.of("objects/farming/crops/amaranth/Amaranth_Stage_1.png",
             "objects/farming/crops/amaranth/Amaranth_Stage_2.png",
             "objects/farming/crops/amaranth/Amaranth_Stage_3.png",
             "objects/farming/crops/amaranth/Amaranth_Stage_4.png",
-            "objects/farming/crops/amaranth/Amaranth_Stage_5.png")),
+            "objects/farming/crops/amaranth/Amaranth_Stage_5.png"), ""),
 
     ARTICHOKE(GameObjectType.ARTICHOKE_CROP, "Artichoke", ForagingSeedType.ARTICHOKE_SEEDS, List.of(2,2,1,2,1), 8, true, -1, 160, true, 30, List.of(Season.Fall), false,
         List.of("objects/farming/crops/artichoke/Artichoke_Stage_1.png",
@@ -236,28 +236,28 @@ public enum CropType
             "objects/farming/crops/artichoke/Artichoke_Stage_3.png",
             "objects/farming/crops/artichoke/Artichoke_Stage_4.png",
             "objects/farming/crops/artichoke/Artichoke_Stage_5.png",
-            "objects/farming/crops/artichoke/Artichoke_Stage_6.png")),
+            "objects/farming/crops/artichoke/Artichoke_Stage_6.png"), ""),
 
     BEET(GameObjectType.BEET_CROP, "Beet", ForagingSeedType.BEET_SEEDS, List.of(1,1,2,2), 6, true, -1, 100, true, 30, List.of(Season.Fall), false,
         List.of("objects/farming/crops/beet/Beet_Stage_1.png",
             "objects/farming/crops/beet/Beet_Stage_2.png",
             "objects/farming/crops/beet/Beet_Stage_3.png",
             "objects/farming/crops/beet/Beet_Stage_4.png",
-            "objects/farming/crops/beet/Beet_Stage_5.png")),
+            "objects/farming/crops/beet/Beet_Stage_5.png"), ""),
 
     BOK_CHOY(GameObjectType.BOK_CHOY_CROP, "Bok Choy", ForagingSeedType.BOK_CHOY_SEEDS, List.of(1,1,1,1), 4, true, -1, 80, true, 25, List.of(Season.Fall), false,
         List.of("objects/farming/crops/bok-choy/Bok_Choy_Stage_1.png",
             "objects/farming/crops/bok-choy/Bok_Choy_Stage_2.png",
             "objects/farming/crops/bok-choy/Bok_Choy_Stage_3.png",
             "objects/farming/crops/bok-choy/Bok_Choy_Stage_4.png",
-            "objects/farming/crops/bok-choy/Bok_Choy_Stage_5.png")),
+            "objects/farming/crops/bok-choy/Bok_Choy_Stage_5.png"), ""),
 
     BROCCOLI(GameObjectType.BROCCOLI_CROP, "Broccoli", ForagingSeedType.BROCCOLI_SEEDS, List.of(2,2,2,2), 8, false, 4, 70, true, 63, List.of(Season.Fall), false,
         List.of("objects/farming/crops/broccoli/Broccoli_Stage_1.png",
             "objects/farming/crops/broccoli/Broccoli_Stage_2.png",
             "objects/farming/crops/broccoli/Broccoli_Stage_3.png",
             "objects/farming/crops/broccoli/Broccoli_Stage_4.png",
-            "objects/farming/crops/broccoli/Broccoli_Stage_5.png")),
+            "objects/farming/crops/broccoli/Broccoli_Stage_5.png"), ""),
 
     CRANBERRIES(GameObjectType.CRANBERRIES_CROP, "Cranberries", ForagingSeedType.CRANBERRY_SEEDS, List.of(1,2,1,1,2), 7, false, 5, 75, true, 38, List.of(Season.Fall), false,
         List.of("objects/farming/crops/cranberries/Cranberry_Stage_1.png",
@@ -266,7 +266,7 @@ public enum CropType
             "objects/farming/crops/cranberries/Cranberry_Stage_4.png",
             "objects/farming/crops/cranberries/Cranberry_Stage_5.png",
             "objects/farming/crops/cranberries/Cranberry_Stage_6.png",
-            "objects/farming/crops/cranberries/Cranberry_Stage_7.png")),
+            "objects/farming/crops/cranberries/Cranberry_Stage_7.png"), ""),
 
     EGGPLANT(GameObjectType.EGGPLANT_CROP, "Eggplant", ForagingSeedType.EGGPLANT_SEEDS, List.of(1,1,1,1), 5, false, 5, 60, true, 20, List.of(Season.Fall), false,
         List.of("objects/farming/crops/eggplant/Eggplant_Stage_1.png",
@@ -275,14 +275,14 @@ public enum CropType
             "objects/farming/crops/eggplant/Eggplant_Stage_4.png",
             "objects/farming/crops/eggplant/Eggplant_Stage_5.png",
             "objects/farming/crops/eggplant/Eggplant_Stage_6.png",
-            "objects/farming/crops/eggplant/Eggplant_Stage_7.png")),
+            "objects/farming/crops/eggplant/Eggplant_Stage_7.png"), ""),
 
     FAIRY_ROSE(GameObjectType.FAIRY_ROSE_CROP, "Fairy Rose", ForagingSeedType.FAIRY_SEEDS, List.of(1,4,4,3), 12, true, -1, 290, true, 45, List.of(Season.Fall), false,
         List.of("objects/farming/crops/fairy-rose/Fairy_Rose_Stage_1.png",
             "objects/farming/crops/fairy-rose/Fairy_Rose_Stage_2.png",
             "objects/farming/crops/fairy-rose/Fairy_Rose_Stage_3.png",
             "objects/farming/crops/fairy-rose/Fairy_Rose_Stage_4.png",
-            "objects/farming/crops/fairy-rose/Fairy_Rose_Stage_5.png")),
+            "objects/farming/crops/fairy-rose/Fairy_Rose_Stage_5.png"), ""),
 
     GRAPE(GameObjectType.GRAPE_CROP, "Grape", ForagingSeedType.GRAPE_STARTER, List.of(1,1,2,3,3), 10, false, 3, 80, true, 38, List.of(Season.Fall), false,
         List.of("objects/farming/crops/grape/Grape_Stage_1.png",
@@ -291,7 +291,7 @@ public enum CropType
             "objects/farming/crops/grape/Grape_Stage_4.png",
             "objects/farming/crops/grape/Grape_Stage_5.png",
             "objects/farming/crops/grape/Grape_Stage_6.png",
-            "objects/farming/crops/grape/Grape_Stage_7.png")),
+            "objects/farming/crops/grape/Grape_Stage_7.png"), ""),
 
     PUMPKIN(GameObjectType.PUMPKIN_CROP, "Pumpkin", ForagingSeedType.PUMPKIN_SEEDS, List.of(1,2,3,4,3), 13, true, -1, 320, false, -1, List.of(Season.Fall), true,
         List.of("objects/farming/crops/pumpkin/Pumpkin_Stage_1.png",
@@ -299,14 +299,14 @@ public enum CropType
             "objects/farming/crops/pumpkin/Pumpkin_Stage_3.png",
             "objects/farming/crops/pumpkin/Pumpkin_Stage_4.png",
             "objects/farming/crops/pumpkin/Pumpkin_Stage_5.png",
-            "objects/farming/crops/pumpkin/Pumpkin_Stage_1.png")),
+            "objects/farming/crops/pumpkin/Pumpkin_Stage_1.png"), "objects/farming/crops/giant/Giant_Pumpkin.png"),
 
     YAM(GameObjectType.YAM_CROP, "Yam", ForagingSeedType.YAM_SEEDS, List.of(1,3,3,3), 10, true, -1, 160, true, 45, List.of(Season.Fall), false,
         List.of("objects/farming/crops/yam/Yam_Stage_1.png",
             "objects/farming/crops/yam/Yam_Stage_2.png",
             "objects/farming/crops/yam/Yam_Stage_3.png",
             "objects/farming/crops/yam/Yam_Stage_4.png",
-            "objects/farming/crops/yam/Yam_Stage_5.png")),
+            "objects/farming/crops/yam/Yam_Stage_5.png"), ""),
 
     SWEET_GEM_BERRY(GameObjectType.SWEET_GEM_BERRY_CROP, "Sweet Gem Berry", ForagingSeedType.RARE_SEED, List.of(2,4,6,6,6), 24, true, -1, 3000, false, -1, List.of(Season.Fall), false,
         List.of("objects/farming/crops/sweet_gem_berry/Sweet_Gem_Berry_Stage_1.png",
@@ -314,7 +314,7 @@ public enum CropType
             "objects/farming/crops/sweet_gem_berry/Sweet_Gem_Berry_Stage_3.png",
             "objects/farming/crops/sweet_gem_berry/Sweet_Gem_Berry_Stage_4.png",
             "objects/farming/crops/sweet_gem_berry/Sweet_Gem_Berry_Stage_5.png",
-            "objects/farming/crops/sweet_gem_berry/Sweet_Gem_Berry_Stage_6.png")),
+            "objects/farming/crops/sweet_gem_berry/Sweet_Gem_Berry_Stage_6.png"), ""),
 
     POWDERMELON(GameObjectType.POWDERMELON_CROP, "Powdermelon", ForagingSeedType.POWDERMELON_SEEDS, List.of(1,2,1,2,1), 7, true, -1, 60, true, 63, List.of(Season.Winter), true,
         List.of("objects/farming/crops/powdermelon/Powdermelon_Stage_1.png",
@@ -322,7 +322,7 @@ public enum CropType
             "objects/farming/crops/powdermelon/Powdermelon_Stage_3.png",
             "objects/farming/crops/powdermelon/Powdermelon_Stage_4.png",
             "objects/farming/crops/powdermelon/Powdermelon_Stage_5.png",
-            "objects/farming/crops/powdermelon/Powdermelon_Stage_6.png")),
+            "objects/farming/crops/powdermelon/Powdermelon_Stage_6.png"), "objects/farming/crops/giant/Giant_Powdermelon.png"),
 
     ANCIENT_FRUIT(GameObjectType.ANCIENT_FRUIT_CROP, "Ancient Fruit", ForagingSeedType.ANCIENT_SEEDS, List.of(2,7,7,7,5), 28, false, 7, 550, false, -1, List.of(Season.Spring, Season.Summer, Season.Fall), false,
         List.of("objects/farming/crops/ancient-fruit/Ancient_Fruit_Stage_1.png",
@@ -331,7 +331,7 @@ public enum CropType
             "objects/farming/crops/ancient-fruit/Ancient_Fruit_Stage_4.png",
             "objects/farming/crops/ancient-fruit/Ancient_Fruit_Stage_5.png",
             "objects/farming/crops/ancient-fruit/Ancient_Fruit_Stage_6.png",
-            "objects/farming/crops/ancient-fruit/Ancient_Fruit_Stage_7.png"));
+            "objects/farming/crops/ancient-fruit/Ancient_Fruit_Stage_7.png"), "");
     ;
 
     private final GameObjectType type;
@@ -349,10 +349,12 @@ public enum CropType
     private final boolean canBecomeGiant;
     private final List<String> stagePaths;
     private ArrayList<Texture> stageTextures;
+    private final String giantModePath;
+    private Texture giantModeTexture;
 
     CropType(GameObjectType type, String name, ForagingSeedType seedType, List<Integer> stages, int totalHarvestTime,
              boolean oneTime, int growthTime, int baseSellPrice, boolean isEdible, int energy, List<Season> seasons,
-             boolean canBecomeGiant, List<String> stagePaths)
+             boolean canBecomeGiant, List<String> stagePaths, String giantModePath)
     {
         this.type = type;
         this.name = name;
@@ -368,6 +370,7 @@ public enum CropType
         this.canBecomeGiant = canBecomeGiant;
         this.stagePaths = stagePaths;
         stageTextures = new ArrayList<>();
+        this.giantModePath = giantModePath;
     }
 
     public void addStage(Texture stage)
@@ -517,5 +520,20 @@ public enum CropType
             }
         }
         return null;
+    }
+
+    public String getGiantModePath()
+    {
+        return giantModePath;
+    }
+
+    public Texture getGiantModeTexture()
+    {
+        return giantModeTexture;
+    }
+
+    public void setGiantModeTexture(Texture giantModeTexture)
+    {
+        this.giantModeTexture = giantModeTexture;
     }
 }

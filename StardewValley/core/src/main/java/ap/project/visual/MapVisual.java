@@ -7,10 +7,7 @@ import ap.project.model.enums.building_enums.CraftingRecipeEnums;
 import ap.project.model.enums.resources_enums.CropType;
 import ap.project.model.enums.resources_enums.TreeType;
 import ap.project.model.game.*;
-import ap.project.model.resources.Crop;
-import ap.project.model.resources.ForagingTree;
-import ap.project.model.resources.Plant;
-import ap.project.model.resources.Tree;
+import ap.project.model.resources.*;
 import ap.project.screen.WorldScreen;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.*;
@@ -137,7 +134,14 @@ public class MapVisual
                         Crop crop = (Crop) plant;
                         CropType cropType = crop.getCropType();
                         Texture currentStage = cropType.getStageTextures().get(crop.getCurrentStage());
-                        drawTileTexture(tile, currentStage);
+
+                        if (plant instanceof GiantCrop)
+                        {
+                            drawGiantCrop(tile);
+                        } else
+                        {
+                            drawTileTexture(tile, currentStage);
+                        }
                     }
 
                     if (plant instanceof Tree)
@@ -462,6 +466,20 @@ public class MapVisual
     {
         Vector2 location = map.tileToWorld(tile);
         renderer.getBatch().draw(texture, location.x, location.y - (16 * MAP_SCALE), (16 * MAP_SCALE), (16 * MAP_SCALE));
+    }
+
+    public static void drawGiantCrop(Tile tile)
+    {
+        if (tile.getObject() != null && tile.getObject() instanceof GiantCrop)
+        {
+            GiantCrop giantCrop = (GiantCrop) tile.getObject();
+            if (tile.equals(giantCrop.getRootTile()))
+            {
+                Vector2 location = map.tileToWorld(tile);
+                Texture texture = giantCrop.getCropType().getGiantModeTexture();
+                renderer.getBatch().draw(texture, location.x, location.y - (2 * 16 * MAP_SCALE), (32 * MAP_SCALE), (38 * MAP_SCALE));
+            }
+        }
     }
 
     public static void drawTileTreeTexture(Tile tile, Texture texture)
