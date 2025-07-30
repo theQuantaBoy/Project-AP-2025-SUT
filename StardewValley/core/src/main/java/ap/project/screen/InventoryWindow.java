@@ -118,9 +118,30 @@ public class InventoryWindow {
                 if (selectedInventorySlot >= 0) {
                     // remove from backpack
                     GameObject selected = backpack.getSlots().get(selectedInventorySlot);
-                    player.removeAmountFromInventory(selected.getObjectType(), 1);
+                    GameObjectType type = (selected != null) ? selected.getObjectType() : null;
+
+                    player.removeAmountFromInventory(type, 1);
                     // reset selection
                     if (backpack.getSlots().get(selectedInventorySlot) == null) selectedInventorySlot = -1;
+
+                    if (player.getCurrentObject() != null && player.getCurrentObject().getObjectType() == type)
+                    {
+                        player.setCurrentObject(null);
+                    }
+
+                    if (player.getCurrentTool() != null && player.getCurrentTool().getObjectType() == type)
+                    {
+                        player.setCurrentTool(null);
+                    }
+
+                    for (int i = 0; i < backpack.getHotbarSlots().size(); i++) {
+                        GameObject temp = backpack.getHotbarSlots().get(i);
+                        if (temp != null && temp.getObjectType() == type)
+                        {
+                            backpack.removeFromHotbar(i);
+                        }
+                    }
+
                     // rebuild UI
                     refreshInventoryTable();
                 }
@@ -375,7 +396,7 @@ public class InventoryWindow {
         }
 
         // Create a copy of the item for the hotbar (item stays in inventory)
-        GameObject hotbarItem = new GameObject(item.getObjectType(), item.getNumber());
+        GameObject hotbarItem = item;
         hotbarSlots.set(hotbarSlot, hotbarItem);
 
         // ADDED: Notify WorldScreen to refresh its hotbar
@@ -780,7 +801,13 @@ public class InventoryWindow {
                             selectedInventorySlot = -1; // Deselect if same object clicked
                             selectedInventoryItemForHotbar = null; // Clear hotbar assignment selection
                         } else {
-                            player.setCurrentObject(clickedObject);
+//                            if (clickedObject != null && clickedObject instanceof Tool)
+//                            {
+//                                player.setCurrentTool(null);
+//                            } else if (clickedObject != null)
+//                            {
+//                                player.setCurrentObject(clickedObject);
+//                            }
                             selectedInventorySlot = clickedObject != null ? slotIndex : -1;
                             selectedInventoryItemForHotbar = clickedObject; // Set for hotbar assignment
                         }
@@ -867,13 +894,13 @@ public class InventoryWindow {
                 public void clicked(InputEvent event, float x, float y) {
                     Tool clickedTool = slotIndex < tools.size() ? tools.get(slotIndex) : null;
 
-                    if (player.getCurrentTool() != null && player.getCurrentTool().equals(clickedTool)) {
-                        player.setCurrentTool(null);
-                        selectedToolSlot = -1; // Deselect if same tool clicked
-                    } else {
-                        player.setCurrentTool(clickedTool);
-                        selectedToolSlot = clickedTool != null ? slotIndex : -1;
-                    }
+//                    if (player.getCurrentTool() != null && player.getCurrentTool().equals(clickedTool)) {
+//                        player.setCurrentTool(null);
+//                        selectedToolSlot = -1; // Deselect if same tool clicked
+//                    } else {
+//                        player.setCurrentTool(clickedTool);
+//                        selectedToolSlot = clickedTool != null ? slotIndex : -1;
+//                    }
 
                     // Clear hotbar selection when selecting a tool
                     selectedHotbarSlot = -1;

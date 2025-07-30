@@ -95,7 +95,7 @@ public class BackPack extends Tool {
             slots.remove(slotIndex);
         } else {
             // fixed: just clear
-            slots.set(slotIndex, null);
+            slots.remove(slotIndex);
         }
         itemCount--;
         return true;

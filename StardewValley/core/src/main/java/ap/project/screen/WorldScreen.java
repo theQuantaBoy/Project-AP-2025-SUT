@@ -12,6 +12,7 @@ import ap.project.model.enums.animal_enums.FarmAnimalsType;
 import ap.project.model.building.CraftingItem;
 import ap.project.model.enums.*;
 import ap.project.model.game.Game;
+import ap.project.model.tools.Tool;
 import ap.project.screen.input.WorldScreenInputProcessor;
 import ap.project.util.MapAssetLoader;
 import ap.project.view.GameMenu;
@@ -670,9 +671,17 @@ public final class WorldScreen implements Screen
             if (selectedHotbarSlot == hotbarSlot) {
                 selectedHotbarSlot = -1;
                 player.setCurrentObject(null);
-            } else {
+            } else if (selectedItem != null)
+            {
                 selectedHotbarSlot = hotbarSlot;
-                player.setCurrentObject(selectedItem);
+
+                if (selectedItem instanceof Tool)
+                {
+                    player.setCurrentTool((Tool) selectedItem);
+                } else
+                {
+                    player.setCurrentObject(selectedItem);
+                }
             }
 
             // Clear inventory window selection to avoid conflicts
