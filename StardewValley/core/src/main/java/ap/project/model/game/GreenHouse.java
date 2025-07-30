@@ -72,8 +72,8 @@ public class GreenHouse extends Map
     public void build()
     {
         Player player = App.getCurrentGame().getCurrentPlayer();
-//        player.increaseMoney(-1 * moneyCost);
-//        player.removeAmountFromInventory(GameObjectType.WOOD, woodCost);
+        player.increaseMoney(-1 * moneyCost);
+        player.removeAmountFromInventory(GameObjectType.WOOD, woodCost);
         isBuilt = true;
     }
 

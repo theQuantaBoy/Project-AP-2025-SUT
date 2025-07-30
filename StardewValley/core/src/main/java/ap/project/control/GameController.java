@@ -697,11 +697,11 @@ public class GameController
                     """);
         }
 
-//        if (!player.canAffordGreenhouse())
-//        {
-//            return new Result(false, "You can't afford the greenhouse.\n" +
-//                    "You are poor :(");
-//        }
+        if (!player.canAffordGreenhouse())
+        {
+            return new Result(false, "You can't afford the greenhouse.\n" +
+                    "You are poor :(");
+        }
 
         greenhouse.build();
         return new Result(true, "Yippee! You successfully built a greenhouse.");

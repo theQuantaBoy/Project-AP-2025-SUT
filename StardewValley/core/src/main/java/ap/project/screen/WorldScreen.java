@@ -99,6 +99,7 @@ public final class WorldScreen implements Screen
     private RefrigeratorWindow refrigeratorWindow;
     private CraftingItemWindow craftingItemWindow;
     private FriendsWindow friendsWindow;
+    private GreenHouseBuildWindow greenHouseBuildWindow;
     private CommunicationWindow communicationWindow;
     private WorldController worldController;
     private InputMultiplexer inputMultiplexer;
@@ -181,6 +182,7 @@ public final class WorldScreen implements Screen
         refrigeratorWindow = new RefrigeratorWindow(uiStage);
         craftingItemWindow = new CraftingItemWindow(uiStage);
         communicationWindow = new CommunicationWindow(uiStage, this);
+        greenHouseBuildWindow = new GreenHouseBuildWindow(uiStage);
         createTerminalDialog();
         worldController = new WorldController();
         worldController.setCommunicationWindow(communicationWindow);
@@ -411,7 +413,8 @@ public final class WorldScreen implements Screen
         Gdx.gl.glClearColor(0f, 0f, 0f, 1f);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        if (!terminalDialog.isVisible() && !isInventoryVisible() && !isCookBookVisible() && !isRefrigeratorVisible())
+        if (!terminalDialog.isVisible() && !isInventoryVisible() && !isCookBookVisible() && !isRefrigeratorVisible()
+        && !greenHouseBuildWindow.isVisible())
         {
             update(dt);
             character.updateAnimation(dt);
@@ -447,7 +450,8 @@ public final class WorldScreen implements Screen
 
         if (SECOND_PLAYER) characterRenderer.render(batch, player2, CHAR_SCALE);
 
-        if (!isDialogVisible() && !isInventoryVisible() && !isCookBookVisible() && !isRefrigeratorVisible())
+        if (!isDialogVisible() && !isInventoryVisible() && !isCookBookVisible() && !isRefrigeratorVisible()
+            && !greenHouseBuildWindow.isVisible())
         {
             characterRenderer.renderToolOrObjectAtMouse(batch, character, worldMouseX, worldMouseY);
         }
@@ -1041,5 +1045,18 @@ public final class WorldScreen implements Screen
     {
         inventoryWindow.toggleVisibility();
         inventoryWindow.getMapTab().setChecked(true);
+    }
+
+    public boolean isGreenHouseBuildWindowVisible()
+    {
+        return greenHouseBuildWindow != null && greenHouseBuildWindow.isVisible();
+    }
+
+    public void toggleGreenHouseBuildWindow()
+    {
+        if (greenHouseBuildWindow != null)
+        {
+            greenHouseBuildWindow.toggleVisibility();
+        }
     }
 }

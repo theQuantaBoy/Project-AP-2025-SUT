@@ -43,7 +43,8 @@ public class WorldScreenInputProcessor implements InputProcessor
     {
         if (worldScreen.isDialogVisible() || worldScreen.isInventoryVisible() ||
             worldScreen.isCookBookVisible() || worldScreen.isRefrigeratorVisible() ||
-            worldScreen.isCraftingWindowVisible() || worldScreen.isChatVisible())
+            worldScreen.isCraftingWindowVisible() || worldScreen.isChatVisible() ||
+        worldScreen.isGreenHouseBuildWindowVisible())
         {
             return false;
         }
@@ -114,7 +115,8 @@ public class WorldScreenInputProcessor implements InputProcessor
 
         if (worldScreen.isDialogVisible() || worldScreen.isInventoryVisible() ||
             worldScreen.isCookBookVisible() || worldScreen.isRefrigeratorVisible() ||
-        worldScreen.isCraftingWindowVisible() || worldScreen.isChatVisible())
+        worldScreen.isCraftingWindowVisible() || worldScreen.isChatVisible() ||
+        worldScreen.isGreenHouseBuildWindowVisible())
         {
             return false;
         }

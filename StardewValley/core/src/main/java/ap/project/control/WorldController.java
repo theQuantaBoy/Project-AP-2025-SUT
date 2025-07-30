@@ -156,7 +156,16 @@ public class WorldController
 
             if (Map.isNearOrOn(greenhouseDoor, clicked))
             {
-                player.goToGreenHouse();
+                GreenHouse greenhouse = player.getGreenHouse();
+
+                if (!greenhouse.isBuilt())
+                {
+                    WorldScreen.getInstance().toggleGreenHouseBuildWindow();
+                } else
+                {
+                    player.goToGreenHouse();
+                }
+
                 return true;
             }
 
