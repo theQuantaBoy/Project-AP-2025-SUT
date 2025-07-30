@@ -57,6 +57,12 @@ public enum GameAnimationType
         "affects/no-cloud-lightning/no_cloud_lightning_5.png",
         "affects/no-cloud-lightning/no_cloud_lightning_6.png",
         "affects/no-cloud-lightning/no_cloud_lightning_7.png"}, 0.05f),
+
+    EATING(new String[]{"affects/eating/eating_0.png",
+        "affects/eating/eating_1.png",
+        "affects/eating/eating_2.png",
+        "affects/eating/eating_3.png",
+        "affects/eating/eating_4.png"}, 0.08f),
     ;
 
     private final String[] framePaths;

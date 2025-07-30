@@ -28,6 +28,7 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.math.Vector2;
 
 import java.util.ArrayList;
+import java.util.Vector;
 
 public class WorldController
 {
@@ -718,6 +719,10 @@ public class WorldController
         {
             player.removeAmountFromInventory(type, 1);
             player.increaseEnergy(food.getEnergy());
+
+            Vector2 loc = new Vector2(player.getPosition().x - 7, player.getPosition().y);
+            MapVisual.playAnimationAt(GameAnimationType.EATING, loc);
+
             UIRenderer.showTextBox("Yum Yum, you just ate " + food.getType());
         }
 
