@@ -29,7 +29,34 @@ public enum GameAnimationType
         "affects/lightning/lightning_4.png",
         "affects/lightning/lightning_5.png",
         "affects/lightning/lightning_6.png",
-        "affects/lightning/lightning_7.png",}, 0.04f),
+        "affects/lightning/lightning_7.png"}, 0.05f),
+
+    LIGHTNING_CHEAT(new String[]{"affects/lightning/lightning_0.png",
+        "affects/lightning/lightning_1.png",
+        "affects/lightning/lightning_2.png",
+        "affects/lightning/lightning_3.png",
+        "affects/lightning/lightning_4.png",
+        "affects/lightning/lightning_5.png",
+        "affects/lightning/lightning_6.png",
+        "affects/lightning/lightning_7.png"}, 0.05f),
+
+    NO_CLOUD_LIGHTNING(new String[]{"affects/no-cloud-lightning/no_cloud_lightning_0.png",
+        "affects/no-cloud-lightning/no_cloud_lightning_1.png",
+        "affects/no-cloud-lightning/no_cloud_lightning_2.png",
+        "affects/no-cloud-lightning/no_cloud_lightning_3.png",
+        "affects/no-cloud-lightning/no_cloud_lightning_4.png",
+        "affects/no-cloud-lightning/no_cloud_lightning_5.png",
+        "affects/no-cloud-lightning/no_cloud_lightning_6.png",
+        "affects/no-cloud-lightning/no_cloud_lightning_7.png"}, 0.05f),
+
+    NO_CLOUD_LIGHTNING_CHEAT(new String[]{"affects/no-cloud-lightning/no_cloud_lightning_0.png",
+        "affects/no-cloud-lightning/no_cloud_lightning_1.png",
+        "affects/no-cloud-lightning/no_cloud_lightning_2.png",
+        "affects/no-cloud-lightning/no_cloud_lightning_3.png",
+        "affects/no-cloud-lightning/no_cloud_lightning_4.png",
+        "affects/no-cloud-lightning/no_cloud_lightning_5.png",
+        "affects/no-cloud-lightning/no_cloud_lightning_6.png",
+        "affects/no-cloud-lightning/no_cloud_lightning_7.png"}, 0.05f),
     ;
 
     private final String[] framePaths;

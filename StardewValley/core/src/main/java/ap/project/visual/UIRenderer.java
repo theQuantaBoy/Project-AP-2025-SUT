@@ -265,7 +265,7 @@ public class UIRenderer
 
     public void renderWeatherOverlay(Batch batch, OrthographicCamera worldCam)
     {
-        if (shouldRain() || shouldSnow())
+        if (shouldRain() || shouldStorm())
         {
             batch.setColor(1, 1, 1, 0.4f); // 40% opacity
             batch.draw(weatherOverlay,
@@ -311,13 +311,13 @@ public class UIRenderer
         return ((time.getCurrentWeather() == Weather.Rain) && (player.isInCity() || player.isInFarm()));
     }
 
-    public boolean shouldSnow()
+    public boolean shouldStorm()
     {
         Game game = App.getCurrentGame();
         Time time = game.getCurrentTime();
         Player player = game.getCurrentPlayer();
 
-        return ((time.getCurrentWeather() == Weather.Snow) && (player.isInCity() || player.isInFarm()));
+        return ((time.getCurrentWeather() == Weather.Storm) && (player.isInCity() || player.isInFarm()));
     }
 
     public static void showTextBox(String text)

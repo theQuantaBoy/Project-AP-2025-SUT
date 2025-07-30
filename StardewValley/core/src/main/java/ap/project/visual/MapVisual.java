@@ -16,9 +16,11 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Pool;
 import com.badlogic.gdx.utils.Pools;
+import com.badlogic.gdx.utils.TimeUtils;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -44,10 +46,21 @@ public class MapVisual
     private final int SNOW_AMOUNT = 400;
     private double snowSpawnTimer = 0f;
 
+    private ArrayList<GameAnimation> lightningAnimations = new ArrayList<>();
+    private static final int MAX_LIGHTNING = 4;
+    private static final float LIGHTNING_CHANCE = 0.01f;
+    private static final float MIN_LIGHTNING_INTERVAL = 3.0f;
+    private float lightningTimer = MIN_LIGHTNING_INTERVAL;
+
     private final Pool<GameAnimation> weatherPool = Pools.get(GameAnimation.class);
 
     private final ConcurrentLinkedQueue<GameAnimation> generalAnimations = new ConcurrentLinkedQueue<>();
     private final Pool<GameAnimation> animationPool = Pools.get(GameAnimation.class);
+
+    private long lightningStartTime = 0;
+    private final ShapeRenderer shapeRenderer = new ShapeRenderer();
+    private ArrayList<Long> lightningFlashTimings = new ArrayList<>();
+    private int currentFlashIndex = 0;
 
     public MapVisual(Map map, TiledMap tiledMap)
     {
@@ -55,6 +68,7 @@ public class MapVisual
         this.tiledMap = tiledMap;
         this.renderer = new OrthogonalTiledMapRenderer(tiledMap, 1.0f);
         currentInstance = this;
+        this.shapeRenderer.setAutoShapeType(true);
     }
 
     public void render(OrthographicCamera cam)
@@ -62,6 +76,7 @@ public class MapVisual
         renderer.setView(cam);
         renderer.render();
         drawPlantingTiles();
+        drawLightningTiles();
         drawResources();
         drawForagingItems();
         renderer.getBatch().setShader(null);
@@ -81,6 +96,7 @@ public class MapVisual
         // Weather effects (draw last)
         drawRainAnimations();
         drawSnowAnimations();
+        drawLightningAnimations();
         drawGeneralAnimations();
     }
 
@@ -95,7 +111,9 @@ public class MapVisual
     {
         rain(delta);
         snow(delta);
+        lightning(delta);
         updateGeneralAnimations(delta);
+        updateLightningEffect();
     }
 
     public void drawPlantingTiles()
@@ -123,6 +141,27 @@ public class MapVisual
                     {
                         drawTileEffect(tile, EffectType.WATERED_TILE);
                     }
+                }
+            }
+
+            renderer.getBatch().end();
+        }
+    }
+
+    public void drawLightningTiles()
+    {
+        if (map instanceof Farm)
+        {
+            Farm farm = (Farm)map;
+            ArrayList<Tile> lightningTiles = farm.getLightningTiles();
+
+            renderer.getBatch().begin();
+
+            for (Tile tile : lightningTiles)
+            {
+                if (tile.isHitByThunder())
+                {
+                    drawTileEffect(tile, EffectType.LIGHTNING_STROKE_TILE);
                 }
             }
 
@@ -272,6 +311,82 @@ public class MapVisual
             snowAnimations.clear();
             snowSpawnTimer = 0f;
         }
+    }
+
+    public void lightning(float delta)
+    {
+        lightningTimer += delta;
+
+        if (shouldDoLightning() &&
+            lightningTimer >= MIN_LIGHTNING_INTERVAL &&
+            lightningAnimations.size() < MAX_LIGHTNING)
+        {
+            if (MathUtils.random() < LIGHTNING_CHANCE)
+            {
+                int strikes = MathUtils.random(1, 3);
+
+                for (int i = 0; i < strikes; i++)
+                {
+                    Vector2 position = new Vector2(
+                        MathUtils.random(map.getWidth() * TILE_SIZE),
+                        MathUtils.random(map.getHeight() * TILE_SIZE)
+                    );
+
+                    GameAnimation anim = initWeatherParticle(GameAnimationType.LIGHTNING);
+
+                    Player player =  App.getCurrentGame().getCurrentPlayer();
+                    if (player.isInFarm())
+                    {
+                        Farm farm = player.getFarm();
+                        Point location = farm.worldToTile(position.x, position.y);
+                        Tile tile = farm.getTile(location.getX(), location.getY());
+
+                        if (tile != null && (tile.getTexture() == TileTexture.LAND || tile.getTexture() == TileTexture.GRASS))
+                        {
+                            tile.hitByThunder();
+                            farm.getLightningTiles().add(tile);
+                        }
+                    }
+
+                    lightningAnimations.add(anim);
+                }
+
+                lightningTimer = 0f;
+            }
+        }
+
+        Iterator<GameAnimation> it = lightningAnimations.iterator();
+        while (it.hasNext())
+        {
+            GameAnimation anim = it.next();
+            anim.update(delta);
+            if (anim.isFinished())
+            {
+                weatherPool.free(anim);
+                it.remove();
+            }
+        }
+    }
+
+    public boolean shouldDoLightning()
+    {
+        Game game = App.getCurrentGame();
+        Time time = game.getCurrentTime();
+        Player player = game.getCurrentPlayer();
+
+        return (time.getCurrentWeather() == Weather.Storm) && (player.isInCity() || player.isInFarm());
+    }
+
+    public void drawLightningAnimations()
+    {
+        if (lightningAnimations.isEmpty()) return;
+
+        renderer.getBatch().begin();
+        for (GameAnimation anim : lightningAnimations)
+        {
+            anim.render(renderer.getBatch());
+        }
+        renderer.getBatch().end();
     }
 
     public void drawRainAnimations()
@@ -567,6 +682,10 @@ public class MapVisual
             if (anim.isFinished())
             {
                 animationPool.free(anim);
+                if (anim.getType() == GameAnimationType.NO_CLOUD_LIGHTNING_CHEAT)
+                {
+                    triggerLightningEffect();
+                }
                 it.remove();
             }
         }
@@ -594,13 +713,94 @@ public class MapVisual
         }
     }
 
+    public static void playAnimationAt(GameAnimationType type, Vector2 position)
+    {
+        if (currentInstance != null)
+        {
+            currentInstance.addAnimation(type, position);
+        }
+    }
+
     private void addAnimation(GameAnimationType type, Vector2 position)
     {
         GameAnimation anim = animationPool.obtain();
+        anim.setType(type);
         if (anim != null)
         {
             anim.init(type, position);
             generalAnimations.add(anim);
         }
     }
+
+    public void triggerLightningEffect()
+    {
+        lightningFlashTimings.clear();
+        long now = TimeUtils.millis();
+
+        int flickers = MathUtils.random(1, 3); // 1 to 3 flickers
+        for (int i = 0; i < flickers; i++)
+        {
+            lightningFlashTimings.add(now + MathUtils.random(0, 300)); // random delay between flickers
+        }
+
+        lightningStartTime = lightningFlashTimings.get(0);
+        currentFlashIndex = 0;
+    }
+
+    public void updateLightningEffect()
+    {
+        if (lightningFlashTimings.isEmpty()) return;
+
+        long now = TimeUtils.millis();
+        long currentStart = lightningFlashTimings.get(currentFlashIndex);
+        long elapsed = now - currentStart;
+
+        if (elapsed >= 200)
+        {
+            currentFlashIndex++;
+            if (currentFlashIndex >= lightningFlashTimings.size())
+            {
+                lightningFlashTimings.clear();
+                lightningStartTime = 0;
+            }
+            else
+            {
+                lightningStartTime = lightningFlashTimings.get(currentFlashIndex);
+            }
+        }
+    }
+
+    public void renderLightningEffect()
+    {
+        if (lightningStartTime == 0) return;
+
+        long elapsed = TimeUtils.timeSinceMillis(lightningStartTime);
+
+        shapeRenderer.setProjectionMatrix(new Matrix4().setToOrtho2D(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight()));
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+
+        float alpha;
+
+        if (elapsed < 100) {
+            // Phase 1: ramp up quickly
+            alpha = (elapsed / 100f) * 0.8f;
+        } else if (elapsed < 150) {
+            // Phase 2: hold full flash
+            alpha = 0.8f;
+        } else if (elapsed < 400) {
+            // Phase 3: fade out
+            float t = (elapsed - 150f) / 250f;
+            alpha = (1f - t) * 0.8f;
+        } else {
+            lightningStartTime = 0;
+            shapeRenderer.end();
+            return;
+        }
+
+        shapeRenderer.setColor(1, 1, 1, alpha);
+        shapeRenderer.rect(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        shapeRenderer.end();
+    }
+
+
 }

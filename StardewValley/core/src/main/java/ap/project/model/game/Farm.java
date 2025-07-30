@@ -36,6 +36,7 @@ public class Farm extends Map
     private ArrayList<Tile> tilesWithForagingMinerals = new ArrayList<>();
     private ArrayList<Tile> plantingTiles = new ArrayList<>();
     private ArrayList<Tile> tilesWithCraftingItems = new ArrayList<>();
+    private ArrayList<Tile> lightningTiles = new ArrayList<>();
 
     public Farm(MapTypes farmType) {
         super(farmType);
@@ -601,5 +602,10 @@ public class Farm extends Map
 
         tile.unPlant();
         tile.setObject(null);
+    }
+
+    public ArrayList<Tile> getLightningTiles()
+    {
+        return lightningTiles;
     }
 }

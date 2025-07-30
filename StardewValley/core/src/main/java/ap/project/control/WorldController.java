@@ -23,6 +23,8 @@ import ap.project.screen.WorldScreen;
 import ap.project.view.GameMenu;
 import ap.project.visual.MapVisual;
 import ap.project.visual.UIRenderer;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.math.Vector2;
 
 import java.util.ArrayList;
@@ -51,6 +53,8 @@ public class WorldController
 
         Point clicked = tile.getPoint();
         Point location = player.getLocation();
+
+        doLightning(tile);
 
         if (!Map.isNearOrOn(location, clicked))
         {
@@ -94,8 +98,6 @@ public class WorldController
             return;
         }
 
-        MapVisual.playAnimationAt(GameAnimationType.LIGHTNING, tile);
-
         Point clicked = tile.getPoint();
 
         Player nearbyPlayer = findNearbyPlayer(clicked, 1); // radius 1 (8-neighbors)
@@ -114,6 +116,22 @@ public class WorldController
             {
                 return;
             }
+        }
+    }
+
+    public static void doLightning(Tile tile)
+    {
+        Player player = App.getCurrentGame().getCurrentPlayer();
+
+        if (Gdx.input.isKeyPressed(Input.Keys.L) && (player.isInFarm() || player.isInCity()))
+        {
+            if (player.isInFarm())
+            {
+                tile.hitByThunder();
+                Farm farm = player.getFarm();
+                farm.getLightningTiles().add(tile);
+            }
+            MapVisual.playAnimationAt(GameAnimationType.NO_CLOUD_LIGHTNING_CHEAT, tile);
         }
     }
 
@@ -426,6 +444,7 @@ public class WorldController
                 if (tile.isHitByThunder())
                 {
                     tile.unHitByThunder();
+                    player.getFarm().getThunderedTiles().remove(tile);
                 }
 
                 UIRenderer.showTextBox(object.getObjectType().toString() + " added to your inventory");

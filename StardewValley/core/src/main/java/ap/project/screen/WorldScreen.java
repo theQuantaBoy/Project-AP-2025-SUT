@@ -531,6 +531,8 @@ public final class WorldScreen implements Screen
         uiStage.act(dt);
         uiStage.draw();
 
+        map.getMapVisual().renderLightningEffect();
+
 //        if (fishingWindow != null)
 //        {
 //            fishingWindow.update(Gdx.graphics.getDeltaTime());

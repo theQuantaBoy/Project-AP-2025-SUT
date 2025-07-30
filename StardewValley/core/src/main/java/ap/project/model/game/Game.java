@@ -140,11 +140,6 @@ public class Game
 
         resetHitByThunders();
 
-        if (currentTime.getTomorrowWeather().equals(Weather.Storm))
-        {
-            hitTilesByThunder();
-        }
-
         startPlants();
         growPlants();
         killPlants();
@@ -392,6 +387,7 @@ public class Game
             for (Tile tile : farm.getThunderedTiles())
             {
                 tile.unHitByThunder();
+                farm.getThunderedTiles().remove(tile);
             }
         }
     }

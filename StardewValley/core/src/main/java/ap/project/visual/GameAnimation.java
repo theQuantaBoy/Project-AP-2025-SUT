@@ -10,6 +10,7 @@ import com.badlogic.gdx.utils.Pool;
 
 public class GameAnimation implements Pool.Poolable
 {
+    private GameAnimationType type;
     private Animation<TextureRegion> animation;
     private Vector2 position;
     private float stateTime;
@@ -62,5 +63,15 @@ public class GameAnimation implements Pool.Poolable
         this.position.set(0, 0);
         this.stateTime = 0f;
         this.maxDuration = 0f;
+    }
+
+    public GameAnimationType getType()
+    {
+        return type;
+    }
+
+    public void setType(GameAnimationType type)
+    {
+        this.type = type;
     }
 }

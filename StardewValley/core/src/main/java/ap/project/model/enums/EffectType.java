@@ -8,6 +8,7 @@ public enum EffectType
     PLOUGHED_TILE("ploughed tile", "effects/ploughed_tile.png"),
     FERTILIZED_TILE("fertilized tile", "effects/fertilized_tile.png"),
     WATERED_TILE("watered tile", "effects/watered_tile.png"),
+    LIGHTNING_STROKE_TILE("lightning stroke tile", "effects/lightning_stroke_tile.png"),
     ;
 
     private final String name;

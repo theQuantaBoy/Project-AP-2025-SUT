@@ -176,6 +176,7 @@ public class GameController
                     if (targetTile.isHitByThunder())
                     {
                         targetTile.unHitByThunder();
+                        player.getFarm().getThunderedTiles().remove(targetTile);
                     }
 
                     return new Result(true, object.getObjectType().toString() + " added to your inventory");
