@@ -4,6 +4,7 @@ import ap.project.model.App.App;
 import ap.project.model.App.Result;
 import ap.project.model.animal.Animal;
 import ap.project.model.building.CraftingItem;
+import ap.project.model.enums.GameAnimationType;
 import ap.project.model.enums.GameObjectType;
 import ap.project.model.enums.TileTexture;
 import ap.project.model.enums.Weather;
@@ -20,6 +21,7 @@ import ap.project.model.tools.*;
 import ap.project.screen.CommunicationWindow;
 import ap.project.screen.WorldScreen;
 import ap.project.view.GameMenu;
+import ap.project.visual.MapVisual;
 import ap.project.visual.UIRenderer;
 import com.badlogic.gdx.math.Vector2;
 
@@ -87,9 +89,12 @@ public class WorldController
         Game game = App.getCurrentGame();
         Player player = game.getCurrentPlayer();
 
-        if (tile == null) {
+        if (tile == null)
+        {
             return;
         }
+
+        MapVisual.playAnimationAt(GameAnimationType.LIGHTNING, tile);
 
         Point clicked = tile.getPoint();
 

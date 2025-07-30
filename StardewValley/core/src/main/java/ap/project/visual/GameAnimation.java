@@ -38,8 +38,13 @@ public class GameAnimation implements Pool.Poolable
 
     public void render(Batch batch)
     {
+        if (animation == null) return;
+
         TextureRegion frame = animation.getKeyFrame(stateTime, false);
-        batch.draw(frame, position.x, position.y);
+        if (frame != null)
+        {
+            batch.draw(frame, position.x, position.y);
+        }
     }
 
     public void init(GameAnimationType type, Vector2 position)

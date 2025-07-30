@@ -22,6 +22,7 @@ import com.badlogic.gdx.utils.Pools;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import static ap.project.model.game.Map.TILE_SIZE;
 import static ap.project.screen.WorldScreen.MAP_SCALE;
@@ -29,6 +30,8 @@ import static ap.project.screen.WorldScreen.MAP_SCALE;
 
 public class MapVisual
 {
+    private static MapVisual currentInstance;
+
     private static Map map;
     private TiledMap tiledMap;
     private static OrthogonalTiledMapRenderer renderer;
@@ -43,11 +46,15 @@ public class MapVisual
 
     private final Pool<GameAnimation> weatherPool = Pools.get(GameAnimation.class);
 
+    private final ConcurrentLinkedQueue<GameAnimation> generalAnimations = new ConcurrentLinkedQueue<>();
+    private final Pool<GameAnimation> animationPool = Pools.get(GameAnimation.class);
+
     public MapVisual(Map map, TiledMap tiledMap)
     {
         this.map = map;
         this.tiledMap = tiledMap;
         this.renderer = new OrthogonalTiledMapRenderer(tiledMap, 1.0f);
+        currentInstance = this;
     }
 
     public void render(OrthographicCamera cam)
@@ -74,18 +81,21 @@ public class MapVisual
         // Weather effects (draw last)
         drawRainAnimations();
         drawSnowAnimations();
+        drawGeneralAnimations();
     }
 
     public void dispose()
     {
         tiledMap.dispose();
         renderer.dispose();
+        currentInstance = null;
     }
 
     public void update(float delta)
     {
         rain(delta);
         snow(delta);
+        updateGeneralAnimations(delta);
     }
 
     public void drawPlantingTiles()
@@ -545,5 +555,52 @@ public class MapVisual
             anim.init(type, position);
         }
         return anim;
+    }
+
+    private void updateGeneralAnimations(float delta)
+    {
+        Iterator<GameAnimation> it = generalAnimations.iterator();
+        while (it.hasNext())
+        {
+            GameAnimation anim = it.next();
+            anim.update(delta);
+            if (anim.isFinished())
+            {
+                animationPool.free(anim);
+                it.remove();
+            }
+        }
+    }
+
+    public void drawGeneralAnimations()
+    {
+        if (generalAnimations.isEmpty()) return;
+
+        renderer.getBatch().begin();
+        for (GameAnimation anim : generalAnimations)
+        {
+            anim.render(renderer.getBatch());
+        }
+        renderer.getBatch().end();
+    }
+
+    public static void playAnimationAt(GameAnimationType type, Tile tile)
+    {
+        Vector2 position = map.tileToWorld(tile);
+
+        if (currentInstance != null)
+        {
+            currentInstance.addAnimation(type, position);
+        }
+    }
+
+    private void addAnimation(GameAnimationType type, Vector2 position)
+    {
+        GameAnimation anim = animationPool.obtain();
+        if (anim != null)
+        {
+            anim.init(type, position);
+            generalAnimations.add(anim);
+        }
     }
 }

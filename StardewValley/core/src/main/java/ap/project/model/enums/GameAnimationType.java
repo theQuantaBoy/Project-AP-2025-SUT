@@ -23,13 +23,13 @@ public enum GameAnimationType
         "affects/snow/snow_3.png"}, 0.1f),
 
     LIGHTNING(new String[]{"affects/lightning/lightning_0.png",
-        "affects/lightning/lightning_0.png",
-        "affects/lightning/lightning_0.png",
-        "affects/lightning/lightning_0.png",
-        "affects/lightning/lightning_0.png",
-        "affects/lightning/lightning_0.png",
-        "affects/lightning/lightning_0.png",
-        "affects/lightning/lightning_0.png",}, 0.15f),
+        "affects/lightning/lightning_1.png",
+        "affects/lightning/lightning_2.png",
+        "affects/lightning/lightning_3.png",
+        "affects/lightning/lightning_4.png",
+        "affects/lightning/lightning_5.png",
+        "affects/lightning/lightning_6.png",
+        "affects/lightning/lightning_7.png",}, 0.04f),
     ;
 
     private final String[] framePaths;
