@@ -141,6 +141,12 @@ public class Tile
             Farm farm = (Farm)map;
             farm.addPlantingTile(this);
         }
+
+        if (map instanceof GreenHouse)
+        {
+            GreenHouse greenHouse = (GreenHouse)map;
+            greenHouse.addPlantingTile(this);
+        }
     }
 
     public boolean isPloughed()

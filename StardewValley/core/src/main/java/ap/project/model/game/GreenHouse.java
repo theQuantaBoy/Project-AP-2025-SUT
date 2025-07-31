@@ -16,6 +16,7 @@ public class GreenHouse extends Map
     private static final int woodCost = 500;
     private static final int moneyCost = 1000;
     private ArrayList<Tile> tilesWithCraftingItems = new ArrayList<>();
+    private ArrayList<Tile> plantingTiles = new ArrayList<>();
 
     public GreenHouse()
     {
@@ -113,5 +114,16 @@ public class GreenHouse extends Map
 
         tile.unPlant();
         tile.setObject(null);
+    }
+
+    public void addPlantingTile(Tile tile)
+    {
+        plantingTiles.add(tile);
+        plantingTiles.sort(Comparator.comparingInt(Tile::getY));
+    }
+
+    public ArrayList<Tile> getPlantingTiles()
+    {
+        return plantingTiles;
     }
 }

@@ -146,6 +146,35 @@ public class MapVisual
 
             renderer.getBatch().end();
         }
+
+        if (map instanceof GreenHouse)
+        {
+            GreenHouse greenHouse = (GreenHouse)map;
+            ArrayList<Tile> plantingTiles = greenHouse.getPlantingTiles();
+
+            renderer.getBatch().begin();
+
+            for (Tile tile : plantingTiles)
+            {
+                drawTileEffect(tile, EffectType.PLOUGHED_TILE);
+
+                if (tile.isFertilized())
+                {
+                    drawTileEffect(tile, EffectType.FERTILIZED_TILE);
+                }
+
+                if (tile.hasPlants())
+                {
+                    Plant plant = (Plant) tile.getObject();
+                    if (plant.hasBeenWateredToday())
+                    {
+                        drawTileEffect(tile, EffectType.WATERED_TILE);
+                    }
+                }
+            }
+
+            renderer.getBatch().end();
+        }
     }
 
     public void drawLightningTiles()
@@ -175,6 +204,59 @@ public class MapVisual
         {
             Farm farm = (Farm)map;
             ArrayList<Tile> plantingTiles = farm.getPlantingTiles();
+
+            for (Tile tile : plantingTiles)
+            {
+                if (tile.hasPlants())
+                {
+                    Plant plant = (Plant) tile.getObject();
+
+                    if (plant instanceof Crop)
+                    {
+                        Crop crop = (Crop) plant;
+                        CropType cropType = crop.getCropType();
+                        Texture currentStage = cropType.getStageTextures().get(crop.getCurrentStage());
+
+                        if (plant instanceof GiantCrop)
+                        {
+                            drawGiantCrop(tile);
+                        } else
+                        {
+                            drawTileTexture(tile, currentStage);
+                        }
+                    }
+
+                    if (plant instanceof Tree)
+                    {
+                        Tree tree = (Tree) plant;
+                        int currentStage = tree.getCurrentStage();
+
+                        Texture texture;
+                        if (currentStage < 4)
+                        {
+                            texture = tree.getTreeType().getStageTextures().get(currentStage);
+                        } else
+                        {
+                            if (tree.canHarvest())
+                            {
+                                texture = tree.getTreeType().getWithProductTexture();
+                            } else
+                            {
+                                Season season = App.getCurrentGame().getCurrentTime().getSeason();
+                                texture = tree.getTreeType().getSeasonTextures().get(season.toInteger());
+                            }
+                        }
+
+                        drawTileTreeTexture(tile, texture);
+                    }
+                }
+            }
+        }
+
+        if (map instanceof GreenHouse)
+        {
+            GreenHouse greenHouse = (GreenHouse)map;
+            ArrayList<Tile> plantingTiles = greenHouse.getPlantingTiles();
 
             for (Tile tile : plantingTiles)
             {

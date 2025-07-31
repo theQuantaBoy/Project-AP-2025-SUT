@@ -14,7 +14,7 @@ public enum TileTexture
     GREEN_HOUSE_FLOOR("greenhouse-floor"),
     GREEN_HOUSE_WALL("greenhouse-wall"),
     GREEN_HOUSE_WOOD("greenhouse-wood"),
-    BED_TILE("bed-tile"),
+    BED_TILE("bed"),
     DECOR_TILE("decor-tile"),
     VILLAGE_GRASS("village-grass"),
     ROAD("road"),
