@@ -129,7 +129,7 @@ public class CharacterController
 
         boolean blocked = target == null ||
                 (switch (target.getTexture()) {
-                    case LAKE, UNPASSABLE, BUILDING, OBJECT, DOOR -> true;
+                    case LAKE, UNPASSABLE, BUILDING, OBJECT, DOOR, BED_TILE -> true;
                     default -> false;
                 });
 

@@ -50,7 +50,6 @@ public class GreenHouse extends Map
             }
         }
 
-        applyMap();
         this.startingPoint = findDoor();
     }
 

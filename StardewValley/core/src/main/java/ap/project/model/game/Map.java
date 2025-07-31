@@ -169,24 +169,6 @@ public abstract class Map
         return startingPoint;
     }
 
-    protected void applyMap()
-    {
-        for (String typeName : mapData.keySet())
-        {
-            TileTexture texture = TileTexture.mapTypeNameToTexture(typeName);
-            if (texture == null) continue;
-
-            List<Point> points = mapData.get(typeName);
-            for (Point p : points)
-            {
-                if (isInBounds(p.getX(), p.getY()))
-                {
-                    tiles[p.getY()][p.getX()].setType(texture);
-                }
-            }
-        }
-    }
-
     public String getMapString(Point heroLocation, Point location, int HEIGHT, int WIDTH)
     {
         StringBuilder output = new StringBuilder();

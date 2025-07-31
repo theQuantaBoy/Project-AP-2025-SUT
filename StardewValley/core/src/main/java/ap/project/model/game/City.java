@@ -60,7 +60,6 @@ public class City extends Map
             }
         }
 
-        applyMap();
         this.startingPoint = findFreeStartingPoint();
 
         for (int y = 0; y < HEIGHT; y++)
