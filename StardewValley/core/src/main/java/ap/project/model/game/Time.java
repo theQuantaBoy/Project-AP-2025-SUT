@@ -35,6 +35,8 @@ public class Time
             updateDay(dayNum, false);
         }
 
+        App.getCurrentGame().updatePlayerBuffs();
+
         if(hour > 9 && hour <= 12) timeOfDay = TimeOfDay.MORNING;
         if(hour > 12 && hour <= 17) timeOfDay = TimeOfDay.AFTERNOON;
         if(hour > 17 && hour <= 23) timeOfDay = TimeOfDay.EVENING;
@@ -78,6 +80,7 @@ public class Time
         friendshipUpdate();
 
         Game game = App.getCurrentGame();
+        game.resetPlayerBuffs();
     }
 
     public int getHour()

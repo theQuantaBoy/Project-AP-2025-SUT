@@ -1,10 +1,7 @@
 package ap.project.screen;
 
 import ap.project.model.App.App;
-import ap.project.model.enums.GameObjectType;
-import ap.project.model.enums.MapKind;
-import ap.project.model.enums.MapTypes;
-import ap.project.model.enums.Season;
+import ap.project.model.enums.*;
 import ap.project.model.enums.building_enums.CraftingRecipeEnums;
 import ap.project.model.enums.building_enums.KitchenRecipe;
 import ap.project.model.building.CraftingItem;
@@ -226,6 +223,7 @@ public class InventoryWindow {
         skillsTab.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
+                refreshSkillsTable();
                 inventoryScrollPane.setVisible(false);
                 skillsTable.setVisible(true);
                 socialTable.setVisible(false);
@@ -913,8 +911,35 @@ public class InventoryWindow {
 
         for (Skill s : player.getSkills()) {
             Label skillLabel = new Label(s.getName(), skin);
-            ProgressBar bar = new ProgressBar(0, s.getThresholdForLevel(s.getLevel()), 1, false, skin);
+            float max = s.getThresholdForLevel(s.getLevel());
+            ProgressBar bar = new ProgressBar(0, max, 1, false, skin);
             bar.setValue((float) s.getUnit());
+
+            if (player.getBuff() != null)
+            {
+                BuffType type = player.getBuff().getType();
+
+                switch (type)
+                {
+                    case FORAGING_5:
+                    case FORAGING_11:
+                        if (s.getType() == SkillType.Foraging) bar.setValue(max);
+                        break;
+
+                    case FISHING_5:
+                    case FISHING_10:
+                        if (s.getType() == SkillType.Fishing) bar.setValue(max);
+                        break;
+
+                    case FARMING:
+                        if (s.getType() == SkillType.Farming) bar.setValue(max);
+                        break;
+
+                    case MINING:
+                        if (s.getType() == SkillType.Mining) bar.setValue(max);
+                        break;
+                }
+            }
 
             // Tooltip content (can be customized)
             String tooltipText = s.getName() + " (Level " + s.getLevel() + ")\n" +
@@ -940,6 +965,12 @@ public class InventoryWindow {
         return table;
     }
 
+    public void refreshSkillsTable()
+    {
+        skillsTable.clear();
+        Table updatedTable = buildSkillsTable();
+        skillsTable.add(updatedTable).expand().fill();
+    }
 
     private Table buildSocialTable() {
         Table table = new Table(skin);
@@ -1078,10 +1109,13 @@ public class InventoryWindow {
     public void toggleVisibility() {
         isVisible = !isVisible;
         popup.setVisible(isVisible);
-        if (isVisible) {
+
+        if (isVisible)
+        {
             refreshInventoryTable();
             refreshHotbar();
             refreshMapTable();
+            refreshSkillsTable();
         }
     }
 

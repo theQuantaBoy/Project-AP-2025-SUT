@@ -723,6 +723,12 @@ public class WorldController
             Vector2 loc = new Vector2(player.getPosition().x - 7, player.getPosition().y);
             MapVisual.playAnimationAt(GameAnimationType.EATING, loc);
 
+            if (food.getBuffType() != null)
+            {
+                int startHour = game.getCurrentTime().getTotalHoursPassed();
+                player.setBuff(new Buff(food.getBuffType(), startHour));
+            }
+
             UIRenderer.showTextBox("Yum Yum, you just ate " + food.getType());
         }
 

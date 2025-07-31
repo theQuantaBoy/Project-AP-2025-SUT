@@ -663,6 +663,35 @@ public class Game
         return null;
     }
 
+    public void updatePlayerBuffs()
+    {
+        int totalHoursPasses = currentTime.getTotalHoursPassed();
+
+        for (Player player : players)
+        {
+            Buff buff = player.getBuff();
+
+            if (buff != null)
+            {
+                int startHour = buff.getStartedTime();
+                int diff = totalHoursPasses - startHour;
+
+                if (diff > buff.getType().getHourDuration())
+                {
+                    player.setBuff(null);
+                }
+            }
+        }
+    }
+
+    public void resetPlayerBuffs()
+    {
+        for (Player player : players)
+        {
+            player.setBuff(null);
+        }
+    }
+
 //    public void resetTurnEnergy()
 //    {
 //        for (Player player : players)

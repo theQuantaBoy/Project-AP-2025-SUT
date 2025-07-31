@@ -1,5 +1,6 @@
 package ap.project.util;
 
+import ap.project.model.enums.BuffType;
 import ap.project.model.enums.EffectType;
 import ap.project.model.enums.GameAnimationType;
 import ap.project.model.enums.GameObjectType;
@@ -18,12 +19,9 @@ public class GameObjectAssetLoader
 
     public static void queueAllTextures()
     {
-        System.out.println("[AssetLoader] Queuing textures...");
-
         for (GameObjectType type : GameObjectType.values()) {
             if (!type.getPath().equals(""))
             {
-                System.out.println(" - Loading: " + type.getPath());
                 assetManager.load(type.getPath(), Texture.class);
             }
         }
@@ -31,7 +29,6 @@ public class GameObjectAssetLoader
         for (EffectType type : EffectType.values()) {
             if (!type.getPath().equals(""))
             {
-                System.out.println(" - Loading: " + type.getPath());
                 assetManager.load(type.getPath(), Texture.class);
             }
         }
@@ -80,13 +77,16 @@ public class GameObjectAssetLoader
                 }
             }
         }
+
+        for (BuffType type : BuffType.values())
+        {
+            assetManager.load(type.getTexturePath(), Texture.class);
+        }
     }
 
     public static void finishLoadingAndAssign()
     {
-        System.out.println("[AssetLoader] Waiting for all textures to load...");
         assetManager.finishLoading(); // blocks until done
-        System.out.println("[AssetLoader] All textures loaded.");
 
         for (GameObjectType type : GameObjectType.values())
         {
@@ -95,7 +95,6 @@ public class GameObjectAssetLoader
                 Texture texture = assetManager.get(type.getPath(), Texture.class);
                 texture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
                 type.setTexture(texture);
-                System.out.println(" ✔ Assigned texture to " + type.toString());
             }
         }
 
@@ -106,7 +105,6 @@ public class GameObjectAssetLoader
                 Texture texture = assetManager.get(type.getPath(), Texture.class);
                 texture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
                 type.setTexture(texture);
-                System.out.println(" ✔ Assigned texture to " + type.toString());
             }
         }
 
@@ -173,6 +171,13 @@ public class GameObjectAssetLoader
             }
             type.setAnimation(new Animation<>(type.getFrameDuration(), regions));
         }
+
+        for (BuffType type : BuffType.values())
+        {
+            Texture texture = assetManager.get(type.getTexturePath(), Texture.class);
+            texture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
+            type.setTexture(texture);
+        }
     }
 
     public static AssetManager getAssetManager()
@@ -182,7 +187,6 @@ public class GameObjectAssetLoader
 
     public static void dispose()
     {
-        System.out.println("[AssetLoader] Disposing AssetManager...");
         assetManager.dispose();
     }
 }

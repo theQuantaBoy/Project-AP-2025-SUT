@@ -112,6 +112,8 @@ public class Player {
 
     private MapTypes mapType;
 
+    private Buff buff = null;
+
     public void setMapType(MapTypes mapType)
     {
         this.mapType = mapType;
@@ -133,7 +135,6 @@ public class Player {
         this.cabin = new Cabin();
         this.greenHouse = new GreenHouse();
         this.gender = user.getGender();
-//        this.currentMap = this.farm;
         this.energy = 200f;
         this.fainted = false;
         this.money = 0;
@@ -147,16 +148,10 @@ public class Player {
         addToInventory(GameObjectType.MILK, 2);
 
         this.zeidy = null;
-//        this.location = farm.getStartingPoint();
         this.newMessage = false;
         this.apperance = appearences.get(number);
         this.skills.add(farmingSkill); this.skills.add(miningSkill);
         this.skills.add(foragingSkill); this.skills.add(fishingSkill);
-
-//        Point spawn = currentMap.getStartingPoint();
-//        Vector2 spawnPoint = currentMap.tileToWorld(currentMap.getTile(spawn.getX(), spawn.getY()));
-//
-//        this.character = new PlayerCharacter(CharacterType.ABIGAIL, spawnPoint, user.getNickname());
     }
 
     public void spawn()
@@ -185,7 +180,6 @@ public class Player {
         this.addToInventory(new TrashCan());
 
         this.zeidy = null;
-//        this.location = farm.getStartingPoint();
         setLocation(farm.getStartingPoint());
         this.newMessage = false;
         this.apperance = appearences.get(number);
@@ -233,7 +227,21 @@ public class Player {
     }
 
 
-    public float getMaxEnergy() {
+    public float getMaxEnergy()
+    {
+        if (buff != null)
+        {
+            if (buff.getType() == BuffType.MAX_ENERGY_100)
+            {
+                return maxEnergy + 100;
+            }
+
+            if (buff.getType() == BuffType.MAX_ENERGY_50)
+            {
+                return maxEnergy + 50;
+            }
+        }
+
         return this.maxEnergy;
     }
 
@@ -467,7 +475,7 @@ public class Player {
     }
 
     public float getEnergyPercentage() {
-        return this.energy / this.maxEnergy;
+        return this.energy / getMaxEnergy();
     }
 
     public Tool getTool(ToolType type)
@@ -757,7 +765,6 @@ public class Player {
         this.isInZeidiesFarm = true;
         this.isInZeidiesHome = false;
         this.currentMap = zeidy.getFarm();
-//        this.location = zeidy.getFarm().getStartingPoint();
         setLocation(zeidy.getFarm().getStartingPoint());
     }
 
@@ -769,7 +776,6 @@ public class Player {
         this.isInFarm = false;
         this.isInGreenHouse = true;
         this.currentMap = this.greenHouse;
-//        this.location = greenHouse.getStartingPoint();
         setLocation(greenHouse.getStartingPoint());
         WorldScreen.getInstance().updateGameInfo();
     }
@@ -810,7 +816,7 @@ public class Player {
 
     public void setEnergyToMax()
     {
-        this.energy = maxEnergy;
+        this.energy = getMaxEnergy();
     }
 
     public boolean canAffordGreenhouse()
@@ -1222,5 +1228,15 @@ public class Player {
             }
         }
         return false;
+    }
+
+    public Buff getBuff()
+    {
+        return buff;
+    }
+
+    public void setBuff(Buff buff)
+    {
+        this.buff = buff;
     }
 }

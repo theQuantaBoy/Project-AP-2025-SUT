@@ -5,10 +5,7 @@ import ap.project.model.App.App;
 import ap.project.model.App.GameAssetsManager;
 import ap.project.model.enums.DayOfWeek;
 import ap.project.model.enums.Weather;
-import ap.project.model.game.Game;
-import ap.project.model.game.Player;
-import ap.project.model.game.PlayerCharacter;
-import ap.project.model.game.Time;
+import ap.project.model.game.*;
 import ap.project.model.tools.Tool;
 import ap.project.screen.InventoryWindow;
 import ap.project.screen.WorldScreen;
@@ -125,6 +122,7 @@ public class UIRenderer
         drawStatus(batch, clockX, clockY);
         drawSeasonBanner(batch, clockX, clockY);
         drawClockText(batch, clockX, clockY);
+        drawPlayerBuff(batch, clockX, clockY);
     }
 
     private void drawClockBackground(Batch batch, int x, int y) {
@@ -163,10 +161,21 @@ public class UIRenderer
         font.draw(batch, moneyText, x + 64, y + 38);
     }
 
+    private void drawPlayerBuff(Batch batch, int x, int y)
+    {
+        Buff buff = player.getBuff();
+
+        if (buff != null)
+        {
+            Texture buffTexture = buff.getType().getTexture();
+            batch.draw(buffTexture, x - 60, y + 4, 48, 48);
+        }
+    }
+
     private void renderEnergyBar(OrthographicCamera uiCam, int screenW, int screenH) {
         // Set up for vertical bar at bottom left
         int barWidth = 20; // Width of the bar
-        int barHeight = 150; // Height of the bar
+        int barHeight = (int) (150 * ((float) player.getMaxEnergy() / 200)); // Height of the bar
         int margin = 20; // Margin from edges
         int barX = screenW - barWidth - margin;
         int barY = margin;
