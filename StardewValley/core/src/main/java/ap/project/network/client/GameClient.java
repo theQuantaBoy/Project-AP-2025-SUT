@@ -1,6 +1,7 @@
 package ap.project.network.client;
 
 import ap.project.model.game.AbstractCharacter;
+import ap.project.network.shared.KryoRegistry;
 import ap.project.network.shared.messages.*;
 import com.esotericsoftware.kryonet.Client;
 import com.esotericsoftware.kryonet.Connection;
@@ -35,6 +36,8 @@ public class GameClient
                 }
             }
         });
+
+        instance = this;
     }
 
     public static synchronized GameClient getInstance()
@@ -49,20 +52,7 @@ public class GameClient
 
     private void registerClasses(com.esotericsoftware.kryo.Kryo kryo)
     {
-        kryo.register(MessageType.class);
-        kryo.register(PlayerPositionMessage.class);
-        kryo.register(TestMessage.class);
-
-        kryo.register(UserProfileMessage.class);
-        kryo.register(GameConfigMessage.class);
-        kryo.register(GameConfigMessage.PlayerConfig.class);
-        kryo.register(AckMessage.class);
-        kryo.register(ArrayList.class);
-
-        kryo.register(ap.project.model.enums.Gender.class);
-        kryo.register(ap.project.model.enums.MapTypes.class);
-
-        // Register all other message classes ...
+        KryoRegistry.registerClasses(kryo);
     }
 
     public void connect(String ip)

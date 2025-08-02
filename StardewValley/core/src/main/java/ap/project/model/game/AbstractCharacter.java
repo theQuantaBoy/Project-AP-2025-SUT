@@ -143,4 +143,16 @@ public abstract class AbstractCharacter
     {
         return avatar;
     }
+
+    public Direction getDirection()
+    {
+        for (java.util.Map.Entry<Direction, Animation<TextureRegion>> entry : animations.entrySet())
+        {
+            if (entry.getValue() == currentAnimation)
+            {
+                return entry.getKey();
+            }
+        }
+        return Direction.DOWN; // Default if not found
+    }
 }

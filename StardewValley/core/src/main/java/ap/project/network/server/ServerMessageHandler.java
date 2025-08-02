@@ -12,12 +12,30 @@ public class ServerMessageHandler
         {
             case TEST:
                 handleTestMessage((TestMessage) message);
+                break;
+            case PLAYER_POSITION:
+                handlePlayerPosition(client, (PlayerPositionMessage) message);
+                break;
             // Add other cases
         }
     }
 
     private static void handleTestMessage(TestMessage msg)
     {
-        System.out.println("received: " + msg.getText());
+//        System.out.println("received: " + msg.getText());
+    }
+
+    private static void handlePlayerPosition(ClientConnection sender, PlayerPositionMessage msg)
+    {
+        // Broadcast to all other clients
+        GameServer server = GameServer.getInstance();
+        for (ClientConnection client : server.getConnectedClients())
+        {
+            if (client != sender)
+            {
+                // Don't send back to sender
+                client.send(msg);
+            }
+        }
     }
 }

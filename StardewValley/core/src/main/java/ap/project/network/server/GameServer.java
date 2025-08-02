@@ -1,6 +1,8 @@
 package ap.project.network.server;
 
 import ap.project.model.enums.MapTypes;
+import ap.project.model.game.AbstractCharacter;
+import ap.project.network.shared.KryoRegistry;
 import ap.project.network.shared.enums.MessageType;
 import ap.project.network.shared.messages.*;
 import com.esotericsoftware.kryonet.Server;
@@ -8,6 +10,7 @@ import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -107,24 +110,18 @@ public class GameServer
                 }
             }
         });
+
+        instance = this;
+    }
+
+    public Collection<ClientConnection> getConnectedClients()
+    {
+        return players.values();
     }
 
     private void registerClasses(com.esotericsoftware.kryo.Kryo kryo)
     {
-        kryo.register(MessageType.class);
-        kryo.register(PlayerPositionMessage.class);
-        kryo.register(TestMessage.class);
-
-        kryo.register(UserProfileMessage.class);
-        kryo.register(GameConfigMessage.class);
-        kryo.register(GameConfigMessage.PlayerConfig.class);
-        kryo.register(AckMessage.class);
-        kryo.register(ArrayList.class);
-
-        kryo.register(ap.project.model.enums.Gender.class);
-        kryo.register(ap.project.model.enums.MapTypes.class);
-
-        // Register all other message classes ...
+        KryoRegistry.registerClasses(kryo);
     }
 
     public void broadcast(Message message)

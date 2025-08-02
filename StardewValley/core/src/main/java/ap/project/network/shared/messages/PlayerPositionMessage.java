@@ -1,23 +1,23 @@
 package ap.project.network.shared.messages;
 
-import ap.project.model.game.AbstractCharacter;
-import ap.project.model.game.Player;
 import ap.project.network.shared.enums.MessageType;
 
 public class PlayerPositionMessage extends Message
 {
-    private String playerId;
-    private float x, y;
-    private AbstractCharacter.Direction direction;
+    public String playerId;
+    public float x, y;
+    public byte direction; // Using byte for efficiency
+    public long timestamp;
 
-    public PlayerPositionMessage() {}
+    public PlayerPositionMessage() {} // Kryo requires this
 
-    public PlayerPositionMessage(String playerId, float x, float y, AbstractCharacter.Direction direction)
+    public PlayerPositionMessage(String playerId, float x, float y, byte direction)
     {
         this.playerId = playerId;
         this.x = x;
         this.y = y;
         this.direction = direction;
+        this.timestamp = System.currentTimeMillis();
     }
 
     @Override

@@ -15,6 +15,7 @@ import ap.project.model.game.Game;
 import ap.project.model.tools.BackPack;
 import ap.project.model.tools.Tool;
 import ap.project.network.client.GameClient;
+import ap.project.network.shared.messages.PlayerPositionMessage;
 import ap.project.network.shared.messages.TestMessage;
 import ap.project.screen.input.WorldScreenInputProcessor;
 import ap.project.util.MapAssetLoader;
@@ -47,6 +48,7 @@ import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public final class WorldScreen implements Screen
@@ -120,6 +122,10 @@ public final class WorldScreen implements Screen
 
     private float networkUpdateTimer = 0f;
 
+    private final HashMap<String, RemotePlayer> remotePlayers = new HashMap<>();
+    private float positionUpdateTimer = 0;
+    private static final float POSITION_UPDATE_INTERVAL = 0.1f;
+
 //    private FishingMinigameWindow fishingWindow;
 
     public WorldScreen(boolean newVersion)
@@ -171,6 +177,8 @@ public final class WorldScreen implements Screen
         inputMultiplexer = new InputMultiplexer();
         checkGameInfo();
         initializeHotbar();
+
+        initRemotePlayers();
     }
 
     public WorldScreen() {
@@ -515,11 +523,23 @@ public final class WorldScreen implements Screen
 
         // Send position updates periodically
         networkUpdateTimer += dt;
+
         if (networkUpdateTimer > 0.1f)
         { // 10 times/sec
             sendPositionUpdate();
             networkUpdateTimer = 0;
         }
+
+        // Send position if in city
+        if (player.isInCity())
+        {
+            System.out.println("calling sendPlayerPosition");
+            sendPlayerPosition();
+            positionUpdateTimer = 0;
+        }
+
+        // Update remote player positions
+        updateRemotePlayers(dt);
 
         Gdx.gl.glClearColor(0f, 0f, 0f, 1f);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
@@ -546,19 +566,7 @@ public final class WorldScreen implements Screen
         float worldMouseX = mouseWorldPos.x;
         float worldMouseY = mouseWorldPos.y;
 
-        if (map.getMapType().getMapKind() == MapKind.TOWN)
-        {
-            for (Player p : game.getPlayers())
-            {
-                if (p.isInCity())
-                {
-                    characterRenderer.render(batch, p.getCharacter(), CHAR_SCALE);
-                }
-            }
-        } else
-        {
-            characterRenderer.render(batch, character, CHAR_SCALE);
-        }
+        renderCharacters(batch);
 
         if (SECOND_PLAYER) characterRenderer.render(batch, player2, CHAR_SCALE);
 
@@ -1171,6 +1179,96 @@ public final class WorldScreen implements Screen
         if (greenHouseBuildWindow != null)
         {
             greenHouseBuildWindow.toggleVisibility();
+        }
+    }
+
+    private void initRemotePlayers()
+    {
+        for (Player p : game.getPlayers())
+        {
+            if (!p.getUser().getUsername().equals(player.getUser().getUsername()))
+            {
+                PlayerCharacter pc = new PlayerCharacter(
+                    CharacterType.ABIGAIL, // Default type
+                    new Vector2(0, 0),
+                    p.getUser().getNickname(),
+                    p
+                );
+                remotePlayers.put(p.getUser().getUsername(), new RemotePlayer(p.getUser().getUsername(), pc));
+            }
+        }
+    }
+
+    private void sendPlayerPosition()
+    {
+        // Convert enum direction to byte
+        byte directionByte = (byte) character.getDirection().ordinal();
+
+        PlayerPositionMessage msg = new PlayerPositionMessage(
+            player.getUser().getUsername(),
+            character.getPosition().x,
+            character.getPosition().y,
+            directionByte
+        );
+        GameClient.getInstance().send(msg);
+    }
+
+    private void updateRemotePlayers(float delta)
+    {
+        long currentTime = System.currentTimeMillis();
+
+        for (RemotePlayer remote : remotePlayers.values())
+        {
+            if (currentTime - remote.lastUpdateTime > 50) continue;
+
+            float alpha = 0.3f;
+            remote.character.getPosition().lerp(remote.targetPosition, alpha);
+
+            // Only update animation if moving
+            if (remote.isMoving())
+            {
+                remote.character.updateAnimation(delta);
+            } else
+            {
+                // Reset to first frame of animation when idle
+                remote.character.resetAnimation();
+            }
+        }
+    }
+
+    public void handlePlayerPosition(PlayerPositionMessage msg)
+    {
+        if (map.getMapType().getMapKind() != MapKind.TOWN) return;
+
+        RemotePlayer remote = remotePlayers.get(msg.playerId);
+        if (remote != null)
+        {
+            // Convert byte back to enum
+            AbstractCharacter.Direction direction =
+                AbstractCharacter.Direction.values()[msg.direction];
+
+            remote.updatePosition(msg.x, msg.y, direction);
+        }
+    }
+
+    private void renderCharacters(Batch batch)
+    {
+        if (player.isInCity())
+        {
+            // Render local player
+            characterRenderer.render(batch, character, CHAR_SCALE);
+
+            // Render remote players
+            for (RemotePlayer remote : remotePlayers.values())
+            {
+                if (System.currentTimeMillis() - remote.lastUpdateTime < 2000)
+                {
+                    characterRenderer.render(batch, remote.character, CHAR_SCALE);
+                }
+            }
+        } else
+        {
+            characterRenderer.render(batch, character, CHAR_SCALE);
         }
     }
 }
