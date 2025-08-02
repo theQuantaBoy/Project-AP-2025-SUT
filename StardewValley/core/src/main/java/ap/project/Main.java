@@ -6,8 +6,12 @@ import ap.project.model.App.App;
 import ap.project.model.App.User;
 import ap.project.model.enums.Gender;
 import ap.project.model.enums.SecurityQuestionType;
+import ap.project.model.game.Game;
+import ap.project.model.game.Player;
 import ap.project.network.client.GameClient;
+import ap.project.network.shared.messages.GameConfigMessage;
 import ap.project.network.shared.messages.TestMessage;
+import ap.project.network.shared.messages.UserProfileMessage;
 import ap.project.screen.*;
 import ap.project.screen.MainScreen;
 import ap.project.screen.RegisterScreen;
@@ -17,11 +21,15 @@ import ap.project.util.GameObjectAssetLoader;
 import ap.project.view.AppView;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
 import com.badlogic.gdx.backends.headless.HeadlessApplication;
 import com.badlogic.gdx.backends.headless.HeadlessApplicationConfiguration;
+
+import java.util.ArrayList;
+import java.util.Scanner;
 
 /** {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms. */
 public class Main extends com.badlogic.gdx.Game
@@ -48,25 +56,69 @@ public class Main extends com.badlogic.gdx.Game
         Gdx.graphics.setCursor(Gdx.graphics.newCursor(cursorPixmap, hotspotX, hotspotY));
         cursorPixmap.dispose();
 
-//        User newUser = new User("arash", "a36213126A@", "arash", "arash@gmail.com", Gender.MALE, SecurityQuestionType.ANIMAL.getQuestion(), "cat");
-//        App.setCurrentUser(newUser);
-//        app.setScreen(new MainScreen(new MainMenuController()));
-//        app.setScreen(new RegisterScreen(new RegisterController()));
-
+        // Connect to server FIRST
         GameClient.getInstance().connect("127.0.0.1");
 
-        // Test after 1 second (ensure connection completes)
+        // Create test user profile (hardcoded for testing)
+        String name = "player" + (int)(Math.random() * 1000);
+        String nickname = "Player" + (int)(Math.random() * 1000);
+
+        // Set loading screen immediately
+        setScreen(new LoadingScreen());
+
+        // Send profile after short delay (ensure connection completes)
         new Thread(() -> {
             try {
-                Thread.sleep(1000);
-                if (GameClient.getInstance().isConnected()) {
-                    GameClient.getInstance().send(new TestMessage("Hello Server!"));
+                // Wait for connection
+                int attempts = 0;
+                while (!GameClient.getInstance().isConnected() && attempts < 50) {
+                    Thread.sleep(100);
+                    attempts++;
                 }
-            } catch (InterruptedException e) {}
+
+                if (GameClient.getInstance().isConnected()) {
+                    UserProfileMessage profile = new UserProfileMessage(
+                        name, nickname, Gender.MALE, 1
+                    );
+                    GameClient.getInstance().send(profile);
+                    System.out.println("Sent profile: " + name);
+                } else {
+                    System.out.println("Failed to connect to server");
+                }
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }).start();
 
-        app.setScreen(new WorldScreen());
-//        setScreen(new FishingMinigameScreen(this));
+//        app.setScreen(new WorldScreen());
+    }
+
+    public void onGameConfigReceived(GameConfigMessage config)
+    {
+        // Create players from config
+        ArrayList<Player> players = new ArrayList<>();
+        for (GameConfigMessage.PlayerConfig pc : config.players)
+        {
+            User user = new User(
+                pc.username,
+                "",  // No password needed
+                pc.nickname,
+                "",  // No email
+                Gender.MALE,  // Default gender
+                "",  // No security Q
+                ""   // No security A
+            );
+            Player player = new Player(user, pc.mapType, pc.playerIndex);
+            players.add(player);
+        }
+
+        // Create and set game
+        Game game = new Game(players);
+        App.setCurrentGame(game);
+        game.setCurrentPlayer(game.getPlayers().get(config.yourPlayerIndex));
+
+        // Start world screen
+        setScreen(new WorldScreen(true));
     }
 
     @Override
@@ -95,14 +147,5 @@ public class Main extends com.badlogic.gdx.Game
 
     public SpriteBatch getBatch() {
         return batch;
-    }
-
-    public void runConsole()
-    {
-        // 👇 Start a dummy LibGDX backend just for file access
-        HeadlessApplicationConfiguration config = new HeadlessApplicationConfiguration();
-        new HeadlessApplication(new ApplicationAdapter() {}, config);  // doesn't launch GUI
-
-        (new AppView()).runInConsole();
     }
 }

@@ -66,7 +66,7 @@ public final class WorldScreen implements Screen
     private static final float TILE_SIZE = 24f * MAP_SCALE;
     private static final float PLAYER_SPEED = 50f * MAP_SCALE;
 
-    private final Game game;
+    private Game game;
 
     private final OrthographicCamera cam;
     private final OrthographicCamera uiCam = new OrthographicCamera();
@@ -121,6 +121,57 @@ public final class WorldScreen implements Screen
     private float networkUpdateTimer = 0f;
 
 //    private FishingMinigameWindow fishingWindow;
+
+    public WorldScreen(boolean newVersion)
+    {
+        INSTANCE = this;
+        this.shapeRenderer = new ShapeRenderer();
+        cam = new OrthographicCamera(20 * TILE_SIZE, 15 * TILE_SIZE);
+        cam.setToOrtho(false);
+
+        // Get game from App instead of creating new
+        this.game = App.getCurrentGame();
+        if (game == null)
+        {
+            // Fallback for single-player testing
+            this.game = new Game(new ArrayList<>(List.of(
+                new Player(new User("fallback","","fallback","", Gender.MALE, "", ""),
+                    MapTypes.MINING, 0)
+            )));
+        }
+
+        // Initialize players
+        for (Player p : game.getPlayers())
+        {
+            Farm f = new Farm(p.getMapType());
+            p.setFarm(f);
+            p.setCurrentMap(f);
+            p.spawn();
+        }
+
+        this.map = game.getCurrentPlayer().getCurrentMap();
+        time = game.getCurrentTime();
+        currentSeason = time.getSeason();
+
+        this.characterRenderer = new CharacterRenderer(shapeRenderer);
+
+        ShaderProgram.pedantic = false;
+        uiRenderer = new UIRenderer(time);
+
+        inventoryWindow = new InventoryWindow(uiStage, this);
+        friendsWindow = new FriendsWindow(uiStage, this);
+        cookBookWindow = new CookBookWindow(uiStage);
+        refrigeratorWindow = new RefrigeratorWindow(uiStage);
+        craftingItemWindow = new CraftingItemWindow(uiStage);
+        communicationWindow = new CommunicationWindow(uiStage, this);
+        greenHouseBuildWindow = new GreenHouseBuildWindow(uiStage);
+        createTerminalDialog();
+        worldController = new WorldController();
+        worldController.setCommunicationWindow(communicationWindow);
+        inputMultiplexer = new InputMultiplexer();
+        checkGameInfo();
+        initializeHotbar();
+    }
 
     public WorldScreen() {
         INSTANCE = this;

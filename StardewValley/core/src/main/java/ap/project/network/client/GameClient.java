@@ -1,14 +1,13 @@
 package ap.project.network.client;
 
 import ap.project.model.game.AbstractCharacter;
-import ap.project.network.shared.messages.PlayerPositionMessage;
-import ap.project.network.shared.messages.TestMessage;
+import ap.project.network.shared.messages.*;
 import com.esotericsoftware.kryonet.Client;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
-import ap.project.network.shared.messages.Message;
 import ap.project.network.shared.enums.MessageType;
 
+import java.util.ArrayList;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class GameClient
@@ -30,7 +29,8 @@ public class GameClient
             @Override
             public void received(Connection connection, Object object)
             {
-                if (object instanceof Message) {
+                if (object instanceof Message)
+                {
                     incomingQueue.add((Message) object);
                 }
             }
@@ -52,6 +52,15 @@ public class GameClient
         kryo.register(MessageType.class);
         kryo.register(PlayerPositionMessage.class);
         kryo.register(TestMessage.class);
+
+        kryo.register(UserProfileMessage.class);
+        kryo.register(GameConfigMessage.class);
+        kryo.register(GameConfigMessage.PlayerConfig.class);
+        kryo.register(AckMessage.class);
+        kryo.register(ArrayList.class);
+
+        kryo.register(ap.project.model.enums.Gender.class);
+        kryo.register(ap.project.model.enums.MapTypes.class);
 
         // Register all other message classes ...
     }

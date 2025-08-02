@@ -2,11 +2,10 @@ package ap.project.network.shared.enums;
 
 public enum MessageType
 {
-    CONNECTION_REQUEST,
-    CONNECTION_RESPONSE,
+    TEST_MESSAGE,
     PLAYER_POSITION,
-    CHAT_MESSAGE,
-    FARM_DELTA,
-    CHEAT_CODE,
+    USER_PROFILE,
+    GAME_CONFIG,
+    ACK,
     TEST
 }
