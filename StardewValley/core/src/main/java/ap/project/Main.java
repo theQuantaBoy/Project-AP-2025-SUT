@@ -6,6 +6,8 @@ import ap.project.model.App.App;
 import ap.project.model.App.User;
 import ap.project.model.enums.Gender;
 import ap.project.model.enums.SecurityQuestionType;
+import ap.project.network.client.GameClient;
+import ap.project.network.shared.messages.TestMessage;
 import ap.project.screen.*;
 import ap.project.screen.MainScreen;
 import ap.project.screen.RegisterScreen;
@@ -50,6 +52,18 @@ public class Main extends com.badlogic.gdx.Game
 //        App.setCurrentUser(newUser);
 //        app.setScreen(new MainScreen(new MainMenuController()));
 //        app.setScreen(new RegisterScreen(new RegisterController()));
+
+        GameClient.getInstance().connect("127.0.0.1");
+
+        // Test after 1 second (ensure connection completes)
+        new Thread(() -> {
+            try {
+                Thread.sleep(1000);
+                if (GameClient.getInstance().isConnected()) {
+                    GameClient.getInstance().send(new TestMessage("Hello Server!"));
+                }
+            } catch (InterruptedException e) {}
+        }).start();
 
         app.setScreen(new WorldScreen());
 //        setScreen(new FishingMinigameScreen(this));

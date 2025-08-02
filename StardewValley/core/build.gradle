@@ -51,6 +51,8 @@ dependencies {
   implementation "com.badlogicgames.gdx:gdx:1.12.0"
   implementation "com.badlogicgames.gdx:gdx-platform:1.12.0:natives-desktop"
   implementation "com.badlogicgames.gdx:gdx-tools:1.12.0"
+
+  implementation "com.esotericsoftware:kryonet:2.22.0-RC1"
 }
 
 test {

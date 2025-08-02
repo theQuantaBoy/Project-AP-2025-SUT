@@ -1,7 +1,6 @@
 package ap.project.control;
 
 import ap.project.model.App.App;
-import ap.project.model.enums.TileTexture;
 import ap.project.model.game.*;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;

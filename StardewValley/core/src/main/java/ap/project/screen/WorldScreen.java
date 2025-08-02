@@ -14,6 +14,8 @@ import ap.project.model.enums.*;
 import ap.project.model.game.Game;
 import ap.project.model.tools.BackPack;
 import ap.project.model.tools.Tool;
+import ap.project.network.client.GameClient;
+import ap.project.network.shared.messages.TestMessage;
 import ap.project.screen.input.WorldScreenInputProcessor;
 import ap.project.util.MapAssetLoader;
 import ap.project.view.GameMenu;
@@ -115,6 +117,8 @@ public final class WorldScreen implements Screen
 
     private boolean cameraFixed = false;
     private final boolean DEBUG_MODE = false;
+
+    private float networkUpdateTimer = 0f;
 
 //    private FishingMinigameWindow fishingWindow;
 
@@ -440,8 +444,32 @@ public final class WorldScreen implements Screen
         inputMultiplexerHadSetUp = true;
     }
 
+    private void sendPositionUpdate()
+    {
+        Player player = App.getCurrentGame().getCurrentPlayer();
+
+        if (GameClient.getInstance().isConnected())
+        {
+            GameClient.getInstance().send(new TestMessage(player.getUser().getUsername() + " " +
+                (player.isInFarm() ? "in farm " : "not in farm ") + " at " + player.getLocation().getX() +
+                ", " + player.getLocation().getY()));
+        }
+    }
+
     @Override
-    public void render(float dt) {
+    public void render(float dt)
+    {
+        // Process network messages
+        GameClient.getInstance().processMessages();
+
+        // Send position updates periodically
+        networkUpdateTimer += dt;
+        if (networkUpdateTimer > 0.1f)
+        { // 10 times/sec
+            sendPositionUpdate();
+            networkUpdateTimer = 0;
+        }
+
         Gdx.gl.glClearColor(0f, 0f, 0f, 1f);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
