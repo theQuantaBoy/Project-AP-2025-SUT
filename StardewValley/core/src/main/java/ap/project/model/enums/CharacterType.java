@@ -1,5 +1,7 @@
 package ap.project.model.enums;
 
+import com.badlogic.gdx.graphics.Texture;
+
 public enum CharacterType
 {
     ABIGAIL("Abigail", "characters/Abigail/Abigail_Sheet.atlas", "characters/Abigail/Abigail_Avatar.png"),
@@ -8,6 +10,7 @@ public enum CharacterType
     private final String name;
     private final String spritesAddress;
     private final String avatarPath;
+    private Texture avatarTexture;
 
     CharacterType(String name, String spritesAddress, String avatarPath)
     {
@@ -29,5 +32,15 @@ public enum CharacterType
     public String getAvatarPath()
     {
         return avatarPath;
+    }
+
+    public Texture getAvatarTexture()
+    {
+        return avatarTexture;
+    }
+
+    public void setAvatarTexture(Texture avatarTexture)
+    {
+        this.avatarTexture = avatarTexture;
     }
 }

@@ -9,6 +9,9 @@ public class ClientConnection
     private final Connection connection;
     private int userId;
 
+    private boolean isOnline = false;
+    private boolean isInLobby = false;
+
     public ClientConnection(Connection connection)
     {
         this.connection = connection;
@@ -30,5 +33,25 @@ public class ClientConnection
     public int getUserId()
     {
         return userId;
+    }
+
+    public void setOnline(boolean online)
+    {
+        isOnline = online;
+    }
+
+    public void setInLobby(boolean inLobby)
+    {
+        isInLobby = inLobby;
+    }
+
+    public boolean isOnline()
+    {
+        return isOnline;
+    }
+
+    public boolean isInLobby()
+    {
+        return isInLobby;
     }
 }

@@ -12,22 +12,25 @@ public class Lobby
     private final boolean isPrivate;
     private String password;
     private final String id;
+    private final boolean isVisible;
 
-    public Lobby(String name, String password, User user)
+    public Lobby(String name, String password, User user, boolean isVisible)
     {
         this.name = name;
         this.password = password;
         this.isPrivate = true;
         users.add(user);
         this.id = StringToNumber.stringToRandomizedFixedDigitNumber(name, 6);
+        this.isVisible = isVisible;
     }
 
-    public Lobby(String name, User user)
+    public Lobby(String name, User user, boolean isVisible)
     {
         this.name = name;
         this.isPrivate = false;
         users.add(user);
         this.id = StringToNumber.stringToRandomizedFixedDigitNumber(name, 6);
+        this.isVisible = isVisible;
     }
 
     public User getAdmin()
@@ -63,5 +66,10 @@ public class Lobby
     public String getId()
     {
         return id;
+    }
+
+    public boolean isVisible()
+    {
+        return isVisible;
     }
 }

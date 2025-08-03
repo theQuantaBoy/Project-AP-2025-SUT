@@ -103,7 +103,7 @@ public class PreGameScreen implements Screen
                     showConnectionError();
                 } else
                 {
-                    Main.getApp().setScreen(new WorldScreen());
+                    Main.getApp().setScreen(new PreLobbyScreen());
                 }
             }
         });
@@ -202,9 +202,11 @@ public class PreGameScreen implements Screen
 
     public void startClient()
     {
-        try {
+        try
+        {
             User currentUser = App.getCurrentUser();
-            if (currentUser == null) {
+            if (currentUser == null)
+            {
                 System.err.println("No current user available");
                 return;
             }
@@ -214,25 +216,29 @@ public class PreGameScreen implements Screen
 
             // Wait for connection to establish
             int attempts = 0;
-            while (!client.isConnected() && attempts < 50) {
+            while (!client.isConnected() && attempts < 50)
+            {
                 sleep(100);
                 attempts++;
             }
 
-            if (client.isConnected()) {
+            if (client.isConnected())
+            {
                 UserProfileMessage message = new UserProfileMessage(currentUser.getUsername(),
                     currentUser.getNickname(), currentUser.getGender().toString(), currentUser.getHashId());
                 client.send(message);
 
                 // Process messages and wait for response
                 attempts = 0;
-                while (!client.isRegistered() && attempts < 50) {
+                while (!client.isRegistered() && attempts < 50)
+                {
                     client.processMessages();  // Process any incoming messages
                     sleep(100);
                     attempts++;
                 }
             }
-        } catch (Exception ex) {
+        } catch (Exception ex)
+        {
             ex.printStackTrace();
         }
     }
