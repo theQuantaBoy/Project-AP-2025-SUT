@@ -1112,6 +1112,11 @@ public final class WorldScreen implements Screen
 
             localTimeKeeper = 0;
         }
+
+        if (player.getEnergy() <= 0)
+        {
+            game.nextTurn();
+        }
     }
 
     private void renderCharacters(Batch batch)

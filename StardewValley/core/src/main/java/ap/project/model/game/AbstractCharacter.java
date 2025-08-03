@@ -14,7 +14,7 @@ public abstract class AbstractCharacter
 {
     protected final CharacterType type;
     protected final Vector2 position;
-    protected final Texture shadow;
+    protected final Texture shadow, lowEnergy;
     protected final EnumMap<Direction, Animation<TextureRegion>> animations;
     protected Animation<TextureRegion> currentAnimation;
     protected float stateTime = 0f;
@@ -39,6 +39,9 @@ public abstract class AbstractCharacter
 
         this.shadow = new Texture("characters/shadow.png");
         this.shadow.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
+
+        this.lowEnergy = new Texture("characters/low_energy.png");
+        this.lowEnergy.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
 
         this.animations = new EnumMap<>(Direction.class);
         animations.put(Direction.UP,    createAnim(atlas, type.getName() + "_0_walk_up_"));
@@ -98,6 +101,11 @@ public abstract class AbstractCharacter
     public Texture getShadow()
     {
         return shadow;
+    }
+
+    public Texture getLowEnergy()
+    {
+        return lowEnergy;
     }
 
     public void decreaseEnergy(float amount) {

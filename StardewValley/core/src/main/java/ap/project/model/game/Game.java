@@ -175,7 +175,7 @@ public class Game
 
            if (players.indexOf(currentPlayer) == 0)
            {
-               //resetTurnEnergy();
+               resetEnergy();
                currentTime.updateHour(1);
 
                if (currentTime.getHour() == 9)
@@ -692,19 +692,19 @@ public class Game
         }
     }
 
-//    public void resetTurnEnergy()
-//    {
-//        for (Player player : players)
-//        {
-//            float diff = 50 - player.getTurnEnergy();
-//            if (player.getEnergy() >= diff)
-//            {
-//                player.increaseEnergy(-diff);
-//                player.increaseTurnEnergy(diff);
-//            } else
-//            {
-//                player.faint();
-//            }
-//        }
-//    }
+    public void resetEnergy()
+    {
+        for (Player player : players)
+        {
+            float diff = 50 - player.getEnergy();
+            if (player.getEnergy() >= diff)
+            {
+                player.increaseEnergy(-diff);
+                player.increaseEnergy(diff);
+            } else
+            {
+                player.faint();
+            }
+        }
+    }
 }
