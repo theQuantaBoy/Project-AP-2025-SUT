@@ -1,6 +1,7 @@
 package ap.project.screen;
 
 import ap.project.control.CharacterController;
+import ap.project.control.OnlineWorldController;
 import ap.project.control.WorldController;
 import ap.project.model.App.App;
 import ap.project.model.App.GameAssetsManager;
@@ -108,13 +109,18 @@ public final class WorldScreen implements Screen
 
     private boolean cameraFixed = false;
     private final boolean DEBUG_MODE = false;
-    private final boolean ONLINE_MODE = false;
+
+    private float localTimeKeeper = 0f;
+
+    private OnlineWorldController onlineWorldController = new OnlineWorldController();
+    private final boolean ONLINE_MODE;
 
 //    private FishingMinigameWindow fishingWindow;
 
     public WorldScreen()
     {
         INSTANCE = this;
+        ONLINE_MODE = false;
 
         this.shapeRenderer = new ShapeRenderer();
 //        this.miniGame = new FishingGame();
@@ -450,6 +456,11 @@ public final class WorldScreen implements Screen
     @Override
     public void render(float dt)
     {
+        if (!ONLINE_MODE)
+        {
+            updateLocally(dt);
+        }
+
         Gdx.gl.glClearColor(0f, 0f, 0f, 1f);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
@@ -1088,6 +1099,18 @@ public final class WorldScreen implements Screen
         if (greenHouseBuildWindow != null)
         {
             greenHouseBuildWindow.toggleVisibility();
+        }
+    }
+
+    private void updateLocally(float dt)
+    {
+        localTimeKeeper += dt;
+
+        if (localTimeKeeper >= 1f)
+        {
+            App.getCurrentGame().getCurrentTime().updateMinute(1);
+
+            localTimeKeeper = 0;
         }
     }
 

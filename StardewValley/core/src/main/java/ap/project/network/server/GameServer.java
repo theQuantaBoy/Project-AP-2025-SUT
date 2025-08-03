@@ -23,8 +23,85 @@ public class GameServer
     private final ArrayList<GameWrapper> games = new ArrayList<>();
     private final ArrayList<Lobby> activeLobbies = new ArrayList<>();
 
+    private volatile boolean running = true;
+    private Thread gameThread;
+
+    private float periodicMessageTimer = 0;
+    private static final float PERIODIC_MESSAGE_INTERVAL = 0.1f;
+
     private final int MIN_PLAYERS_FOR_GAME = 2;
     private final int MAX_PLAYERS_FOR_GAME = 4;
+
+    public void update(float delta)
+    {
+        periodicMessageTimer += delta;
+
+        // Send periodic messages every 100ms
+        if (periodicMessageTimer >= PERIODIC_MESSAGE_INTERVAL)
+        {
+            sendPeriodicMessages();
+
+            periodicMessageTimer = 0;
+        }
+
+        // Add other server update logic here
+        // (game state updates, lobby management, etc.)
+    }
+
+    private void sendPeriodicMessages()
+    {
+
+    }
+
+    private void startGameLoop()
+    {
+        gameThread = new Thread(() -> {
+            final float UPDATE_RATE = 1/60f; // 60 FPS
+            float accumulator = 0f;
+            long currentTime = System.nanoTime();
+
+            while (running)
+            {
+                long newTime = System.nanoTime();
+                float frameTime = (newTime - currentTime) / 1_000_000_000.0f;
+                currentTime = newTime;
+
+                // Prevent spiral of death on slow updates
+                if (frameTime > 0.25f) frameTime = 0.25f;
+
+                accumulator += frameTime;
+
+                while (accumulator >= UPDATE_RATE) {
+                    update(UPDATE_RATE);
+                    accumulator -= UPDATE_RATE;
+                }
+
+                try {
+                    Thread.sleep(1);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    break;
+                }
+            }
+        });
+
+        gameThread.setName("Server-GameLoop");
+        gameThread.setDaemon(true); // Allow JVM to exit even if thread is running
+        gameThread.start();
+    }
+
+    public void stop()
+    {
+        running = false;
+        if (gameThread != null)
+        {
+            gameThread.interrupt();
+            try {
+                gameThread.join(1000); // Wait 1 second for thread to stop
+            } catch (InterruptedException e) {}
+        }
+        kryoServer.stop();
+    }
 
     public synchronized void addUser(User user)
     {
@@ -87,6 +164,7 @@ public class GameServer
         });
 
         instance = this;
+        startGameLoop();
     }
 
     public Collection<ClientConnection> getConnectedClients()
@@ -123,8 +201,14 @@ public class GameServer
     {
         try
         {
-            new GameServer();
+            GameServer server = new GameServer();
             System.out.println("Server started!");
+
+            // Add shutdown hook for clean termination
+            Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+                System.out.println("Shutting down server...");
+                server.stop();
+            }));
         } catch (IOException e)
         {
             System.err.println("Server failed to start: " + e.getMessage());
