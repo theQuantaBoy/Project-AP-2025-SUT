@@ -1,6 +1,7 @@
 package ap.project.screen;
 
 import ap.project.Main;
+import ap.project.control.MainMenuController;
 import ap.project.control.PreGameController;
 import ap.project.model.App.App;
 import ap.project.model.App.GameAssetsManager;
@@ -11,10 +12,12 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
@@ -28,7 +31,7 @@ public class PreGameScreen implements Screen
     private Label menuName;
     private TextButton playOffline;
     private TextButton playOnline;
-    private Table table;
+    private TextButton backButton;
     private Dialog connectionDialog;
 
     public PreGameScreen()
@@ -43,15 +46,36 @@ public class PreGameScreen implements Screen
         this.menuName = new Label("Choose how to play", GameAssetsManager.getGameAssetsManager().getSkin(), "Impact");
         this.menuName.setAlignment(Align.center);
 
-        this.table = new Table();
-
         // Create buttons with same style
         this.playOffline = new TextButton("Play Offline", GameAssetsManager.getGameAssetsManager().getSkin());
         this.playOnline = new TextButton("Play Online", GameAssetsManager.getGameAssetsManager().getSkin());
+        this.backButton = new TextButton("Back", GameAssetsManager.getGameAssetsManager().getSkin());
 
-        // Build layout
-        table.add(playOffline).width(500).height(55).pad(20).row();
-        table.add(playOnline).width(500).height(55).pad(20).row();
+        // Build layout with centered content
+        Table contentTable = new Table();
+        contentTable.add(playOffline).width(350).height(75).pad(10).row();
+        contentTable.add(playOnline).width(350).height(75).pad(10).row();
+
+        // Create container to center the content
+        Container<Table> container = new Container<>(contentTable);
+        container.setFillParent(true);
+        container.center();
+
+        // Create bottom table for back button
+        Table bottomTable = new Table();
+        bottomTable.bottom().right();
+        bottomTable.setFillParent(true);
+        bottomTable.add(backButton).pad(20).size(200, 75);
+
+        // Add button listeners
+        addButtonListeners();
+
+        // Add actors to stage
+        stage.addActor(background);
+        stage.addActor(logo);
+        stage.addActor(menuName);
+        stage.addActor(container);
+        stage.addActor(bottomTable);
 
         // Add button listeners
         addButtonListeners();
@@ -81,6 +105,14 @@ public class PreGameScreen implements Screen
                 {
                     Main.getApp().setScreen(new WorldScreen());
                 }
+            }
+        });
+
+        // Back button listener
+        backButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                Main.getApp().setScreen(new MainScreen(new MainMenuController()));
             }
         });
     }
@@ -117,32 +149,23 @@ public class PreGameScreen implements Screen
     }
 
     @Override
-    public void show() {
+    public void show()
+    {
         Gdx.input.setInputProcessor(stage);
-        stage.addActor(background);
-        stage.addActor(logo);
-        stage.addActor(menuName);
-        stage.addActor(table);
         positionElements();
     }
 
-    private void positionElements() {
-        // Position logo at top center - same as RegisterScreen
+    private void positionElements()
+    {
+        // Position logo at top center
         float logoCenterX = stage.getWidth() / 2 - logo.getWidth() / 2;
         float logoTopY = stage.getHeight() - logo.getHeight() - 20;
         logo.setPosition(logoCenterX, logoTopY);
 
-        // Position label at top left - same as RegisterScreen
+        // Position label at top left
         float labelLeftX = 20;
         float labelTopY = stage.getHeight() - menuName.getHeight() - 20;
         menuName.setPosition(labelLeftX, labelTopY);
-
-        // Center table vertically - adjusted for this screen's simplicity
-        float tableWidth = table.getPrefWidth();
-        float tableHeight = table.getPrefHeight();
-        float x = stage.getWidth() / 2 - tableWidth / 2;
-        float y = stage.getHeight() / 2 - tableHeight / 2 + 50; // Slightly higher than center
-        table.setPosition(x, y);
     }
 
     @Override
@@ -154,7 +177,8 @@ public class PreGameScreen implements Screen
     }
 
     @Override
-    public void resize(int width, int height) {
+    public void resize(int width, int height)
+    {
         stage.getViewport().update(width, height, true);
         positionElements();
     }
@@ -169,7 +193,8 @@ public class PreGameScreen implements Screen
     public void hide() {}
 
     @Override
-    public void dispose() {
+    public void dispose()
+    {
         if (stage != null) {
             stage.dispose();
         }

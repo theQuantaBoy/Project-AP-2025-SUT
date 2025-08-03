@@ -89,10 +89,10 @@ public class Player {
 
     public static ArrayList<String> appearences = new ArrayList<>(List.of("\uD83D\uDC31", "\uD83E\uDD8A", "\uD83D\uDC3C", "\uD83E\uDD81"));
 
-    private boolean isInFarm = true;
+    private boolean isInFarm = false;
     private boolean isInCity = false;
     private boolean isInGreenHouse = false;
-    private boolean isInHome = false;
+    private boolean isInHome = true;
     private boolean isInZeidiesFarm = false;
     private boolean isInZeidiesHome = false;
     private boolean isInShop = false;
@@ -156,7 +156,7 @@ public class Player {
 
     public void spawn()
     {
-        this.currentMap = this.farm;
+        this.currentMap = this.cabin;
         Point spawn = currentMap.getStartingPoint();
         Vector2 spawnPoint = currentMap.tileToWorld(currentMap.getTile(spawn.getX(), spawn.getY()));
 

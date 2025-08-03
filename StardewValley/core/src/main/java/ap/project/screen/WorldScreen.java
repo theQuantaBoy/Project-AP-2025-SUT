@@ -135,7 +135,7 @@ public final class WorldScreen implements Screen
         )));
 
         App.setCurrentGame(game);
-        App.setCurrentMenu(Menu.GameMenu);
+        App.setCurrentMenu(Menu.HomeMenu);
         App.setCurrentUser(game.getPlayers().get(0).getUser());
         game.setCurrentPlayer(game.getPlayers().get(0));
 
