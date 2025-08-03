@@ -122,7 +122,6 @@ public final class WorldScreen implements Screen
 
     private float networkUpdateTimer = 0f;
 
-    private final HashMap<String, RemotePlayer> remotePlayers = new HashMap<>();
     private float positionUpdateTimer = 0;
     private static final float POSITION_UPDATE_INTERVAL = 0.1f;
 
@@ -177,8 +176,6 @@ public final class WorldScreen implements Screen
         inputMultiplexer = new InputMultiplexer();
         checkGameInfo();
         initializeHotbar();
-
-        initRemotePlayers();
     }
 
     public WorldScreen() {
@@ -539,7 +536,7 @@ public final class WorldScreen implements Screen
         }
 
         // Update remote player positions
-        updateRemotePlayers(dt);
+        updateOtherPlayers(dt);
 
         Gdx.gl.glClearColor(0f, 0f, 0f, 1f);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
@@ -1182,93 +1179,80 @@ public final class WorldScreen implements Screen
         }
     }
 
-    private void initRemotePlayers()
-    {
-        for (Player p : game.getPlayers())
-        {
-            if (!p.getUser().getUsername().equals(player.getUser().getUsername()))
-            {
-                PlayerCharacter pc = new PlayerCharacter(
-                    CharacterType.ABIGAIL, // Default type
-                    new Vector2(0, 0),
-                    p.getUser().getNickname(),
-                    p
-                );
-                remotePlayers.put(p.getUser().getUsername(), new RemotePlayer(p.getUser().getUsername(), pc));
-            }
-        }
-    }
-
     private void sendPlayerPosition()
     {
-        // Convert enum direction to byte
         byte directionByte = (byte) character.getDirection().ordinal();
+        boolean isMoving = character.isMoving();
 
         PlayerPositionMessage msg = new PlayerPositionMessage(
             player.getUser().getUsername(),
             character.getPosition().x,
             character.getPosition().y,
-            directionByte
+            directionByte,
+            isMoving
         );
         GameClient.getInstance().send(msg);
-    }
-
-    private void updateRemotePlayers(float delta)
-    {
-        long currentTime = System.currentTimeMillis();
-
-        for (RemotePlayer remote : remotePlayers.values())
-        {
-            if (currentTime - remote.lastUpdateTime > 50) continue;
-
-            float alpha = 0.3f;
-            remote.character.getPosition().lerp(remote.targetPosition, alpha);
-
-            // Only update animation if moving
-            if (remote.isMoving())
-            {
-                remote.character.updateAnimation(delta);
-            } else
-            {
-                // Reset to first frame of animation when idle
-                remote.character.resetAnimation();
-            }
-        }
     }
 
     public void handlePlayerPosition(PlayerPositionMessage msg)
     {
         if (map.getMapType().getMapKind() != MapKind.TOWN) return;
 
-        RemotePlayer remote = remotePlayers.get(msg.playerId);
-        if (remote != null)
+        for (Player p : game.getPlayers())
         {
-            // Convert byte back to enum
-            AbstractCharacter.Direction direction =
-                AbstractCharacter.Direction.values()[msg.direction];
+            if (p.getUser().getUsername().equals(msg.playerId) &&
+                !p.getUser().getUsername().equals(player.getUser().getUsername()))
+            {
 
-            remote.updatePosition(msg.x, msg.y, direction);
+                PlayerCharacter pc = p.getCharacter();
+                pc.setPosition(new Vector2(msg.x, msg.y));
+                pc.setDirection(AbstractCharacter.Direction.values()[msg.direction]);
+                pc.setMoving(msg.isMoving);
+                pc.setLastUpdateTime(System.currentTimeMillis());
+            }
+        }
+    }
+
+    private void updateOtherPlayers(float delta)
+    {
+        long currentTime = System.currentTimeMillis();
+
+        for (Player p : game.getPlayers())
+        {
+            if (p.getUser().getUsername().equals(player.getUser().getUsername())) continue;
+
+            PlayerCharacter pc = p.getCharacter();
+            if (currentTime - pc.getLastUpdateTime() > 50) continue;
+
+            // Only update animation if moving
+            if (pc.isMoving())
+            {
+                pc.updateAnimation(delta);
+            } else
+            {
+                pc.resetAnimation();
+            }
         }
     }
 
     private void renderCharacters(Batch batch)
     {
+        // Render local player
+        characterRenderer.render(batch, character, CHAR_SCALE);
+
         if (player.isInCity())
         {
-            // Render local player
-            characterRenderer.render(batch, character, CHAR_SCALE);
-
-            // Render remote players
-            for (RemotePlayer remote : remotePlayers.values())
+            // Render other players
+            for (Player p : game.getPlayers())
             {
-                if (System.currentTimeMillis() - remote.lastUpdateTime < 2000)
+                if (p.getUser().getUsername().equals(player.getUser().getUsername())) continue;
+
+                PlayerCharacter pc = p.getCharacter();
+                if (System.currentTimeMillis() - pc.getLastUpdateTime() < 2000)
                 {
-                    characterRenderer.render(batch, remote.character, CHAR_SCALE);
+                    characterRenderer.render(batch, pc, CHAR_SCALE);
                 }
             }
-        } else
-        {
-            characterRenderer.render(batch, character, CHAR_SCALE);
         }
     }
 }

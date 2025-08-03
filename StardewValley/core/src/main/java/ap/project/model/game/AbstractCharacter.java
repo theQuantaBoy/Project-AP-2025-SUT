@@ -27,6 +27,8 @@ public abstract class AbstractCharacter
 
     protected final Texture avatar;
 
+    protected boolean isMoving = false;
+
     public AbstractCharacter(CharacterType type, Vector2 spawnPoint, String nickName)
     {
         this.type = type;
@@ -154,5 +156,15 @@ public abstract class AbstractCharacter
             }
         }
         return Direction.DOWN; // Default if not found
+    }
+
+    public boolean isMoving()
+    {
+        return isMoving;
+    }
+
+    public void setMoving(boolean moving)
+    {
+        this.isMoving = moving;
     }
 }

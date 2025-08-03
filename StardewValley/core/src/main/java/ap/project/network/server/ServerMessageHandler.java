@@ -33,7 +33,6 @@ public class ServerMessageHandler
         {
             if (client != sender)
             {
-                // Don't send back to sender
                 client.send(msg);
             }
         }

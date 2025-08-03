@@ -8,16 +8,18 @@ public class PlayerPositionMessage extends Message
     public float x, y;
     public byte direction; // Using byte for efficiency
     public long timestamp;
+    public boolean isMoving;
 
     public PlayerPositionMessage() {} // Kryo requires this
 
-    public PlayerPositionMessage(String playerId, float x, float y, byte direction)
+    public PlayerPositionMessage(String playerId, float x, float y, byte direction, boolean isMoving)
     {
         this.playerId = playerId;
         this.x = x;
         this.y = y;
         this.direction = direction;
         this.timestamp = System.currentTimeMillis();
+        this.isMoving = isMoving;
     }
 
     @Override

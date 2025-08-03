@@ -46,6 +46,8 @@ public class CharacterController
 
         if (path != null && pathIndex < path.size())
         {
+            character.setMoving(true);
+
             Point point = path.get(pathIndex);
             Vector2 targetWorld = map.tileToWorld(map.getTile(point.getX(), point.getY()));
             Vector2 pos = character.getPosition();
@@ -83,7 +85,22 @@ public class CharacterController
             App.getCurrentGame().getCurrentPlayer().increaseEnergy(-0.8f * delta);
 
             return;
+        } else
+        {
+            float rawDx = (Gdx.input.isKeyPressed(rightKey) ? 1 : 0)
+                - (Gdx.input.isKeyPressed(leftKey)  ? 1 : 0);
+            float rawDy = (Gdx.input.isKeyPressed(upKey)    ? 1 : 0)
+                - (Gdx.input.isKeyPressed(downKey)  ? 1 : 0);
+
+            if (rawDx == 0 && rawDy == 0)
+            {
+                character.setMoving(false);  // Set idle state
+                character.resetAnimation();
+                return;
+            }
         }
+
+        character.setMoving(true);
 
         float rawDx = (Gdx.input.isKeyPressed(rightKey) ? 1 : 0)
                 - (Gdx.input.isKeyPressed(leftKey)  ? 1 : 0);
