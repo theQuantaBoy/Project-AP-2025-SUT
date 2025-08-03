@@ -1,6 +1,7 @@
 package ap.project.model.App;
 
 import java.security.MessageDigest;
+import java.util.Random;
 
 public class SHA256Hasher
 {
@@ -24,6 +25,33 @@ public class SHA256Hasher
         } catch (Exception e)
         {
             throw new RuntimeException("Error while hashing", e);
+        }
+    }
+
+    public static int randomizedHashInt(String input, int digits)
+    {
+        try
+        {
+            long timeComponent = System.currentTimeMillis();
+            int randomComponent = new Random().nextInt(100000);
+
+            String combined = input + timeComponent + randomComponent;
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] hashBytes = digest.digest(combined.getBytes("UTF-8"));
+
+            // Use the first few bytes to create a positive number
+            int result = 0;
+            for (int i = 0; i < 4; i++) {
+                result = (result << 8) | (hashBytes[i] & 0xFF);
+            }
+
+            result = Math.abs(result);
+            int max = (int) Math.pow(10, digits);
+            return result % max;
+
+        } catch (Exception e)
+        {
+            throw new RuntimeException("Error while generating randomized hash int", e);
         }
     }
 }

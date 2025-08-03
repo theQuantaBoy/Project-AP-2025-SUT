@@ -7,5 +7,7 @@ public enum MessageType
     USER_PROFILE,
     GAME_CONFIG,
     ACK,
-    TEST
+    TEST,
+    TIME_SYNC,
+    TIME_SYNC_REQUEST,
 }

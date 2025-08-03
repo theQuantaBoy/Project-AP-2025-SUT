@@ -31,7 +31,6 @@ import com.badlogic.gdx.backends.headless.HeadlessApplicationConfiguration;
 import java.util.ArrayList;
 import java.util.Scanner;
 
-/** {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms. */
 public class Main extends com.badlogic.gdx.Game
 {
     private static Main instance;
@@ -46,91 +45,22 @@ public class Main extends com.badlogic.gdx.Game
         batch = new SpriteBatch();
 
         GameObjectAssetLoader.queueAllTextures();
-        // optionally show a loading screen here...
         GameObjectAssetLoader.finishLoadingAndAssign();
 
         // --- Set custom cursor ---
-        Pixmap cursorPixmap = new Pixmap(Gdx.files.internal("general/cursor/cursor.png")); // put it in assets
+        Pixmap cursorPixmap = new Pixmap(Gdx.files.internal("general/cursor/cursor.png"));
         int hotspotX = 0; // adjust to your cursor's "click point"
         int hotspotY = 0;
         Gdx.graphics.setCursor(Gdx.graphics.newCursor(cursorPixmap, hotspotX, hotspotY));
         cursorPixmap.dispose();
 
-        // Connect to server FIRST
-        GameClient.getInstance().connect("127.0.0.1");
-
-        // Create test user profile (hardcoded for testing)
-        String name = "player" + (int)(Math.random() * 1000);
-        String nickname = "Player" + (int)(Math.random() * 1000);
-
-        // Set loading screen immediately
-        setScreen(new LoadingScreen());
-
-        // Send profile after short delay (ensure connection completes)
-        new Thread(() -> {
-            try {
-                // Wait for connection
-                int attempts = 0;
-                while (!GameClient.getInstance().isConnected() && attempts < 50) {
-                    Thread.sleep(100);
-                    attempts++;
-                }
-
-                if (GameClient.getInstance().isConnected()) {
-                    UserProfileMessage profile = new UserProfileMessage(
-                        name, nickname, Gender.MALE, 1
-                    );
-                    GameClient.getInstance().send(profile);
-                    System.out.println("Sent profile: " + name);
-                } else {
-                    System.out.println("Failed to connect to server");
-                }
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }).start();
-
-//        app.setScreen(new WorldScreen());
-    }
-
-    public void onGameConfigReceived(GameConfigMessage config)
-    {
-        // Create players from config
-        ArrayList<Player> players = new ArrayList<>();
-        for (GameConfigMessage.PlayerConfig pc : config.players)
-        {
-            User user = new User(
-                pc.username,
-                "",  // No password needed
-                pc.nickname,
-                "",  // No email
-                Gender.MALE,  // Default gender
-                "",  // No security Q
-                ""   // No security A
-            );
-            Player player = new Player(user, pc.mapType, pc.playerIndex);
-            players.add(player);
-        }
-
-        // Create and set game
-        Game game = new Game(players);
-        App.setCurrentGame(game);
-        game.setCurrentPlayer(game.getPlayers().get(config.yourPlayerIndex));
-
-        // Start world screen
-        setScreen(new WorldScreen(true));
+        app.setScreen(new RegisterScreen(new RegisterController()));
     }
 
     @Override
     public void render()
     {
         super.render();
-
-        if (TerminalScreen.isSubmitted())
-        {
-            TerminalScreen.reset();
-            TerminalScreen.run();
-        }
     }
 
     @Override

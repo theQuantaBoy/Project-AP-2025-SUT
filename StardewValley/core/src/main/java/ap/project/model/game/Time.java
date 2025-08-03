@@ -6,11 +6,13 @@ import ap.project.model.enums.TimeOfDay;
 import ap.project.model.enums.Weather;
 import ap.project.model.player_data.FriendshipData;
 
+import javax.sound.midi.Soundbank;
 import java.util.List;
 import java.util.Random;
 
 public class Time
 {
+    private int minute = 0;
     private int hour = 9;
     private int day = 1;
 
@@ -22,6 +24,23 @@ public class Time
 
     private Weather currentWeather = Weather.Sunny;
     private Weather tomorrowWeather = Weather.Sunny;
+
+    public void updateMinute(int minutes)
+    {
+        minute += minutes;
+        if (minute > 59)
+        {
+            minute = 0;
+            updateHour(1);
+        }
+    }
+
+    private void updateTimeOfDay()
+    {
+        if (hour >= 9 && hour < 12) timeOfDay = TimeOfDay.MORNING;
+        else if (hour >= 12 && hour < 17) timeOfDay = TimeOfDay.AFTERNOON;
+        else if (hour >= 17 && hour < 23) timeOfDay = TimeOfDay.EVENING;
+    }
 
     public void updateHour(int hourNum)
     {
@@ -81,6 +100,18 @@ public class Time
 
         Game game = App.getCurrentGame();
         game.resetPlayerBuffs();
+    }
+
+    public void setFromNetwork(int day, int hour, int minute, Season season, Weather weather, Weather tomorrowWeather)
+    {
+        System.out.println("TIME SET FROM SERVER");
+        this.day = day;
+        this.hour = hour;
+        this.minute = minute;
+        this.season = season;
+        this.currentWeather = weather;
+        this.tomorrowWeather = tomorrowWeather;
+        updateTimeOfDay();
     }
 
     public int getHour()
@@ -147,5 +178,10 @@ public class Time
     public int getTotalHoursPassed()
     {
         return totalHoursPassed;
+    }
+
+    public int getMinute()
+    {
+        return minute;
     }
 }

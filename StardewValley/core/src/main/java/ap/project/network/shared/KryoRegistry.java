@@ -1,9 +1,9 @@
 package ap.project.network.shared;
 
+import ap.project.model.enums.*;
 import ap.project.model.game.AbstractCharacter;
+import ap.project.model.game.Time;
 import com.esotericsoftware.kryo.Kryo;
-import ap.project.model.enums.Gender;
-import ap.project.model.enums.MapTypes;
 import ap.project.network.shared.enums.MessageType;
 import ap.project.network.shared.messages.*;
 import java.util.ArrayList;
@@ -27,6 +27,23 @@ public class KryoRegistry
 
         kryo.register(AbstractCharacter.Direction.class);
         kryo.register(PlayerPositionMessage.class);
+
+        // New registrations for time synchronization
+        kryo.register(GameTimeSyncMessage.class);
+        kryo.register(TimeSyncRequestMessage.class);
+
+        // Enums for time system
+        kryo.register(Time.class);
+        kryo.register(Season.class);
+        kryo.register(Weather.class);
+        kryo.register(TimeOfDay.class);
+
+        // Primitive types used in messages
+        kryo.register(int.class);
+        kryo.register(long.class);
+        kryo.register(boolean.class);
+        kryo.register(float.class);
+        kryo.register(String.class);
 
         // Register all other message classes ...
     }

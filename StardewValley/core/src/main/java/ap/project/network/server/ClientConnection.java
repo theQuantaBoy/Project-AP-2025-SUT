@@ -1,5 +1,6 @@
 package ap.project.network.server;
 
+import ap.project.model.App.User;
 import ap.project.network.shared.messages.Message;
 import ap.project.network.shared.messages.UserProfileMessage;
 import ap.project.network.shared.messages.GameConfigMessage;
@@ -8,12 +9,12 @@ import com.esotericsoftware.kryonet.Connection;
 public class ClientConnection
 {
     private final Connection connection;
-    private String playerId;
-    private UserProfileMessage userProfile;
     private GameConfigMessage.PlayerConfig playerConfig;
     private boolean isReady = false;
+    private int userId;
 
-    public ClientConnection(Connection connection) {
+    public ClientConnection(Connection connection)
+    {
         this.connection = connection;
     }
 
@@ -21,17 +22,13 @@ public class ClientConnection
         connection.sendTCP(message);
     }
 
-    // Getters
     public Connection getConnection() {
         return connection;
     }
 
-    public String getPlayerId() {
-        return playerId;
-    }
-
-    public UserProfileMessage getUserProfile() {
-        return userProfile;
+    public void setUserId(User user)
+    {
+        this.userId = user.getHashId();
     }
 
     public GameConfigMessage.PlayerConfig getPlayerConfig() {
@@ -42,13 +39,9 @@ public class ClientConnection
         return isReady;
     }
 
-    // Setters
-    public void setPlayerId(String playerId) {
-        this.playerId = playerId;
-    }
-
-    public void setUserProfile(UserProfileMessage userProfile) {
-        this.userProfile = userProfile;
+    public int getUserId()
+    {
+        return userId;
     }
 
     public void setPlayerConfig(GameConfigMessage.PlayerConfig playerConfig) {

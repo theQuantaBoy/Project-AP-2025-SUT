@@ -1,24 +1,19 @@
 package ap.project.network.shared.messages;
 
+import ap.project.model.App.User;
 import ap.project.model.enums.Gender;
 import ap.project.network.shared.enums.MessageType;
 
 public class UserProfileMessage extends Message
 {
-    public String username;
-    public String nickname;
-    public Gender gender;
-    public int avatarId;
+    public User user;
 
     // Kryo requires this
     public UserProfileMessage() {}
 
-    public UserProfileMessage(String username, String nickname, Gender gender, int avatarId)
+    public UserProfileMessage(User user)
     {
-        this.username = username;
-        this.nickname = nickname;
-        this.gender = gender;
-        this.avatarId = avatarId;
+        this.user = user;
     }
 
     @Override

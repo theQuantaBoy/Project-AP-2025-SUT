@@ -5,22 +5,20 @@ import ap.project.control.WorldController;
 import ap.project.model.App.App;
 import ap.project.model.App.GameAssetsManager;
 import ap.project.model.App.User;
-import ap.project.model.animal.Animal;
 import ap.project.model.enums.Gender;
 import ap.project.model.enums.Season;
-import ap.project.model.enums.animal_enums.FarmAnimalsType;
 import ap.project.model.building.CraftingItem;
 import ap.project.model.enums.*;
 import ap.project.model.game.Game;
 import ap.project.model.tools.BackPack;
 import ap.project.model.tools.Tool;
 import ap.project.network.client.GameClient;
+import ap.project.network.shared.messages.GameTimeSyncMessage;
 import ap.project.network.shared.messages.PlayerPositionMessage;
 import ap.project.network.shared.messages.TestMessage;
+import ap.project.network.shared.messages.TimeSyncRequestMessage;
 import ap.project.screen.input.WorldScreenInputProcessor;
 import ap.project.util.MapAssetLoader;
-import ap.project.view.GameMenu;
-import ap.project.visual.*;
 import ap.project.visual.CharacterRenderer;
 import ap.project.model.game.*;
 import ap.project.visual.MapVisual;
@@ -31,24 +29,18 @@ import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.maps.tiled.TiledMap;
-import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
-import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
-import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.viewport.ExtendViewport;
-import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 public final class WorldScreen implements Screen
@@ -119,66 +111,12 @@ public final class WorldScreen implements Screen
 
     private boolean cameraFixed = false;
     private final boolean DEBUG_MODE = false;
-
-    private float networkUpdateTimer = 0f;
-
-    private float positionUpdateTimer = 0;
-    private static final float POSITION_UPDATE_INTERVAL = 0.1f;
+    private final boolean ONLINE_MODE = false;
 
 //    private FishingMinigameWindow fishingWindow;
 
-    public WorldScreen(boolean newVersion)
+    public WorldScreen()
     {
-        INSTANCE = this;
-        this.shapeRenderer = new ShapeRenderer();
-        cam = new OrthographicCamera(20 * TILE_SIZE, 15 * TILE_SIZE);
-        cam.setToOrtho(false);
-
-        // Get game from App instead of creating new
-        this.game = App.getCurrentGame();
-        if (game == null)
-        {
-            // Fallback for single-player testing
-            this.game = new Game(new ArrayList<>(List.of(
-                new Player(new User("fallback","","fallback","", Gender.MALE, "", ""),
-                    MapTypes.MINING, 0)
-            )));
-        }
-
-        // Initialize players
-        for (Player p : game.getPlayers())
-        {
-            Farm f = new Farm(p.getMapType());
-            p.setFarm(f);
-            p.setCurrentMap(f);
-            p.spawn();
-        }
-
-        this.map = game.getCurrentPlayer().getCurrentMap();
-        time = game.getCurrentTime();
-        currentSeason = time.getSeason();
-
-        this.characterRenderer = new CharacterRenderer(shapeRenderer);
-
-        ShaderProgram.pedantic = false;
-        uiRenderer = new UIRenderer(time);
-
-        inventoryWindow = new InventoryWindow(uiStage, this);
-        friendsWindow = new FriendsWindow(uiStage, this);
-        cookBookWindow = new CookBookWindow(uiStage);
-        refrigeratorWindow = new RefrigeratorWindow(uiStage);
-        craftingItemWindow = new CraftingItemWindow(uiStage);
-        communicationWindow = new CommunicationWindow(uiStage, this);
-        greenHouseBuildWindow = new GreenHouseBuildWindow(uiStage);
-        createTerminalDialog();
-        worldController = new WorldController();
-        worldController.setCommunicationWindow(communicationWindow);
-        inputMultiplexer = new InputMultiplexer();
-        checkGameInfo();
-        initializeHotbar();
-    }
-
-    public WorldScreen() {
         INSTANCE = this;
 
         this.shapeRenderer = new ShapeRenderer();
@@ -515,29 +453,6 @@ public final class WorldScreen implements Screen
     @Override
     public void render(float dt)
     {
-        // Process network messages
-        GameClient.getInstance().processMessages();
-
-        // Send position updates periodically
-        networkUpdateTimer += dt;
-
-        if (networkUpdateTimer > 0.1f)
-        { // 10 times/sec
-            sendPositionUpdate();
-            networkUpdateTimer = 0;
-        }
-
-        // Send position if in city
-        if (player.isInCity())
-        {
-            System.out.println("calling sendPlayerPosition");
-            sendPlayerPosition();
-            positionUpdateTimer = 0;
-        }
-
-        // Update remote player positions
-        updateOtherPlayers(dt);
-
         Gdx.gl.glClearColor(0f, 0f, 0f, 1f);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
@@ -1179,70 +1094,12 @@ public final class WorldScreen implements Screen
         }
     }
 
-    private void sendPlayerPosition()
-    {
-        byte directionByte = (byte) character.getDirection().ordinal();
-        boolean isMoving = character.isMoving();
-
-        PlayerPositionMessage msg = new PlayerPositionMessage(
-            player.getUser().getUsername(),
-            character.getPosition().x,
-            character.getPosition().y,
-            directionByte,
-            isMoving
-        );
-        GameClient.getInstance().send(msg);
-    }
-
-    public void handlePlayerPosition(PlayerPositionMessage msg)
-    {
-        if (map.getMapType().getMapKind() != MapKind.TOWN) return;
-
-        for (Player p : game.getPlayers())
-        {
-            if (p.getUser().getUsername().equals(msg.playerId) &&
-                !p.getUser().getUsername().equals(player.getUser().getUsername()))
-            {
-
-                PlayerCharacter pc = p.getCharacter();
-                pc.setPosition(new Vector2(msg.x, msg.y));
-                pc.setDirection(AbstractCharacter.Direction.values()[msg.direction]);
-                pc.setMoving(msg.isMoving);
-                pc.setLastUpdateTime(System.currentTimeMillis());
-            }
-        }
-    }
-
-    private void updateOtherPlayers(float delta)
-    {
-        long currentTime = System.currentTimeMillis();
-
-        for (Player p : game.getPlayers())
-        {
-            if (p.getUser().getUsername().equals(player.getUser().getUsername())) continue;
-
-            PlayerCharacter pc = p.getCharacter();
-            if (currentTime - pc.getLastUpdateTime() > 50) continue;
-
-            // Only update animation if moving
-            if (pc.isMoving())
-            {
-                pc.updateAnimation(delta);
-            } else
-            {
-                pc.resetAnimation();
-            }
-        }
-    }
-
     private void renderCharacters(Batch batch)
     {
-        // Render local player
         characterRenderer.render(batch, character, CHAR_SCALE);
 
         if (player.isInCity())
         {
-            // Render other players
             for (Player p : game.getPlayers())
             {
                 if (p.getUser().getUsername().equals(player.getUser().getUsername())) continue;

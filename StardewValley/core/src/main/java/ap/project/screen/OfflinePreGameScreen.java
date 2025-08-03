@@ -24,7 +24,7 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
 import java.util.ArrayList;
 
-public class PreGameScreen implements Screen
+public class OfflinePreGameScreen implements Screen
 {
     private PreGameController controller;
     private Stage stage;
@@ -45,7 +45,7 @@ public class PreGameScreen implements Screen
     private MapTypes selectedMap;
     private CharacterType selectedCharacter;
 
-    public PreGameScreen(PreGameController controller)
+    public OfflinePreGameScreen(PreGameController controller)
     {
         stage = new Stage(new ScreenViewport());
         Gdx.input.setInputProcessor(stage);
