@@ -1,5 +1,6 @@
 package ap.project.network.shared;
 
+import ap.project.model.App.User;
 import ap.project.model.enums.*;
 import ap.project.model.game.AbstractCharacter;
 import ap.project.model.game.Time;
@@ -44,6 +45,13 @@ public class KryoRegistry
         kryo.register(boolean.class);
         kryo.register(float.class);
         kryo.register(String.class);
+
+        kryo.register(ConnectionConfirmedMessage.class);
+        kryo.register(ConnectionFailedMessage.class);
+        kryo.register(User.class);
+
+        kryo.register(com.badlogic.gdx.graphics.Texture.class);
+        kryo.register(com.badlogic.gdx.graphics.glutils.FileTextureData.class);
 
         // Register all other message classes ...
     }

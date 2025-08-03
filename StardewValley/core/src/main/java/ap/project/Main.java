@@ -54,7 +54,11 @@ public class Main extends com.badlogic.gdx.Game
         Gdx.graphics.setCursor(Gdx.graphics.newCursor(cursorPixmap, hotspotX, hotspotY));
         cursorPixmap.dispose();
 
-        app.setScreen(new RegisterScreen(new RegisterController()));
+        User user = new User("Mohsen", "1234", "mohsen", "mail", Gender.MALE, "", "");
+        App.setCurrentUser(user);
+        app.setScreen(new PreGameScreen());
+
+//        app.setScreen(new RegisterScreen(new RegisterController()));
     }
 
     @Override

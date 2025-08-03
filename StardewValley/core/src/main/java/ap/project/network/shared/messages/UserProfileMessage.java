@@ -6,14 +6,20 @@ import ap.project.network.shared.enums.MessageType;
 
 public class UserProfileMessage extends Message
 {
-    public User user;
+    public String username;
+    public String nickname;
+    public String gender;
+    public int userId;
 
     // Kryo requires this
     public UserProfileMessage() {}
 
-    public UserProfileMessage(User user)
+    public UserProfileMessage(String username, String nickname, String gender, int userId)
     {
-        this.user = user;
+        this.username = username;
+        this.nickname = nickname;
+        this.gender = gender;
+        this.userId = userId;
     }
 
     @Override

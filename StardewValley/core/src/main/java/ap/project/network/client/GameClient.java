@@ -1,5 +1,8 @@
 package ap.project.network.client;
 
+import ap.project.Main;
+import ap.project.model.App.App;
+import ap.project.model.App.User;
 import ap.project.model.game.AbstractCharacter;
 import ap.project.network.shared.KryoRegistry;
 import ap.project.network.shared.messages.*;
@@ -9,6 +12,8 @@ import com.esotericsoftware.kryonet.Listener;
 import ap.project.network.shared.enums.MessageType;
 
 import java.util.ArrayList;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class GameClient
@@ -17,7 +22,9 @@ public class GameClient
     private Client kryoClient;
     private final ConcurrentLinkedQueue<Message> incomingQueue = new ConcurrentLinkedQueue<>();
     private final ConcurrentLinkedQueue<Message> outgoingQueue = new ConcurrentLinkedQueue<>();
-    private boolean connected;
+
+    private boolean connected = false;
+    private boolean registered =  false;
 
     private GameClient()
     {
@@ -98,5 +105,15 @@ public class GameClient
     public boolean isConnected()
     {
         return connected;
+    }
+
+    public boolean isRegistered()
+    {
+        return registered;
+    }
+
+    public void setRegistered(boolean registered)
+    {
+        this.registered = registered;
     }
 }

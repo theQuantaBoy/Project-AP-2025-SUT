@@ -26,6 +26,14 @@ public class GameServer
     private final int MIN_PLAYERS_FOR_GAME = 2;
     private final int MAX_PLAYERS_FOR_GAME = 4;
 
+    public synchronized void addUser(User user)
+    {
+        // Prevent duplicate users
+        if (!users.stream().anyMatch(u -> u.getHashId() == user.getHashId())) {
+            users.add(user);
+        }
+    }
+
     private ClientConnection findClient(User user)
     {
         for (ClientConnection c : connections.values())
@@ -37,14 +45,6 @@ public class GameServer
         }
 
         return null;
-    }
-
-    private void handleUserProfile(ClientConnection client, UserProfileMessage msg)
-    {
-        User user = msg.user;
-        System.out.println("Received profile: " + user.getUsername() + " " + user.getHashId());
-
-        client.setUserId(user);
     }
 
     public GameServer() throws IOException

@@ -28,6 +28,14 @@ public class User
     private final int HASH_DIGIT_COUNT = 6;
     private final int hashId;
 
+    public User(String username, String nickname, Gender gender, int hashId)
+    {
+        this.username = username;
+        this.nickname = nickname;
+        this.gender = gender;
+        this.hashId = hashId;
+    }
+
     public User(String name)
     {
         this.username = name;

@@ -71,7 +71,7 @@ public class MainScreen implements Screen {
         preGameButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                Main.getApp().setScreen(new OfflinePreGameScreen(new PreGameController()));
+                Main.getApp().setScreen(new PreGameScreen());
             }
         });
 

@@ -10,4 +10,6 @@ public enum MessageType
     TEST,
     TIME_SYNC,
     TIME_SYNC_REQUEST,
+    CONNECTION_CONFIRMED,
+    CONNECTION_FAILED
 }
