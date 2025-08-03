@@ -18,9 +18,6 @@ public class KryoRegistry
         kryo.register(TestMessage.class);
 
         kryo.register(UserProfileMessage.class);
-        kryo.register(GameConfigMessage.class);
-        kryo.register(GameConfigMessage.PlayerConfig.class);
-        kryo.register(AckMessage.class);
         kryo.register(ArrayList.class);
 
         kryo.register(ap.project.model.enums.Gender.class);
@@ -28,10 +25,6 @@ public class KryoRegistry
 
         kryo.register(AbstractCharacter.Direction.class);
         kryo.register(PlayerPositionMessage.class);
-
-        // New registrations for time synchronization
-        kryo.register(GameTimeSyncMessage.class);
-        kryo.register(TimeSyncRequestMessage.class);
 
         // Enums for time system
         kryo.register(Time.class);

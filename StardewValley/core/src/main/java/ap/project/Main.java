@@ -5,18 +5,7 @@ import ap.project.control.RegisterController;
 import ap.project.model.App.App;
 import ap.project.model.App.User;
 import ap.project.model.enums.Gender;
-import ap.project.model.enums.SecurityQuestionType;
-import ap.project.model.game.Game;
-import ap.project.model.game.Player;
-import ap.project.network.client.GameClient;
-import ap.project.network.shared.messages.GameConfigMessage;
-import ap.project.network.shared.messages.TestMessage;
-import ap.project.network.shared.messages.UserProfileMessage;
 import ap.project.screen.*;
-import ap.project.screen.MainScreen;
-import ap.project.screen.RegisterScreen;
-import ap.project.screen.TerminalScreen;
-import ap.project.screen.WorldScreen;
 import ap.project.util.GameObjectAssetLoader;
 import ap.project.view.AppView;
 import com.badlogic.gdx.ApplicationAdapter;
@@ -24,12 +13,6 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-
-import com.badlogic.gdx.backends.headless.HeadlessApplication;
-import com.badlogic.gdx.backends.headless.HeadlessApplicationConfiguration;
-
-import java.util.ArrayList;
-import java.util.Scanner;
 
 public class Main extends com.badlogic.gdx.Game
 {
