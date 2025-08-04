@@ -15,6 +15,9 @@ import org.lwjgl.opencl.CL;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class GameServer
 {
@@ -22,15 +25,15 @@ public class GameServer
     private final Server kryoServer;
 
     private final ArrayList<User> users = new ArrayList<>();
-    private final HashMap<String, ClientConnection> connections = new HashMap<>();
+    private final ConcurrentMap<String, ClientConnection> connections = new ConcurrentHashMap<>();
+    private final CopyOnWriteArrayList<Lobby> activeLobbies = new CopyOnWriteArrayList<>();
     private final ArrayList<GameWrapper> games = new ArrayList<>();
-    private final ArrayList<Lobby> activeLobbies = new ArrayList<>();
 
     private volatile boolean running = true;
     private Thread gameThread;
 
     private float periodicMessageTimer = 0;
-    private static final float PERIODIC_MESSAGE_INTERVAL = 0.1f;
+    private static final float PERIODIC_MESSAGE_INTERVAL = 0.016f;
 
     public static final int MIN_PLAYERS_FOR_GAME = 2;
     public static final int MAX_PLAYERS_FOR_GAME = 4;

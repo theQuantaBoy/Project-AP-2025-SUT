@@ -8,6 +8,7 @@ import ap.project.model.game.Point;
 import ap.project.network.shared.messages.*;
 
 import static ap.project.network.server.GameServer.MAX_PLAYERS_FOR_GAME;
+import static ap.project.network.server.GameServer.MIN_PLAYERS_FOR_GAME;
 
 public class ServerMessageHandler
 {
@@ -35,6 +36,9 @@ public class ServerMessageHandler
                 break;
             case LOBBY_PRESENCE:
                 handleLobbyPresenceMessage(client, (LobbyPresenceMessage) message);
+                break;
+            case CREATE_GAME_REQUEST:
+                handleCreateGameRequestMessage(client, (CreateGameRequestMessage) message);
                 break;
         }
     }
@@ -186,6 +190,12 @@ public class ServerMessageHandler
             client.setInLobby(true);
             client.lobby = lobby;
 
+            for (User u : lobby.getUsers())
+            {
+                client.send(new PlayerJoinedLobbyMessage(u.getHashId(), u.getUsername(), lobby.getId(), u.getNickname(),
+                    u.getCharacterChoice(), u.getMapChoice()));
+            }
+
             server.broadcastToLobby(lobby, new PlayerJoinedLobbyMessage(user.getHashId(), user.getUsername(),
                 lobby.getId(), user.getNickname(), user.getCharacterChoice(), user.getMapChoice()));
         } else
@@ -201,8 +211,8 @@ public class ServerMessageHandler
         client.setOnline(true);
         client.lastOnlineCheckTime = 0;
 
-        int x = msg.x;
-        int y = msg.y;
+        float x = msg.x;
+        float y = msg.y;
         byte direction = msg.direction;
         boolean isMoving = msg.isMoving;
 
@@ -215,6 +225,39 @@ public class ServerMessageHandler
             {
                 server.broadcastToLobby(lobby, new PlayerPositionUpdateMessage(user.getHashId(), x, y, direction, isMoving));
             }
+        }
+    }
+
+    private static void handleCreateGameRequestMessage(ClientConnection client,  CreateGameRequestMessage msg)
+    {
+        GameServer server = GameServer.getInstance();
+
+        User user = server.getUser(client);
+        Lobby lobby = server.getActiveLobby(user);
+
+        if (lobby != null)
+        {
+            User admin = lobby.getAdmin();
+            if (user.getHashId() != admin.getHashId())
+            {
+                client.send(new GameCreationFailedMessage("only admin can start the game"));
+                return;
+            }
+
+            int count = lobby.getUsers().size();
+            if (count < MIN_PLAYERS_FOR_GAME || count > MAX_PLAYERS_FOR_GAME)
+            {
+                client.send(new GameCreationFailedMessage("out of range number of players"));
+                return;
+            }
+
+            int[] playerIDs = new int[4];
+            for (int i = 0; i < lobby.getUsers().size(); i++)
+            {
+                playerIDs[i] = lobby.getUsers().get(i).getHashId();
+            }
+
+            server.broadcastToLobby(lobby, new GameCreationSuccessMessage(playerIDs[0], playerIDs[1], playerIDs[2], playerIDs[3]));
         }
     }
 }

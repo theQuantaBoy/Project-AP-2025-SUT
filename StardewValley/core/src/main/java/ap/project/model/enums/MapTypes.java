@@ -55,7 +55,7 @@ public enum MapTypes
         ArrayList<MapTypes> mapNames = new ArrayList<>();
         mapNames.add(STANDARD);
         mapNames.add(MINING);
-        mapNames.add(FISHING);
+        mapNames.add(FORAGING);
         mapNames.add(FISHING);
         mapNames.add(COMBAT);
         return mapNames;

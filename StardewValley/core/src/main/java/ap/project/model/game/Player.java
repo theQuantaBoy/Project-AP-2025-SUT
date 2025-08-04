@@ -33,7 +33,7 @@ public class Player {
 
     private final User user;
     private Farm farm;
-    private final Cabin cabin;
+    private Cabin cabin;
     private GreenHouse greenHouse;
 
     private Gender gender;
@@ -97,7 +97,7 @@ public class Player {
     private boolean isInZeidiesHome = false;
     private boolean isInShop = false;
 
-    private final String apperance;
+    private String apperance;
     private boolean shouldBeSkipped = false;
 
     private NPC currentNPC = null;
@@ -174,16 +174,27 @@ public class Player {
         this.character = new PlayerCharacter(type, spawnPoint, user.getNickname(), this);
     }
 
+    public Player(User user, boolean isInLobby)
+    {
+        this.user = user;
+        this.mapType = MapTypes.getFarms().get(user.getMapChoice());
+        this.gender = user.getGender();
+        this.energy = 200f;
+        this.fainted = false;
+        this.money = 0;
+    }
+
     public Player(User user)
     {
         this.user = user;
-        this.mapType = MapTypes.values()[user.getMapChoice()];
+        this.mapType = MapTypes.getFarms().get(user.getMapChoice());
         this.cabin = new Cabin();
         this.greenHouse = new GreenHouse();
         this.gender = user.getGender();
         this.energy = 200f;
         this.fainted = false;
         this.money = 0;
+
         Axe axe = new Axe(); Hoe hoe = new Hoe(); Pickaxe  pickaxe = new Pickaxe();
         WateringCan wateringCan = new WateringCan(); Seythe seythe = new Seythe();
         addTool(axe); addToInventory(axe);

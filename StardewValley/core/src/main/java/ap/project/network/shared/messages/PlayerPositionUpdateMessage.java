@@ -5,14 +5,14 @@ import ap.project.network.shared.enums.MessageType;
 public class PlayerPositionUpdateMessage extends Message
 {
     public int userId;
-    public int x;
-    public int y;
+    public float x;
+    public float y;
     public byte direction;
     public boolean isMoving;
 
     public PlayerPositionUpdateMessage() {}
 
-    public PlayerPositionUpdateMessage(int userId, int x, int y,  byte direction,  boolean isMoving)
+    public PlayerPositionUpdateMessage(int userId, float x, float y,  byte direction,  boolean isMoving)
     {
         this.userId = userId;
         this.x = x;

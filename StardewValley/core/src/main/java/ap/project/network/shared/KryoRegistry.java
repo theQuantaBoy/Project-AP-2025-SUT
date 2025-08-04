@@ -64,11 +64,14 @@ public class KryoRegistry
         kryo.register(CloseLobbyRequestMessage.class);
         kryo.register(CreateGameRequestMessage.class);
         kryo.register(LeaveLobbyMessage.class);
-        kryo.register(LobbyClosedMessage.class);
+        kryo.register(CloseLobbyMessage.class);
         kryo.register(LobbyTimeUpdateMessage.class);
         kryo.register(PlayerJoinedLobbyMessage.class);
         kryo.register(PlayerLeftLobbyMessage.class);
         kryo.register(PlayerPositionUpdateMessage.class);
+
+        kryo.register(GameCreationSuccessMessage.class);
+        kryo.register(GameCreationFailedMessage.class);
 
         // Register all other message classes ...
     }

@@ -117,6 +117,75 @@ public final class WorldScreen implements Screen
 
 //    private FishingMinigameWindow fishingWindow;
 
+    public WorldScreen(ArrayList<Player> players)
+    {
+        INSTANCE = this;
+        ONLINE_MODE = true;
+
+        this.shapeRenderer = new ShapeRenderer();
+//        this.miniGame = new FishingGame();
+        cam = new OrthographicCamera(20 * TILE_SIZE, 15 * TILE_SIZE);
+        cam.setToOrtho(false);
+
+        App.setCurrentMenu(Menu.GameMenu);
+        game = App.getCurrentGame();
+
+//        gameStage = new Stage(new ExtendViewport(20 * TILE_SIZE, 15 * TILE_SIZE, cam));
+//        animalActors = new Array<>();
+//        animalInteractionScreen = new AnimalInteractionScreen(uiStage.getViewport(), skin);
+//
+//        Animal testChicken = new Animal("Clucky", FarmAnimalsType.CHICKEN);
+//        testChicken.setX(20 * TILE_SIZE);
+//        testChicken.setY(15 * TILE_SIZE);
+//        testChicken.goOut(); // Make sure it's set to be outside
+//        AnimalActor chickenActor = new AnimalActor(testChicken, animalInteractionScreen);
+//        animalActors.add(chickenActor);
+//        gameStage.addActor(chickenActor);
+
+        for (Player p : game.getPlayers())
+        {
+            Farm f = new Farm(p.getMapType());
+            p.setFarm(f);
+            p.setCurrentMap(f);
+        }
+
+        for (Player p : game.getPlayers())
+        {
+            p.spawn();
+        }
+
+        this.map = game.getCurrentPlayer().getCurrentMap();
+        time = game.getCurrentTime();
+        currentSeason = time.getSeason();
+
+        this.characterRenderer = new CharacterRenderer(shapeRenderer);
+
+        if (SECOND_PLAYER) {
+            Vector2 spawn2 = new Vector2(62 * TILE_SIZE, 60 * TILE_SIZE);
+            Player player2p = new Player(new User("arash", "", "arash", "", Gender.FEMALE, "", ""), MapTypes.FISHING, 0);
+            player2 = new PlayerCharacter(CharacterType.ABIGAIL, spawn2, "Player 456", player2p);
+            controller2 = new CharacterController(player2, map, PLAYER_SPEED, TILE_SIZE);
+            controller2.chnageMoveKeys(Input.Keys.UP, Input.Keys.LEFT, Input.Keys.DOWN, Input.Keys.RIGHT);
+        }
+
+        ShaderProgram.pedantic = false;
+        uiRenderer = new UIRenderer(time);
+
+        inventoryWindow = new InventoryWindow(uiStage, this);
+        friendsWindow = new FriendsWindow(uiStage, this);
+        cookBookWindow = new CookBookWindow(uiStage);
+        refrigeratorWindow = new RefrigeratorWindow(uiStage);
+        craftingItemWindow = new CraftingItemWindow(uiStage);
+        communicationWindow = new CommunicationWindow(uiStage, this);
+        greenHouseBuildWindow = new GreenHouseBuildWindow(uiStage);
+        createTerminalDialog();
+        worldController = new WorldController();
+        worldController.setCommunicationWindow(communicationWindow);
+        inputMultiplexer = new InputMultiplexer();
+        checkGameInfo();
+        initializeHotbar();
+    }
+
     public WorldScreen()
     {
         INSTANCE = this;

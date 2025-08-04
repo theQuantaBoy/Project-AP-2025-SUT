@@ -5,14 +5,14 @@ import ap.project.network.shared.enums.MessageType;
 
 public class LobbyPresenceMessage extends Message
 {
-    public int x;
-    public int y;
+    public float x;
+    public float y;
     public byte direction;
     public boolean isMoving;
 
     public LobbyPresenceMessage() {}
 
-    public LobbyPresenceMessage(int x, int y,  byte direction,  boolean isMoving)
+    public LobbyPresenceMessage(float x, float y,  byte direction,  boolean isMoving)
     {
         this.x = x;
         this.y = y;

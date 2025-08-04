@@ -1,6 +1,7 @@
 package ap.project.network.client;
 
 import ap.project.Main;
+import ap.project.model.App.App;
 import ap.project.network.shared.messages.*;
 import ap.project.screen.LobbyScreen;
 import ap.project.screen.PreLobbyScreen;
@@ -53,6 +54,12 @@ public class ClientMessageHandler
                 break;
             case PLAYER_LEFT_LOBBY:
                 handlePlayerLeftLobbyMessage((PlayerLeftLobbyMessage) message);
+                break;
+            case GAME_CREATION_FAILED:
+                handleGameCreationFailedMessage((GameCreationFailedMessage) message);
+                break;
+            case GAME_CREATED_SUCCESSFULLY:
+                handleGameCreationSuccessMessage((GameCreationSuccessMessage) message);
                 break;
             // Add other cases
         }
@@ -196,8 +203,8 @@ public class ClientMessageHandler
             LobbyScreen ls = (LobbyScreen) Main.getApp().getScreen();
 
             int userId = message.userId;
-            int x = message.x;
-            int y = message.y;
+            float x = message.x;
+            float y = message.y;
             byte direction = message.direction;
             boolean isMoving = message.isMoving;
 
@@ -221,6 +228,27 @@ public class ClientMessageHandler
 
             int userId = message.userID;
             ls.removeOtherPlayer(userId);
+        }
+    }
+
+    private static void handleGameCreationFailedMessage(GameCreationFailedMessage message)
+    {
+        String text = message.reason;
+
+        if (Main.getApp().getScreen() instanceof LobbyScreen)
+        {
+            ((LobbyScreen) Main.getApp().getScreen()).showText("Failed to Start Game: " + text);
+        }
+    }
+
+    private static void handleGameCreationSuccessMessage(GameCreationSuccessMessage message)
+    {
+        int[] userIDs = {message.player_1_id, message.player_2_id, message.player_3_id, message.player_4_id};
+
+        if (Main.getApp().getScreen() instanceof LobbyScreen)
+        {
+            LobbyScreen ls = (LobbyScreen) Main.getApp().getScreen();
+            ls.createGame(userIDs);
         }
     }
 }
