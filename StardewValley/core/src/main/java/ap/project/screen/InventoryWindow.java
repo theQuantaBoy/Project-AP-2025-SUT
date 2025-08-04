@@ -394,6 +394,9 @@ public class InventoryWindow {
         }
 
         // Create a copy of the item for the hotbar (item stays in inventory)
+        if (hotbarSlots.contains(item)) {
+            hotbarSlots.remove(item);
+        }
         GameObject hotbarItem = item;
         hotbarSlots.set(hotbarSlot, hotbarItem);
 
