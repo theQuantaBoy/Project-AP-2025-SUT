@@ -12,6 +12,12 @@ public class ClientConnection
     private boolean isOnline = false;
     private boolean isInLobby = false;
 
+    public float lastOnlineCheckTime = 0f;
+    public float lastLobbyCheckTime = 0f;
+
+    public int characterChoice = 0;
+    public int mapChoice = 0;
+
     public ClientConnection(Connection connection)
     {
         this.connection = connection;

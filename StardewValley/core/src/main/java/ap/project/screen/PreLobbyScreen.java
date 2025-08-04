@@ -8,6 +8,9 @@ import ap.project.model.enums.CharacterType;
 import ap.project.model.enums.Gender;
 import ap.project.model.enums.MapTypes;
 import ap.project.model.enums.Season;
+import ap.project.network.client.GameClient;
+import ap.project.network.shared.messages.*;
+import ap.project.visual.TextBoxSystem;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
@@ -20,7 +23,6 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
-import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
@@ -28,7 +30,11 @@ import java.util.ArrayList;
 
 public class PreLobbyScreen implements Screen
 {
+    private static PreLobbyScreen instance;
     private final User user;
+    private final GameClient client;
+
+    private final TextBoxSystem textBoxSystem = new TextBoxSystem();
 
     private Stage stage;
     private Image background;
@@ -75,6 +81,9 @@ public class PreLobbyScreen implements Screen
     private Table onlineUsersTable;
     private Table activeLobbiesTable;
 
+    public boolean isConnected;
+    public float lastConnectionTime;
+
     // Custom actor for texture preview
     private static class TexturePreviewActor extends Actor
     {
@@ -120,6 +129,7 @@ public class PreLobbyScreen implements Screen
     public PreLobbyScreen()
     {
         user = App.getCurrentUser();
+        client = GameClient.getInstance();
 
         stage = new Stage(new ScreenViewport());
         Gdx.input.setInputProcessor(stage);
@@ -132,6 +142,11 @@ public class PreLobbyScreen implements Screen
 
         arrangeLayout();
         addListeners();
+
+        currentAvatarIndex = user.getCharacterChoice();
+        currentMapIndex = user.getMapChoice();
+
+        instance = this;
     }
 
     private void createBackground()
@@ -262,6 +277,7 @@ public class PreLobbyScreen implements Screen
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 currentAvatarIndex = (currentAvatarIndex - 1 + CharacterType.values().length) % CharacterType.values().length;
+                user.setCharacterChoice(currentAvatarIndex);
                 updateAvatarPreview();
             }
         });
@@ -274,6 +290,7 @@ public class PreLobbyScreen implements Screen
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 currentAvatarIndex = (currentAvatarIndex + 1) % CharacterType.values().length;
+                user.setCharacterChoice(currentAvatarIndex);
                 updateAvatarPreview();
             }
         });
@@ -317,6 +334,7 @@ public class PreLobbyScreen implements Screen
             public void clicked(InputEvent event, float x, float y) {
                 ArrayList<MapTypes> farms = MapTypes.getFarms();
                 currentMapIndex = (currentMapIndex - 1 + farms.size()) % farms.size();
+                user.setMapChoice(currentMapIndex);
                 updateMapPreview();
             }
         });
@@ -330,6 +348,7 @@ public class PreLobbyScreen implements Screen
             public void clicked(InputEvent event, float x, float y) {
                 ArrayList<MapTypes> farms = MapTypes.getFarms();
                 currentMapIndex = (currentMapIndex + 1) % farms.size();
+                user.setMapChoice(currentMapIndex);
                 updateMapPreview();
             }
         });
@@ -385,9 +404,20 @@ public class PreLobbyScreen implements Screen
         TextButton createButton = new TextButton("Create", skin);
         createButton.addListener(new ClickListener() {
             @Override
-            public void clicked(InputEvent event, float x, float y) {
-                // Handle lobby creation
-                createLobbyDialog.hide();
+            public void clicked(InputEvent event, float x, float y)
+            {
+                String name = lobbyNameField.getText();
+                String password = lobbyPasswordField.getText();
+                boolean isPrivate = privateCheckbox.isChecked();
+                boolean isVisible = visibleCheckbox.isChecked();
+
+                if (isPrivate && password.isEmpty())
+                {
+                    textBoxSystem.showTextBox("a private lobby must have a password!");
+                } else
+                {
+                    handleLobbyCreation(name, password, isPrivate, isVisible);
+                }
             }
         });
 
@@ -644,9 +674,13 @@ public class PreLobbyScreen implements Screen
         // Update network status
         updateNetworkStatus(delta);
 
+        textBoxSystem.update(delta);
+
         // Render stage
         stage.act(delta);
         stage.draw();
+
+        textBoxSystem.render(stage.getBatch());
     }
 
     @Override
@@ -654,6 +688,7 @@ public class PreLobbyScreen implements Screen
     {
         stage.getViewport().update(width, height, true);
         positionElements();
+        textBoxSystem.resize(width, height);
     }
 
     @Override
@@ -672,20 +707,57 @@ public class PreLobbyScreen implements Screen
         {
             stage.dispose();
         }
+
+        textBoxSystem.dispose();
     }
 
     private float messageTimer = 0;
     private void updateNetworkStatus(float delta)
     {
         messageTimer += delta;
+        client.processMessages();
 
-        // Send status request every 100ms
         if (messageTimer >= 0.1f)
         {
-            // TODO: Send network request for lobby/user lists
-            // Example: GameClient.getInstance().send(new LobbyListRequest());
+            User currentUser = App.getCurrentUser();
+
+            client.send(new PreLobbyPresenceMessage());
+            client.send(new UserChoicesMessage(
+                currentUser.getCharacterChoice(),
+                currentUser.getMapChoice()
+            ));
+
+            setStatus("connected");
             messageTimer = 0;
         }
+
+        if (!isConnected)
+        {
+            lastConnectionTime += delta;
+            if (lastConnectionTime > 120) // 2 minutes
+            {
+                textBoxSystem.showTextBox("disconnected");
+                setStatus("disconnected");
+                lastConnectionTime = 0;
+            }
+        }
+    }
+
+    public void handlePreLobbyConfirmation(PreLobbyConfirmationMessage msg)
+    {
+        isConnected = true;
+        lastConnectionTime = 0f;
+    }
+
+    public void handlePreLobbyError(PreLobbyErrorMessage msg)
+    {
+        isConnected = false;
+    }
+
+    private void handleLobbyCreation(String lobbyName, String lobbyPassword, boolean isPrivate, boolean isVisible)
+    {
+        LobbyCreationPermissionMessage msg = new LobbyCreationPermissionMessage(lobbyName, lobbyPassword, isPrivate, isVisible);
+        client.send(msg);
     }
 
     // ======================
@@ -720,6 +792,11 @@ public class PreLobbyScreen implements Screen
         usernameLabel.setText(username);
     }
 
+    public static PreLobbyScreen getInstance()
+    {
+        return instance;
+    }
+
     // ======================
     // Logic To Implement
     // ======================
@@ -728,9 +805,9 @@ public class PreLobbyScreen implements Screen
      * Complete Logic Checklist:
      *
      * 1. Network Communication:
-     *    - Send periodic requests to server for lobby/user lists
-     *    - Implement message handlers for lobby/user list responses
-     *    - Create message classes: LobbyListRequest, UserListRequest,
+     *    + Send periodic requests to server for lobby/user lists
+     *    + Implement message handlers for lobby/user list responses
+     *    + Create message classes: LobbyListRequest, UserListRequest,
      *      LobbyListResponse, UserListResponse
      *
      * 2. Lobby Management:
@@ -746,8 +823,8 @@ public class PreLobbyScreen implements Screen
      *    - Update status label based on connection state
      *
      * 4. Preference Management:
-     *    - Save selected avatar, map, and gender to user profile
-     *    - Send preferences to server when creating/joining lobby
+     *    + Save selected avatar, map, and gender to user profile
+     *    + Send preferences to server when creating/joining lobby
      *
      * 5. Navigation:
      *    - Transition to LobbyScreen after creating/joining lobby

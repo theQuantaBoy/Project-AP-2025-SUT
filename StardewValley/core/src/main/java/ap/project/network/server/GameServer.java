@@ -7,6 +7,7 @@ import ap.project.model.game.Lobby;
 import ap.project.model.game.Time;
 import ap.project.network.shared.KryoRegistry;
 import ap.project.network.shared.messages.*;
+import com.esotericsoftware.kryonet.Client;
 import com.esotericsoftware.kryonet.Server;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
@@ -39,7 +40,7 @@ public class GameServer
         // Send periodic messages every 100ms
         if (periodicMessageTimer >= PERIODIC_MESSAGE_INTERVAL)
         {
-            sendPeriodicMessages();
+            sendPeriodicMessages(delta);
 
             periodicMessageTimer = 0;
         }
@@ -48,9 +49,15 @@ public class GameServer
         // (game state updates, lobby management, etc.)
     }
 
-    private void sendPeriodicMessages()
+    private void sendPeriodicMessages(float delta)
     {
-
+        for (ClientConnection client : connections.values())
+        {
+            if (!client.isOnline())
+            {
+                client.lastOnlineCheckTime += delta;
+            }
+        }
     }
 
     private void startGameLoop()
@@ -111,17 +118,39 @@ public class GameServer
         }
     }
 
-    private ClientConnection findClient(User user)
+    public String addLobby(Lobby lobby)
     {
-        for (ClientConnection c : connections.values())
+        for (Lobby l : activeLobbies)
         {
-            if (c.getUserId() == user.getHashId())
+            if (l.getId() == lobby.getId())
             {
-                return c;
+                return null;
+            }
+        }
+
+        activeLobbies.add(lobby);
+        return lobby.getId();
+    }
+
+    public User getUser(ClientConnection client)
+    {
+        for (User user : users)
+        {
+            if (user.getHashId() == client.getUserId())
+            {
+                return user;
             }
         }
 
         return null;
+    }
+
+    public ClientConnection findClient(int userId)
+    {
+        return connections.values().stream()
+            .filter(c -> c.getUserId() == userId)
+            .findFirst()
+            .orElse(null);
     }
 
     public GameServer() throws IOException

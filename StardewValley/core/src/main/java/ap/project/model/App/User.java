@@ -28,6 +28,9 @@ public class User
     private final int HASH_DIGIT_COUNT = 6;
     private final int hashId;
 
+    private int characterChoice = 0;
+    private int mapChoice = 0;
+
     public User(String username, String nickname, Gender gender, int hashId)
     {
         this.username = username;
@@ -176,6 +179,24 @@ public class User
     {
         return hashId;
     }
+
+    public int getCharacterChoice()
+    {
+        return characterChoice;
+    }
+
+    public int getMapChoice()
+    {
+        return mapChoice;
+    }
+
+    public void setCharacterChoice(int characterChoice)
+    {
+        this.characterChoice = characterChoice;
+    }
+
+    public void setMapChoice(int mapChoice)
+    {
+        this.mapChoice = mapChoice;
+    }
 }
-
-

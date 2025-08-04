@@ -46,6 +46,15 @@ public class KryoRegistry
         kryo.register(com.badlogic.gdx.graphics.Texture.class);
         kryo.register(com.badlogic.gdx.graphics.glutils.FileTextureData.class);
 
+        kryo.register(LobbyPresenceMessage.class);
+        kryo.register(PreLobbyConfirmationMessage.class);
+        kryo.register(PreLobbyErrorMessage.class);
+        kryo.register(PreLobbyPresenceMessage.class);
+        kryo.register(UserChoicesMessage.class);
+        kryo.register(LobbyCreatedMessage.class);
+        kryo.register(LobbyCreationFailedMessage.class);
+        kryo.register(LobbyCreationPermissionMessage.class);
+
         // Register all other message classes ...
     }
 }

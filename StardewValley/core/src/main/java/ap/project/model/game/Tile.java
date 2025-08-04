@@ -346,7 +346,7 @@ public class Tile
 //            }
 //            else
 //            {
-//                return "\uD83D\uDFE5"; // ERROR
+//                return "\uD83D\uDFE5"; // PRE_LOBBY_ERROR
 //            }
 //        } else
 //        {
@@ -384,11 +384,11 @@ public class Tile
 //                return "\uD83D\uDFE7";
 //            } else
 //            {
-//                return "\uD83D\uDFE5"; // ERROR
+//                return "\uD83D\uDFE5"; // PRE_LOBBY_ERROR
 //            }
 //        }
 //
-//        return "\uD83D\uDFE5"; // ERROR
+//        return "\uD83D\uDFE5"; // PRE_LOBBY_ERROR
 //    }
 
     public String getAppearance()
@@ -584,7 +584,7 @@ public class Tile
             }
             else
             {
-                return "\uD83D\uDFE5"; // ERROR
+                return "\uD83D\uDFE5"; // PRE_LOBBY_ERROR
             }
         } else
         {
@@ -631,11 +631,11 @@ public class Tile
                 return "\uD83D\uDC8E"; // 💎
             } else
             {
-                return "\uD83D\uDFE5"; // 🟥 ERROR
+                return "\uD83D\uDFE5"; // 🟥 PRE_LOBBY_ERROR
             }
         }
 
-        return "\uD83D\uDFE5"; // ERROR
+        return "\uD83D\uDFE5"; // PRE_LOBBY_ERROR
     }
 
     public boolean isImmuneFromCrows()
