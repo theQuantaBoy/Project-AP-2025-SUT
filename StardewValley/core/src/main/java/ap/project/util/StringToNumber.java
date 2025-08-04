@@ -1,5 +1,6 @@
 package ap.project.util;
 
+import java.security.SecureRandom;
 import java.util.Random;
 
 public class StringToNumber
@@ -24,6 +25,18 @@ public class StringToNumber
         }
 
         return result;
+    }
+
+    public static String generateLobbyId(int digits)
+    {
+        SecureRandom random = new SecureRandom();
+        long randomPart = random.nextLong() & Long.MAX_VALUE; // Ensure positive
+        long timePart = System.nanoTime() % 1000000000L;
+
+        String base = Long.toString(randomPart + timePart);
+        return base.length() > digits ?
+            base.substring(0, digits) :
+            String.format("%0" + digits + "d", Long.parseLong(base));
     }
 }
 

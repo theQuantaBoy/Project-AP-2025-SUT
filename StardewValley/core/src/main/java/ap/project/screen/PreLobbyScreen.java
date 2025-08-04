@@ -806,7 +806,24 @@ public class PreLobbyScreen implements Screen
 
     public void joinLobby(String lobbyName, String lobbyId)
     {
+        textBoxSystem.showTextBox("successfully joined: " + lobbyName);
         // TODO: implement later
+    }
+
+    public void refreshOnlineUsersList()
+    {
+        if (onlineUsersDialog.isVisible())
+        {
+            createOnlineUsersDialogContent();
+        }
+    }
+
+    public void refreshActiveLobbiesList()
+    {
+        if (activeLobbiesDialog.isVisible())
+        {
+            createActiveLobbiesDialogContent();
+        }
     }
 
     // ======================

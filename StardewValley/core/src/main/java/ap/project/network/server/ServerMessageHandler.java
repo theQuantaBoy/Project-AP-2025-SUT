@@ -98,32 +98,35 @@ public class ServerMessageHandler
         boolean isPrivate =  msg.isPrivate;
         boolean isVisible = msg.isVisible;
 
-        if (!client.isInLobby())
+        // Add validation
+        if (name == null || name.trim().isEmpty())
         {
-            Lobby lobby;
-            User user = server.getUser(client);
-
-            if (user != null)
-            {
-                if (isPrivate)
-                {
-                    lobby = new Lobby(name, user, isVisible);
-                } else
-                {
-                    lobby = new Lobby(name, password, user, isVisible);
-                }
-
-                String result = server.addLobby(lobby);
-                if (result != null)
-                {
-                    System.out.println("lobby created " + result);
-                    client.send(new LobbyCreatedMessage(name, result, isPrivate, isVisible));
-                    return;
-                }
-            }
+            client.send(new LobbyCreationFailedMessage());
+            return;
         }
 
-        client.send(new LobbyCreationFailedMessage());
+        User user = server.getUser(client);
+        if (user == null)
+        {
+            client.send(new LobbyCreationFailedMessage());
+            return;
+        }
+
+        Lobby lobby = isPrivate ?
+            new Lobby(name, password, user, isVisible) :
+            new Lobby(name, user, isVisible);
+
+        // Add to server
+        if (server.addLobby(lobby))
+        {
+            client.send(new LobbyCreatedMessage(lobby.getName(), lobby.getId(), isPrivate, isVisible));
+            client.setInLobby(true);
+            client.lobby = lobby;
+            client.send(new JoinLobbySuccessMessage(lobby.getName(), lobby.getId()));
+        } else
+        {
+            client.send(new LobbyCreationFailedMessage());
+        }
     }
 
     private static void handleJoinLobbyRequestMessage(ClientConnection client, LobbyJoinRequestMessage msg)
@@ -152,6 +155,12 @@ public class ServerMessageHandler
                 }
             }
 
+            if (client.isInLobby() && client.lobby != null)
+            {
+                client.send(new JoinLobbyErrorMessage("you are already in a lobby"));
+                return;
+            }
+
             int joinedUsers = lobby.getUsers().size();
             if (joinedUsers >= MAX_PLAYERS_FOR_GAME)
             {
@@ -169,6 +178,8 @@ public class ServerMessageHandler
             lobby.getUsers().add(user);
             client.setInLobby(true);
             client.send(new JoinLobbySuccessMessage(lobby.getName(), lobby.getId()));
+            client.setInLobby(true);
+            client.lobby = lobby;
         } else
         {
             client.send(new JoinLobbyErrorMessage("invalid id"));

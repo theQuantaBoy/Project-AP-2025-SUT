@@ -20,7 +20,8 @@ public class Lobby
         this.password = password;
         this.isPrivate = true;
         users.add(user);
-        this.id = StringToNumber.stringToRandomizedFixedDigitNumber(name, 6);
+//        this.id = StringToNumber.stringToRandomizedFixedDigitNumber(name, 6);
+        this.id = StringToNumber.generateLobbyId(6);
         this.isVisible = isVisible;
     }
 
@@ -29,7 +30,8 @@ public class Lobby
         this.name = name;
         this.isPrivate = false;
         users.add(user);
-        this.id = StringToNumber.stringToRandomizedFixedDigitNumber(name, 6);
+//        this.id = StringToNumber.stringToRandomizedFixedDigitNumber(name, 6);
+        this.id = StringToNumber.generateLobbyId(6);
         this.isVisible = isVisible;
     }
 

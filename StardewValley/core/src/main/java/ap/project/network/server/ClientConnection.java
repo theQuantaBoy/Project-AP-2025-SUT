@@ -1,6 +1,7 @@
 package ap.project.network.server;
 
 import ap.project.model.App.User;
+import ap.project.model.game.Lobby;
 import ap.project.network.shared.messages.Message;
 import com.esotericsoftware.kryonet.Connection;
 
@@ -17,6 +18,8 @@ public class ClientConnection
 
     public int characterChoice = 0;
     public int mapChoice = 0;
+
+    public Lobby lobby = null;
 
     public ClientConnection(Connection connection)
     {

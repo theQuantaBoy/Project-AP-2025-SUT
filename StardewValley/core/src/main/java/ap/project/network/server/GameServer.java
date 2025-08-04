@@ -191,18 +191,18 @@ public class GameServer
         }
     }
 
-    public String addLobby(Lobby lobby)
+    public boolean addLobby(Lobby lobby)
     {
         for (Lobby l : activeLobbies)
         {
             if (l.getId() == lobby.getId())
             {
-                return null;
+                return false;
             }
         }
 
         activeLobbies.add(lobby);
-        return lobby.getId();
+        return true;
     }
 
     public User getUser(ClientConnection client)
