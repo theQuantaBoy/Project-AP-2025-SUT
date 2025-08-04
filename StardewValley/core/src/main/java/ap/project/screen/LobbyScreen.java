@@ -4,11 +4,12 @@ import ap.project.control.CharacterController;
 import ap.project.model.App.App;
 import ap.project.model.App.GameAssetsManager;
 import ap.project.model.App.User;
-import ap.project.model.enums.CharacterType;
+import ap.project.model.enums.MapTypes;
+import ap.project.model.enums.Season;
 import ap.project.model.game.*;
-import ap.project.model.game.Point;
 import ap.project.network.client.GameClient;
 import ap.project.network.shared.messages.LobbyPresenceMessage;
+import ap.project.util.MapAssetLoader;
 import ap.project.visual.CharacterRenderer;
 import ap.project.visual.MapVisual;
 import ap.project.visual.TextBoxSystem;
@@ -20,9 +21,12 @@ import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
+import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
@@ -31,13 +35,12 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
-import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class LobbyScreen implements Screen
 {
-    private static LobbyScreen instance;
+    private static LobbyScreen INSTANCE;
     private final GameClient client;
 
     private String adminName;
@@ -52,11 +55,11 @@ public class LobbyScreen implements Screen
     private final CharacterRenderer characterRenderer;
     private final ArrayList<Player> otherPlayers = new ArrayList<>();
 
-    private final OrthographicCamera camera;
-    private final Batch batch;
+    private final OrthographicCamera cam;
+    private final OrthographicCamera uiCam = new OrthographicCamera();
     private final TextBoxSystem textBoxSystem = new TextBoxSystem();
     private final Stage stage;
-    private final Skin skin;
+    private final Skin skin = GameAssetsManager.getGameAssetsManager().getSkin();
     private final ShapeRenderer shapeRenderer;
 
     private final BitmapFont infoFont;
@@ -77,6 +80,8 @@ public class LobbyScreen implements Screen
 
     public LobbyScreen(String lobbyName, String lobbyId, String adminName, Player player)
     {
+        INSTANCE = this;
+
         this.adminName = adminName;
         this.lobbyName = lobbyName;
         this.lobbyId = lobbyId;
@@ -91,8 +96,7 @@ public class LobbyScreen implements Screen
         mapVisual = map.getMapVisual();
 
         // Initialize player and character
-        player.spawn();
-        player.setCurrentMap(map);
+        player.spawn(map);
 
         localPlayer = player;
         localCharacter = player.getCharacter();
@@ -103,37 +107,44 @@ public class LobbyScreen implements Screen
         characterController = new CharacterController(localCharacter, map, PLAYER_SPEED, TILE_SIZE);
         characterRenderer = new CharacterRenderer(shapeRenderer);
 
+        ShaderProgram.pedantic = false;
+
         // Replace current camera initialization
-        camera = new OrthographicCamera(20 * TILE_SIZE, 15 * TILE_SIZE);
-        camera.setToOrtho(false);
+        cam = new OrthographicCamera(20 * TILE_SIZE, 15 * TILE_SIZE);
+        cam.setToOrtho(false);
 
         // Add this after map initialization
+        MapAssetLoader.LoadedMap loaded = MapAssetLoader.loadFromTmx(map.getMapType().getName(), Season.Spring, map.getMapType().getMapKind());
+        TiledMap tiledMap = loaded.tiledMap;
+        map.setVisual(new MapVisual(map, tiledMap));
+
         float mapPixelWidth = map.getWidth() * TILE_SIZE;
         float mapPixelHeight = map.getHeight() * TILE_SIZE;
 
-        if (mapPixelWidth <= camera.viewportWidth || mapPixelHeight <= camera.viewportHeight)
+        if (mapPixelWidth <= cam.viewportWidth || mapPixelHeight <= cam.viewportHeight)
         {
-            cameraFixed = true;
-            float centerX = (map.getWidth() * TILE_SIZE) / 2f;
-            float centerY = (map.getHeight() * TILE_SIZE) / 2f;
-            camera.position.set(centerX, centerY, 0);
-            camera.update();
+            setCameraFixed(true);
+
+            float centerX = (map.getWidth() * MAP_SCALE * 16) / 2;
+            float centerY = (map.getHeight() * MAP_SCALE * 16) / 2;
+
+            cam.position.set(centerX, centerY, 0);
+            cam.update();
+
+            map.getMapVisual().getRenderer().setView(cam);
         } else
         {
-            cameraFixed = false;
+            setCameraFixed(false);
         }
 
-        batch = new SpriteBatch();
-
         // Set up UI
-        skin = GameAssetsManager.getGameAssetsManager().getSkin();
-        stage = new Stage(new ScreenViewport());
+        stage = new Stage();
         Gdx.input.setInputProcessor(stage);
 
         // Create lobby info label
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/Roboto-Regular.ttf"));
         FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
-        parameter.size = 18;
+        parameter.size = 24;
         infoFont = generator.generateFont(parameter);
         generator.dispose();
 
@@ -163,13 +174,11 @@ public class LobbyScreen implements Screen
 
         // Add button listeners
         setupButtonListeners();
-
-        instance = this;
     }
 
-    public static LobbyScreen getInstance()
+    public static LobbyScreen getINSTANCE()
     {
-        return instance;
+        return INSTANCE;
     }
 
     private void setupButtonListeners()
@@ -231,10 +240,6 @@ public class LobbyScreen implements Screen
     public void show()
     {
         Gdx.input.setInputProcessor(stage);
-
-        int mapPixelWidth = (int) (map.getWidth() * TILE_SIZE);
-        int mapPixelHeight = (int) (map.getHeight() * TILE_SIZE);
-        cameraFixed = mapPixelWidth <= camera.viewportWidth || mapPixelHeight <= camera.viewportHeight;
     }
 
     @Override
@@ -246,33 +251,93 @@ public class LobbyScreen implements Screen
 
         // Update game state
         update(delta);
-
-        // Update camera - REMOVE YOUR CURRENT CAMERA UPDATE CALLS
-        updateCamera(delta);
-        batch.setProjectionMatrix(camera.combined);
-        shapeRenderer.setProjectionMatrix(camera.combined);
+        cam.update();
+        textBoxSystem.update(delta);
 
         // Render map
-        mapVisual.render(camera); // Use cam, not camera
+        mapVisual.render(cam);
 
-        // Render characters
+        Batch batch = map.getMapVisual().getRenderer().getBatch();
+        batch.setProjectionMatrix(cam.combined);
+        shapeRenderer.setProjectionMatrix(cam.combined);
         batch.begin();
+
+        Vector3 mouseWorldPos = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0);
+        cam.unproject(mouseWorldPos);
+
         renderCharacters(batch);
+
         batch.end();
 
-        // Render UI
+        batch.setProjectionMatrix(uiCam.combined);
+        batch.begin();
+        textBoxSystem.render(batch);
+        batch.end();
+
         stage.act(delta);
         stage.draw();
-
-        // Render text boxes
-        textBoxSystem.update(delta);
-        textBoxSystem.render(batch);
     }
 
     private void update(float delta)
     {
         // Update character controller
         characterController.update(delta);
+        map.getMapVisual().update(delta);
+
+        if (!cameraFixed)
+        {
+            float playerX = localCharacter.getPosition().x + TILE_SIZE / 2;
+            float playerY = localCharacter.getPosition().y + TILE_SIZE / 2;
+
+            float camX = playerX;
+            float camY = playerY;
+
+            float halfViewportW = cam.viewportWidth / 2;
+            float halfViewportH = cam.viewportHeight / 2;
+
+            float rightEdgeSize = (map.getWidth() * MAP_SCALE * 16) - (cam.viewportWidth / 2);
+            float upEdgeSize = (map.getHeight() * MAP_SCALE * 16) - (cam.viewportHeight / 2);
+
+            if (playerX < halfViewportW)
+            {
+                camX = halfViewportW;
+            } else if (playerX >= rightEdgeSize)
+            {
+                camX = rightEdgeSize;
+            }
+
+            if (playerY <  halfViewportH)
+            {
+                camY = halfViewportH;
+            } else if (playerY >= upEdgeSize)
+            {
+                camY = upEdgeSize;
+            }
+
+            if (map.getMapType() == MapTypes.JOJA_MART)
+            {
+                camX = (map.getWidth() * MAP_SCALE * 16) / 2;
+            }
+
+            if (map.getMapType() == MapTypes.GREEN_HOUSE)
+            {
+                camX = (map.getWidth() * MAP_SCALE * 16) / 2;
+            }
+
+            if (map.getMapType() == MapTypes.CARPENTER_SHOP)
+            {
+                camX = (map.getWidth() * MAP_SCALE * 16) / 2;
+            }
+
+            if (map.getMapType() == MapTypes.MARNIE_RANCH)
+            {
+                camX = (map.getWidth() * MAP_SCALE * 16) / 2;
+                camY = (map.getHeight() * MAP_SCALE * 16) / 2;
+            }
+
+            cam.position.set(camX, camY, 0);
+        }
+
         client.processMessages();
 
         // Update position update timer
@@ -341,9 +406,9 @@ public class LobbyScreen implements Screen
     public void resize(int width, int height)
     {
         float currentRatio = (float) width / height;
-        camera.viewportHeight = 15 * TILE_SIZE;
-        camera.viewportWidth = camera.viewportHeight * currentRatio;
-        camera.update();
+        cam.viewportHeight = 15 * TILE_SIZE;
+        cam.viewportWidth = cam.viewportHeight * currentRatio;
+        cam.update();
 
         stage.getViewport().update(width, height, true);
 
@@ -356,8 +421,8 @@ public class LobbyScreen implements Screen
     @Override public void hide() {}
 
     @Override
-    public void dispose() {
-        batch.dispose();
+    public void dispose()
+    {
         stage.dispose();
         textBoxSystem.dispose();
         mapVisual.dispose();
@@ -367,30 +432,6 @@ public class LobbyScreen implements Screen
     public void showText(String text)
     {
         textBoxSystem.showTextBox(text);
-    }
-
-    private void updateCamera(float delta)
-    {
-        if (!cameraFixed)
-        {
-            float halfViewportW = camera.viewportWidth / 2f;
-            float halfViewportH = camera.viewportHeight / 2f;
-            float mapPixelWidth = map.getWidth() * TILE_SIZE;
-            float mapPixelHeight = map.getHeight() * TILE_SIZE;
-
-            float camX = MathUtils.clamp(localPlayer.getPosition().x, halfViewportW, mapPixelWidth - halfViewportW);
-            float camY = MathUtils.clamp(localPlayer.getPosition().y, halfViewportH, mapPixelHeight - halfViewportH);
-
-            camera.position.set(camX, camY, 0);
-        }
-        else
-        {
-            // When the map is smaller than the screen, center it
-            float centerX = map.getWidth() * TILE_SIZE / 2f;
-            float centerY = map.getHeight() * TILE_SIZE / 2f;
-            camera.position.set(centerX, centerY, 0);
-        }
-        camera.update();
     }
 
     private boolean isInLobby(int userId)
@@ -435,8 +476,7 @@ public class LobbyScreen implements Screen
         if (otherPlayers.size() < 3)
         {
             otherPlayers.add(player);
-            player.spawn();
-            player.setCurrentMap(map);
+            player.spawn(map);
             return true;
         }
 
@@ -471,5 +511,16 @@ public class LobbyScreen implements Screen
         }
 
         textBoxSystem.showTextBox("player not found");
+    }
+
+    public void setCameraFixed(boolean cameraFixed)
+    {
+        this.cameraFixed = cameraFixed;
+
+        if (cameraFixed)
+        {
+            cam.position.set(localCharacter.getPosition().x + TILE_SIZE/2, localCharacter.getPosition().y + TILE_SIZE/2, 0);
+            cam.update();
+        }
     }
 }

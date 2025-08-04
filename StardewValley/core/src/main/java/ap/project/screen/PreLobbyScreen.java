@@ -688,7 +688,9 @@ public class PreLobbyScreen implements Screen
         stage.act(delta);
         stage.draw();
 
+        stage.getBatch().begin();
         textBoxSystem.render(stage.getBatch());
+        stage.getBatch().end();
     }
 
     @Override

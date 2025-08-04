@@ -154,6 +154,16 @@ public class Player {
         this.skills.add(foragingSkill); this.skills.add(fishingSkill);
     }
 
+    public void spawn(Map map)
+    {
+        this.currentMap = map;
+        Point spawn = currentMap.getStartingPoint();
+        Vector2 spawnPoint = currentMap.tileToWorld(currentMap.getTile(spawn.getX(), spawn.getY()));
+
+        CharacterType type = CharacterType.values()[user.getCharacterChoice()];
+        this.character = new PlayerCharacter(type, spawnPoint, user.getNickname(), this);
+    }
+
     public void spawn()
     {
         this.currentMap = this.cabin;

@@ -40,12 +40,10 @@ public class TextBoxSystem
 
     public void render(Batch batch)
     {
-        batch.begin();
         for (TextBox tb : activeTextBoxes)
         {
             tb.render(batch);
         }
-        batch.end();
     }
 
     private void repositionTextBoxes()
