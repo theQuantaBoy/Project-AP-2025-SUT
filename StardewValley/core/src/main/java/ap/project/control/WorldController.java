@@ -430,7 +430,7 @@ public class WorldController
 
         if (tool instanceof Pickaxe)
         {
-            if (!tile.hasPlants() && tile.getObject() != null)
+            if (!tile.hasPlants() && tile.getObject()!= null && tile.getObject().getObjectType() == GameObjectType.STONE)
             {
                 GameObject object = tile.getObject();
                 if (!player.inventoryHasCapacity())
@@ -446,6 +446,7 @@ public class WorldController
                 {
                     tile.unHitByThunder();
                     player.getFarm().getThunderedTiles().remove(tile);
+                    return true; //??
                 }
 
                 UIRenderer.showTextBox(object.getObjectType().toString() + " added to your inventory");
