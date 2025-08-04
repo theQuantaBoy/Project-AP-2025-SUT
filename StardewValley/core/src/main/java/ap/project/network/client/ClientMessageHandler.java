@@ -27,7 +27,7 @@ public class ClientMessageHandler
                 handlePreLobbyErrorMessage((PreLobbyErrorMessage) message);
                 break;
             case LOBBY_CREATED:
-                handleLobbyCreatedMessage();
+                handleLobbyCreatedMessage((LobbyCreatedMessage) message);
                 break;
             case LOBBY_CREATION_FAILED:
                 handleLobbyCreationFailedMessage();
@@ -84,12 +84,16 @@ public class ClientMessageHandler
         }
     }
 
-    private static void handleLobbyCreatedMessage()
+    private static void handleLobbyCreatedMessage(LobbyCreatedMessage message)
     {
+        String name = message.lobbyName;
+        String id =  message.lobbyId;
+
         Screen currentScreen = Main.getApp().getScreen();
         if (currentScreen instanceof PreLobbyScreen)
         {
             ((PreLobbyScreen) currentScreen).showTextBox("Lobby Created Successfully");
+            ((PreLobbyScreen) currentScreen).joinLobby(name, id);
         }
     }
 

@@ -160,7 +160,34 @@ public class Player {
         Point spawn = currentMap.getStartingPoint();
         Vector2 spawnPoint = currentMap.tileToWorld(currentMap.getTile(spawn.getX(), spawn.getY()));
 
-        this.character = new PlayerCharacter(CharacterType.ABIGAIL, spawnPoint, user.getNickname(), this);
+        CharacterType type = CharacterType.values()[user.getCharacterChoice()];
+        this.character = new PlayerCharacter(type, spawnPoint, user.getNickname(), this);
+    }
+
+    public Player(User user)
+    {
+        this.user = user;
+        this.mapType = MapTypes.values()[user.getMapChoice()];
+        this.cabin = new Cabin();
+        this.greenHouse = new GreenHouse();
+        this.gender = user.getGender();
+        this.energy = 200f;
+        this.fainted = false;
+        this.money = 0;
+        Axe axe = new Axe(); Hoe hoe = new Hoe(); Pickaxe  pickaxe = new Pickaxe();
+        WateringCan wateringCan = new WateringCan(); Seythe seythe = new Seythe();
+        addTool(axe); addToInventory(axe);
+        addTool(hoe); addToInventory(hoe);
+        addTool(pickaxe);  addToInventory(pickaxe);
+        addTool(wateringCan); addToInventory(wateringCan);
+        addTool(seythe); addToInventory(seythe);
+        addToInventory(GameObjectType.MILK, 2);
+
+        this.zeidy = null;
+        this.newMessage = false;
+        this.apperance = appearences.get(0);
+        this.skills.add(farmingSkill); this.skills.add(miningSkill);
+        this.skills.add(foragingSkill); this.skills.add(fishingSkill);
     }
 
     public Player(User user, Farm farm, int number) {
@@ -400,22 +427,7 @@ public class Player {
 
     public void setLocation(Point location)
     {
-//        this.location = location;
-
         character.setPosition(currentMap.tileToWorld(currentMap.getTile(location.getX(), location.getY())));
-//
-//        if (isInCity)
-//        {
-//            int index = App.getCurrentGame().getPlayerIndex();
-//            City city = App.getCurrentGame().getCity();
-//            city.getPlayerPoints()[index] = location;
-//        }
-//        if (isInCity)
-//        {
-//            int index = App.getCurrentGame().getPlayerIndex();
-//            City city = App.getCurrentGame().getCity();
-//            city.getPlayerPoints()[index] = location;
-//        }
     }
 
     public void setCurrentMap(Map currentMap)

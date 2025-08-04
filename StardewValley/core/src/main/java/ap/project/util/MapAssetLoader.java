@@ -25,6 +25,7 @@ public final class MapAssetLoader
             case HOUSE -> fileName = "maps/general/house/house_interior.tmx";
             case GREEN_HOUSE -> fileName = "maps/general/greenhouse/green_house.tmx";
             case SHOP -> fileName = String.format("maps/general/shops/%s.tmx", baseMapName);
+            case LOBBY -> fileName = "maps/general/lobby/Club.tmx";
         }
 
         return new LoadedMap(fileName, mapKind);

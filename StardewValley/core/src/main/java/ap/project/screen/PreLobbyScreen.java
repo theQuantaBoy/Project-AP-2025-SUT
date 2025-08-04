@@ -8,6 +8,7 @@ import ap.project.model.enums.CharacterType;
 import ap.project.model.enums.Gender;
 import ap.project.model.enums.MapTypes;
 import ap.project.model.enums.Season;
+import ap.project.model.game.Player;
 import ap.project.network.client.GameClient;
 import ap.project.network.shared.messages.*;
 import ap.project.visual.TextBoxSystem;
@@ -807,7 +808,8 @@ public class PreLobbyScreen implements Screen
     public void joinLobby(String lobbyName, String lobbyId)
     {
         textBoxSystem.showTextBox("successfully joined: " + lobbyName);
-        // TODO: implement later
+        Player player = new Player(user);
+        Main.getApp().setScreen(new LobbyScreen(lobbyName, lobbyId, user.getUsername(), player));
     }
 
     public void refreshOnlineUsersList()

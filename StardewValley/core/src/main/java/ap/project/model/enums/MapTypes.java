@@ -27,7 +27,10 @@ public enum MapTypes
     FISH_SHOP("fish_shop", "", "", MapKind.SHOP),
     JOJA_MART("joja_mart", "", "", MapKind.SHOP),
     PIERRE_GENERAL_STORE("pierre_store", "", "", MapKind.SHOP),
-    SALOON("saloon", "", "", MapKind.SHOP);
+    SALOON("saloon", "", "", MapKind.SHOP),
+
+    LOBBY("lobby", "", "", MapKind.LOBBY),
+    ;
 
     private final String name;
     private final String mapPath;
@@ -131,10 +134,8 @@ public enum MapTypes
 
         if (mapKind == MapKind.FARM)
         {
-            return new Texture(String.format("maps/farm/%s/mini-maps/mini_%s_%s.png",  mapTypes.getName(), mapTypes.getName(), season.getName()));
-        }
-
-        else if (mapKind == MapKind.TOWN)
+            return new Texture(String.format("maps/farm/%s/mini-maps/mini_%s_%s.png", mapTypes.getName(), mapTypes.getName(), season.getName()));
+        } else if (mapKind == MapKind.TOWN)
         {
             return new Texture(String.format("maps/general/town/mini-maps/mini_town_%s.png", season.getName()));
         }
