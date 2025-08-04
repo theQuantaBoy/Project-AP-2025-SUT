@@ -25,6 +25,25 @@ public class ClientMessageHandler
                 break;
             case PRE_LOBBY_ERROR:
                 handlePreLobbyErrorMessage((PreLobbyErrorMessage) message);
+                break;
+            case LOBBY_CREATED:
+                handleLobbyCreatedMessage();
+                break;
+            case LOBBY_CREATION_FAILED:
+                handleLobbyCreationFailedMessage();
+                break;
+            case ACTIVE_LOBBIES_LIST:
+                handleActiveLobbiesListMessage((ActiveLobbiesListMessage) message);
+                break;
+            case ONLINE_PLAYERS_LIST:
+                handleOnlinePlayersListMessage((OnlinePlayersListMessage) message);
+                break;
+            case JOIN_LOBBY_SUCCESS:
+                handleJoinedLobbySuccessfullyMessage((JoinLobbySuccessMessage) message);
+                break;
+            case JOIN_LOBBY_ERROR:
+                handleFailedToJoinLobbyMessage((JoinLobbyErrorMessage) message);
+                break;
             // Add other cases
         }
     }
@@ -62,6 +81,69 @@ public class ClientMessageHandler
         if (currentScreen instanceof PreLobbyScreen)
         {
             ((PreLobbyScreen) currentScreen).handlePreLobbyError(msg);
+        }
+    }
+
+    private static void handleLobbyCreatedMessage()
+    {
+        Screen currentScreen = Main.getApp().getScreen();
+        if (currentScreen instanceof PreLobbyScreen)
+        {
+            ((PreLobbyScreen) currentScreen).showTextBox("Lobby Created Successfully");
+        }
+    }
+
+    private static void handleLobbyCreationFailedMessage()
+    {
+        Screen currentScreen = Main.getApp().getScreen();
+        if (currentScreen instanceof PreLobbyScreen)
+        {
+            ((PreLobbyScreen) currentScreen).showTextBox("Lobby Creation Failed");
+        }
+    }
+
+    private static void handleActiveLobbiesListMessage(ActiveLobbiesListMessage msg)
+    {
+        String list = msg.list;
+
+        Screen currentScreen = Main.getApp().getScreen();
+        if (currentScreen instanceof PreLobbyScreen)
+        {
+            ((PreLobbyScreen) currentScreen).setActiveLobbiesText(list);
+        }
+    }
+
+    private static void handleOnlinePlayersListMessage(OnlinePlayersListMessage msg)
+    {
+        String list = msg.list;
+
+        Screen currentScreen = Main.getApp().getScreen();
+        if (currentScreen instanceof PreLobbyScreen)
+        {
+            ((PreLobbyScreen) currentScreen).setOnlineUsersText(list);
+        }
+    }
+
+    private static void handleJoinedLobbySuccessfullyMessage(JoinLobbySuccessMessage message)
+    {
+        String name = message.name;
+        String id = message.id;
+
+        Screen currentScreen = Main.getApp().getScreen();
+        if (currentScreen instanceof PreLobbyScreen)
+        {
+            ((PreLobbyScreen) currentScreen).joinLobby(name, id);
+        }
+    }
+
+    private static void handleFailedToJoinLobbyMessage(JoinLobbyErrorMessage message)
+    {
+        String reason = message.reason;
+
+        Screen currentScreen = Main.getApp().getScreen();
+        if (currentScreen instanceof PreLobbyScreen)
+        {
+            ((PreLobbyScreen) currentScreen).showTextBox("Failed to Join Lobby: " + reason);
         }
     }
 }

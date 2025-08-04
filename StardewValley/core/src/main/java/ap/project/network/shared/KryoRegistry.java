@@ -55,6 +55,12 @@ public class KryoRegistry
         kryo.register(LobbyCreationFailedMessage.class);
         kryo.register(LobbyCreationPermissionMessage.class);
 
+        kryo.register(ActiveLobbiesListMessage.class);
+        kryo.register(JoinLobbyErrorMessage.class);
+        kryo.register(JoinLobbySuccessMessage.class);
+        kryo.register(LobbyJoinRequestMessage.class);
+        kryo.register(OnlinePlayersListMessage.class);
+
         // Register all other message classes ...
     }
 }

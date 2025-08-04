@@ -36,6 +36,9 @@ public class PreLobbyScreen implements Screen
 
     private final TextBoxSystem textBoxSystem = new TextBoxSystem();
 
+    private String onlineUsersText = "";
+    private String activeLobbiesText = "";
+
     private Stage stage;
     private Image background;
     private Label statusLabel;
@@ -68,7 +71,7 @@ public class PreLobbyScreen implements Screen
     private TextField lobbyPasswordField;
     private CheckBox privateCheckbox;
     private CheckBox visibleCheckbox;
-    private TextField joinLobbyNameField;
+    private TextField joinLobbyIDField;
     private TextField joinLobbyPasswordField;
     private Label avatarNameLabel;
     private Label mapNameLabel;
@@ -439,9 +442,9 @@ public class PreLobbyScreen implements Screen
         Skin skin = GameAssetsManager.getGameAssetsManager().getSkin();
 
         // Name field
-        joinLobbyNameField = new TextField("", skin);
-        content.add(new Label("Lobby Name:", skin)).padRight(10);
-        content.add(joinLobbyNameField).width(400).pad(10).row(); // Wider field
+        joinLobbyIDField = new TextField("", skin);
+        content.add(new Label("Lobby Id:", skin)).padRight(10);
+        content.add(joinLobbyIDField).width(400).pad(10).row(); // Wider field
 
         // Password field
         joinLobbyPasswordField = new TextField("", skin);
@@ -456,6 +459,9 @@ public class PreLobbyScreen implements Screen
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 // Handle lobby joining
+                String id = joinLobbyIDField.getText().trim();
+                String password = joinLobbyPasswordField.getText().trim();
+                client.send(new LobbyJoinRequestMessage(id, password));
                 joinLobbyDialog.hide();
             }
         });
@@ -474,6 +480,10 @@ public class PreLobbyScreen implements Screen
 
     private void createOnlineUsersDialogContent()
     {
+        // wipe out old content *and* old buttons
+        onlineUsersDialog.getContentTable().clearChildren();
+        onlineUsersDialog.getButtonTable().clearChildren();
+
         Table content = onlineUsersDialog.getContentTable();
         Skin skin = GameAssetsManager.getGameAssetsManager().getSkin();
 
@@ -481,10 +491,13 @@ public class PreLobbyScreen implements Screen
         onlineUsersTable = new Table();
         onlineUsersTable.defaults().pad(5);
 
-        // Add sample users (replace with actual data)
-        for (int i = 1; i <= 20; i++)
+        if (onlineUsersText != null && !onlineUsersText.isEmpty())
         {
-            onlineUsersTable.add(new Label("User " + i, skin)).left().row();
+            String[] users = onlineUsersText.split("\n");
+            for (String user : users)
+            {
+                onlineUsersTable.add(new Label(user, skin)).left().row();
+            }
         }
 
         ScrollPane scrollPane = new ScrollPane(onlineUsersTable, skin);
@@ -496,6 +509,9 @@ public class PreLobbyScreen implements Screen
 
     private void createActiveLobbiesDialogContent()
     {
+        activeLobbiesDialog.getContentTable().clearChildren();
+        activeLobbiesDialog.getButtonTable().clearChildren();
+
         Table content = activeLobbiesDialog.getContentTable();
         Skin skin = GameAssetsManager.getGameAssetsManager().getSkin();
 
@@ -503,26 +519,15 @@ public class PreLobbyScreen implements Screen
         activeLobbiesTable = new Table();
         activeLobbiesTable.defaults().pad(5).fillX().expandX();
 
-        // Add sample lobbies (replace with actual data)
-        for (int i = 1; i <= 10; i++)
+        if (activeLobbiesText != null && !activeLobbiesText.isEmpty())
         {
-            // Create lobby info container
-            Table lobbyInfo = new Table();
-            lobbyInfo.defaults().pad(5).left();
-
-            // Lobby name and player count
-            Label nameLabel = new Label("Lobby " + i, skin);
-            Label countLabel = new Label("(4/4)", skin);
-            lobbyInfo.add(nameLabel).left();
-            lobbyInfo.add(countLabel).padLeft(10).left().row();
-
-            // Host info
-            Label hostLabel = new Label("Host: Player" + i, skin);
-            lobbyInfo.add(hostLabel).colspan(2).left();
-
-            // Add lobby info to main table
-            activeLobbiesTable.add(lobbyInfo).fillX().expandX().row();
+            String[] lobbies = activeLobbiesText.split("\n");
+            for (String lobby : lobbies)
+            {
+                activeLobbiesTable.add(new Label(lobby, skin)).left().row();
+            }
         }
+
 
         ScrollPane scrollPane = new ScrollPane(activeLobbiesTable, skin);
         scrollPane.setFadeScrollBars(false);
@@ -593,7 +598,7 @@ public class PreLobbyScreen implements Screen
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 // Reset fields
-                joinLobbyNameField.setText("");
+                joinLobbyIDField.setText("");
                 joinLobbyPasswordField.setText("");
                 joinLobbyDialog.show(stage);
             }
@@ -603,6 +608,7 @@ public class PreLobbyScreen implements Screen
         onlineUsersButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
+                createOnlineUsersDialogContent();
                 onlineUsersDialog.show(stage);
             }
         });
@@ -611,6 +617,7 @@ public class PreLobbyScreen implements Screen
         activeLobbiesButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
+                createActiveLobbiesDialogContent();
                 activeLobbiesDialog.show(stage);
             }
         });
@@ -688,7 +695,6 @@ public class PreLobbyScreen implements Screen
     {
         stage.getViewport().update(width, height, true);
         positionElements();
-        textBoxSystem.resize(width, height);
     }
 
     @Override
@@ -768,24 +774,20 @@ public class PreLobbyScreen implements Screen
         statusLabel.setText("Status: " + status);
     }
 
-    public Table getOnlineUsersTable() {
-        return onlineUsersTable;
+    public void setOnlineUsersText(String text) {
+        this.onlineUsersText = text;
     }
 
-    public Table getActiveLobbiesTable() {
-        return activeLobbiesTable;
+    public String getOnlineUsersText() {
+        return onlineUsersText;
     }
 
-    public Label getStatusLabel() {
-        return statusLabel;
+    public void setActiveLobbiesText(String text) {
+        this.activeLobbiesText = text;
     }
 
-    public void setOnlineUsersTable(Table table) {
-        this.onlineUsersTable = table;
-    }
-
-    public void setActiveLobbiesTable(Table table) {
-        this.activeLobbiesTable = table;
+    public String getActiveLobbiesText() {
+        return activeLobbiesText;
     }
 
     public void setUsernameLabelText(String username) {
@@ -795,6 +797,16 @@ public class PreLobbyScreen implements Screen
     public static PreLobbyScreen getInstance()
     {
         return instance;
+    }
+
+    public void showTextBox(String text)
+    {
+        textBoxSystem.showTextBox(text);
+    }
+
+    public void joinLobby(String lobbyName, String lobbyId)
+    {
+        // TODO: implement later
     }
 
     // ======================

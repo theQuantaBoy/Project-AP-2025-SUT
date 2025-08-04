@@ -30,8 +30,8 @@ public class GameServer
     private float periodicMessageTimer = 0;
     private static final float PERIODIC_MESSAGE_INTERVAL = 0.1f;
 
-    private final int MIN_PLAYERS_FOR_GAME = 2;
-    private final int MAX_PLAYERS_FOR_GAME = 4;
+    public static final int MIN_PLAYERS_FOR_GAME = 2;
+    public static final int MAX_PLAYERS_FOR_GAME = 4;
 
     public void update(float delta)
     {
@@ -49,6 +49,75 @@ public class GameServer
         // (game state updates, lobby management, etc.)
     }
 
+    private String getActiveLobbiesList()
+    {
+        StringBuilder sb = new StringBuilder();
+        for (Lobby lobby : activeLobbies)
+        {
+            if (lobby.isVisible())
+            {
+                sb.append("\'").append(lobby.getName()).append("\'").append("\n");
+                sb.append("  -" + (lobby.isPrivate() ? "private lobby" : "public lobby") + "\n");
+                sb.append("  -code: " + lobby.getId()).append("\n");
+                sb.append("  -present: " + lobby.getUsers().size()).append("\n");
+                sb.append("  -admin: " + (lobby.getAdmin() == null ? "none" : lobby.getAdmin().getUsername())).append("\n");
+                sb.append("\n").append("------------").append("\n");
+            }
+        }
+        return sb.toString();
+    }
+
+    private String getOnlinePlayersList()
+    {
+        StringBuilder sb = new StringBuilder();
+        for (ClientConnection connection : connections.values())
+        {
+            if (connection.isOnline())
+            {
+                User user = getUser(connection);
+                if (user != null)
+                {
+                    sb.append(user.getUsername()).append("\n");
+                    Lobby lobby = getActiveLobby(user);
+                    if (lobby != null)
+                    {
+                        sb.append(" -lobby: ").append(lobby.getName()).append("\n");
+                    }
+                }
+            }
+        }
+        return sb.toString();
+    }
+
+    private Lobby getActiveLobby(User user)
+    {
+        for (Lobby lobby : activeLobbies)
+        {
+            for (User u : lobby.getUsers())
+            {
+                if (u.getHashId() == user.getHashId())
+                {
+                    return lobby;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    public Lobby findLobby(String hashId)
+    {
+        for (Lobby lobby : activeLobbies)
+        {
+            if (lobby.getId().equals(hashId))
+            {
+                return lobby;
+            }
+        }
+
+        return null;
+    }
+
     private void sendPeriodicMessages(float delta)
     {
         for (ClientConnection client : connections.values())
@@ -56,6 +125,10 @@ public class GameServer
             if (!client.isOnline())
             {
                 client.lastOnlineCheckTime += delta;
+            } else
+            {
+                client.send(new ActiveLobbiesListMessage(getActiveLobbiesList()));
+                client.send(new OnlinePlayersListMessage(getOnlinePlayersList()));
             }
         }
     }

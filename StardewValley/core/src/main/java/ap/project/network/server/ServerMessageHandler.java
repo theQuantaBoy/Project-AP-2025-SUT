@@ -5,6 +5,8 @@ import ap.project.model.enums.Gender;
 import ap.project.model.game.Lobby;
 import ap.project.network.shared.messages.*;
 
+import static ap.project.network.server.GameServer.MAX_PLAYERS_FOR_GAME;
+
 public class ServerMessageHandler
 {
     public static void handle(ClientConnection client, Message message)
@@ -25,6 +27,9 @@ public class ServerMessageHandler
                 break;
             case LOBBY_CREATION_MESSAGE:
                 handleLobbyCreation(client, (LobbyCreationPermissionMessage)  message);
+                break;
+            case JOIN_LOBBY_REQUEST:
+                handleJoinLobbyRequestMessage(client, (LobbyJoinRequestMessage) message);
                 break;
         }
     }
@@ -119,5 +124,54 @@ public class ServerMessageHandler
         }
 
         client.send(new LobbyCreationFailedMessage());
+    }
+
+    private static void handleJoinLobbyRequestMessage(ClientConnection client, LobbyJoinRequestMessage msg)
+    {
+        GameServer server = GameServer.getInstance();
+
+        String id = msg.id;
+        String password = msg.password;
+
+        if (id != null)
+        {
+            Lobby lobby = server.findLobby(id);
+
+            if (lobby == null)
+            {
+                client.send(new JoinLobbyErrorMessage("lobby not found"));
+                return;
+            }
+
+            if (lobby.isPrivate())
+            {
+                if (!lobby.getPassword().equals(password))
+                {
+                    client.send(new JoinLobbyErrorMessage("invalid password"));
+                    return;
+                }
+            }
+
+            int joinedUsers = lobby.getUsers().size();
+            if (joinedUsers >= MAX_PLAYERS_FOR_GAME)
+            {
+                client.send(new JoinLobbyErrorMessage("lobby is full :("));
+                return;
+            }
+
+            User user = server.getUser(client);
+            if (user == null)
+            {
+                client.send(new JoinLobbyErrorMessage("user not found"));
+                return;
+            }
+
+            lobby.getUsers().add(user);
+            client.setInLobby(true);
+            client.send(new JoinLobbySuccessMessage(lobby.getName(), lobby.getId()));
+        } else
+        {
+            client.send(new JoinLobbyErrorMessage("invalid id"));
+        }
     }
 }

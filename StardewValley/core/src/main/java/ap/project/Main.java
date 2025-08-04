@@ -14,6 +14,9 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
+import java.net.Socket;
+import java.util.Scanner;
+
 public class Main extends com.badlogic.gdx.Game
 {
     private static Main instance;
@@ -37,7 +40,11 @@ public class Main extends com.badlogic.gdx.Game
         Gdx.graphics.setCursor(Gdx.graphics.newCursor(cursorPixmap, hotspotX, hotspotY));
         cursorPixmap.dispose();
 
-        User user = new User("Mohsen", "1234", "mohsen", "mail", Gender.MALE, "", "");
+        System.out.println("enter name: ");
+        Scanner scanner = new Scanner(System.in);
+        String name = scanner.nextLine().trim();
+
+        User user = new User(name, "1234", "mohsen", "mail", Gender.MALE, "", "");
         App.setCurrentUser(user);
         app.setScreen(new PreGameScreen());
 
