@@ -723,7 +723,9 @@ public class InventoryWindow {
                     slotContainer.add(itemStack).expand().fill();
                 }
 
-                String tooltipText = obj.getObjectType().toString();
+                String tooltipText;
+                if (obj.getNumber() < 2) tooltipText = obj.getObjectType().toString();
+                else tooltipText = obj.getObjectType().toString() + " x" +  obj.getNumber();
                 Label tooltipLabel = new Label(tooltipText, skin);
                 Tooltip<Label> tooltip = new Tooltip<>(tooltipLabel, tooltipManager);
                 tooltip.getContainer().setBackground(tooltipBg);
@@ -890,7 +892,7 @@ public class InventoryWindow {
         }
     }
 
-    private Drawable getSafeIcon(GameObject obj)
+    public Drawable getSafeIcon(GameObject obj)
     {
         try
         {

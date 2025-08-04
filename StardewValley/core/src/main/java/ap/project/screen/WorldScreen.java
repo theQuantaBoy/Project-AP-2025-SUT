@@ -236,7 +236,7 @@ public final class WorldScreen implements Screen
             if (obj != null) {
                 try {
                     // Create item icon
-                    Drawable icon = getIconForGameObject(obj);
+                    Drawable icon = inventoryWindow.getSafeIcon(obj);
                     Stack itemStack = new Stack();
                     Image iconImage = new Image(icon);
                     itemStack.add(iconImage);
@@ -250,7 +250,8 @@ public final class WorldScreen implements Screen
 
                         // Create container for padding
                         Table countContainer = new Table();
-                        slotContainer.setFillParent(true);
+                        //slotContainer.setFillParent(true);
+                        itemStack.setFillParent(true);
                         countContainer.bottom().right();
                         countContainer.add(countLabel).pad(0, 0, 2, 2);
 
@@ -327,11 +328,8 @@ public final class WorldScreen implements Screen
             return new TextureRegionDrawable(new TextureRegion(texture));
         } catch (Exception e) {
             // Return a default texture or create a colored rectangle
-            Pixmap pixmap = new Pixmap(HOTBAR_SLOT_SIZE, HOTBAR_SLOT_SIZE, Pixmap.Format.RGBA8888);
-            pixmap.setColor(Color.GRAY);
-            pixmap.fill();
-            Texture texture = new Texture(pixmap);
-            pixmap.dispose();
+            String path = GameObjectType.COOKIE.getPath();
+            Texture texture = new Texture(Gdx.files.internal(path));
             return new TextureRegionDrawable(new TextureRegion(texture));
         }
     }
