@@ -124,9 +124,16 @@ public class MapVisual
             ArrayList<Tile> plantingTiles = farm.getPlantingTiles();
 
             renderer.getBatch().begin();
+            ArrayList<Tile> removed = new ArrayList<>();
 
             for (Tile tile : plantingTiles)
             {
+                if (!tile.isPloughed()) {
+                    drawTileEffect(tile, EffectType.PLAIN_TILE);
+                    tile.unPlant();
+                    removed.add(tile);
+                }
+
                 drawTileEffect(tile, EffectType.PLOUGHED_TILE);
 
                 if (tile.isFertilized())
@@ -143,6 +150,7 @@ public class MapVisual
                     }
                 }
             }
+            farm.getPlantingTiles().removeAll(removed);
 
             renderer.getBatch().end();
         }
