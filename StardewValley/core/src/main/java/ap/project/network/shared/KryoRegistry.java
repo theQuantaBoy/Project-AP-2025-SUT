@@ -61,6 +61,15 @@ public class KryoRegistry
         kryo.register(LobbyJoinRequestMessage.class);
         kryo.register(OnlinePlayersListMessage.class);
 
+        kryo.register(CloseLobbyRequestMessage.class);
+        kryo.register(CreateGameRequestMessage.class);
+        kryo.register(LeaveLobbyMessage.class);
+        kryo.register(LobbyClosedMessage.class);
+        kryo.register(LobbyTimeUpdateMessage.class);
+        kryo.register(PlayerJoinedLobbyMessage.class);
+        kryo.register(PlayerLeftLobbyMessage.class);
+        kryo.register(PlayerPositionUpdateMessage.class);
+
         // Register all other message classes ...
     }
 }

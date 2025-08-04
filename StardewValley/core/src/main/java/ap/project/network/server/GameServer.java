@@ -11,6 +11,8 @@ import com.esotericsoftware.kryonet.Client;
 import com.esotericsoftware.kryonet.Server;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
+import org.lwjgl.opencl.CL;
+
 import java.io.IOException;
 import java.util.*;
 
@@ -41,6 +43,22 @@ public class GameServer
         if (periodicMessageTimer >= PERIODIC_MESSAGE_INTERVAL)
         {
             sendPeriodicMessages(delta);
+
+            for (Lobby lobby : activeLobbies)
+            {
+//                long elapsed = System.currentTimeMillis() - lobby.getCreatedAt();
+//                int remaining = (int) (300 - (elapsed / 1000)); // 5 minutes
+//
+//                if (remaining <= 0)
+//                {
+//                    broadcastToLobby(lobby, new LobbyClosedMessage());
+//                    closeLobby(lobby);
+//                } else
+//                {
+//                    // Send time update to all players
+//                    broadcastToLobby(lobby, new LobbyTimeUpdateMessage(remaining));
+//                }
+            }
 
             periodicMessageTimer = 0;
         }
@@ -89,7 +107,7 @@ public class GameServer
         return sb.toString();
     }
 
-    private Lobby getActiveLobby(User user)
+    public Lobby getActiveLobby(User user)
     {
         for (Lobby lobby : activeLobbies)
         {
@@ -120,17 +138,52 @@ public class GameServer
 
     private void sendPeriodicMessages(float delta)
     {
-        for (ClientConnection client : connections.values())
+        // Create a copy of the values to avoid ConcurrentModificationException
+        List<ClientConnection> clients = new ArrayList<>(connections.values());
+
+        List<ClientConnection> toDisconnect = new ArrayList<>();
+
+        for (ClientConnection client : clients)
         {
             if (!client.isOnline())
             {
                 client.lastOnlineCheckTime += delta;
+                if (client.lastOnlineCheckTime > 120)
+                {
+                    toDisconnect.add(client);
+                }
             } else
             {
                 client.send(new ActiveLobbiesListMessage(getActiveLobbiesList()));
                 client.send(new OnlinePlayersListMessage(getOnlinePlayersList()));
             }
         }
+
+        // Process disconnects after iteration
+        for (ClientConnection client : toDisconnect)
+        {
+            handleDisconnect(client);
+        }
+    }
+
+    public void broadcastToLobby(Lobby lobby, Message message)
+    {
+        for (User user : lobby.getUsers())
+        {
+            if (user != null)
+            {
+                ClientConnection connection = findClient(user.getHashId());
+                if (connection != null)
+                {
+                    connection.send(message);
+                }
+            }
+        }
+    }
+
+    private void handleDisconnect(ClientConnection client)
+    {
+        // TODO: put a should remove boolean to remove later, also handle lobby stuff
     }
 
     private void startGameLoop()
@@ -220,10 +273,15 @@ public class GameServer
 
     public ClientConnection findClient(int userId)
     {
-        return connections.values().stream()
-            .filter(c -> c.getUserId() == userId)
-            .findFirst()
-            .orElse(null);
+        for (ClientConnection c : connections.values())
+        {
+            if (c.getUserId() == userId)
+            {
+                return c;
+            }
+        }
+
+        return null;
     }
 
     public GameServer() throws IOException

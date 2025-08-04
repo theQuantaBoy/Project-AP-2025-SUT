@@ -2,6 +2,7 @@ package ap.project.network.client;
 
 import ap.project.Main;
 import ap.project.network.shared.messages.*;
+import ap.project.screen.LobbyScreen;
 import ap.project.screen.PreLobbyScreen;
 import com.badlogic.gdx.Screen;
 
@@ -43,6 +44,15 @@ public class ClientMessageHandler
                 break;
             case JOIN_LOBBY_ERROR:
                 handleFailedToJoinLobbyMessage((JoinLobbyErrorMessage) message);
+                break;
+            case PLAYER_JOINED_LOBBY:
+                handlePlayerJoinedLobbyMessage((PlayerJoinedLobbyMessage) message);
+                break;
+            case PLAYER_POSITION_UPDATE:
+                handleUpdatePlayerPositionMessage((PlayerPositionUpdateMessage) message);
+                break;
+            case PLAYER_LEFT_LOBBY:
+                handlePlayerLeftLobbyMessage((PlayerLeftLobbyMessage) message);
                 break;
             // Add other cases
         }
@@ -148,6 +158,69 @@ public class ClientMessageHandler
         if (currentScreen instanceof PreLobbyScreen)
         {
             ((PreLobbyScreen) currentScreen).showTextBox("Failed to Join Lobby: " + reason);
+        }
+    }
+
+    private static void handlePlayerJoinedLobbyMessage(PlayerJoinedLobbyMessage message)
+    {
+        if (Main.getApp().getScreen() instanceof LobbyScreen)
+        {
+            LobbyScreen ls = (LobbyScreen) Main.getApp().getScreen();
+
+            int userId = message.userId;
+            String username = message.username;
+            String nickname = message.nickname;
+            int avatarChoice = message.avatarChoice;
+            int mapChoice = message.mapChoice;
+
+            if (!ls.getLobbyId().equals(message.lobbyId))
+            {
+                ls.showText("Error: Lobby ID mismatch");
+                return;
+            }
+
+            if (ls.addOtherPlayer(userId, username, nickname, avatarChoice, mapChoice))
+            {
+                ls.showText(username + " joined the lobby");
+            } else
+            {
+                ls.showText("couldn't add " + username + " to lobby");
+            }
+        }
+    }
+
+    private static void handleUpdatePlayerPositionMessage(PlayerPositionUpdateMessage message)
+    {
+        if (Main.getApp().getScreen() instanceof LobbyScreen)
+        {
+            LobbyScreen ls = (LobbyScreen) Main.getApp().getScreen();
+
+            int userId = message.userId;
+            int x = message.x;
+            int y = message.y;
+            byte direction = message.direction;
+            boolean isMoving = message.isMoving;
+
+            ls.updatePlayerPosition(userId, x, y, direction, isMoving);
+        }
+    }
+
+    private static void handlePlayerLeftLobbyMessage(PlayerLeftLobbyMessage message)
+    {
+        if (Main.getApp().getScreen() instanceof LobbyScreen)
+        {
+            LobbyScreen ls = (LobbyScreen) Main.getApp().getScreen();
+
+            String lobbyId = message.lobbyID;
+
+            if (!ls.getLobbyId().equals(lobbyId))
+            {
+                ls.showText("Error: Lobby ID mismatch");
+                return;
+            }
+
+            int userId = message.userID;
+            ls.removeOtherPlayer(userId);
         }
     }
 }

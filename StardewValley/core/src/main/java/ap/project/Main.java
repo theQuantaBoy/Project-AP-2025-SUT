@@ -44,7 +44,7 @@ public class Main extends com.badlogic.gdx.Game
         Scanner scanner = new Scanner(System.in);
         String name = scanner.nextLine().trim();
 
-        User user = new User(name, "1234", "mohsen", "mail", Gender.MALE, "", "");
+        User user = new User(name, "1234", name, "mail", Gender.MALE, "", "");
         App.setCurrentUser(user);
         app.setScreen(new PreGameScreen());
 

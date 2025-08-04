@@ -7,6 +7,8 @@ import ap.project.model.App.User;
 import ap.project.model.enums.CharacterType;
 import ap.project.model.game.*;
 import ap.project.model.game.Point;
+import ap.project.network.client.GameClient;
+import ap.project.network.shared.messages.LobbyPresenceMessage;
 import ap.project.visual.CharacterRenderer;
 import ap.project.visual.MapVisual;
 import ap.project.visual.TextBoxSystem;
@@ -35,7 +37,12 @@ import java.util.List;
 
 public class LobbyScreen implements Screen
 {
+    private static LobbyScreen instance;
+    private final GameClient client;
+
     private String adminName;
+    private String lobbyName;
+    private String lobbyId;
 
     private final LobbyMap map;
     private final MapVisual mapVisual;
@@ -71,6 +78,9 @@ public class LobbyScreen implements Screen
     public LobbyScreen(String lobbyName, String lobbyId, String adminName, Player player)
     {
         this.adminName = adminName;
+        this.lobbyName = lobbyName;
+        this.lobbyId = lobbyId;
+        this.client = GameClient.getInstance();
 
         Game game = new Game(new ArrayList<Player>(List.of(player)));
         game.setCurrentPlayer(player);
@@ -153,6 +163,13 @@ public class LobbyScreen implements Screen
 
         // Add button listeners
         setupButtonListeners();
+
+        instance = this;
+    }
+
+    public static LobbyScreen getInstance()
+    {
+        return instance;
     }
 
     private void setupButtonListeners()
@@ -256,6 +273,7 @@ public class LobbyScreen implements Screen
     {
         // Update character controller
         characterController.update(delta);
+        client.processMessages();
 
         // Update position update timer
         positionUpdateTimer += delta;
@@ -288,34 +306,12 @@ public class LobbyScreen implements Screen
 
     private void sendPositionUpdate()
     {
-        // Send player position to server
-        // Implementation would use GameClient to send position
-    }
+        byte directionByte = (byte) localCharacter.getDirection().ordinal();
 
-    public void addPlayer(Player player)
-    {
-        if (!otherPlayers.contains(player))
-        {
-            otherPlayers.add(player);
-            updateLobbyInfo("", "", 0); // Update player list
-        }
-    }
-
-    public void removePlayer(Player player)
-    {
-        otherPlayers.remove(player);
-        updateLobbyInfo("", "", 0); // Update player list
-    }
-
-    public void updatePlayerPosition(String playerId, int x, int y)
-    {
-        for (Player player : otherPlayers)
-        {
-            if (player.getUser().getHashId() == playerId.hashCode())
-            {
-                player.setLocation(new Point(x, y));
-            }
-        }
+        client.send(new LobbyPresenceMessage(localPlayer.getLocation().getX(),
+            localPlayer.getLocation().getY(),
+            directionByte,
+            localCharacter.isMoving()));
     }
 
     public void setRemainingTime(int seconds)
@@ -368,6 +364,11 @@ public class LobbyScreen implements Screen
         infoFont.dispose();
     }
 
+    public void showText(String text)
+    {
+        textBoxSystem.showTextBox(text);
+    }
+
     private void updateCamera(float delta)
     {
         if (!cameraFixed)
@@ -390,5 +391,85 @@ public class LobbyScreen implements Screen
             camera.position.set(centerX, centerY, 0);
         }
         camera.update();
+    }
+
+    private boolean isInLobby(int userId)
+    {
+        if (localPlayer.getUser().getHashId() == userId)
+        {
+            return true;
+        }
+
+        for (Player player : otherPlayers)
+        {
+            if (player.getUser().getHashId() == userId)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public String getLobbyName()
+    {
+        return lobbyName;
+    }
+
+    public String getLobbyId()
+    {
+        return lobbyId;
+    }
+
+    public boolean addOtherPlayer(int userId, String username, String nickname, int avatarChoice, int mapChoice)
+    {
+        if (isInLobby(userId))
+        {
+            textBoxSystem.showTextBox("user is already in lobby");
+            return false;
+        }
+
+        User user = new User(username, nickname, userId, avatarChoice, mapChoice);
+        Player player = new Player(user);
+
+        if (otherPlayers.size() < 3)
+        {
+            otherPlayers.add(player);
+            player.spawn();
+            player.setCurrentMap(map);
+            return true;
+        }
+
+        return false;
+    }
+
+    public void updatePlayerPosition(int userId, int x, int y, byte direction, boolean isMoving)
+    {
+        for (Player p : otherPlayers)
+        {
+            if (p.getUser().getHashId() == userId)
+            {
+                PlayerCharacter pc = p.getCharacter();
+                pc.setPosition(new Vector2(x, y));
+                pc.setDirection(AbstractCharacter.Direction.values()[direction]);
+                pc.setMoving(isMoving);
+                pc.setLastUpdateTime(System.currentTimeMillis());
+            }
+        }
+    }
+
+    public void removeOtherPlayer(int userId)
+    {
+        for (Player p : otherPlayers)
+        {
+            if (p.getUser().getHashId() == userId)
+            {
+                otherPlayers.remove(p);
+                textBoxSystem.showTextBox(p.getUser().getUsername() + " has been removed");
+                return;
+            }
+        }
+
+        textBoxSystem.showTextBox("player not found");
     }
 }

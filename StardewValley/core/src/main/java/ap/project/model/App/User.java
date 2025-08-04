@@ -31,6 +31,15 @@ public class User
     private int characterChoice = 0;
     private int mapChoice = 0;
 
+    public User(String username, String nickname, int id, int avatarChoice, int mapChoice)
+    {
+        this.username = username;
+        this.nickname = nickname;
+        this.hashId = id;
+        this.characterChoice = avatarChoice;
+        this.mapChoice = mapChoice;
+    }
+
     public User(String username, String nickname, Gender gender, int hashId)
     {
         this.username = username;

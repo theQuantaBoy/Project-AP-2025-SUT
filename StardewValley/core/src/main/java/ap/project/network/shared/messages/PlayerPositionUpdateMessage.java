@@ -1,19 +1,20 @@
 package ap.project.network.shared.messages;
 
-import ap.project.model.game.Point;
 import ap.project.network.shared.enums.MessageType;
 
-public class LobbyPresenceMessage extends Message
+public class PlayerPositionUpdateMessage extends Message
 {
+    public int userId;
     public int x;
     public int y;
     public byte direction;
     public boolean isMoving;
 
-    public LobbyPresenceMessage() {}
+    public PlayerPositionUpdateMessage() {}
 
-    public LobbyPresenceMessage(int x, int y,  byte direction,  boolean isMoving)
+    public PlayerPositionUpdateMessage(int userId, int x, int y,  byte direction,  boolean isMoving)
     {
+        this.userId = userId;
         this.x = x;
         this.y = y;
         this.direction = direction;
@@ -23,6 +24,6 @@ public class LobbyPresenceMessage extends Message
     @Override
     public MessageType getType()
     {
-        return MessageType.LOBBY_PRESENCE;
+        return MessageType.PLAYER_POSITION_UPDATE;
     }
 }
