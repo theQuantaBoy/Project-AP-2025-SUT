@@ -5,6 +5,7 @@ import ap.project.model.enums.Gender;
 import ap.project.model.game.Game;
 import ap.project.model.game.Lobby;
 import ap.project.model.game.Point;
+import ap.project.network.client.ClientMessageHandler;
 import ap.project.network.shared.messages.*;
 
 import static ap.project.network.server.GameServer.MAX_PLAYERS_FOR_GAME;
@@ -192,12 +193,16 @@ public class ServerMessageHandler
 
             for (User u : lobby.getUsers())
             {
-                client.send(new PlayerJoinedLobbyMessage(u.getHashId(), u.getUsername(), lobby.getId(), u.getNickname(),
-                    u.getCharacterChoice(), u.getMapChoice()));
+                if (u.getHashId() != user.getHashId())
+                {
+                    ClientConnection c = server.findClient(u.getHashId());
+                    client.send(new PlayerJoinedLobbyMessage(u.getHashId(), u.getUsername(), lobby.getId(), u.getNickname(),
+                        c.characterChoice, c.mapChoice));
+                }
             }
 
             server.broadcastToLobby(lobby, new PlayerJoinedLobbyMessage(user.getHashId(), user.getUsername(),
-                lobby.getId(), user.getNickname(), user.getCharacterChoice(), user.getMapChoice()));
+                lobby.getId(), user.getNickname(), client.characterChoice, client.mapChoice));
         } else
         {
             client.send(new JoinLobbyErrorMessage("invalid id"));

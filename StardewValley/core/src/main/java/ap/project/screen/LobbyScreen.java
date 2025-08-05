@@ -492,7 +492,6 @@ public class LobbyScreen implements Screen
     {
         if (isInLobby(userId))
         {
-            textBoxSystem.showTextBox("user is already in lobby");
             return false;
         }
 

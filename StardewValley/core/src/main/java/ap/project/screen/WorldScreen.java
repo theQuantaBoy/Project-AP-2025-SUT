@@ -144,7 +144,8 @@ public final class WorldScreen implements Screen
 
         for (Player p : game.getPlayers())
         {
-            Farm f = new Farm(p.getMapType());
+            MapTypes type = MapTypes.getFarms().get(p.getUser().getMapChoice());
+            Farm f = new Farm(type);
             p.setFarm(f);
             p.setCurrentMap(f);
         }

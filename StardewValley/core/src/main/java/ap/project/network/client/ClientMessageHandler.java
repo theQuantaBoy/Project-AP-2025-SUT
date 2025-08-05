@@ -189,9 +189,6 @@ public class ClientMessageHandler
             if (ls.addOtherPlayer(userId, username, nickname, avatarChoice, mapChoice))
             {
                 ls.showText(username + " joined the lobby");
-            } else
-            {
-                ls.showText("couldn't add " + username + " to lobby");
             }
         }
     }
