@@ -25,6 +25,11 @@ public class GameWrapper
 
     private boolean gameStarted = false;
 
+    public String getId()
+    {
+        return id;
+    }
+
     public GameWrapper(Game game)
     {
         this.game = game;

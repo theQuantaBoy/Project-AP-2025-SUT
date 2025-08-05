@@ -14,6 +14,7 @@ public class GameCreationSuccessMessage extends Message
 
     public GameCreationSuccessMessage(String gameID, int player_1_id, int player_2_id, int player_3_id, int player_4_id)
     {
+        this.gameID = gameID;
         this.player_1_id = player_1_id;
         this.player_2_id = player_2_id;
         this.player_3_id = player_3_id;

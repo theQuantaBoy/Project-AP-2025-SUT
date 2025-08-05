@@ -20,6 +20,8 @@ import ap.project.model.player_data.Trade;
 import ap.project.model.resources.Plant;
 import ap.project.screen.WorldScreen;
 import ap.project.view.CityMenu;
+import com.badlogic.gdx.Application;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector2;
 import com.fasterxml.jackson.databind.type.MapType;
 
@@ -164,12 +166,22 @@ public class Player {
 
     public void spawn()
     {
+        isInFarm = false;
+        isInHome = true;
+
         this.currentMap = this.cabin;
         Point spawn = currentMap.getStartingPoint();
         Vector2 spawnPoint = currentMap.tileToWorld(currentMap.getTile(spawn.getX(), spawn.getY()));
 
         CharacterType type = CharacterType.values()[user.getCharacterChoice()];
-        this.character = new PlayerCharacter(type, spawnPoint, user.getNickname(), this);
+
+        if (Gdx.app.getType() != Application.ApplicationType.HeadlessDesktop)
+        {
+            this.character = new PlayerCharacter(type, spawnPoint, user.getNickname(), this);
+        } else
+        {
+            this.character = null;
+        }
     }
 
     public Player(User user, boolean isInLobby)

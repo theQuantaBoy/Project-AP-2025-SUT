@@ -134,8 +134,8 @@ public final class WorldScreen implements Screen
         cam = new OrthographicCamera(20 * TILE_SIZE, 15 * TILE_SIZE);
         cam.setToOrtho(false);
 
-        App.setCurrentMenu(Menu.GameMenu);
-        game = App.getCurrentGame();
+        this.game = App.getCurrentGame();
+        App.setCurrentMenu(Menu.HomeMenu);
 
 //        gameStage = new Stage(new ExtendViewport(20 * TILE_SIZE, 15 * TILE_SIZE, cam));
 //        animalActors = new Array<>();
@@ -148,6 +148,18 @@ public final class WorldScreen implements Screen
 //        AnimalActor chickenActor = new AnimalActor(testChicken, animalInteractionScreen);
 //        animalActors.add(chickenActor);
 //        gameStage.addActor(chickenActor);
+
+        for (Player p : game.getPlayers())
+        {
+            Farm f = new Farm(p.getMapType());
+            p.setFarm(f);
+            p.setCurrentMap(f);
+        }
+
+        for (Player p : game.getPlayers())
+        {
+            p.spawn();
+        }
 
         this.map = game.getCurrentPlayer().getCurrentMap();
         time = game.getCurrentTime();
@@ -435,6 +447,9 @@ public final class WorldScreen implements Screen
     @Override
     public void show()
     {
+        int w = Gdx.graphics.getWidth(), h = Gdx.graphics.getHeight();
+        resize(w, h);
+
         TextButton friends = uiRenderer.getFriends();
         uiStage.addActor(friends);
         friends.addListener(new ClickListener() {
@@ -1309,13 +1324,13 @@ public final class WorldScreen implements Screen
                     pc.setDirection(AbstractCharacter.Direction.values()[direction]);
                     pc.setMoving(isMoving);
 
-                    player.setInFarm(isInFarm);
-                    player.setInCity(isInCity);
-                    player.setInGreenHouse(isInGreenHouse);
-                    player.setInHome(isInHome);
-                    player.setInZeidiesFarm(isInZeidiesFarm);
-                    player.setInZeidiesHome(isInZeidiesHome);
-                    player.setInShop(isInShop);
+                    p.setInFarm(isInFarm);
+                    p.setInCity(isInCity);
+                    p.setInGreenHouse(isInGreenHouse);
+                    p.setInHome(isInHome);
+                    p.setInZeidiesFarm(isInZeidiesFarm);
+                    p.setInZeidiesHome(isInZeidiesHome);
+                    p.setInShop(isInShop);
 
                     if (isInShop && !currentShop.equals("null"))
                     {
@@ -1329,7 +1344,7 @@ public final class WorldScreen implements Screen
 
                             if (shopType != null && shop.getType() == shopType)
                             {
-                                player.goToShop(shop);
+                                p.goToShop(shop);
                             }
                         }
                     }

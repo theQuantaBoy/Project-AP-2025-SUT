@@ -5,6 +5,8 @@ import ap.project.model.enums.Season;
 import ap.project.model.enums.TimeOfDay;
 import ap.project.model.enums.Weather;
 import ap.project.model.player_data.FriendshipData;
+import com.badlogic.gdx.Application;
+import com.badlogic.gdx.Gdx;
 
 import javax.sound.midi.Soundbank;
 import java.util.List;
@@ -90,10 +92,16 @@ public class Time
         {
             if (hasCheated)
             {
-                App.getCurrentGame().waterAllFarmPlants();
+                if (Gdx.app.getType() != Application.ApplicationType.HeadlessDesktop)
+                {
+                    App.getCurrentGame().waterAllFarmPlants();
+                }
             }
 
-            App.getCurrentGame().endDay();
+            if (Gdx.app.getType() != Application.ApplicationType.HeadlessDesktop)
+            {
+                App.getCurrentGame().endDay();
+            }
         }
 
         friendshipUpdate();

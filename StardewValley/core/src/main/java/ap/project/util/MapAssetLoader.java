@@ -6,11 +6,18 @@ import ap.project.model.enums.TileTexture;
 import ap.project.model.game.Map;
 import ap.project.model.game.Point;
 import ap.project.model.game.Tile;
+import com.badlogic.gdx.Application;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.maps.ImageResolver;
 import com.badlogic.gdx.maps.MapLayer;
 import com.badlogic.gdx.maps.MapLayers;
 import com.badlogic.gdx.maps.MapProperties;
 import com.badlogic.gdx.maps.tiled.*;
+import com.badlogic.gdx.utils.GdxRuntimeException;
 
 public final class MapAssetLoader
 {
@@ -55,7 +62,16 @@ public final class MapAssetLoader
 
         public LoadedMap(String tmxPath, MapKind mapKind)
         {
-            tiledMap = new TmxMapLoader().load(tmxPath);
+            TmxMapLoader loader;
+            if (Gdx.app.getType() == Application.ApplicationType.HeadlessDesktop)
+            {
+                loader = new ServerMapLoader();
+            } else
+            {
+                loader = new TmxMapLoader();
+            }
+
+            this.tiledMap = loader.load(tmxPath);
 
             width = tiledMap.getProperties().get("width", Integer.class);
             height = tiledMap.getProperties().get("height", Integer.class);

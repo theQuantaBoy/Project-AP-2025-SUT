@@ -1,5 +1,6 @@
 package ap.project.network.server;
 
+import ap.project.model.App.App;
 import ap.project.model.App.User;
 import ap.project.model.enums.Gender;
 import ap.project.model.game.Game;
@@ -290,6 +291,9 @@ public class ServerMessageHandler
 
             Game game = new Game(players);
             String id = game.getId();
+
+            App.setCurrentGame(game);
+            game.setCurrentPlayer(players.get(0));
 
             GameWrapper wrapper = new GameWrapper(game);
             server.getGameWrappers().add(wrapper);

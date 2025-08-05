@@ -4,6 +4,9 @@ import ap.project.model.App.User;
 import ap.project.model.game.Lobby;
 import ap.project.network.shared.KryoRegistry;
 import ap.project.network.shared.messages.*;
+import com.badlogic.gdx.ApplicationListener;
+import com.badlogic.gdx.backends.headless.HeadlessApplication;
+import com.badlogic.gdx.backends.headless.HeadlessApplicationConfiguration;
 import com.esotericsoftware.kryonet.Server;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
@@ -41,6 +44,7 @@ public class GameServer
         {
             sendPeriodicMessages(delta);
             handleLobbies(delta);
+            handleGames(delta);
 
             periodicMessageTimer = 0;
         }
@@ -62,22 +66,23 @@ public class GameServer
 
     private void handleLobbies(float delta)
     {
-        Iterator<Lobby> iterator = activeLobbies.iterator();
-        while (iterator.hasNext())
+        List<Lobby> toRemove = new ArrayList<>();
+
+        for (Lobby lobby : activeLobbies)
         {
-            Lobby lobby = iterator.next();
             long elapsed = System.currentTimeMillis() - lobby.getCreatedAt();
             int remaining = (int) (300 - (elapsed / 1000));
 
-            if (remaining <= 0)
-            {
+            if (remaining <= 0) {
                 closeLobby(lobby);
-                iterator.remove();
+                toRemove.add(lobby);
             } else
             {
                 broadcastToLobby(lobby, new LobbyTimeUpdateMessage(remaining));
             }
         }
+
+        activeLobbies.removeAll(toRemove);
     }
 
     private void closeLobby(Lobby lobby)
@@ -402,7 +407,7 @@ public class GameServer
     {
         for (GameWrapper g : gameWrappers)
         {
-            if (g.getGame().getId() == id)
+            if (g.getId().equals(id))
             {
                 return g;
             }
@@ -413,6 +418,9 @@ public class GameServer
 
     public static void main(String[] args)
     {
+        HeadlessApplicationConfiguration config = new HeadlessApplicationConfiguration();
+        new HeadlessApplication(new DummyAppListener(), config); // Dummy listener
+
         try
         {
             GameServer server = new GameServer();
@@ -427,6 +435,16 @@ public class GameServer
         {
             System.err.println("Server failed to start: " + e.getMessage());
         }
+    }
+
+    private static class DummyAppListener implements ApplicationListener
+    {
+        @Override public void create() {}
+        @Override public void resize(int width, int height) {}
+        @Override public void render() {}
+        @Override public void pause() {}
+        @Override public void resume() {}
+        @Override public void dispose() {}
     }
 
     public ArrayList<GameWrapper> getGameWrappers()
