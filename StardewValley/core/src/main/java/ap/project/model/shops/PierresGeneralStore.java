@@ -93,6 +93,40 @@ public class PierresGeneralStore extends Shop{
     }
 
     @Override
+    protected void initializeProducts() {
+        for (PierresGeneralStoreYearRoundStock stock : PierresGeneralStoreYearRoundStock.values()) {
+            products.add(new ShopProduct(
+                stock.getDisplayName(),
+                stock.getPrice(),
+                stock.getDailyLimit(),
+                stock.getGameObjectType(),
+                stock
+            ));
+        }
+        for (PierresGeneralStoreSeasonalStock stock : PierresGeneralStoreSeasonalStock.values()) {
+            ShopProduct product = new ShopProduct(
+                stock.getName(),
+                stock.getBasePrice(),
+                stock.getDailyLimit(),
+                stock.getType(),
+                stock
+            );
+            product.isSeasonal = true;
+            //product.isAvailable = stock.getSeasons().contains(App.getCurrentGame().getCurrentTime().getSeason());
+            products.add(product);
+        }
+        for (PierresGeneralStoreBackpacks backpack : PierresGeneralStoreBackpacks.values()) {
+            products.add(new ShopProduct(
+                backpack.getName(),
+                backpack.getPrice(),
+                backpack.getDailyLimit(),
+                GameObjectType.BackPack,
+                backpack
+            ));
+        }
+    }
+
+    @Override
     public void purchase(GameObject gameObject)
     {
         Iterator<PierresGeneralStoreYearRoundStock> iterator = yearRoundStocks.iterator();

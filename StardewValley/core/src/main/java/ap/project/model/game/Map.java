@@ -18,13 +18,21 @@ import com.badlogic.gdx.math.Vector3;
 
 import java.util.*;
 
-public abstract class Map
+public class Map
 {
     protected MapTypes mapType;
     protected Tile[][] tiles;
     protected int WIDTH, HEIGHT;
     protected Point startingPoint;
     protected java.util.Map<String, List<Point>> mapData;
+
+    private Point blacksmithDoor;
+    private Point carpenterDoor;
+    private Point fishShopDoor;
+    private Point jojamartDoor;
+    private Point marnieDoor;
+    private Point pierreDoor;
+    private Point saloonDoor;
 
     protected MapVisual visual;
     protected TiledMap tiledMap;
@@ -58,9 +66,8 @@ public abstract class Map
             farm.setExitPoint(loaded.exitPoint);
         }
 
-        if (this instanceof Shop)
+        if (this instanceof Shop shop)
         {
-            Shop shop = (Shop)this;
             shop.setExteriorDoor(startingPoint);
         }
 
@@ -71,9 +78,8 @@ public abstract class Map
             cabin.setOvenPoint(loaded.ovenPoint);
         }
 
-        if (this instanceof City)
+        if (this instanceof City city)
         {
-            City city = (City)this;
             city.setBlacksmithDoor(loaded.blacksmithDoor);
             city.setCarpenterDoor(loaded.carpenterDoor);
             city.setFishShopDoor(loaded.fishShopDoor);
@@ -711,6 +717,48 @@ public abstract class Map
         int dy = Math.abs(point.getY() - other.getY());
 
         return (dx <= 1 && dy <= 1);
+    }
+
+    public Point getBlacksmithDoor() {
+        return blacksmithDoor;
+    }
+
+    public Point getCarpenterDoor() {
+        return carpenterDoor;
+    }
+
+    public Point getFishShopDoor() {
+        return fishShopDoor;
+    }
+
+    public Point getJojamartDoor() {
+        return jojamartDoor;
+    }
+
+    public Point getMarnieDoor() {
+        return marnieDoor;
+    }
+
+    public Point getPierreDoor() {
+        return pierreDoor;
+    }
+
+    public Point getSaloonDoor() {
+        return saloonDoor;
+    }
+
+    public void setStartingPoint(Point startingPoint) {
+        this.startingPoint = startingPoint;
+    }
+
+    public void setWIDTH(int WIDTH)
+    {
+        this.WIDTH = WIDTH;
+    }
+
+    public void setHEIGHT(int HEIGHT)
+    {
+        this.HEIGHT = HEIGHT;
     }
 }
 

@@ -170,6 +170,12 @@ public enum FarmAnimalsType {
     public GameObjectType getType() {
         return type;
     }
+
+    public TextureRegion getIcon() {
+        // Use the first frame of the down walking animation as the icon
+        return walkAnimations.get(Direction.DOWN).getKeyFrame(0);
+    }
+
 }
 
 // NOTE: You will need to have these enums defined elsewhere in your project

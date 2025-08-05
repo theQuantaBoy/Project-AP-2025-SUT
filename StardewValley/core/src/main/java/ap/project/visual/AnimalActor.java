@@ -3,6 +3,7 @@ package ap.project.visual;
 import ap.project.model.animal.Animal;
 import ap.project.model.enums.animal_enums.Direction;
 import ap.project.screen.AnimalInteractionScreen;
+import ap.project.screen.WorldScreen;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Batch;
@@ -19,28 +20,18 @@ public class AnimalActor extends Actor {
 
     private final Animal animal;
     private float stateTime = 0f;
-    private final AnimalInteractionScreen interactionScreen;
 
-    public AnimalActor(Animal animal, AnimalInteractionScreen interactionScreen) {
+    public AnimalActor(Animal animal) {
         this.animal = animal;
-        this.interactionScreen = interactionScreen;
         setPosition(animal.getX(), animal.getY());
         setSize(16, 16);
         setTouchable(Touchable.enabled);
 
         // Right-click listener for animal interaction
-        addListener(new ClickListener(Input.Buttons.RIGHT) {
+        addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                // Only show interaction if not already visible
-                if (!interactionScreen.isVisible()) {
-                    Vector2 screenPos = localToStageCoordinates(new Vector2(x, y));
-                    interactionScreen.show(animal, screenPos.x, screenPos.y + getHeight());
-
-                    // Bring interaction screen to front
-                    interactionScreen.getStage().getRoot().addActor(interactionScreen.getWindow());
-                    interactionScreen.getWindow().toFront();
-                }
+                WorldScreen.getInstance().getAnimalWindow().showAndSelect(animal);
             }
         });
     }

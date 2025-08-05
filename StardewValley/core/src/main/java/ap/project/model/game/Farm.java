@@ -641,4 +641,14 @@ public class Farm extends Map
         }
         return null;
     }
+
+    public ArrayList<Animal> getAnimals() {
+        ArrayList<Animal> animals = new ArrayList<>();
+
+        for (AnimalBuilding building : animalBuildings) {
+            animals.addAll(building.getAnimals());
+        }
+
+        return animals;
+    }
 }

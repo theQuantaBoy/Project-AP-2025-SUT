@@ -53,6 +53,19 @@ public class FishShop extends Shop{
     }
 
     @Override
+    protected void initializeProducts() {
+        for (FishShopStock stock : FishShopStock.values()) {
+            products.add(new ShopProduct(
+                stock.getName(),
+                stock.getPrice(),
+                stock.getDailyLimit(),
+                stock.getGameObjectType(),
+                stock
+            ));
+        }
+    }
+
+    @Override
     public void purchase(GameObject gameObject)
     {
         if (gameObject.getObjectType().equals(GameObjectType.FISHING_POLE))

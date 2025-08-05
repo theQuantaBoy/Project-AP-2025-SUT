@@ -2,6 +2,7 @@ package ap.project.util;
 
 import ap.project.model.enums.MapKind;
 import ap.project.model.enums.Season;
+import ap.project.model.enums.ShopType;
 import ap.project.model.enums.TileTexture;
 import ap.project.model.game.Map;
 import ap.project.model.game.Point;
@@ -24,7 +25,14 @@ public final class MapAssetLoader
             case TOWN -> fileName = String.format("maps/general/town/town_%s.tmx", season.getName());
             case HOUSE -> fileName = "maps/general/house/house_interior.tmx";
             case GREEN_HOUSE -> fileName = "maps/general/greenhouse/green_house.tmx";
-            case SHOP -> fileName = String.format("maps/general/shops/%s.tmx", baseMapName);
+            case SHOP -> {
+                ShopType shopType = ShopType.getShop(baseMapName);
+                if (shopType != null) {
+                    fileName = shopType.getTmxFileName();
+                } else {
+                    throw new IllegalArgumentException("No shop found with name: " + baseMapName);
+                }
+            }
         }
 
         return new LoadedMap(fileName, mapKind);
@@ -119,6 +127,7 @@ public final class MapAssetLoader
                 int saloonPointX = tiledMap.getProperties().get("saloon_door_x", Integer.class);
                 int saloonPointY = tiledMap.getProperties().get("saloon_door_y", Integer.class);
                 saloonDoor = new Point(saloonPointX, saloonPointY);
+
             }
 
             tiles = new Tile[height][width]; // [y][x]

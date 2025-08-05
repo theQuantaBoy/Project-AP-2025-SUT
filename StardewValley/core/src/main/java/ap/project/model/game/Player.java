@@ -127,6 +127,8 @@ public class Player {
         this.farm = farm;
     }
 
+    private Point previousLocation;
+
     public Player(User user, MapTypes currentMapType, int number) {
         this.user = user;
         this.mapType = currentMapType;
@@ -731,15 +733,6 @@ public class Player {
         WorldScreen.getInstance().updateGameInfo();
     }
 
-    public void goToShop(Shop shop)
-    {
-        this.isInCity = false;
-        this.isInShop = true;
-        this.currentMap = shop;
-        setLocation(shop.getStartingPoint());
-        WorldScreen.getInstance().updateGameInfo();
-    }
-
     public void goToZeidyFarm()
     {
         if (isInCity)
@@ -1230,5 +1223,24 @@ public class Player {
             }
         }
         return null;
+    }
+
+    public void setInShop(boolean inShop) {
+        isInShop = inShop;
+    }
+
+    public void goToShop(Shop shop) {
+        this.isInShop = true;
+        this.previousLocation = getLocation();
+        this.currentShop = shop.getType();
+        WorldScreen.getInstance().openShop(shop.getType());
+    }
+
+    public Point getPreviousLocation() {
+        return previousLocation;
+    }
+
+    public void setPreviousLocation(Point previousLocation) {
+        this.previousLocation = previousLocation;
     }
 }

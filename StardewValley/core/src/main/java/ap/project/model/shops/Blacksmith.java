@@ -71,6 +71,28 @@ public class Blacksmith extends Shop {
     }
 
     @Override
+    protected void initializeProducts() {
+        for (BlacksmithStockItem item : BlacksmithStockItem.values()) {
+            products.add(new ShopProduct(
+                item.getName(),
+                item.getPrice(),
+                -1, // Unlimited stock
+                item.getGameObjectType(),
+                item
+            ));
+        }
+        for (BlacksmithUpgradeTools tool : BlacksmithUpgradeTools.values()) {
+            products.add(new ShopProduct(
+                tool.getName(),
+                tool.getCost(),
+                tool.getDailyLimit(),
+                null, // Not a GameObject
+                tool
+            ));
+        }
+    }
+
+    @Override
     public void purchase(GameObject gameObject)
     {
         for (BlacksmithStockItem stockItem : stockItems)

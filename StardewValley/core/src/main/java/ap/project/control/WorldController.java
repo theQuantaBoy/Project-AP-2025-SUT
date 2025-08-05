@@ -3,6 +3,7 @@ package ap.project.control;
 import ap.project.model.App.App;
 import ap.project.model.building.CraftingItem;
 import ap.project.model.enums.GameObjectType;
+import ap.project.model.enums.ShopType;
 import ap.project.model.enums.TileTexture;
 import ap.project.model.enums.Weather;
 import ap.project.model.enums.building_enums.CraftingRecipeEnums;
@@ -16,6 +17,7 @@ import ap.project.model.tools.*;
 import ap.project.screen.CommunicationWindow;
 import ap.project.screen.WorldScreen;
 import ap.project.visual.UIRenderer;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector2;
 
 import java.util.ArrayList;

@@ -6,10 +6,8 @@ import ap.project.model.App.App;
 import ap.project.model.enums.MapKind;
 import ap.project.model.game.*;
 import ap.project.model.shops.Shop;
-import ap.project.screen.CommunicationWindow;
-import ap.project.screen.InventoryWindow;
-import ap.project.screen.ShopWindow;
-import ap.project.screen.WorldScreen;
+import ap.project.model.shops.ShopMap;
+import ap.project.screen.*;
 import ap.project.visual.UIRenderer;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
@@ -106,20 +104,7 @@ public class WorldScreenInputProcessor implements InputProcessor
         }
 
         if (map.getMapType().getMapKind() == MapKind.TOWN) {
-            City city = (City) map;
-            Point tilePoint = map.screenToTile(screenX, screenY, cam);
-            Shop shop = city.getShopDoors().get(tilePoint);
-
-            if (shop != null) {
-                if (shop.isOpen(App.getCurrentGame().getCurrentTime())) {
-                    shopWindow.setShop(shop);
-                    shopWindow.toggleVisibility();
-                    return true;
-                } else {
-                    UIRenderer.showTextBox("This shop is closed!");
-                    return true;
-                }
-            }
+            handleShopDoorClick(screenX, screenY);
         }
 
         return true;
@@ -210,4 +195,25 @@ public class WorldScreenInputProcessor implements InputProcessor
         }
         return null;
     }
+
+
+    private void handleShopDoorClick(int screenX, int screenY) {
+        Point tilePoint = map.screenToTile(screenX, screenY, cam);
+        if (tilePoint == null) return;
+
+        // Check if clicked on a shop door
+        for (ShopMap shopMap : ShopManager.getAllShopMaps()) {
+            Point doorPos = shopMap.getShopType().getExteriorDoor();
+            if (tilePoint.equals(doorPos)) {
+                if (shopMap.isOpen()) {
+                    worldScreen.openShop(shopMap.getShopType());
+                } else {
+                    UIRenderer.showTextBox("This shop is closed! Open from " +
+                        shopMap.getStartWork() + ":00 to " + shopMap.getEndWork() + ":00");
+                }
+                return;
+            }
+        }
+    }
+
 }
