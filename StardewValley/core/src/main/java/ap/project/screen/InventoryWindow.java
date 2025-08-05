@@ -1261,4 +1261,8 @@ public class InventoryWindow {
             return player.getLocation();
         }
     }
+
+    public Window getPopup() {
+        return popup;
+    }
 }

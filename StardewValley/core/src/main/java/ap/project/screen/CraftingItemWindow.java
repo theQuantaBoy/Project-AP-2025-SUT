@@ -736,4 +736,8 @@ public class CraftingItemWindow
             ? currentItem.getCraftingIngredients()
             : new ArrayList<>();
     }
+
+    public Window getWindow() {
+        return window;
+    }
 }

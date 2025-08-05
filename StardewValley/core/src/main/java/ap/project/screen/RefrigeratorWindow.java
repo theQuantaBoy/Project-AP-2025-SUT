@@ -351,4 +351,8 @@ public class RefrigeratorWindow
     public void dispose() {
         window.remove();
     }
+
+    public Window getWindow() {
+        return window;
+    }
 }

@@ -277,4 +277,8 @@ public class CookBookWindow
         UIRenderer.showTextBox("Did Gordon Ramsay teach you how to cook, or is he taking notes now?\n" +
             "You just cooked one " + food.getObjectType() + ".");
     }
+
+    public Window getWindow() {
+        return window;
+    }
 }

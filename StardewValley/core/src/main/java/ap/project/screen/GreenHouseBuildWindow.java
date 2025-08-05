@@ -113,4 +113,8 @@ public class GreenHouseBuildWindow
             UIRenderer.showTextBox("You can't afford the greenhouse.\nYou are poor :(");
         }
     }
+
+    public Window getWindow() {
+        return window;
+    }
 }
