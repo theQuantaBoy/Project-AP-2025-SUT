@@ -160,7 +160,7 @@ public class LobbyScreen implements Screen
 
         lobbyInfoLabel = new Label("", infoLabelStyle);
         lobbyInfoLabel.setAlignment(Align.topRight);
-        updateLobbyInfo(lobbyName, lobbyId, 300);
+        updateLobbyInfo(300);
 
         // Create buttons
         leaveButton = new TextButton("Leave Lobby", skin);
@@ -224,10 +224,10 @@ public class LobbyScreen implements Screen
         });
     }
 
-    private void updateLobbyInfo(String name, String id, int remainingSeconds)
+    private void updateLobbyInfo(int remainingSeconds)
     {
-        String info = "Name: " + name + "\n" +
-            "ID: " + id + "\n" +
+        String info = "Name: " + lobbyName + "\n" +
+            "ID: " + lobbyId + "\n" +
             "Remaining Time: " + formatTime(remainingSeconds) + "\n" +
             "Admin: " + getAdminName() + "\n" +
             "Players: " + getPlayerList();
@@ -402,7 +402,7 @@ public class LobbyScreen implements Screen
 
     public void setRemainingTime(int seconds)
     {
-        updateLobbyInfo("", "", seconds);
+        updateLobbyInfo(seconds);
     }
 
     private void handleLeaveLobby()
@@ -586,7 +586,7 @@ public class LobbyScreen implements Screen
         return null;
     }
 
-    public void createGame(int[] userIds)
+    public void createGame(String gameID, int[] userIds)
     {
         ArrayList<Player> players = new ArrayList<>();
         for (int i = 0; i < userIds.length; i++)
@@ -600,7 +600,7 @@ public class LobbyScreen implements Screen
             }
         }
 
-        Game game = new Game(players);
+        Game game = new Game(players, gameID);
         App.addGame(game);
         App.setCurrentGame(game);
 

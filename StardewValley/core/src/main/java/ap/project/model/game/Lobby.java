@@ -14,15 +14,17 @@ public class Lobby
     private final String id;
     private final boolean isVisible;
 
+    private final long createdAt;
+
     public Lobby(String name, String password, User user, boolean isVisible)
     {
         this.name = name;
         this.password = password;
         this.isPrivate = true;
         users.add(user);
-//        this.id = StringToNumber.stringToRandomizedFixedDigitNumber(name, 6);
-        this.id = StringToNumber.generateLobbyId(6);
+        this.id = StringToNumber.generateId(6);
         this.isVisible = isVisible;
+        this.createdAt = System.currentTimeMillis();
     }
 
     public Lobby(String name, User user, boolean isVisible)
@@ -30,9 +32,9 @@ public class Lobby
         this.name = name;
         this.isPrivate = false;
         users.add(user);
-//        this.id = StringToNumber.stringToRandomizedFixedDigitNumber(name, 6);
-        this.id = StringToNumber.generateLobbyId(6);
+        this.id = StringToNumber.generateId(6);
         this.isVisible = isVisible;
+        this.createdAt = System.currentTimeMillis();
     }
 
     public User getAdmin()
@@ -73,5 +75,10 @@ public class Lobby
     public boolean isVisible()
     {
         return isVisible;
+    }
+
+    public long getCreatedAt()
+    {
+        return createdAt;
     }
 }

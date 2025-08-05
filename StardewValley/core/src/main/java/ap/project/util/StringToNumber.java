@@ -27,7 +27,7 @@ public class StringToNumber
         return result;
     }
 
-    public static String generateLobbyId(int digits)
+    public static String generateId(int digits)
     {
         SecureRandom random = new SecureRandom();
         long randomPart = random.nextLong() & Long.MAX_VALUE; // Ensure positive

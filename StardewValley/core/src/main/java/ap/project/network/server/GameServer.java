@@ -1,17 +1,12 @@
 package ap.project.network.server;
 
 import ap.project.model.App.User;
-import ap.project.model.enums.MapTypes;
-import ap.project.model.game.Game;
 import ap.project.model.game.Lobby;
-import ap.project.model.game.Time;
 import ap.project.network.shared.KryoRegistry;
 import ap.project.network.shared.messages.*;
-import com.esotericsoftware.kryonet.Client;
 import com.esotericsoftware.kryonet.Server;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
-import org.lwjgl.opencl.CL;
 
 import java.io.IOException;
 import java.util.*;
@@ -27,7 +22,7 @@ public class GameServer
     private final ArrayList<User> users = new ArrayList<>();
     private final ConcurrentMap<String, ClientConnection> connections = new ConcurrentHashMap<>();
     private final CopyOnWriteArrayList<Lobby> activeLobbies = new CopyOnWriteArrayList<>();
-    private final ArrayList<GameWrapper> games = new ArrayList<>();
+    private final ArrayList<GameWrapper> gameWrappers = new ArrayList<>();
 
     private volatile boolean running = true;
     private Thread gameThread;
@@ -42,32 +37,62 @@ public class GameServer
     {
         periodicMessageTimer += delta;
 
-        // Send periodic messages every 100ms
         if (periodicMessageTimer >= PERIODIC_MESSAGE_INTERVAL)
         {
             sendPeriodicMessages(delta);
-
-            for (Lobby lobby : activeLobbies)
-            {
-//                long elapsed = System.currentTimeMillis() - lobby.getCreatedAt();
-//                int remaining = (int) (300 - (elapsed / 1000)); // 5 minutes
-//
-//                if (remaining <= 0)
-//                {
-//                    broadcastToLobby(lobby, new LobbyClosedMessage());
-//                    closeLobby(lobby);
-//                } else
-//                {
-//                    // Send time update to all players
-//                    broadcastToLobby(lobby, new LobbyTimeUpdateMessage(remaining));
-//                }
-            }
+            handleLobbies(delta);
 
             periodicMessageTimer = 0;
         }
 
         // Add other server update logic here
         // (game state updates, lobby management, etc.)
+    }
+
+    private void handleGames(float delta)
+    {
+        for (GameWrapper gameWrapper : gameWrappers)
+        {
+            if (gameWrapper.isActive())
+            {
+                gameWrapper.update(delta);
+            }
+        }
+    }
+
+    private void handleLobbies(float delta)
+    {
+        Iterator<Lobby> iterator = activeLobbies.iterator();
+        while (iterator.hasNext())
+        {
+            Lobby lobby = iterator.next();
+            long elapsed = System.currentTimeMillis() - lobby.getCreatedAt();
+            int remaining = (int) (300 - (elapsed / 1000));
+
+            if (remaining <= 0)
+            {
+                closeLobby(lobby);
+                iterator.remove();
+            } else
+            {
+                broadcastToLobby(lobby, new LobbyTimeUpdateMessage(remaining));
+            }
+        }
+    }
+
+    private void closeLobby(Lobby lobby)
+    {
+        for (User user : new ArrayList<>(lobby.getUsers()))
+        {
+            ClientConnection client = findClient(user.getHashId());
+            if (client != null)
+            {
+                client.setInLobby(false);
+                client.lobby = null;
+                client.send(new CloseLobbyMessage());
+                client.setInLobby(false);
+            }
+        }
     }
 
     private String getActiveLobbiesList()
@@ -261,6 +286,19 @@ public class GameServer
         return true;
     }
 
+    public User getUser(int id)
+    {
+        for (User user : users)
+        {
+            if (user.getHashId() == id)
+            {
+                return user;
+            }
+        }
+
+        return null;
+    }
+
     public User getUser(ClientConnection client)
     {
         for (User user : users)
@@ -360,6 +398,19 @@ public class GameServer
         return instance;
     }
 
+    public GameWrapper findGameWrapper(String id)
+    {
+        for (GameWrapper g : gameWrappers)
+        {
+            if (g.getGame().getId() == id)
+            {
+                return g;
+            }
+        }
+
+        return null;
+    }
+
     public static void main(String[] args)
     {
         try
@@ -376,5 +427,15 @@ public class GameServer
         {
             System.err.println("Server failed to start: " + e.getMessage());
         }
+    }
+
+    public ArrayList<GameWrapper> getGameWrappers()
+    {
+        return gameWrappers;
+    }
+
+    public CopyOnWriteArrayList<Lobby> getActiveLobbies()
+    {
+        return activeLobbies;
     }
 }

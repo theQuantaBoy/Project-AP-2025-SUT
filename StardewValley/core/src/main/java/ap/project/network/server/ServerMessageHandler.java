@@ -4,9 +4,10 @@ import ap.project.model.App.User;
 import ap.project.model.enums.Gender;
 import ap.project.model.game.Game;
 import ap.project.model.game.Lobby;
-import ap.project.model.game.Point;
-import ap.project.network.client.ClientMessageHandler;
+import ap.project.model.game.Player;
 import ap.project.network.shared.messages.*;
+
+import java.util.ArrayList;
 
 import static ap.project.network.server.GameServer.MAX_PLAYERS_FOR_GAME;
 import static ap.project.network.server.GameServer.MIN_PLAYERS_FOR_GAME;
@@ -40,6 +41,12 @@ public class ServerMessageHandler
                 break;
             case CREATE_GAME_REQUEST:
                 handleCreateGameRequestMessage(client, (CreateGameRequestMessage) message);
+                break;
+            case GAME_PRESENCE:
+                handleGamePresenceMessage(client, (PlayerGamePresenceMessage) message);
+                break;
+            case GAME_STARTED:
+                handleGameStartedMessage(client, (GameStartedMessage) message);
                 break;
         }
     }
@@ -94,6 +101,13 @@ public class ServerMessageHandler
         // Update client preferences
         client.characterChoice = msg.characterChoice;
         client.mapChoice = msg.mapChoice;
+
+        User user = GameServer.getInstance().getUser(client);
+        if (user != null)
+        {
+            user.setMapChoice(msg.mapChoice);
+            user.setCharacterChoice(msg.characterChoice);
+        }
 
         // Send confirmation
         client.send(new PreLobbyConfirmationMessage());
@@ -262,7 +276,67 @@ public class ServerMessageHandler
                 playerIDs[i] = lobby.getUsers().get(i).getHashId();
             }
 
-            server.broadcastToLobby(lobby, new GameCreationSuccessMessage(playerIDs[0], playerIDs[1], playerIDs[2], playerIDs[3]));
+            ArrayList<Player> players = new ArrayList<>();
+            for (int i = 0; i < 4; i++)
+            {
+                int id = playerIDs[i];
+                User u = server.getUser(id);
+                if (u != null)
+                {
+                    Player p = new Player(u);
+                    players.add(p);
+                }
+            }
+
+            Game game = new Game(players);
+            String id = game.getId();
+
+            GameWrapper wrapper = new GameWrapper(game);
+            server.getGameWrappers().add(wrapper);
+
+            server.broadcastToLobby(lobby, new GameCreationSuccessMessage(id, playerIDs[0], playerIDs[1], playerIDs[2], playerIDs[3]));
+            server.getActiveLobbies().remove(lobby);
+
+            for (User u : lobby.getUsers())
+            {
+                ClientConnection c = server.findClient(u.getHashId());
+                if (c != null)
+                {
+                    c.setInLobby(false);
+                    c.setInGame(true);
+                    c.lobby = null;
+                    c.wrapper = wrapper;
+                }
+            }
+        }
+    }
+
+    private static void handleGameStartedMessage(ClientConnection client, GameStartedMessage msg)
+    {
+        GameServer server = GameServer.getInstance();
+
+        String gameID = msg.gameID;
+        GameWrapper wrapper = server.findGameWrapper(gameID);
+
+        if (wrapper != null && !wrapper.isActive())
+        {
+            wrapper.activate();
+        }
+    }
+
+    private static void handleGamePresenceMessage(ClientConnection client, PlayerGamePresenceMessage msg)
+    {
+        GameServer server = GameServer.getInstance();
+
+        String gameID = msg.gameID;
+        GameWrapper wrapper = server.findGameWrapper(gameID);
+
+        for (ClientConnection c : wrapper.getClientConnections())
+        {
+            if (c.getUserId() != client.getUserId())
+            {
+                c.send(msg);
+            }
         }
     }
 }

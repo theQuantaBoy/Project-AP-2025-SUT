@@ -14,7 +14,6 @@ public class KryoRegistry
     public static void registerClasses(Kryo kryo)
     {
         kryo.register(MessageType.class);
-        kryo.register(PlayerPositionMessage.class);
         kryo.register(TestMessage.class);
 
         kryo.register(UserProfileMessage.class);
@@ -24,7 +23,6 @@ public class KryoRegistry
         kryo.register(ap.project.model.enums.MapTypes.class);
 
         kryo.register(AbstractCharacter.Direction.class);
-        kryo.register(PlayerPositionMessage.class);
 
         // Enums for time system
         kryo.register(Time.class);
@@ -72,6 +70,11 @@ public class KryoRegistry
 
         kryo.register(GameCreationSuccessMessage.class);
         kryo.register(GameCreationFailedMessage.class);
+
+        kryo.register(GameStartedMessage.class);
+        kryo.register(GameTimeSyncMessage.class);
+        kryo.register(PlayerGamePresenceMessage.class);
+        kryo.register(UpdateGameMinuteMessage.class);
 
         // Register all other message classes ...
     }

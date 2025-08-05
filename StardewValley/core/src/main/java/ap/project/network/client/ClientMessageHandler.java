@@ -5,6 +5,7 @@ import ap.project.model.App.App;
 import ap.project.network.shared.messages.*;
 import ap.project.screen.LobbyScreen;
 import ap.project.screen.PreLobbyScreen;
+import ap.project.screen.WorldScreen;
 import com.badlogic.gdx.Screen;
 
 public class ClientMessageHandler
@@ -60,6 +61,21 @@ public class ClientMessageHandler
                 break;
             case GAME_CREATED_SUCCESSFULLY:
                 handleGameCreationSuccessMessage((GameCreationSuccessMessage) message);
+                break;
+            case CLOSE_LOBBY:
+                handleCLoseLobbyMessage();
+                break;
+            case LOBBY_TIME_UPDATE:
+                handleLobbyTimeUpdateMessage((LobbyTimeUpdateMessage) message);
+                break;
+            case UPDATE_GAME_MINUTE:
+                handleUpdateGameTimeMinute((UpdateGameMinuteMessage) message);
+                break;
+            case GAME_TIME_SYNC:
+                handleGameTimeSyncMessage((GameTimeSyncMessage) message);
+                break;
+            case GAME_PRESENCE:
+                handleGamePlayerPresenceMessage((PlayerGamePresenceMessage) message);
                 break;
             // Add other cases
         }
@@ -241,11 +257,88 @@ public class ClientMessageHandler
     private static void handleGameCreationSuccessMessage(GameCreationSuccessMessage message)
     {
         int[] userIDs = {message.player_1_id, message.player_2_id, message.player_3_id, message.player_4_id};
+        String id = message.gameID;
 
         if (Main.getApp().getScreen() instanceof LobbyScreen)
         {
             LobbyScreen ls = (LobbyScreen) Main.getApp().getScreen();
-            ls.createGame(userIDs);
+            ls.createGame(id, userIDs);
+        }
+    }
+
+    private static void handleCLoseLobbyMessage()
+    {
+        if (Main.getApp().getScreen() instanceof LobbyScreen)
+        {
+            Main.getApp().setScreen(new PreLobbyScreen());
+        }
+    }
+
+    private static void handleLobbyTimeUpdateMessage(LobbyTimeUpdateMessage message)
+    {
+        int remainingSeconds = message.remainingSeconds;
+        if (Main.getApp().getScreen() instanceof LobbyScreen)
+        {
+            LobbyScreen ls = (LobbyScreen) Main.getApp().getScreen();
+            ls.setRemainingTime(remainingSeconds);
+        }
+    }
+
+    private static void handleUpdateGameTimeMinute(UpdateGameMinuteMessage message)
+    {
+        if (Main.getApp().getScreen() instanceof WorldScreen)
+        {
+            WorldScreen ws = (WorldScreen) Main.getApp().getScreen();
+            ws.updateTimeMinute();
+        }
+    }
+
+    private static void handleGameTimeSyncMessage(GameTimeSyncMessage message)
+    {
+        int minute = message.minute;
+        int hour = message.hour;
+        int day = message.day;
+        int totalHours = message.totalHours;
+        int totalDays = message.totalDays;
+        String currentWeather = message.currentWeather;
+        String tomorrowWeather = message.tomorrowWeather;
+
+        if (Main.getApp().getScreen() instanceof WorldScreen)
+        {
+            WorldScreen ws = (WorldScreen) Main.getApp().getScreen();
+            ws.syncTime(minute, hour, day, totalHours, totalDays, currentWeather, tomorrowWeather);
+        }
+    }
+
+    private static void handleGamePlayerPresenceMessage(PlayerGamePresenceMessage message)
+    {
+        String gameID = message.gameID;
+        int userID = message.userID;
+
+        float x = message.x;
+        float y = message.y;
+        byte direction = message.direction;
+        boolean isMoving = message.isMoving;
+
+        boolean isInFarm = message.isInFarm;
+        boolean isInCity = message.isInCity;
+        boolean isInGreenHouse = message.isInGreenHouse;
+        boolean isInHome = message.isInHome;
+        boolean isInZeidiesFarm = message.isInZeidiesFarm;
+        boolean isInZeidiesHome = message.isInZeidiesHome;
+        boolean isInShop = message.isInShop;
+
+        String currentShop = message.currentShop;
+
+        if (Main.getApp().getScreen() instanceof WorldScreen)
+        {
+            WorldScreen ws = (WorldScreen) Main.getApp().getScreen();
+
+            if (App.getCurrentGame().getId().equals(gameID))
+            {
+                ws.updatePlayerPosition(userID, x, y, direction, isMoving, isInFarm, isInCity, isInGreenHouse, isInHome,
+                    isInZeidiesFarm, isInZeidiesHome, isInShop, currentShop);
+            }
         }
     }
 }

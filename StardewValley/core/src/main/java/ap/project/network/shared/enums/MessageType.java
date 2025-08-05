@@ -2,7 +2,6 @@ package ap.project.network.shared.enums;
 
 public enum MessageType
 {
-    PLAYER_POSITION,
     USER_PROFILE,
     TEST,
     CONNECTION_CONFIRMED,
@@ -30,5 +29,9 @@ public enum MessageType
     CLOSE_LOBBY_REQUEST,
     CREATE_GAME_REQUEST,
     GAME_CREATION_FAILED,
-    GAME_CREATED_SUCCESSFULLY
+    GAME_CREATED_SUCCESSFULLY,
+    UPDATE_GAME_MINUTE,
+    GAME_TIME_SYNC,
+    GAME_PRESENCE,
+    GAME_STARTED
 }

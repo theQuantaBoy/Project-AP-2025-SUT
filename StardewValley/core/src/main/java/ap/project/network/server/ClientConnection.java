@@ -12,14 +12,15 @@ public class ClientConnection
 
     private boolean isOnline = false;
     private boolean isInLobby = false;
+    private boolean isInGame = false;
 
-    public float lastOnlineCheckTime = 0f;
-    public float lastLobbyCheckTime = 0f;
+    public float lastOnlineCheckTime = 0f;;
 
     public int characterChoice = 0;
     public int mapChoice = 0;
 
     public Lobby lobby = null;
+    public GameWrapper wrapper = null;
 
     public ClientConnection(Connection connection)
     {
@@ -62,5 +63,15 @@ public class ClientConnection
     public boolean isInLobby()
     {
         return isInLobby;
+    }
+
+    public boolean isInGame()
+    {
+        return isInGame;
+    }
+
+    public void setInGame(boolean inGame)
+    {
+        isInGame = inGame;
     }
 }

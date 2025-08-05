@@ -184,4 +184,34 @@ public class Time
     {
         return minute;
     }
+
+    public void setMinute(int minute)
+    {
+        this.minute = minute;
+    }
+
+    public void setHour(int hour)
+    {
+        this.hour = hour;
+    }
+
+    public void setDay(int day)
+    {
+        this.day = day;
+    }
+
+    public void setTotalDaysPassed(int totalDaysPassed)
+    {
+        this.totalDaysPassed = totalDaysPassed;
+    }
+
+    public void setTotalHoursPassed(int totalHoursPassed)
+    {
+        this.totalHoursPassed = totalHoursPassed;
+    }
+
+    public void setCurrentWeather(Weather currentWeather)
+    {
+        this.currentWeather = currentWeather;
+    }
 }

@@ -106,8 +106,6 @@ public class Player {
 
     private ArrayList<ArtisanGood> artisanGoods = new ArrayList<>();
 
-    private ShopType currentShop;
-
     private ArrayList<Fish> fishes = new ArrayList<>();
 
     private MapTypes mapType;
@@ -993,6 +991,11 @@ public class Player {
         shouldBeSkipped = true;
     }
 
+    public boolean isInZeidiesHome()
+    {
+        return isInZeidiesHome;
+    }
+
     public boolean isInZeidiesFarm()
     {
         return isInZeidiesFarm;
@@ -1150,14 +1153,18 @@ public class Player {
         return false;
     }
 
-    public ShopType getCurrentShop()
+    public String getCurrentShop()
     {
-        return currentShop;
-    }
+        if (isInShop)
+        {
+            if (currentMap instanceof Shop)
+            {
+                Shop shop = (Shop) currentMap;
+                return shop.getType().toString();
+            }
+        }
 
-    public void setCurrentShop(ShopType currentShop)
-    {
-        this.currentShop = currentShop;
+        return "null";
     }
 
     public ArrayList<Animal> getAnimals()
@@ -1271,5 +1278,40 @@ public class Player {
     public void setBuff(Buff buff)
     {
         this.buff = buff;
+    }
+
+    public void setInFarm(boolean inFarm)
+    {
+        isInFarm = inFarm;
+    }
+
+    public void setInCity(boolean inCity)
+    {
+        isInCity = inCity;
+    }
+
+    public void setInGreenHouse(boolean inGreenHouse)
+    {
+        isInGreenHouse = inGreenHouse;
+    }
+
+    public void setInHome(boolean inHome)
+    {
+        isInHome = inHome;
+    }
+
+    public void setInZeidiesFarm(boolean inZeidiesFarm)
+    {
+        isInZeidiesFarm = inZeidiesFarm;
+    }
+
+    public void setInZeidiesHome(boolean inZeidiesHome)
+    {
+        isInZeidiesHome = inZeidiesHome;
+    }
+
+    public void setInShop(boolean inShop)
+    {
+        isInShop = inShop;
     }
 }
