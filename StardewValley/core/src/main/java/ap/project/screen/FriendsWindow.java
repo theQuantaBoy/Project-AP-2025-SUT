@@ -388,4 +388,8 @@ public class FriendsWindow {
     public void dispose() {
         popup.remove();
     }
+
+    public Window getPopup() {
+        return popup;
+    }
 }

@@ -321,4 +321,8 @@ public class CommunicationWindow {
         popup.remove();
         chatScreen.dispose();
     }
+
+    public Window getPopup() {
+        return popup;
+    }
 }

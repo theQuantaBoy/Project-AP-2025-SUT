@@ -316,7 +316,7 @@ public final class WorldScreen implements Screen
             if (obj != null) {
                 try {
                     // Create item icon
-                    Drawable icon = getIconForGameObject(obj);
+                    Drawable icon = inventoryWindow.getSafeIcon(obj);
                     Stack itemStack = new Stack();
                     Image iconImage = new Image(icon);
                     itemStack.add(iconImage);
@@ -330,7 +330,8 @@ public final class WorldScreen implements Screen
 
                         // Create container for padding
                         Table countContainer = new Table();
-                        slotContainer.setFillParent(true);
+                        //slotContainer.setFillParent(true);
+                        itemStack.setFillParent(true);
                         countContainer.bottom().right();
                         countContainer.add(countLabel).pad(0, 0, 2, 2);
 
@@ -407,11 +408,8 @@ public final class WorldScreen implements Screen
             return new TextureRegionDrawable(new TextureRegion(texture));
         } catch (Exception e) {
             // Return a default texture or create a colored rectangle
-            Pixmap pixmap = new Pixmap(HOTBAR_SLOT_SIZE, HOTBAR_SLOT_SIZE, Pixmap.Format.RGBA8888);
-            pixmap.setColor(Color.GRAY);
-            pixmap.fill();
-            Texture texture = new Texture(pixmap);
-            pixmap.dispose();
+            String path = GameObjectType.COOKIE.getPath();
+            Texture texture = new Texture(Gdx.files.internal(path));
             return new TextureRegionDrawable(new TextureRegion(texture));
         }
     }
@@ -452,10 +450,20 @@ public final class WorldScreen implements Screen
 
         TextButton friends = uiRenderer.getFriends();
         uiStage.addActor(friends);
+        friends.setPosition(
+            uiStage.getWidth() - 250f,
+            uiStage.getHeight() - 320f
+        );
+        friends.setSize(220f, 60f);
+
+        // Add it to the stage if not already added
+        if (friends.getStage() == null) {
+            uiStage.addActor(friends);
+        }
+
         friends.addListener(new ClickListener() {
             @Override
-            public void clicked(InputEvent event, float x, float y)
-            {
+            public void clicked(InputEvent event, float x, float y) {
                 toggleFriendsWindow();
             }
         });
@@ -521,6 +529,7 @@ public final class WorldScreen implements Screen
         });
         Gdx.input.setInputProcessor(inputMultiplexer);
         inputMultiplexerHadSetUp = true;
+        centerVisibleWindows();
     }
 
     private void sendPositionUpdate()
@@ -770,21 +779,76 @@ public final class WorldScreen implements Screen
         if (currentRatio > targetRatio) {
             cam.viewportHeight = 15 * TILE_SIZE;
             cam.viewportWidth  = cam.viewportHeight * currentRatio;
-        } else {                                      // too tall → letterbox
+        } else {
             cam.viewportWidth  = 20 * TILE_SIZE;
             cam.viewportHeight = cam.viewportWidth / currentRatio;
         }
 
         uiCam.setToOrtho(false, w, h);
         uiCam.update();
-
-//        animalInteractionScreen.getStage().getViewport().update(w, h, true);
         uiStage.getViewport().update(w, h, true);
 
+        // Reposition hotbar after resize
         if (hotbarUI != null) {
+            refreshHotbarUI();  // Ensure hotbar contents are updated
             hotbarUI.setPosition(
                 (uiStage.getWidth() - hotbarUI.getWidth()) / 2f,
                 20f
+            );
+        }
+
+        // Center all visible windows after resize
+        centerVisibleWindows();
+    }
+
+    // Helper method to center all visible windows
+    private void centerVisibleWindows() {
+        if (terminalDialog != null && terminalDialog.isVisible()) {
+            terminalDialog.setPosition(
+                (uiStage.getWidth() - terminalDialog.getWidth()) / 2,
+                (uiStage.getHeight() - terminalDialog.getHeight()) / 2
+            );
+        }
+        if (inventoryWindow != null && inventoryWindow.isVisible()) {
+            inventoryWindow.getPopup().setPosition(
+                (uiStage.getWidth() - inventoryWindow.getPopup().getWidth()) / 2,
+                (uiStage.getHeight() - inventoryWindow.getPopup().getHeight()) / 2
+            );
+        }
+        if (cookBookWindow != null && cookBookWindow.isVisible()) {
+            cookBookWindow.getWindow().setPosition(
+                (uiStage.getWidth() - cookBookWindow.getWindow().getWidth()) / 2,
+                (uiStage.getHeight() - cookBookWindow.getWindow().getHeight()) / 2
+            );
+        }
+        if (refrigeratorWindow != null && refrigeratorWindow.isVisible()) {
+            refrigeratorWindow.getWindow().setPosition(
+                (uiStage.getWidth() - refrigeratorWindow.getWindow().getWidth()) / 2,
+                (uiStage.getHeight() - refrigeratorWindow.getWindow().getHeight()) / 2
+            );
+        }
+        if (craftingItemWindow != null && craftingItemWindow.isVisible()) {
+            craftingItemWindow.getWindow().setPosition(
+                (uiStage.getWidth() - craftingItemWindow.getWindow().getWidth()) / 2,
+                (uiStage.getHeight() - craftingItemWindow.getWindow().getHeight()) / 2
+            );
+        }
+        if (friendsWindow != null && friendsWindow.isVisible()) {
+            friendsWindow.getPopup().setPosition(
+                (uiStage.getWidth() - friendsWindow.getPopup().getWidth()) / 2,
+                (uiStage.getHeight() - friendsWindow.getPopup().getHeight()) / 2
+            );
+        }
+        if (greenHouseBuildWindow != null && greenHouseBuildWindow.isVisible()) {
+            greenHouseBuildWindow.getWindow().setPosition(
+                (uiStage.getWidth() - greenHouseBuildWindow.getWindow().getWidth()) / 2,
+                (uiStage.getHeight() - greenHouseBuildWindow.getWindow().getHeight()) / 2
+            );
+        }
+        if (communicationWindow != null && communicationWindow.isVisible()) {
+            communicationWindow.getPopup().setPosition(
+                (uiStage.getWidth() - communicationWindow.getPopup().getWidth()) / 2,
+                (uiStage.getHeight() - communicationWindow.getPopup().getHeight()) / 2
             );
         }
     }
