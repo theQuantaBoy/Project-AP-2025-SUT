@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.Texture;
 public enum CharacterType
 {
     ABIGAIL("Abigail", "characters/Abigail/Abigail_Sheet.atlas", "characters/Abigail/Abigail_Avatar.png"),
+    ALEX("Alex", "characters/Alex/Alex_Sheet.atlas", "characters/Alex/Alex_Avatar.png"),
     ;
 
     private final String name;

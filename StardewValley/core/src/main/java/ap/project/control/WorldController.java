@@ -285,6 +285,7 @@ public class WorldController
                 }
 
                 tile.plough();
+                MapVisual.playAnimationAt(GameAnimationType.PLOUGH, tile);
                 player.increaseEnergy((int) (weatherModifier * -((Hoe) tool).getLevel().getBaseEnergyUsage()));
                 UIRenderer.showTextBox("hoe used");
                 return true;
@@ -323,6 +324,7 @@ public class WorldController
 
                     ((WateringCan) tool).decreaseVolume(1);
                     plant.water();
+                    MapVisual.playAnimationAt(GameAnimationType.WATER, tile);
 
                     UIRenderer.showTextBox("Plant has been watered.");
                     return true;
@@ -879,6 +881,7 @@ public class WorldController
         if (fertilizer.getObjectType() == GameObjectType.FERTILIZER)
         {
             tile.fertilize();
+            MapVisual.playAnimationAt(GameAnimationType.FERTILIZE, tile);
             player.removeAmountFromInventory(fertilizer.getObjectType(), 1);
             tile.setWateringChance(0);
 
