@@ -9,6 +9,7 @@ import ap.project.model.animal.Fish;
 import ap.project.model.enums.*;
 import ap.project.model.enums.animal_enums.FarmAnimalsType;
 import ap.project.model.shops.Shop;
+import ap.project.model.shops.ShopMap;
 import ap.project.model.tools.*;
 import ap.project.model.enums.building_enums.ArtisanGoodsType;
 import ap.project.model.enums.building_enums.CraftingRecipeEnums;
@@ -19,6 +20,7 @@ import ap.project.model.player_data.FriendshipWithNpcData;
 import ap.project.model.player_data.Skill;
 import ap.project.model.player_data.Trade;
 import ap.project.model.resources.Plant;
+import ap.project.screen.ShopManager;
 import ap.project.screen.WorldScreen;
 import ap.project.view.CityMenu;
 import com.badlogic.gdx.math.Vector2;
@@ -1229,11 +1231,41 @@ public class Player {
         isInShop = inShop;
     }
 
-    public void goToShop(Shop shop) {
-        this.isInShop = true;
-        this.previousLocation = getLocation();
-        this.currentShop = shop.getType();
-        WorldScreen.getInstance().openShop(shop.getType());
+    // In WorldController.java
+    public static void goToShop(ShopType shopType, WorldScreen worldScreen) {
+        Player player = App.getCurrentGame().getCurrentPlayer();
+
+        // 1. Get shop map
+        ShopMap shopMap = ShopManager.getShopMap(shopType);
+
+        // 2. Store previous state
+        player.setPreviousLocation(player.getLocation());
+        player.setInShop(true);
+        player.setCurrentShop(shopType);
+
+        // 3. Transition to shop
+        player.setCurrentMap(shopMap);
+        player.setLocation(shopMap.getStartingPoint());
+
+        // 4. Update visuals through WorldScreen
+        worldScreen.updateMap();
+
+        // 5. Position character
+        Tile startTile = shopMap.getTile(shopMap.getStartingPoint().getX(),
+            shopMap.getStartingPoint().getY());
+        Vector2 worldPos = shopMap.tileToWorld(startTile);
+        worldPos.y -= Map.TILE_SIZE;
+        player.getCharacter().setPosition(worldPos);
+
+        // 6. Update game state
+        worldScreen.updateGameInfo();
+
+        // 7. Open shop UI
+        worldScreen.getShopWindow().setShopMap(shopMap);
+        worldScreen.getShopWindow().toggleVisibility();
+
+        // 8. Center camera
+        worldScreen.centerCameraOnMap(shopMap);
     }
 
     public Point getPreviousLocation() {

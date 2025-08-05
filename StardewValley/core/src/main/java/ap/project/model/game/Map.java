@@ -760,5 +760,33 @@ public class Map
     {
         this.HEIGHT = HEIGHT;
     }
+
+    public void setSaloonDoor(Point saloonDoor) {
+        this.saloonDoor = saloonDoor;
+    }
+
+    public void setPierreDoor(Point pierreDoor) {
+        this.pierreDoor = pierreDoor;
+    }
+
+    public void setMarnieDoor(Point marnieDoor) {
+        this.marnieDoor = marnieDoor;
+    }
+
+    public void setJojamartDoor(Point jojamartDoor) {
+        this.jojamartDoor = jojamartDoor;
+    }
+
+    public void setFishShopDoor(Point fishShopDoor) {
+        this.fishShopDoor = fishShopDoor;
+    }
+
+    public void setCarpenterDoor(Point carpenterDoor) {
+        this.carpenterDoor = carpenterDoor;
+    }
+
+    public void setBlacksmithDoor(Point blacksmithDoor) {
+        this.blacksmithDoor = blacksmithDoor;
+    }
 }
 

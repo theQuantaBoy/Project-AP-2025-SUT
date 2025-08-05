@@ -7,6 +7,7 @@ import ap.project.model.enums.TileTexture;
 import ap.project.model.game.Map;
 import ap.project.model.game.Point;
 import ap.project.model.game.Tile;
+import ap.project.screen.WorldScreen;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.maps.MapLayer;
 import com.badlogic.gdx.maps.MapLayers;
@@ -127,7 +128,6 @@ public final class MapAssetLoader
                 int saloonPointX = tiledMap.getProperties().get("saloon_door_x", Integer.class);
                 int saloonPointY = tiledMap.getProperties().get("saloon_door_y", Integer.class);
                 saloonDoor = new Point(saloonPointX, saloonPointY);
-
             }
 
             tiles = new Tile[height][width]; // [y][x]

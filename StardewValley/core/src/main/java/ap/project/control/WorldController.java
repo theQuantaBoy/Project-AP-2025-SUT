@@ -176,7 +176,7 @@ public class WorldController
 
                 if (Map.isNearOrOn(door, clicked))
                 {
-                    player.goToShop(shop);
+                    player.goToShop(shop.getType(), WorldScreen.getInstance());
                     return true;
                 }
             }

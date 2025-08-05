@@ -8,6 +8,7 @@ import ap.project.model.game.Player;
 import ap.project.model.App.Result;
 import ap.project.model.enums.Menu;
 import ap.project.model.shops.Shop;
+import ap.project.screen.WorldScreen;
 
 import java.awt.desktop.AboutHandler;
 
@@ -44,7 +45,7 @@ public class CityController
             return new Result(false, "Shop not found");
         }
 
-        player.goToShop(shop);
+        player.goToShop(shop.getType(), WorldScreen.getInstance());
 
         return new Result(true, "Going to place");
     }

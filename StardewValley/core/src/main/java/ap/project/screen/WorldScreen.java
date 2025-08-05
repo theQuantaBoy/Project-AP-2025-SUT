@@ -513,7 +513,7 @@ public final class WorldScreen implements Screen
         currentSeason = time.getSeason();
     }
 
-    private void updateMap() {
+    public void updateMap() {
         MapAssetLoader.LoadedMap loaded;
         String mapName;
         MapKind mapKind;
@@ -917,7 +917,7 @@ public final class WorldScreen implements Screen
         }
     }
 
-    private void centerCameraOnMap(Map map) {
+    public void centerCameraOnMap(Map map) {
         float mapPixelWidth = map.getWidth() * TILE_SIZE;
         float mapPixelHeight = map.getHeight() * TILE_SIZE;
 
@@ -933,5 +933,13 @@ public final class WorldScreen implements Screen
 
     public AnimalWindow getAnimalWindow() {
         return animalWindow;
+    }
+
+    public Map getMap() {
+        return map;
+    }
+
+    public ShopWindow getShopWindow() {
+        return shopWindow;
     }
 }
