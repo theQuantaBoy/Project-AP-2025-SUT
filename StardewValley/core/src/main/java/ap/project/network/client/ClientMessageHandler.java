@@ -77,6 +77,9 @@ public class ClientMessageHandler
             case GAME_PRESENCE:
                 handleGamePlayerPresenceMessage((PlayerGamePresenceMessage) message);
                 break;
+            case CLOSE_LOBBY_ERROR:
+                handleCLoseLobbyErrorMessage((CloseLobbyErrorMessage) message);
+                break;
             // Add other cases
         }
     }
@@ -339,6 +342,15 @@ public class ClientMessageHandler
                 ws.updatePlayerPosition(userID, x, y, direction, isMoving, isInFarm, isInCity, isInGreenHouse, isInHome,
                     isInZeidiesFarm, isInZeidiesHome, isInShop, currentShop);
             }
+        }
+    }
+
+    private static void handleCLoseLobbyErrorMessage(CloseLobbyErrorMessage message)
+    {
+        if (Main.getApp().getScreen() instanceof LobbyScreen)
+        {
+            LobbyScreen ls = (LobbyScreen) Main.getApp().getScreen();
+            ls.showText(message.message);
         }
     }
 }

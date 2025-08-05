@@ -9,10 +9,7 @@ import ap.project.model.enums.MapTypes;
 import ap.project.model.enums.Season;
 import ap.project.model.game.*;
 import ap.project.network.client.GameClient;
-import ap.project.network.shared.messages.CloseLobbyMessage;
-import ap.project.network.shared.messages.CreateGameRequestMessage;
-import ap.project.network.shared.messages.LeaveLobbyMessage;
-import ap.project.network.shared.messages.LobbyPresenceMessage;
+import ap.project.network.shared.messages.*;
 import ap.project.util.MapAssetLoader;
 import ap.project.visual.CharacterRenderer;
 import ap.project.visual.MapVisual;
@@ -42,6 +39,7 @@ import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 public class LobbyScreen implements Screen
@@ -409,14 +407,12 @@ public class LobbyScreen implements Screen
     {
         // Implementation to leave lobby
         client.send(new LeaveLobbyMessage());
-        textBoxSystem.showTextBox("Leaving lobby...");
     }
 
     private void handleCloseLobby()
     {
         // Implementation to close lobby (admin only)
-        client.send(new CloseLobbyMessage());
-        textBoxSystem.showTextBox("Closing lobby...");
+        client.send(new CloseLobbyRequestMessage());
     }
 
     private void handleStartGame()
@@ -542,21 +538,6 @@ public class LobbyScreen implements Screen
         }
     }
 
-    public void removeOtherPlayer(int userId)
-    {
-        for (Player p : otherPlayers)
-        {
-            if (p.getUser().getHashId() == userId)
-            {
-                otherPlayers.remove(p);
-                textBoxSystem.showTextBox(p.getUser().getUsername() + " has been removed");
-                return;
-            }
-        }
-
-        textBoxSystem.showTextBox("player not found");
-    }
-
     public void setCameraFixed(boolean cameraFixed)
     {
         this.cameraFixed = cameraFixed;
@@ -614,5 +595,21 @@ public class LobbyScreen implements Screen
         }
 
         Main.getApp().setScreen(new WorldScreen(players));
+    }
+
+    public void removeOtherPlayer(int userId)
+    {
+        Iterator<Player> iter = otherPlayers.iterator();
+        while (iter.hasNext())
+        {
+            Player player = iter.next();
+            User user = player.getUser();
+
+            if (user.getHashId() == userId)
+            {
+                iter.remove();
+                textBoxSystem.showTextBox(user.getUsername() + " has been removed");
+            }
+        }
     }
 }

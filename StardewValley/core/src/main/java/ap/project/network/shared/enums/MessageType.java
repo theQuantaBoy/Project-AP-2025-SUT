@@ -33,5 +33,6 @@ public enum MessageType
     UPDATE_GAME_MINUTE,
     GAME_TIME_SYNC,
     GAME_PRESENCE,
-    GAME_STARTED
+    GAME_STARTED,
+    CLOSE_LOBBY_ERROR
 }

@@ -73,7 +73,8 @@ public class GameServer
             long elapsed = System.currentTimeMillis() - lobby.getCreatedAt();
             int remaining = (int) (300 - (elapsed / 1000));
 
-            if (remaining <= 0) {
+            if (remaining <= 0 || lobby.getUsers().isEmpty())
+            {
                 closeLobby(lobby);
                 toRemove.add(lobby);
             } else
@@ -85,7 +86,7 @@ public class GameServer
         activeLobbies.removeAll(toRemove);
     }
 
-    private void closeLobby(Lobby lobby)
+    public void closeLobby(Lobby lobby)
     {
         for (User user : new ArrayList<>(lobby.getUsers()))
         {
@@ -95,7 +96,6 @@ public class GameServer
                 client.setInLobby(false);
                 client.lobby = null;
                 client.send(new CloseLobbyMessage());
-                client.setInLobby(false);
             }
         }
     }

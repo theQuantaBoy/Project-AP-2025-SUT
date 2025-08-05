@@ -49,6 +49,12 @@ public class ServerMessageHandler
             case GAME_STARTED:
                 handleGameStartedMessage(client, (GameStartedMessage) message);
                 break;
+            case LEAVE_LOBBY_REQUEST:
+                handleLeaveLobbyRequestMessage(client, (LeaveLobbyMessage) message);
+                break;
+            case CLOSE_LOBBY_REQUEST:
+                handleCloseLobbyRequestMessage(client, (CloseLobbyRequestMessage) message);
+                break;
         }
     }
 
@@ -341,6 +347,44 @@ public class ServerMessageHandler
             {
                 c.send(msg);
             }
+        }
+    }
+
+    private static void handleLeaveLobbyRequestMessage(ClientConnection client, LeaveLobbyMessage msg)
+    {
+        GameServer server = GameServer.getInstance();
+
+        User user = server.getUser(client);
+        Lobby lobby = server.getActiveLobby(user);
+
+        if (lobby != null)
+        {
+            lobby.getUsers().remove(user);
+            client.setInLobby(false);
+            client.lobby = null;
+            client.send(new CloseLobbyMessage());
+            server.broadcastToLobby(lobby, new PlayerLeftLobbyMessage(lobby.getId(), user.getHashId()));
+        }
+    }
+
+    private static void handleCloseLobbyRequestMessage(ClientConnection client, CloseLobbyRequestMessage msg)
+    {
+        GameServer server = GameServer.getInstance();
+
+        User user = server.getUser(client);
+        Lobby lobby = server.getActiveLobby(user);
+
+        if (lobby != null)
+        {
+            User admin = lobby.getAdmin();
+            if (user.getHashId() != admin.getHashId())
+            {
+                client.send(new CloseLobbyErrorMessage("only admin can close lobby"));
+                return;
+            }
+
+            server.closeLobby(lobby);
+            server.getActiveLobbies().remove(lobby);
         }
     }
 }

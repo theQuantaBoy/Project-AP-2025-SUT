@@ -75,6 +75,7 @@ public class KryoRegistry
         kryo.register(GameTimeSyncMessage.class);
         kryo.register(PlayerGamePresenceMessage.class);
         kryo.register(UpdateGameMinuteMessage.class);
+        kryo.register(CloseLobbyErrorMessage.class);
 
         // Register all other message classes ...
     }
