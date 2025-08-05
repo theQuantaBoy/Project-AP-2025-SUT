@@ -364,6 +364,11 @@ public class WorldController
                 tile.getObject() == null) {
                 tile.setTexture(TileTexture.LAND);
 
+                if (player.isInFarm())
+                {
+                    player.getFarm().getHazardTiles().add(tile);
+                }
+
                 UIRenderer.showTextBox("alaf is harzed successfully");
                 return true;
             }

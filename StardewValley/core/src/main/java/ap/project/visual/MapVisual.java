@@ -75,6 +75,7 @@ public class MapVisual
     {
         renderer.setView(cam);
         renderer.render();
+        drawHazardTiles();
         drawPlantingTiles();
         drawLightningTiles();
         drawResources();
@@ -114,6 +115,22 @@ public class MapVisual
         lightning(delta);
         updateGeneralAnimations(delta);
         updateLightningEffect();
+    }
+
+    public void drawHazardTiles()
+    {
+        if (map instanceof Farm)
+        {
+            Farm farm = (Farm) map;
+            ArrayList<Tile> hazardTiles = farm.getHazardTiles();
+
+            renderer.getBatch().begin();
+            for (Tile tile : hazardTiles)
+            {
+                drawTileEffect(tile, EffectType.PLAIN_TILE);
+            }
+            renderer.getBatch().end();
+        }
     }
 
     public void drawPlantingTiles()
