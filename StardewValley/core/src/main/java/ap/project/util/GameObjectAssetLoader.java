@@ -1,9 +1,6 @@
 package ap.project.util;
 
-import ap.project.model.enums.BuffType;
-import ap.project.model.enums.EffectType;
-import ap.project.model.enums.GameAnimationType;
-import ap.project.model.enums.GameObjectType;
+import ap.project.model.enums.*;
 import ap.project.model.enums.resources_enums.CropType;
 import ap.project.model.enums.resources_enums.TreeType;
 import com.badlogic.gdx.assets.AssetManager;
@@ -81,6 +78,11 @@ public class GameObjectAssetLoader
         for (BuffType type : BuffType.values())
         {
             assetManager.load(type.getTexturePath(), Texture.class);
+        }
+
+        for (CharacterType type : CharacterType.values())
+        {
+            assetManager.load(type.getAvatarPath(), Texture.class);
         }
     }
 
@@ -177,6 +179,13 @@ public class GameObjectAssetLoader
             Texture texture = assetManager.get(type.getTexturePath(), Texture.class);
             texture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
             type.setTexture(texture);
+        }
+
+        for (CharacterType type : CharacterType.values())
+        {
+            Texture texture = assetManager.get(type.getAvatarPath(), Texture.class);
+            texture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
+            type.setAvatarTexture(texture);
         }
     }
 

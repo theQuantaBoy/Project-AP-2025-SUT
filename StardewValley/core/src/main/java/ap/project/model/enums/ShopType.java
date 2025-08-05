@@ -50,4 +50,23 @@ public enum ShopType
     {
         return exteriorDoor;
     }
+
+    @Override
+    public String toString()
+    {
+        return name;
+    }
+
+    public static ShopType getShopType(String name)
+    {
+        for (ShopType shopType : ShopType.values())
+        {
+            if (shopType.getName().equalsIgnoreCase(name))
+            {
+                return shopType;
+            }
+        }
+
+        return null;
+    }
 }

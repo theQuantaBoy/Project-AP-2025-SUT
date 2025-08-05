@@ -6,179 +6,153 @@ import ap.project.control.PreGameController;
 import ap.project.model.App.App;
 import ap.project.model.App.GameAssetsManager;
 import ap.project.model.App.User;
-import ap.project.model.enums.CharacterType;
-import ap.project.model.enums.MapTypes;
-import ap.project.model.game.Player;
+import ap.project.network.client.GameClient;
+import ap.project.network.shared.messages.UserProfileMessage;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
-import java.util.ArrayList;
+import static java.lang.Thread.sleep;
 
 public class PreGameScreen implements Screen
 {
-    private PreGameController controller;
     private Stage stage;
     private Image background;
     private Image logo;
     private Label menuName;
-    private Label nickname;
-    private Table table;
-    TextField username;
-    private TextButton addPlayerButton;
-    private TextButton newGameButton;
+    private TextButton playOffline;
+    private TextButton playOnline;
     private TextButton backButton;
-    private TextButton exitButton;
+    private Dialog connectionDialog;
 
-    private ArrayList<Player> players;
-    private Table playerListTable;
-
-    private MapTypes selectedMap;
-    private CharacterType selectedCharacter;
-
-    public PreGameScreen(PreGameController controller)
+    public PreGameScreen()
     {
-        stage = new Stage(new ScreenViewport());
-        Gdx.input.setInputProcessor(stage);
-        this.controller = controller;
+        this.stage = new Stage(new ScreenViewport());
+        Gdx.input.setInputProcessor(this.stage);
 
+        // Load assets - same as RegisterScreen
         this.background = new Image(GameAssetsManager.getGameAssetsManager().getRegisterBackground());
         this.background.setFillParent(true);
         this.logo = new Image(GameAssetsManager.getGameAssetsManager().getLogo());
-        this.menuName = new Label("NEW\nGAME", GameAssetsManager.getGameAssetsManager().getSkin(), "Impact");
+        this.menuName = new Label("Choose how to play", GameAssetsManager.getGameAssetsManager().getSkin(), "Impact");
         this.menuName.setAlignment(Align.center);
-        this.menuName.setColor(Color.GOLD);
-        this.nickname = new Label(App.getCurrentUser().getNickname(), GameAssetsManager.getGameAssetsManager().getSkin());
-        this.nickname.setAlignment(Align.center);
-        this.nickname.setColor(Color.GOLD);
-        this.table = new Table();
 
-        this.username = new TextField("", GameAssetsManager.getGameAssetsManager().getSkin());
-        this.username.setMessageText("Username");
-        this.username.setAlignment(Align.center);
-
-        this.addPlayerButton = new TextButton("Add Player", GameAssetsManager.getGameAssetsManager().getSkin());
-        this.newGameButton = new TextButton("Create Game", GameAssetsManager.getGameAssetsManager().getSkin());
+        // Create buttons with same style
+        this.playOffline = new TextButton("Play Offline", GameAssetsManager.getGameAssetsManager().getSkin());
+        this.playOnline = new TextButton("Play Online", GameAssetsManager.getGameAssetsManager().getSkin());
         this.backButton = new TextButton("Back", GameAssetsManager.getGameAssetsManager().getSkin());
-        this.exitButton = new TextButton("Exit", GameAssetsManager.getGameAssetsManager().getSkin());
 
-        this.playerListTable = new Table();
-        this.playerListTable.defaults().pad(5);
+        // Build layout with centered content
+        Table contentTable = new Table();
+        contentTable.add(playOffline).width(350).height(75).pad(10).row();
+        contentTable.add(playOnline).width(350).height(75).pad(10).row();
 
-        players = new ArrayList<>();
-        Player player = new Player(App.getCurrentUser(), MapTypes.STANDARD, 0);
-        players.add(player);
+        // Create container to center the content
+        Container<Table> container = new Container<>(contentTable);
+        container.setFillParent(true);
+        container.center();
 
-        addPlayerRow(player);
-        table.add(playerListTable).pad(10).row();
+        // Create bottom table for back button
+        Table bottomTable = new Table();
+        bottomTable.bottom().right();
+        bottomTable.setFillParent(true);
+        bottomTable.add(backButton).pad(20).size(200, 75);
 
-        table.add(username).width(500).height(50).pad(10).row();
-        table.add(addPlayerButton).width(500).height(50).pad(10).row();
-        table.add(newGameButton).width(500).height(50).pad(10).row();
-        table.add(backButton).width(500).height(50).pad(10).row();
-        table.add(exitButton).width(500).height(50).pad(10).row();
+        // Add button listeners
+        addButtonListeners();
 
+        // Add actors to stage
+        stage.addActor(background);
+        stage.addActor(logo);
+        stage.addActor(menuName);
+        stage.addActor(container);
+        stage.addActor(bottomTable);
+
+        // Add button listeners
         addButtonListeners();
     }
 
     private void addButtonListeners() {
-        addPlayerButton.addListener(new ChangeListener() {
+        playOffline.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                User user = controller.getUser(username.getText());
-                if (user != null) {
-                    Player player = new Player(user, MapTypes.STANDARD, 0);
-                    addPlayerRow(player);
-                    players.add(player);
-                }
-            }
-        });
-
-        newGameButton.addListener(new ChangeListener() {
-            @Override
-            public void changed(ChangeEvent event, Actor actor) {
-                controller.createGame(players);
-                dispose(); // Dispose of the stage and actors before switching
-                Gdx.input.setInputProcessor(null); // Optional: Clear input processor
+                System.out.println("Play Offline selected");
                 Main.getApp().setScreen(new WorldScreen());
             }
         });
 
-        backButton.addListener(new ChangeListener() {
+        playOnline.addListener(new ChangeListener()
+        {
             @Override
-            public void changed(ChangeEvent event, Actor actor) {
-                Main.getApp().setScreen(new MainScreen(new MainMenuController()));
+            public void changed(ChangeEvent event, Actor actor)
+            {
+                GameClient client = GameClient.getInstance();
+                startClient();
+
+                if (!client.isConnected() || !client.isRegistered())
+                {
+                    showConnectionError();
+                } else
+                {
+                    Main.getApp().setScreen(new PreLobbyScreen());
+                }
             }
         });
 
-        exitButton.addListener(new ChangeListener() {
+        // Back button listener
+        backButton.addListener(new ClickListener() {
             @Override
-            public void changed(ChangeEvent event, Actor actor) {
-                Gdx.app.exit();
+            public void clicked(InputEvent event, float x, float y) {
+                Main.getApp().setScreen(new MainScreen(new MainMenuController()));
             }
         });
+    }
+
+    private void showConnectionError()
+    {
+        if (connectionDialog != null) return;
+
+        connectionDialog = new Dialog("Connection Failed", GameAssetsManager.getGameAssetsManager().getSkin());
+        connectionDialog.text("Could not connect to server");
+
+        TextButton tryAgainButton = new TextButton("Try Again", GameAssetsManager.getGameAssetsManager().getSkin());
+        tryAgainButton.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                connectionDialog.hide();
+                connectionDialog = null;
+                startClient();
+            }
+        });
+
+        TextButton goBackButton = new TextButton("Go Back", GameAssetsManager.getGameAssetsManager().getSkin());
+        goBackButton.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                connectionDialog.hide();
+                connectionDialog = null;
+            }
+        });
+
+        connectionDialog.button(tryAgainButton);
+        connectionDialog.button(goBackButton);
+        connectionDialog.show(stage);
     }
 
     @Override
     public void show()
     {
-        stage.clear();
         Gdx.input.setInputProcessor(stage);
-        stage.addActor(background);
-        stage.addActor(logo);
-        stage.addActor(menuName);
-        stage.addActor(nickname);
-        stage.addActor(table);
         positionElements();
-    }
-
-    @Override
-    public void render(float delta)
-    {
-        Gdx.gl.glClearColor(0.1f, 0.1f, 0.1f, 1);
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-        stage.act(Math.min(delta, 1 / 30f));
-        stage.draw();
-    }
-
-    @Override
-    public void resize(int width, int height)
-    {
-        stage.getViewport().update(width, height, true);
-        positionElements();
-    }
-
-    @Override
-    public void pause()
-    {
-
-    }
-
-    @Override
-    public void resume()
-    {
-
-    }
-
-    @Override
-    public void hide()
-    {
-
-    }
-
-    @Override
-    public void dispose()
-    {
-        stage.dispose();
     }
 
     private void positionElements()
@@ -190,111 +164,83 @@ public class PreGameScreen implements Screen
 
         // Position label at top left
         float labelLeftX = 20;
-        float labelRightX = stage.getWidth() - nickname.getPrefWidth() - 100;
         float labelTopY = stage.getHeight() - menuName.getHeight() - 20;
         menuName.setPosition(labelLeftX, labelTopY);
-        nickname.setPosition(labelRightX, labelTopY);
-
-
-        float tableWidth = table.getPrefWidth();
-        float tableHeight = table.getPrefHeight();
-        float x = (stage.getWidth()) / 2;
-        float y = (stage.getHeight()) / 2;
-        table.setPosition(x, y);
     }
 
-    public void showMapSelectionDialog(MapTypes current)
+    @Override
+    public void render(float delta) {
+        Gdx.gl.glClearColor(0.1f, 0.1f, 0.1f, 1);
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        stage.act(Math.min(delta, 1/30f));
+        stage.draw();
+    }
+
+    @Override
+    public void resize(int width, int height)
     {
-        Skin skin = GameAssetsManager.getGameAssetsManager().getSkin();
+        stage.getViewport().update(width, height, true);
+        positionElements();
+    }
 
-        final int[] mapIndex = {0};
-        ArrayList<MapTypes> farms = MapTypes.getFarms();
+    @Override
+    public void pause() {}
 
-        if (current != null)
-            mapIndex[0] = farms.indexOf(current);
-        if (mapIndex[0] == -1) mapIndex[0] = 0;
+    @Override
+    public void resume() {}
 
-        Label mapNameLabel = new Label(farms.get(mapIndex[0]).getName(), skin);
-        mapNameLabel.setFontScale(1.1f);
+    @Override
+    public void hide() {}
 
-        TextButton left = new TextButton("<", skin);
-        TextButton right = new TextButton(">", skin);
+    @Override
+    public void dispose()
+    {
+        if (stage != null) {
+            stage.dispose();
+        }
+    }
 
-        left.addListener(new ClickListener() {
-            public void clicked(InputEvent event, float x, float y) {
-                mapIndex[0] = (mapIndex[0] - 1 + farms.size()) % farms.size();
-                mapNameLabel.setText(farms.get(mapIndex[0]).getName());
-            }
-        });
-
-        right.addListener(new ClickListener() {
-            public void clicked(InputEvent event, float x, float y) {
-                mapIndex[0] = (mapIndex[0] + 1) % farms.size();
-                mapNameLabel.setText(farms.get(mapIndex[0]).getName());
-            }
-        });
-
-        Dialog dialog = new Dialog("Select Map", skin)
+    public void startClient()
+    {
+        try
         {
-            @Override
-            protected void result(Object object)
+            User currentUser = App.getCurrentUser();
+            if (currentUser == null)
             {
-                if ((Boolean) object)
+                System.err.println("No current user available");
+                return;
+            }
+
+            GameClient client = GameClient.getInstance();
+            client.connect("localhost");
+
+            // Wait for connection to establish
+            int attempts = 0;
+            while (!client.isConnected() && attempts < 50)
+            {
+                sleep(100);
+                attempts++;
+            }
+
+            if (client.isConnected())
+            {
+                UserProfileMessage message = new UserProfileMessage(currentUser.getUsername(),
+                    currentUser.getNickname(), currentUser.getGender().toString(), currentUser.getHashId());
+                client.send(message);
+
+                // Process messages and wait for response
+                attempts = 0;
+                while (!client.isRegistered() && attempts < 50)
                 {
-                    selectedMap = farms.get(mapIndex[0]);
+                    client.processMessages();  // Process any incoming messages
+                    sleep(100);
+                    attempts++;
                 }
             }
-        };
-
-        dialog.getTitleLabel().setFontScale(1.2f);
-
-        Table content = new Table();
-        content.defaults().pad(20);
-        content.add(left).padRight(30);
-        content.add(right).padLeft(30).row();
-        content.add(mapNameLabel).colspan(2).center().padTop(10).row();
-        dialog.getContentTable().add(content);
-
-        TextButton confirmBtn = new TextButton("Confirm", skin);
-        TextButton cancelBtn = new TextButton("Cancel", skin);
-
-        dialog.button(confirmBtn, true);
-        dialog.button(cancelBtn, false);
-
-        dialog.show(stage);
+        } catch (Exception ex)
+        {
+            ex.printStackTrace();
+        }
     }
 
-    private void addPlayerRow(Player player)
-    {
-        Label nameLabel = new Label(player.getUser().getUsername(), GameAssetsManager.getGameAssetsManager().getSkin());
-        nameLabel.setColor(Color.WHITE);
-
-        String mapName = player.getMapType() != null
-            ? player.getMapType().getName()
-            : "No Map";
-
-        Label mapLabel = new Label(mapName, GameAssetsManager.getGameAssetsManager().getSkin());
-        mapLabel.setColor(Color.SKY);
-
-        TextButton selectMapBtn = new TextButton("Select Map", GameAssetsManager.getGameAssetsManager().getSkin());
-
-        selectMapBtn.addListener(new ChangeListener() {
-            @Override
-            public void changed(ChangeEvent event, Actor actor) {
-                showMapSelectionDialog(player.getMapType());
-                // wait a tiny bit for selection to register, then update UI
-                Gdx.app.postRunnable(() -> {
-                    mapLabel.setText(selectedMap != null ? selectedMap.getName() : "No Map");
-                    player.setMapType(selectedMap);
-                });
-            }
-        });
-
-        Table row = new Table();
-        row.add(nameLabel).width(200);
-        row.add(mapLabel).width(200);
-        row.add(selectMapBtn).width(150);
-
-        playerListTable.add(row).row();
-    }
 }

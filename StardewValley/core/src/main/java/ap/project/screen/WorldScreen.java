@@ -1,23 +1,23 @@
 package ap.project.screen;
 
 import ap.project.control.CharacterController;
+import ap.project.control.OnlineWorldController;
 import ap.project.control.WorldController;
 import ap.project.model.App.App;
 import ap.project.model.App.GameAssetsManager;
 import ap.project.model.App.User;
-import ap.project.model.animal.Animal;
 import ap.project.model.enums.Gender;
 import ap.project.model.enums.Season;
-import ap.project.model.enums.animal_enums.FarmAnimalsType;
 import ap.project.model.building.CraftingItem;
 import ap.project.model.enums.*;
 import ap.project.model.game.Game;
+import ap.project.model.shops.Shop;
 import ap.project.model.tools.BackPack;
 import ap.project.model.tools.Tool;
+import ap.project.network.client.GameClient;
+import ap.project.network.shared.messages.*;
 import ap.project.screen.input.WorldScreenInputProcessor;
 import ap.project.util.MapAssetLoader;
-import ap.project.view.GameMenu;
-import ap.project.visual.*;
 import ap.project.visual.CharacterRenderer;
 import ap.project.model.game.*;
 import ap.project.visual.MapVisual;
@@ -28,21 +28,16 @@ import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.maps.tiled.TiledMap;
-import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
-import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
-import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.viewport.ExtendViewport;
-import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -59,12 +54,14 @@ public final class WorldScreen implements Screen
 
     private static WorldScreen INSTANCE;
 
+    private final GameClient client;
+
     public static final float MAP_SCALE = 1.0f;
     private static final float CHAR_SCALE = 1f;
     private static final float TILE_SIZE = 24f * MAP_SCALE;
     private static final float PLAYER_SPEED = 50f * MAP_SCALE;
 
-    private final Game game;
+    private Game game;
 
     private final OrthographicCamera cam;
     private final OrthographicCamera uiCam = new OrthographicCamera();
@@ -116,10 +113,93 @@ public final class WorldScreen implements Screen
     private boolean cameraFixed = false;
     private final boolean DEBUG_MODE = false;
 
+    private float localTimeKeeper = 0f;
+
+    private OnlineWorldController onlineWorldController = new OnlineWorldController();
+    private final boolean ONLINE_MODE;
+
+    private float periodicNetworkUpdate = 0;
+    private static final float PERIODIC_NETWORK_INTERVAL = 0.016f;
+
 //    private FishingMinigameWindow fishingWindow;
 
-    public WorldScreen() {
+    public WorldScreen(ArrayList<Player> players)
+    {
         INSTANCE = this;
+        ONLINE_MODE = true;
+        client = GameClient.getInstance();
+
+        this.shapeRenderer = new ShapeRenderer();
+//        this.miniGame = new FishingGame();
+        cam = new OrthographicCamera(20 * TILE_SIZE, 15 * TILE_SIZE);
+        cam.setToOrtho(false);
+
+        this.game = App.getCurrentGame();
+        App.setCurrentMenu(Menu.HomeMenu);
+
+//        gameStage = new Stage(new ExtendViewport(20 * TILE_SIZE, 15 * TILE_SIZE, cam));
+//        animalActors = new Array<>();
+//        animalInteractionScreen = new AnimalInteractionScreen(uiStage.getViewport(), skin);
+//
+//        Animal testChicken = new Animal("Clucky", FarmAnimalsType.CHICKEN);
+//        testChicken.setX(20 * TILE_SIZE);
+//        testChicken.setY(15 * TILE_SIZE);
+//        testChicken.goOut(); // Make sure it's set to be outside
+//        AnimalActor chickenActor = new AnimalActor(testChicken, animalInteractionScreen);
+//        animalActors.add(chickenActor);
+//        gameStage.addActor(chickenActor);
+
+        for (Player p : game.getPlayers())
+        {
+            Farm f = new Farm(p.getMapType());
+            p.setFarm(f);
+            p.setCurrentMap(f);
+        }
+
+        for (Player p : game.getPlayers())
+        {
+            p.spawn();
+        }
+
+        this.map = game.getCurrentPlayer().getCurrentMap();
+        time = game.getCurrentTime();
+        currentSeason = time.getSeason();
+
+        this.characterRenderer = new CharacterRenderer(shapeRenderer);
+
+        if (SECOND_PLAYER) {
+            Vector2 spawn2 = new Vector2(62 * TILE_SIZE, 60 * TILE_SIZE);
+            Player player2p = new Player(new User("arash", "", "arash", "", Gender.FEMALE, "", ""), MapTypes.FISHING, 0);
+            player2 = new PlayerCharacter(CharacterType.ABIGAIL, spawn2, "Player 456", player2p);
+            controller2 = new CharacterController(player2, map, PLAYER_SPEED, TILE_SIZE);
+            controller2.chnageMoveKeys(Input.Keys.UP, Input.Keys.LEFT, Input.Keys.DOWN, Input.Keys.RIGHT);
+        }
+
+        ShaderProgram.pedantic = false;
+        uiRenderer = new UIRenderer(time);
+
+        inventoryWindow = new InventoryWindow(uiStage, this);
+        friendsWindow = new FriendsWindow(uiStage, this);
+        cookBookWindow = new CookBookWindow(uiStage);
+        refrigeratorWindow = new RefrigeratorWindow(uiStage);
+        craftingItemWindow = new CraftingItemWindow(uiStage);
+        communicationWindow = new CommunicationWindow(uiStage, this);
+        greenHouseBuildWindow = new GreenHouseBuildWindow(uiStage);
+        createTerminalDialog();
+        worldController = new WorldController();
+        worldController.setCommunicationWindow(communicationWindow);
+        inputMultiplexer = new InputMultiplexer();
+        checkGameInfo();
+        initializeHotbar();
+
+        client.send(new GameStartedMessage(game.getId()));
+    }
+
+    public WorldScreen()
+    {
+        INSTANCE = this;
+        ONLINE_MODE = false;
+        client = null;
 
         this.shapeRenderer = new ShapeRenderer();
 //        this.miniGame = new FishingGame();
@@ -134,7 +214,7 @@ public final class WorldScreen implements Screen
         )));
 
         App.setCurrentGame(game);
-        App.setCurrentMenu(Menu.GameMenu);
+        App.setCurrentMenu(Menu.HomeMenu);
         App.setCurrentUser(game.getPlayers().get(0).getUser());
         game.setCurrentPlayer(game.getPlayers().get(0));
 
@@ -365,6 +445,9 @@ public final class WorldScreen implements Screen
     @Override
     public void show()
     {
+        int w = Gdx.graphics.getWidth(), h = Gdx.graphics.getHeight();
+        resize(w, h);
+
         TextButton friends = uiRenderer.getFriends();
         uiStage.addActor(friends);
         friends.setPosition(
@@ -449,8 +532,68 @@ public final class WorldScreen implements Screen
         centerVisibleWindows();
     }
 
+    private void sendPositionUpdate()
+    {
+        Player player = App.getCurrentGame().getCurrentPlayer();
+
+        if (GameClient.getInstance().isConnected())
+        {
+            GameClient.getInstance().send(new TestMessage(player.getUser().getUsername() + " " +
+                (player.isInFarm() ? "in farm " : "not in farm ") + " at " + player.getLocation().getX() +
+                ", " + player.getLocation().getY()));
+        }
+    }
+
+    private void sendPlayerPresenceMessage()
+    {
+        String gameID = game.getId();
+        int userID = player.getUser().getHashId();
+
+        float x = character.getPosition().x;
+        float y = character.getPosition().y;
+        byte direction = (byte) character.getDirection().ordinal();
+        boolean isMoving = character.isMoving();
+
+        boolean isInFarm = player.isInFarm();
+        boolean isInCity = player.isInCity();
+        boolean isInGreenHouse = player.isInGreenHouse();
+        boolean isInHome = player.isInHome();
+        boolean isInZeidiesFarm = player.isInZeidiesFarm();
+        boolean isInZeidiesHome = player.isInZeidiesHome();
+        boolean isInShop = player.isInShop();
+
+        String currentShop = player.getCurrentShop();
+
+        PlayerGamePresenceMessage msg = new PlayerGamePresenceMessage(gameID, userID, x, y, direction, isMoving, isInFarm,
+            isInCity, isInGreenHouse, isInHome, isInZeidiesFarm, isInZeidiesHome, isInShop, currentShop);
+        client.send(msg);
+    }
+
+    private void doNetworkStuff(float delta)
+    {
+        periodicNetworkUpdate += delta;
+        client.processMessages();
+
+        updateOtherPlayers(delta);
+
+        if (periodicNetworkUpdate >= PERIODIC_NETWORK_INTERVAL)
+        {
+            sendPlayerPresenceMessage();
+            periodicNetworkUpdate = 0;
+        }
+    }
+
     @Override
-    public void render(float dt) {
+    public void render(float dt)
+    {
+        if (ONLINE_MODE)
+        {
+            doNetworkStuff(dt);
+        } else
+        {
+            updateLocally(dt);
+        }
+
         Gdx.gl.glClearColor(0f, 0f, 0f, 1f);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
@@ -476,19 +619,7 @@ public final class WorldScreen implements Screen
         float worldMouseX = mouseWorldPos.x;
         float worldMouseY = mouseWorldPos.y;
 
-        if (map.getMapType().getMapKind() == MapKind.TOWN)
-        {
-            for (Player p : game.getPlayers())
-            {
-                if (p.isInCity())
-                {
-                    characterRenderer.render(batch, p.getCharacter(), CHAR_SCALE);
-                }
-            }
-        } else
-        {
-            characterRenderer.render(batch, character, CHAR_SCALE);
-        }
+        renderCharacters(batch);
 
         if (SECOND_PLAYER) characterRenderer.render(batch, player2, CHAR_SCALE);
 
@@ -1156,6 +1287,177 @@ public final class WorldScreen implements Screen
         if (greenHouseBuildWindow != null)
         {
             greenHouseBuildWindow.toggleVisibility();
+        }
+    }
+
+    private void updateLocally(float dt)
+    {
+        localTimeKeeper += dt;
+
+        if (localTimeKeeper >= 1f)
+        {
+            App.getCurrentGame().getCurrentTime().updateMinute(1);
+
+            localTimeKeeper = 0;
+        }
+
+        if (player.getEnergy() <= 0)
+        {
+            game.nextTurn();
+        }
+    }
+
+    private void renderCharacters(Batch batch)
+    {
+        characterRenderer.render(batch, character, CHAR_SCALE);
+
+        if (player.isInCity())
+        {
+            for (Player p : game.getPlayers())
+            {
+                if (p.getUser().getUsername().equals(player.getUser().getUsername())) continue;
+
+                PlayerCharacter pc = p.getCharacter();
+                if (System.currentTimeMillis() - pc.getLastUpdateTime() < 2000)
+                {
+                    characterRenderer.render(batch, pc, CHAR_SCALE);
+                }
+            }
+        }
+
+        if (player.isInShop())
+        {
+            Shop shop = (Shop) player.getCurrentMap();
+            ShopType shopType = shop.getType();
+
+            for (Player p : game.getPlayers())
+            {
+                if (p.getUser().getUsername().equals(player.getUser().getUsername())) continue;
+
+                if (p.isInShop())
+                {
+                    ShopType type = ShopType.getShopType(p.getCurrentShop());
+                    if (type != null && type == shopType)
+                    {
+                        PlayerCharacter pc = p.getCharacter();
+                        if (System.currentTimeMillis() - pc.getLastUpdateTime() < 2000)
+                        {
+                            characterRenderer.render(batch, pc, CHAR_SCALE);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private void updateOtherPlayers(float delta)
+    {
+        long currentTime = System.currentTimeMillis();
+
+        for (Player p : game.getPlayers())
+        {
+            if (p.getUser().getHashId() != player.getUser().getHashId())
+            {
+                PlayerCharacter pc = p.getCharacter();
+                if (currentTime - pc.getLastUpdateTime() > 50) continue;
+
+                if (pc.isMoving())
+                {
+                    pc.updateAnimation(delta);
+                } else
+                {
+                    pc.resetAnimation();
+                }
+            }
+        }
+    }
+
+    public void updatePlayerPosition(int userID, float x, float y, byte direction, boolean isMoving, boolean isInFarm,
+                                     boolean isInCity, boolean isInGreenHouse, boolean isInHome, boolean isInZeidiesFarm,
+                                     boolean isInZeidiesHome, boolean isInShop, String currentShop)
+    {
+        for (Player p : game.getPlayers())
+        {
+            if (p.getUser().getHashId() != player.getUser().getHashId())
+            {
+                if (p.getUser().getHashId() == userID)
+                {
+                    PlayerCharacter pc = p.getCharacter();
+
+                    pc.setPosition(new Vector2(x, y));
+                    pc.setDirection(AbstractCharacter.Direction.values()[direction]);
+                    pc.setMoving(isMoving);
+
+                    p.setInFarm(isInFarm);
+                    p.setInCity(isInCity);
+                    p.setInGreenHouse(isInGreenHouse);
+                    p.setInHome(isInHome);
+                    p.setInZeidiesFarm(isInZeidiesFarm);
+                    p.setInZeidiesHome(isInZeidiesHome);
+                    p.setInShop(isInShop);
+
+                    if (isInShop && !currentShop.equals("null"))
+                    {
+                        City city = App.getCurrentGame().getCity();
+
+                        ShopType shopType = ShopType.getShopType(currentShop);
+
+                        for (java.util.Map.Entry<Point, Shop> entry : city.getShopDoors().entrySet())
+                        {
+                            Shop shop = entry.getValue();
+
+                            if (shopType != null && shop.getType() == shopType)
+                            {
+                                p.goToShop(shop);
+                            }
+                        }
+                    }
+
+                    pc.setLastUpdateTime(System.currentTimeMillis());
+                }
+            }
+        }
+    }
+
+    public void updateTimeMinute()
+    {
+        game.getCurrentTime().updateMinute(1);
+    }
+
+    public void syncTime(int minute, int hour, int day, int totalHours, int totalDays, String currentWeather, String tomorrowWeather)
+    {
+        Time time = game.getCurrentTime();
+
+        int localMinute = time.getMinute();
+        int localHour = time.getHour();
+        int localDay = time.getDay();
+        int localTotalHours = time.getTotalHoursPassed();
+        int localTotalDays = time.getTotalDaysPassed();
+
+        Weather localCurrent = time.getCurrentWeather();
+        Weather localTomorrow = time.getTomorrowWeather();
+
+        Weather globalCurrent = Weather.getWeather(currentWeather);
+        Weather globalTomorrow = Weather.getWeather(tomorrowWeather);
+
+        if (globalCurrent != null && localCurrent != globalCurrent)
+        {
+            time.setCurrentWeather(globalCurrent);
+        }
+
+        if (globalTomorrow != null && localTomorrow != globalTomorrow)
+        {
+            time.setTomorrowWeather(globalTomorrow);
+        }
+
+        if ((Math.abs(localMinute - minute) > 5) || localHour != hour || localDay != day ||
+            localTotalHours != totalHours || localTotalDays != totalDays)
+        {
+            time.setMinute(minute);
+            time.setHour(hour);
+            time.setDay(day);
+            time.setTotalHoursPassed(totalHours);
+            time.setTotalDaysPassed(totalDays);
         }
     }
 }

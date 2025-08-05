@@ -7,8 +7,6 @@ import ap.project.control.PreGameController;
 import ap.project.control.ProfileController;
 import ap.project.model.App.App;
 import ap.project.model.App.GameAssetsManager;
-import ap.project.model.App.Result;
-import ap.project.model.enums.Gender;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
@@ -73,7 +71,7 @@ public class MainScreen implements Screen {
         preGameButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                Main.getApp().setScreen(new PreGameScreen(new PreGameController()));
+                Main.getApp().setScreen(new PreGameScreen());
             }
         });
 

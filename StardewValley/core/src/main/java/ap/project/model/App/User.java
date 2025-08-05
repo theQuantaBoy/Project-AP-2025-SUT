@@ -8,7 +8,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Random;
 
-public class User {
+public class User
+{
     private String username;
     private String password;
     private String nickname;
@@ -24,6 +25,29 @@ public class User {
     private Game currentGame = null;
     private ArrayList<Integer> gameMoney = new ArrayList<>();
 
+    private final int HASH_DIGIT_COUNT = 6;
+    private final int hashId;
+
+    private int characterChoice = 0;
+    private int mapChoice = 0;
+
+    public User(String username, String nickname, int id, int avatarChoice, int mapChoice)
+    {
+        this.username = username;
+        this.nickname = nickname;
+        this.hashId = id;
+        this.characterChoice = avatarChoice;
+        this.mapChoice = mapChoice;
+    }
+
+    public User(String username, String nickname, Gender gender, int hashId)
+    {
+        this.username = username;
+        this.nickname = nickname;
+        this.gender = gender;
+        this.hashId = hashId;
+    }
+
     public User(String name)
     {
         this.username = name;
@@ -36,6 +60,8 @@ public class User {
         {
             this.gender = Gender.FEMALE;
         }
+
+        this.hashId = SHA256Hasher.randomizedHashInt(name,  HASH_DIGIT_COUNT);
     }
 
     public User(String username, String password, String nickname, String email, Gender gender, String secQ, String secA) {
@@ -47,6 +73,8 @@ public class User {
         this.question = secQ;
         this.answer = secA;
         this.avatar = getRandomAvatar();
+
+        this.hashId = SHA256Hasher.randomizedHashInt(username,  HASH_DIGIT_COUNT);
     }
 
     public String getUsername() {
@@ -155,6 +183,29 @@ public class User {
     public void setAvatar(Texture avatar) {
         this.avatar = avatar;
     }
+
+    public int getHashId()
+    {
+        return hashId;
+    }
+
+    public int getCharacterChoice()
+    {
+        return characterChoice;
+    }
+
+    public int getMapChoice()
+    {
+        return mapChoice;
+    }
+
+    public void setCharacterChoice(int characterChoice)
+    {
+        this.characterChoice = characterChoice;
+    }
+
+    public void setMapChoice(int mapChoice)
+    {
+        this.mapChoice = mapChoice;
+    }
 }
-
-

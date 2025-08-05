@@ -6,5 +6,6 @@ public enum MapKind
     TOWN,
     HOUSE,
     GREEN_HOUSE,
-    SHOP;
+    SHOP,
+    LOBBY;
 }

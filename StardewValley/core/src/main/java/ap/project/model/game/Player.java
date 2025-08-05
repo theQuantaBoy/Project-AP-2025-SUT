@@ -20,6 +20,8 @@ import ap.project.model.player_data.Trade;
 import ap.project.model.resources.Plant;
 import ap.project.screen.WorldScreen;
 import ap.project.view.CityMenu;
+import com.badlogic.gdx.Application;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector2;
 import com.fasterxml.jackson.databind.type.MapType;
 
@@ -33,7 +35,7 @@ public class Player {
 
     private final User user;
     private Farm farm;
-    private final Cabin cabin;
+    private Cabin cabin;
     private GreenHouse greenHouse;
 
     private Gender gender;
@@ -89,15 +91,15 @@ public class Player {
 
     public static ArrayList<String> appearences = new ArrayList<>(List.of("\uD83D\uDC31", "\uD83E\uDD8A", "\uD83D\uDC3C", "\uD83E\uDD81"));
 
-    private boolean isInFarm = true;
+    private boolean isInFarm = false;
     private boolean isInCity = false;
     private boolean isInGreenHouse = false;
-    private boolean isInHome = false;
+    private boolean isInHome = true;
     private boolean isInZeidiesFarm = false;
     private boolean isInZeidiesHome = false;
     private boolean isInShop = false;
 
-    private final String apperance;
+    private String apperance;
     private boolean shouldBeSkipped = false;
 
     private NPC currentNPC = null;
@@ -105,8 +107,6 @@ public class Player {
     private ArrayList<NPC> npcGiftsNPC = new ArrayList<>();
 
     private ArrayList<ArtisanGood> artisanGoods = new ArrayList<>();
-
-    private ShopType currentShop;
 
     private ArrayList<Fish> fishes = new ArrayList<>();
 
@@ -154,13 +154,71 @@ public class Player {
         this.skills.add(foragingSkill); this.skills.add(fishingSkill);
     }
 
-    public void spawn()
+    public void spawn(Map map)
     {
-        this.currentMap = this.farm;
+        this.currentMap = map;
         Point spawn = currentMap.getStartingPoint();
         Vector2 spawnPoint = currentMap.tileToWorld(currentMap.getTile(spawn.getX(), spawn.getY()));
 
-        this.character = new PlayerCharacter(CharacterType.ABIGAIL, spawnPoint, user.getNickname(), this);
+        CharacterType type = CharacterType.values()[user.getCharacterChoice()];
+        this.character = new PlayerCharacter(type, spawnPoint, user.getNickname(), this);
+    }
+
+    public void spawn()
+    {
+        isInFarm = false;
+        isInHome = true;
+
+        this.currentMap = this.cabin;
+        Point spawn = currentMap.getStartingPoint();
+        Vector2 spawnPoint = currentMap.tileToWorld(currentMap.getTile(spawn.getX(), spawn.getY()));
+
+        CharacterType type = CharacterType.values()[user.getCharacterChoice()];
+
+        if (Gdx.app.getType() != Application.ApplicationType.HeadlessDesktop)
+        {
+            this.character = new PlayerCharacter(type, spawnPoint, user.getNickname(), this);
+        } else
+        {
+            this.character = null;
+        }
+    }
+
+    public Player(User user, boolean isInLobby)
+    {
+        this.user = user;
+        this.mapType = MapTypes.getFarms().get(user.getMapChoice());
+        this.gender = user.getGender();
+        this.energy = 200f;
+        this.fainted = false;
+        this.money = 0;
+    }
+
+    public Player(User user)
+    {
+        this.user = user;
+        this.mapType = MapTypes.getFarms().get(user.getMapChoice());
+        this.cabin = new Cabin();
+        this.greenHouse = new GreenHouse();
+        this.gender = user.getGender();
+        this.energy = 200f;
+        this.fainted = false;
+        this.money = 0;
+
+        Axe axe = new Axe(); Hoe hoe = new Hoe(); Pickaxe  pickaxe = new Pickaxe();
+        WateringCan wateringCan = new WateringCan(); Seythe seythe = new Seythe();
+        addTool(axe); addToInventory(axe);
+        addTool(hoe); addToInventory(hoe);
+        addTool(pickaxe);  addToInventory(pickaxe);
+        addTool(wateringCan); addToInventory(wateringCan);
+        addTool(seythe); addToInventory(seythe);
+        addToInventory(GameObjectType.MILK, 2);
+
+        this.zeidy = null;
+        this.newMessage = false;
+        this.apperance = appearences.get(0);
+        this.skills.add(farmingSkill); this.skills.add(miningSkill);
+        this.skills.add(foragingSkill); this.skills.add(fishingSkill);
     }
 
     public Player(User user, Farm farm, int number) {
@@ -400,22 +458,7 @@ public class Player {
 
     public void setLocation(Point location)
     {
-//        this.location = location;
-
         character.setPosition(currentMap.tileToWorld(currentMap.getTile(location.getX(), location.getY())));
-//
-//        if (isInCity)
-//        {
-//            int index = App.getCurrentGame().getPlayerIndex();
-//            City city = App.getCurrentGame().getCity();
-//            city.getPlayerPoints()[index] = location;
-//        }
-//        if (isInCity)
-//        {
-//            int index = App.getCurrentGame().getPlayerIndex();
-//            City city = App.getCurrentGame().getCity();
-//            city.getPlayerPoints()[index] = location;
-//        }
     }
 
     public void setCurrentMap(Map currentMap)
@@ -960,6 +1003,11 @@ public class Player {
         shouldBeSkipped = true;
     }
 
+    public boolean isInZeidiesHome()
+    {
+        return isInZeidiesHome;
+    }
+
     public boolean isInZeidiesFarm()
     {
         return isInZeidiesFarm;
@@ -1117,14 +1165,18 @@ public class Player {
         return false;
     }
 
-    public ShopType getCurrentShop()
+    public String getCurrentShop()
     {
-        return currentShop;
-    }
+        if (isInShop)
+        {
+            if (currentMap instanceof Shop)
+            {
+                Shop shop = (Shop) currentMap;
+                return shop.getType().toString();
+            }
+        }
 
-    public void setCurrentShop(ShopType currentShop)
-    {
-        this.currentShop = currentShop;
+        return "null";
     }
 
     public ArrayList<Animal> getAnimals()
@@ -1238,5 +1290,40 @@ public class Player {
     public void setBuff(Buff buff)
     {
         this.buff = buff;
+    }
+
+    public void setInFarm(boolean inFarm)
+    {
+        isInFarm = inFarm;
+    }
+
+    public void setInCity(boolean inCity)
+    {
+        isInCity = inCity;
+    }
+
+    public void setInGreenHouse(boolean inGreenHouse)
+    {
+        isInGreenHouse = inGreenHouse;
+    }
+
+    public void setInHome(boolean inHome)
+    {
+        isInHome = inHome;
+    }
+
+    public void setInZeidiesFarm(boolean inZeidiesFarm)
+    {
+        isInZeidiesFarm = inZeidiesFarm;
+    }
+
+    public void setInZeidiesHome(boolean inZeidiesHome)
+    {
+        isInZeidiesHome = inZeidiesHome;
+    }
+
+    public void setInShop(boolean inShop)
+    {
+        isInShop = inShop;
     }
 }

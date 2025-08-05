@@ -151,7 +151,7 @@ public class UIRenderer
         font.getData().setScale(1.5f);
 
         String dayText = DayOfWeek.getShortDayOfWeek((time.getDay() - 1) % 7) + " " + time.getDay();
-        String timeText = time.getHour() + ":00" + ((time.getHour() >= 12) ? " pm" : " am");
+        String timeText = time.getHour() + ":" + String.format("%02d", time.getMinute()) + ((time.getHour() >= 12) ? " pm" : " am");
         String moneyText = String.format("%d", (int) player.getMoney());
 
         font.setColor(Color.BLACK);

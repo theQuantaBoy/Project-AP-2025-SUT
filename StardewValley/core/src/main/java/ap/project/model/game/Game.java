@@ -17,17 +17,18 @@ import ap.project.model.enums.building_enums.KitchenRecipe;
 import ap.project.model.player_data.FriendshipData;
 import ap.project.model.player_data.FriendshipWithNpcData;
 import ap.project.model.resources.Plant;
+import ap.project.network.shared.messages.GameTimeSyncMessage;
+import ap.project.util.StringToNumber;
 import ap.project.view.GameMenu;
 import ap.project.view.HomeMenu;
 import ap.project.visual.UIRenderer;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 public class Game
 {
+    private final String id;
+
     private Time currentTime = new Time();
 
     private ArrayList<NPC> NPCs = new ArrayList<>();
@@ -39,6 +40,7 @@ public class Game
     public Game(ArrayList<Player> players)
     {
         this.players = players;
+        this.id = StringToNumber.generateId(8);
 
         for (Player player : players)
         {
@@ -52,6 +54,19 @@ public class Game
                     player.addFriendship(other, newFriendshipData);
                 }
             }
+        }
+
+        for (Player p : players)
+        {
+            MapTypes type = MapTypes.getFarms().get(p.getUser().getMapChoice());
+            Farm f = new Farm(type);
+            p.setFarm(f);
+            p.setCurrentMap(f);
+        }
+
+        for (Player p : players)
+        {
+            p.spawn();
         }
 
 //        setNPCs();
@@ -80,6 +95,71 @@ public class Game
                 }
             }
         }
+    }
+
+    public Game(ArrayList<Player> players, String id)
+    {
+        this.players = players;
+        this.id = id;
+
+        for (Player player : players)
+        {
+            player.getUser().setCurrentGame(this);
+
+            for (Player other : players)
+            {
+                if (!player.equals(other))
+                {
+                    FriendshipData newFriendshipData = new FriendshipData(0, 0, false);
+                    player.addFriendship(other, newFriendshipData);
+                }
+            }
+        }
+
+        for (Player p : players)
+        {
+            MapTypes type = MapTypes.getFarms().get(p.getUser().getMapChoice());
+            Farm f = new Farm(type);
+            p.setFarm(f);
+            p.setCurrentMap(f);
+        }
+
+        for (Player p : players)
+        {
+            p.spawn();
+        }
+
+//        setNPCs();
+
+        for (NPC npc : NPCs)
+        {
+            for (Player player : players)
+            {
+                switch (npc.getName().toLowerCase())
+                {
+                    case "robin":
+                        player.setRobinFriendship(new FriendshipWithNpcData(npc, player));
+                        break;
+                    case "abigail":
+                        player.setAbigailFriendship(new FriendshipWithNpcData(npc, player));
+                        break;
+                    case "sebastian":
+                        player.setSebastianFriendship(new FriendshipWithNpcData(npc, player));
+                        break;
+                    case "harvey":
+                        player.setHarveyFriendship(new FriendshipWithNpcData(npc, player));
+                        break;
+                    case "lia":
+                        player.setLiaFriendship(new FriendshipWithNpcData(npc, player));
+                        break;
+                }
+            }
+        }
+    }
+
+    public String getId()
+    {
+        return id;
     }
 
     public Time getCurrentTime()
@@ -175,7 +255,7 @@ public class Game
 
            if (players.indexOf(currentPlayer) == 0)
            {
-               //resetTurnEnergy();
+               resetEnergy();
                currentTime.updateHour(1);
 
                if (currentTime.getHour() == 9)
@@ -692,19 +772,19 @@ public class Game
         }
     }
 
-//    public void resetTurnEnergy()
-//    {
-//        for (Player player : players)
-//        {
-//            float diff = 50 - player.getTurnEnergy();
-//            if (player.getEnergy() >= diff)
-//            {
-//                player.increaseEnergy(-diff);
-//                player.increaseTurnEnergy(diff);
-//            } else
-//            {
-//                player.faint();
-//            }
-//        }
-//    }
+    public void resetEnergy()
+    {
+        for (Player player : players)
+        {
+            float diff = 50 - player.getEnergy();
+            if (player.getEnergy() >= diff)
+            {
+                player.increaseEnergy(-diff);
+                player.increaseEnergy(diff);
+            } else
+            {
+                player.faint();
+            }
+        }
+    }
 }

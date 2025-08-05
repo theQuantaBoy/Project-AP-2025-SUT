@@ -296,7 +296,7 @@ public class MarketingController {
         FriendshipWithNpcData friendship = player.getNpcFriendship(npc);
         if (friendship == null)
         {
-            return new Result(false, "ERROR, this should NOT happen.");
+            return new Result(false, "PRE_LOBBY_ERROR, this should NOT happen.");
         }
 
         player.setCurrentNPC(npc);
@@ -334,7 +334,7 @@ public class MarketingController {
         FriendshipWithNpcData friendship = player.getNpcFriendship(npc);
         if (friendship == null)
         {
-            GameMenu.println("ERROR, this should NOT happen.");
+            GameMenu.println("PRE_LOBBY_ERROR, this should NOT happen.");
             return;
         }
 

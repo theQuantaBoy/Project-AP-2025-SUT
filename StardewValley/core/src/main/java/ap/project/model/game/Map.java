@@ -11,6 +11,8 @@ import ap.project.model.shops.Shop;
 import ap.project.screen.WorldScreen;
 import ap.project.util.MapAssetLoader;
 import ap.project.visual.MapVisual;
+import com.badlogic.gdx.Application;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.math.Vector2;
@@ -83,7 +85,13 @@ public abstract class Map
             city.setSaloonDoor(loaded.saloonDoor);
         }
 
-        this.visual = new MapVisual(this, loaded.tiledMap);
+        if (Gdx.app.getType() != Application.ApplicationType.HeadlessDesktop)
+        {
+            this.visual = new MapVisual(this, loaded.tiledMap);
+        } else
+        {
+            this.visual = null;
+        }
     }
 
     public int getDepth()
