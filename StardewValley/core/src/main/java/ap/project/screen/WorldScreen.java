@@ -226,7 +226,7 @@ public final class WorldScreen implements Screen
                     return true;
                 }
 
-                if (isCraftingWindowVisible())
+                if (isCraftingWindowVisible() || isShopWindowVisible())
                 {
                     return false;
                 }
@@ -288,7 +288,8 @@ public final class WorldScreen implements Screen
         Gdx.gl.glClearColor(0f, 0f, 0f, 1f);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        if (!terminalDialog.isVisible() && !isInventoryVisible() && !isCookBookVisible() && !isRefrigeratorVisible())
+        if (!terminalDialog.isVisible() && !isInventoryVisible() && !isCookBookVisible() && !isRefrigeratorVisible()
+         && !isShopWindowVisible())
         {
             update(dt);
             cam.update();
@@ -323,7 +324,8 @@ public final class WorldScreen implements Screen
 
         if (SECOND_PLAYER) characterRenderer.render(batch, player2, CHAR_SCALE);
 
-        if (!isDialogVisible() && !isInventoryVisible() && !isCookBookVisible() && !isRefrigeratorVisible())
+        if (!isDialogVisible() && !isInventoryVisible() && !isCookBookVisible() && !isRefrigeratorVisible()
+         && !isShopWindowVisible())
         {
             characterRenderer.renderToolOrObjectAtMouse(batch, character, worldMouseX, worldMouseY);
         }
@@ -373,8 +375,6 @@ public final class WorldScreen implements Screen
 //        {
 //            fishingWindow.update(Gdx.graphics.getDeltaTime());
 //        }
-
-        checkShopInteractions();
     }
 
     private void update(float dt) {
@@ -830,21 +830,7 @@ public final class WorldScreen implements Screen
         return cam;
     }
 
-    private void checkShopInteractions() {
-            Point playerLoc = player.getLocation();
-            Map currentMap = player.getCurrentMap();
 
-            if (currentMap.getMapType().getMapKind() == MapKind.TOWN) {
-                if (isPlayerNearDoor(playerLoc, currentMap.getBlacksmithDoor())) {
-                    openShop(ShopType.BLACK_SMITH);
-                } else if (isPlayerNearDoor(playerLoc, currentMap.getCarpenterDoor())) {
-                    openShop(ShopType.CARPENTER_SHOP);
-                } else if (isPlayerNearDoor(playerLoc, currentMap.getPierreDoor())) {
-                    System.out.println("salam");
-                    openShop(ShopType.PIERRE_GENERAL_STORE);
-                }
-            }
-    }
 
     private boolean isPlayerNearDoor(Point playerLoc, Point door) {
         if (door == null) {
@@ -855,35 +841,34 @@ public final class WorldScreen implements Screen
         return dx <= 1 && dy <= 1;
     }
 
-    public void openShop(ShopType shopType) {
-        ShopMap shopMap = ShopManager.getShopMap(shopType);
-
-        player.setPreviousLocation(player.getLocation());
-        player.setInShop(true);
-        player.setCurrentShop(shopType);
-        player.setCurrentMap(shopMap);
-        player.setLocation(shopMap.getStartingPoint());
-
-        // FIX: Update map visual BEFORE setting character position
-        updateMap(); // Refresh map visuals
-
-        // FIX: Set character position using updated map reference
-        Vector2 worldPos = shopMap.tileToWorld(shopMap.getTile(
-            shopMap.getStartingPoint().getX(),
-            shopMap.getStartingPoint().getY()
-        ));
-        worldPos.y -= Map.TILE_SIZE;
-        character.setPosition(worldPos);
-
-        // FIX: Update game state AFTER visual update
-        updateGameInfo();
-
-        shopWindow.setShopMap(shopMap);
-        shopWindow.toggleVisibility();
-
-        // FIX: Center camera on the new map
-        centerCameraOnMap(shopMap);
-    }
+//    public void openShop(ShopType shopType) {
+//        ShopMap shopMap = ShopManager.getShopMap(shopType);
+//
+//        player.setPreviousLocation(player.getLocation());
+//        player.setInShop(true);
+//        player.setCurrentShop(shopType);
+//        player.setCurrentMap(shopMap);
+//        player.setLocation(shopMap.getStartingPoint());
+//
+//
+//
+//        // FIX: Set character position using updated map reference
+//        Vector2 worldPos = shopMap.tileToWorld(shopMap.getTile(
+//            shopMap.getStartingPoint().getX(),
+//            shopMap.getStartingPoint().getY()
+//        ));
+//        worldPos.y -= Map.TILE_SIZE;
+//        character.setPosition(worldPos);
+//
+//        // FIX: Update game state AFTER visual update
+//        updateGameInfo();
+//
+//        shopWindow.setShopMap(shopMap);
+//        shopWindow.toggleVisibility();
+//
+//        // FIX: Center camera on the new map
+//        centerCameraOnMap(shopMap);
+//    }
 
     public void exitShop() {
         // 1. Get the map to return to (the main city map).
@@ -941,5 +926,9 @@ public final class WorldScreen implements Screen
 
     public ShopWindow getShopWindow() {
         return shopWindow;
+    }
+
+    public boolean isShopWindowVisible() {
+        return shopWindow.isVisible();
     }
 }

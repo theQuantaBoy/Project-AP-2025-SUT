@@ -3,6 +3,7 @@ package ap.project.screen;
 import ap.project.model.App.App;
 import ap.project.model.App.GameAssetsManager;
 import ap.project.model.enums.GameObjectType;
+import ap.project.model.shops.Shop;
 import ap.project.model.shops.ShopMap;
 import ap.project.model.shops.ShopProduct;
 import com.badlogic.gdx.Gdx;
@@ -17,26 +18,29 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 
+import java.io.PushbackInputStream;
 import java.util.List;
 
 import static org.lwjgl.opengl.Display.setTitle;
 
 public class ShopWindow extends Window {
     private final Stage stage;
-    private ShopMap shopMap;
+    private Shop shop;
     private Table productsTable;
     private final ScrollPane scrollPane;
     private final SelectBox<String> filterSelectBox;
     private boolean isVisible = false;
     private final Skin skin;
+    private PurchaseWindow purchaseWindow;
 
-    public ShopWindow(Stage stage, ShopMap shopMap) {
+    public ShopWindow(Stage stage, Shop shop) {
         super("", GameAssetsManager.getGameAssetsManager().getSkin());
         this.stage = stage;
         this.skin = GameAssetsManager.getGameAssetsManager().getSkin();
+        this.purchaseWindow = new PurchaseWindow(stage);
 
         // Window setup
-        setSize(800, 600); // Larger window size
+        setSize(800, 600);
         setMovable(true);
         setResizable(true);
         setModal(true);
@@ -76,15 +80,13 @@ public class ShopWindow extends Window {
         });
         add(closeButton).right().padTop(10);
 
-        setShopMap(shopMap);
+        setShop(shop);
         centerWindow();
+        stage.addActor(this);
     }
 
-    public void setShopMap(ShopMap shopMap) {
-        this.shopMap = shopMap;
-        if (shopMap != null) {
-            setTitle(shopMap.getShopType().getName());
-        }
+    public void setShop(Shop shop) {
+        this.shop = shop;
         refreshProductsTable();
     }
 
@@ -92,9 +94,9 @@ public class ShopWindow extends Window {
         productsTable.clear();
         boolean showAvailableOnly = "Available Products".equals(filterSelectBox.getSelected());
 
-        if (shopMap == null) return;
+        if (shop == null) return;
 
-        List<ShopProduct> products = shopMap.getProducts();
+        List<ShopProduct> products = shop.getProducts();
         for (ShopProduct product : products) {
             if (showAvailableOnly && !product.isAvailable()) continue;
 
@@ -107,7 +109,9 @@ public class ShopWindow extends Window {
             iconButton.addListener(new ClickListener() {
                 @Override
                 public void clicked(InputEvent event, float x, float y) {
-                    new PurchaseWindow(stage, shopMap, product).toggleVisibility();
+                    purchaseWindow.setProduct(product); // Update the existing window
+                    purchaseWindow.show(stage); // Show the existing window
+                    purchaseWindow.centerWindow();
                 }
             });
             productRow.add(iconButton).size(64, 64);
@@ -159,6 +163,7 @@ public class ShopWindow extends Window {
         isVisible = !isVisible;
         setVisible(isVisible);
         if (isVisible) {
+            System.out.println("yes");
             toFront();
             refreshProductsTable();
         }

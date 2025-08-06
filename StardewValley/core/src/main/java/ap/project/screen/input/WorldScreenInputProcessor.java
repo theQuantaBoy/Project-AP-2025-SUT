@@ -48,7 +48,7 @@ public class WorldScreenInputProcessor implements InputProcessor
     {
         if (worldScreen.isDialogVisible() || worldScreen.isInventoryVisible() ||
             worldScreen.isCookBookVisible() || worldScreen.isRefrigeratorVisible() ||
-            worldScreen.isCraftingWindowVisible() || worldScreen.isChatVisible())
+            worldScreen.isCraftingWindowVisible() || worldScreen.isChatVisible() || worldScreen.isShopWindowVisible())
         {
             return false;
         }
@@ -103,9 +103,9 @@ public class WorldScreenInputProcessor implements InputProcessor
 //            }
         }
 
-        if (map.getMapType().getMapKind() == MapKind.TOWN) {
-            handleShopDoorClick(screenX, screenY);
-        }
+//        if (map.getMapType().getMapKind() == MapKind.TOWN) {
+//            handleShopDoorClick(screenX, screenY);
+//        }
 
         return true;
     }
@@ -115,7 +115,7 @@ public class WorldScreenInputProcessor implements InputProcessor
     {
         if (worldScreen.isDialogVisible() || worldScreen.isInventoryVisible() ||
             worldScreen.isCookBookVisible() || worldScreen.isRefrigeratorVisible() ||
-        worldScreen.isCraftingWindowVisible() || worldScreen.isChatVisible())
+        worldScreen.isCraftingWindowVisible() || worldScreen.isChatVisible() || worldScreen.isShopWindowVisible())
         {
             return false;
         }
@@ -197,23 +197,6 @@ public class WorldScreenInputProcessor implements InputProcessor
     }
 
 
-    private void handleShopDoorClick(int screenX, int screenY) {
-        Point tilePoint = map.screenToTile(screenX, screenY, cam);
-        if (tilePoint == null) return;
 
-        // Check if clicked on a shop door
-        for (ShopMap shopMap : ShopManager.getAllShopMaps()) {
-            Point doorPos = shopMap.getShopType().getExteriorDoor();
-            if (tilePoint.equals(doorPos)) {
-                if (shopMap.isOpen()) {
-                    worldScreen.openShop(shopMap.getShopType());
-                } else {
-                    UIRenderer.showTextBox("This shop is closed! Open from " +
-                        shopMap.getStartWork() + ":00 to " + shopMap.getEndWork() + ":00");
-                }
-                return;
-            }
-        }
-    }
 
 }

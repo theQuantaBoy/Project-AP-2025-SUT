@@ -1232,40 +1232,13 @@ public class Player {
     }
 
     // In WorldController.java
-    public static void goToShop(ShopType shopType, WorldScreen worldScreen) {
-        Player player = App.getCurrentGame().getCurrentPlayer();
-
-        // 1. Get shop map
-        ShopMap shopMap = ShopManager.getShopMap(shopType);
-
-        // 2. Store previous state
-        player.setPreviousLocation(player.getLocation());
-        player.setInShop(true);
-        player.setCurrentShop(shopType);
-
-        // 3. Transition to shop
-        player.setCurrentMap(shopMap);
-        player.setLocation(shopMap.getStartingPoint());
-
-        // 4. Update visuals through WorldScreen
-        worldScreen.updateMap();
-
-        // 5. Position character
-        Tile startTile = shopMap.getTile(shopMap.getStartingPoint().getX(),
-            shopMap.getStartingPoint().getY());
-        Vector2 worldPos = shopMap.tileToWorld(startTile);
-        worldPos.y -= Map.TILE_SIZE;
-        player.getCharacter().setPosition(worldPos);
-
-        // 6. Update game state
-        worldScreen.updateGameInfo();
-
-        // 7. Open shop UI
-        worldScreen.getShopWindow().setShopMap(shopMap);
-        worldScreen.getShopWindow().toggleVisibility();
-
-        // 8. Center camera
-        worldScreen.centerCameraOnMap(shopMap);
+    public void goToShop(Shop shop)
+    {
+        this.isInCity = false;
+        this.isInShop = true;
+        this.currentMap = shop;
+        setLocation(shop.getStartingPoint());
+        WorldScreen.getInstance().updateGameInfo();
     }
 
     public Point getPreviousLocation() {

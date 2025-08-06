@@ -23,6 +23,7 @@ public abstract class Shop extends Map
     private Point exteriorDoor;
     private Point interiorDoor;
     protected List<ShopProduct> products = new ArrayList<>();
+    private Point counterPoint;
 
     public String showProducts()
     {
@@ -54,6 +55,7 @@ public abstract class Shop extends Map
         this.startWork = startWork;
         this.endWork = endWork;
         this.exteriorDoor = type.getExteriorDoor();
+        this.counterPoint = type.getCounterPoint();
         initializeProducts();
     }
 
@@ -118,5 +120,9 @@ public abstract class Shop extends Map
 
     public int getEndWork() {
         return endWork;
+    }
+
+    public Point getCounterPoint() {
+        return counterPoint;
     }
 }

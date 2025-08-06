@@ -15,6 +15,8 @@ import ap.project.model.resources.*;
 import ap.project.model.shops.Shop;
 import ap.project.model.tools.*;
 import ap.project.screen.CommunicationWindow;
+import ap.project.screen.PurchaseWindow;
+import ap.project.screen.ShopWindow;
 import ap.project.screen.WorldScreen;
 import ap.project.visual.UIRenderer;
 import com.badlogic.gdx.Gdx;
@@ -48,6 +50,11 @@ public class WorldController
         Point location = player.getLocation();
 
         if (!Map.isNearOrOn(location, clicked))
+        {
+            return;
+        }
+
+        if (processShopWindow(tile))
         {
             return;
         }
@@ -176,7 +183,7 @@ public class WorldController
 
                 if (Map.isNearOrOn(door, clicked))
                 {
-                    player.goToShop(shop.getType(), WorldScreen.getInstance());
+                    player.goToShop(shop);
                     return true;
                 }
             }
@@ -923,5 +930,21 @@ public class WorldController
             }
         }
         return null;
+    }
+
+    private static boolean processShopWindow(Tile tile) {
+        Player player = App.getCurrentGame().getCurrentPlayer();
+        ShopWindow shopWindow = WorldScreen.getInstance().getShopWindow();
+        if (player.getCurrentMap() instanceof Shop) {
+            Shop shop =  (Shop) player.getCurrentMap();
+
+            if (Map.isNearOrOn(tile.getPoint(), shop.getCounterPoint()))
+            {
+                shopWindow.setShop(shop);
+                shopWindow.toggleVisibility();
+                return true;
+            }
+        }
+        return false;
     }
 }

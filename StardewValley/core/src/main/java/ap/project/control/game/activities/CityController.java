@@ -45,7 +45,7 @@ public class CityController
             return new Result(false, "Shop not found");
         }
 
-        player.goToShop(shop.getType(), WorldScreen.getInstance());
+        player.goToShop(shop);
 
         return new Result(true, "Going to place");
     }

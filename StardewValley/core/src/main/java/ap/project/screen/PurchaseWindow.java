@@ -7,46 +7,53 @@ import ap.project.model.enums.animal_enums.FarmAnimalsType;
 import ap.project.model.enums.animal_enums.FarmBuildingType;
 import ap.project.model.game.GameObject;
 import ap.project.model.game.Player;
-import ap.project.model.shops.ShopMap;
 import ap.project.model.shops.ShopProduct;
 import ap.project.visual.UIRenderer;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
-import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
-import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 
 public class PurchaseWindow extends Dialog {
     private final Stage stage;
-    private final ShopMap shopMap;
-    private final ShopProduct product;
+    private ShopProduct product;
     private int quantity = 1;
     private Label quantityLabel;
     private Label totalPriceLabel;
+    private Image icon;
 
-    public PurchaseWindow(Stage stage, ShopMap shopMap, ShopProduct product) {
-        super("Purchase " + product.getName(),
-            GameAssetsManager.getGameAssetsManager().getSkin());
+    public PurchaseWindow(Stage stage) {
+        super("Purchase", GameAssetsManager.getGameAssetsManager().getSkin());
         this.stage = stage;
-        this.shopMap = shopMap;
-        this.product = product;
 
         setModal(true);
         setMovable(true);
         setResizable(true);
         setSize(400, 300);
+        hide(); // Start hidden
+    }
+
+    public void setProduct(ShopProduct product) {
+        this.product = product;
+        this.quantity = 1;
+        updateWindow();
+        show(stage);
+        centerWindow();
+    }
+
+    private void updateWindow() {
+        getContentTable().clear();
 
         // Product info
         Table contentTable = new Table(getSkin());
         contentTable.defaults().pad(10);
 
-        // Product icon and details
-        Image icon = new Image(getIconForGameObject(product.getGameObjectType()));
+        // Product icon using Texture
+        Texture texture = new Texture(Gdx.files.internal(product.getGameObjectType().getPath()));
+        icon = new Image(new TextureRegionDrawable(texture));
         contentTable.add(icon).size(80, 80).padRight(20);
 
         Table detailsTable = new Table(getSkin());
@@ -116,11 +123,6 @@ public class PurchaseWindow extends Dialog {
         pack();
     }
 
-    private Drawable getIconForGameObject(GameObjectType type) {
-        String path = type.getPath();
-        return new TextureRegionDrawable(new TextureRegion(new Texture(Gdx.files.internal(path))));
-    }
-
     private void updateQuantity() {
         quantityLabel.setText(String.valueOf(quantity));
         totalPriceLabel.setText("Total: " + (quantity * product.getPrice()) + "g");
@@ -130,13 +132,11 @@ public class PurchaseWindow extends Dialog {
         int totalCost = quantity * product.getPrice();
         Player player = App.getCurrentGame().getCurrentPlayer();
 
-        // Check if player has enough money
         if (player.getMoney() < totalCost) {
             UIRenderer.showTextBox("Not enough money!");
             return;
         }
 
-        // Handle different product types
         if (product.getOriginalItem() instanceof FarmBuildingType) {
             handleBuildingPurchase((FarmBuildingType) product.getOriginalItem());
         }
@@ -144,15 +144,12 @@ public class PurchaseWindow extends Dialog {
             handleAnimalPurchase((FarmAnimalsType) product.getOriginalItem());
         }
         else {
-            // Default GameObject purchase
             GameObject purchasedItem = new GameObject(product.getGameObjectType(), quantity);
             player.addToInventory(purchasedItem);
         }
 
-        // Deduct money
         player.increaseMoney(-totalCost);
 
-        // Update stock if limited
         if (product.getStock() > 0) {
             product.setStock(product.getStock() - quantity);
         }
@@ -168,16 +165,7 @@ public class PurchaseWindow extends Dialog {
         // Implementation for animal purchases
     }
 
-    public void toggleVisibility() {
-        if (isVisible()) {
-            hide();
-        } else {
-            show(stage);
-            centerWindow();
-        }
-    }
-
-    private void centerWindow() {
+    public void centerWindow() {
         setPosition(
             (stage.getViewport().getWorldWidth() - getWidth()) / 2,
             (stage.getViewport().getWorldHeight() - getHeight()) / 2
