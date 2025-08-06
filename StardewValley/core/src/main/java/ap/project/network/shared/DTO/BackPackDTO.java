@@ -5,13 +5,14 @@ import ap.project.model.game.GameObject;
 import ap.project.model.tools.BackPack;
 import ap.project.model.tools.Tool;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class BackPackDTO
 {
     public BackPackLevel level;
-    public List<GameObjectDTO> slots;
-    public List<ToolDTO> tools;
+    public List<GameObjectDTO> slots = new ArrayList<>();
+    public List<ToolDTO> tools = new ArrayList<>();
 
     public BackPackDTO() {}
 

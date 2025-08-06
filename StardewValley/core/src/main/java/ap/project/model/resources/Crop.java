@@ -17,7 +17,6 @@ public class Crop extends Plant
     {
         this.type = cropType;
         this.name = cropType.getName();
-        this.source = cropType.getSeedType();
         this.stages = cropType.getStages();
         this.totalHarvestTime = cropType.getTotalHarvestTime();
         this.oneTime = cropType.isOneTime();
@@ -177,5 +176,20 @@ public class Crop extends Plant
                 lastHarvested += 1;
             }
         }
+    }
+
+    public boolean isOneTime()
+    {
+        return oneTime;
+    }
+
+    public int getGrowthTime()
+    {
+        return growthTime;
+    }
+
+    public boolean isCanBecomeGiant()
+    {
+        return canBecomeGiant;
     }
 }

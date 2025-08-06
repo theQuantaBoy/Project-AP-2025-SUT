@@ -161,6 +161,31 @@ public class CraftingItem extends GameObject
         return itemType;
     }
 
+    public ArtisanGoodsType getArtisanType()
+    {
+        return artisanType;
+    }
+
+    public int getStartDay()
+    {
+        return startDay;
+    }
+
+    public int getStartHour()
+    {
+        return startHour;
+    }
+
+    public int getNeededDays()
+    {
+        return neededDays;
+    }
+
+    public int getNeededHours()
+    {
+        return neededHours;
+    }
+
     public enum ItemType
     {
         ONE_TIME,

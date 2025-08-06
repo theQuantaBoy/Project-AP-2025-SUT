@@ -4,6 +4,7 @@ import ap.project.model.App.User;
 import ap.project.model.enums.*;
 import ap.project.model.game.AbstractCharacter;
 import ap.project.model.game.Time;
+import ap.project.network.shared.DTO.*;
 import com.esotericsoftware.kryo.Kryo;
 import ap.project.network.shared.enums.MessageType;
 import ap.project.network.shared.messages.*;
@@ -76,6 +77,28 @@ public class KryoRegistry
         kryo.register(PlayerGamePresenceMessage.class);
         kryo.register(UpdateGameMinuteMessage.class);
         kryo.register(CloseLobbyErrorMessage.class);
+
+        kryo.register(PlayerDTOMessage.class);
+
+        kryo.register(BackPackDTO.class);
+        kryo.register(FarmDTO.class);
+        kryo.register(GameObjectDTO.class);
+        kryo.register(PlayerDTO.class);
+        kryo.register(SkillDTO.class);
+        kryo.register(TileDTO.class);
+        kryo.register(ToolDTO.class);
+        kryo.register(UserDTO.class);
+
+        kryo.register(ap.project.model.enums.tool_enums.BackPackLevel.class);
+        kryo.register(ap.project.model.enums.GameObjectType.class);
+        kryo.register(ap.project.model.enums.tool_enums.ToolType.class);
+        kryo.register(ap.project.model.enums.CharacterType.class);
+        kryo.register(ap.project.model.enums.building_enums.CraftingRecipeEnums.class);
+        kryo.register(ap.project.model.game.Point.class);
+        kryo.register(ap.project.model.enums.TileTexture.class);
+        kryo.register(ap.project.model.enums.SkillType.class);
+        kryo.register(ap.project.model.enums.building_enums.KitchenRecipe.class);
+        kryo.register(com.badlogic.gdx.math.Vector2.class);
 
         // Register all other message classes ...
     }

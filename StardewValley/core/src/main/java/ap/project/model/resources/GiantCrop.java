@@ -10,14 +10,12 @@ import java.util.ArrayList;
 public class GiantCrop extends Crop
 {
     private final Tile rootTile;
-    private final ArrayList<Tile> tiles;
 
     public GiantCrop(CropType cropType, Tile rootTile)
     {
         super(cropType, rootTile);
         super.setHasStarted();
         this.rootTile = rootTile;
-        this.tiles = get2x2Tiles(rootTile);
     }
 
     @Override

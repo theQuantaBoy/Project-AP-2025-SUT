@@ -207,4 +207,19 @@ public class User
     {
         this.mapChoice = mapChoice;
     }
+
+    public User(String username, String password, String nickname, String email, Gender gender, String question, String answer, int numberOfGames, int hashId, int characterChoice, int mapChoice)
+    {
+        this.username = username;
+        this.password = password;
+        this.nickname = nickname;
+        this.email = email;
+        this.gender = gender;
+        this.question = question;
+        this.answer = answer;
+        this.numberOfGames = numberOfGames;
+        this.hashId = hashId;
+        this.characterChoice = characterChoice;
+        this.mapChoice = mapChoice;
+    }
 }

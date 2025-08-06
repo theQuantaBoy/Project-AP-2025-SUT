@@ -53,6 +53,8 @@ public class TileDTO
 
             this.typeName = tile.getTypeName();
             this.shouldBeWateredAutomatically = tile.isShouldBeWateredAutomatically();
+
+            this.initialized = true;
         }
     }
 }

@@ -13,7 +13,6 @@ public class Tree extends Plant
     {
         this.type = treeType;
         this.name = treeType.getName();
-        this.source = treeType.getSource();
         this.stages = treeType.getStages();
         this.totalHarvestTime = treeType.getTotalHarvestTime();
         this.fruit = treeType.getFruit();
@@ -71,6 +70,11 @@ public class Tree extends Plant
     public TreeType getTreeType()
     {
         return (TreeType)type;
+    }
+
+    public int getFruitHarvestCycle()
+    {
+        return fruitHarvestCycle;
     }
 
     @Override

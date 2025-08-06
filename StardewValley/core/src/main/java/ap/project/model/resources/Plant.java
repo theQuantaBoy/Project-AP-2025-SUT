@@ -11,7 +11,6 @@ public class Plant extends GameObject
 {
     protected String name;
     protected Enum<?> type;
-    protected Object source;
     protected List<Integer> stages;
     protected int totalHarvestTime;
     protected int baseSellPrice;
@@ -193,5 +192,75 @@ public class Plant extends GameObject
     public void getAttacked()
     {
         // overrided in Crop and Tree
+    }
+
+    public String getName()
+    {
+        return name;
+    }
+
+    public Enum<?> getType()
+    {
+        return type;
+    }
+
+    public List<Integer> getStages()
+    {
+        return stages;
+    }
+
+    public int getTotalHarvestTime()
+    {
+        return totalHarvestTime;
+    }
+
+    public int getBaseSellPrice()
+    {
+        return baseSellPrice;
+    }
+
+    public boolean isEdible()
+    {
+        return isEdible;
+    }
+
+    public int getEnergy()
+    {
+        return energy;
+    }
+
+    public List<Season> getSeasons()
+    {
+        return seasons;
+    }
+
+    public boolean isHasStarted()
+    {
+        return hasStarted;
+    }
+
+    public int getCurrentStageDay()
+    {
+        return currentStageDay;
+    }
+
+    public int getLastHarvested()
+    {
+        return lastHarvested;
+    }
+
+    public boolean isHasHarvested()
+    {
+        return hasHarvested;
+    }
+
+    public int getHarvestWaitTime()
+    {
+        return harvestWaitTime;
+    }
+
+    public boolean isInGreenhouse()
+    {
+        return isInGreenhouse;
     }
 }

@@ -5,7 +5,6 @@ import ap.project.model.enums.Gender;
 import ap.project.model.enums.MapTypes;
 import ap.project.model.enums.building_enums.CraftingRecipeEnums;
 import ap.project.model.enums.building_enums.KitchenRecipe;
-import ap.project.model.game.ArtisanGood;
 import ap.project.model.game.GameObject;
 import ap.project.model.game.Player;
 import ap.project.network.shared.messages.PlayerDTOMessage;

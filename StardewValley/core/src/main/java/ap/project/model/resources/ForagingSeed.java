@@ -9,17 +9,14 @@ import java.util.List;
 public class ForagingSeed extends GameObject
 {
     private final ForagingSeedType seedType;
-    private final List<Season> seasons;
 
     public ForagingSeed(ForagingSeedType seedType)
     {
         this.seedType = seedType;
-        this.seasons = seedType.getSeasons();
         this.ObjectType = seedType.getType();
     }
 
-    @Override
-    public Enum<?> getToolType()
+    public ForagingSeedType getSeedType()
     {
         return seedType;
     }

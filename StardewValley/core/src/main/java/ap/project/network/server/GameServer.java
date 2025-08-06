@@ -33,7 +33,7 @@ public class GameServer
     private float periodicMessageTimer = 0;
     private static final float PERIODIC_MESSAGE_INTERVAL = 0.016f;
 
-    public static final int MIN_PLAYERS_FOR_GAME = 2;
+    public static final int MIN_PLAYERS_FOR_GAME = 1;
     public static final int MAX_PLAYERS_FOR_GAME = 4;
 
     public void update(float delta)

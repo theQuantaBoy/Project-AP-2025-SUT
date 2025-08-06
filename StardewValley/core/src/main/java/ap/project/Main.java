@@ -41,8 +41,9 @@ public class Main extends com.badlogic.gdx.Game
         cursorPixmap.dispose();
 
         System.out.println("enter name: ");
-        Scanner scanner = new Scanner(System.in);
-        String name = scanner.nextLine().trim();
+//        Scanner scanner = new Scanner(System.in);
+//        String name = scanner.nextLine().trim();
+        String name = "mohsen";
 
         User user = new User(name, "1234", name, "mail", Gender.MALE, "", "");
         App.setCurrentUser(user);

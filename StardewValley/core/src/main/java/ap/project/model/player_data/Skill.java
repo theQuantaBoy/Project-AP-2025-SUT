@@ -168,4 +168,9 @@ public class Skill {
     public String getName() {
         return type.getName();
     }
+
+    public void setLevel(int level)
+    {
+        this.level = level;
+    }
 }

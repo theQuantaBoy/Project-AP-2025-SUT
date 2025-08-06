@@ -15,6 +15,7 @@ import ap.project.model.shops.Shop;
 import ap.project.model.tools.BackPack;
 import ap.project.model.tools.Tool;
 import ap.project.network.client.GameClient;
+import ap.project.network.shared.DTO.PlayerDTO;
 import ap.project.network.shared.messages.*;
 import ap.project.screen.input.WorldScreenInputProcessor;
 import ap.project.util.MapAssetLoader;
@@ -579,6 +580,9 @@ public final class WorldScreen implements Screen
         if (periodicNetworkUpdate >= PERIODIC_NETWORK_INTERVAL)
         {
             sendPlayerPresenceMessage();
+
+            client.send(new PlayerDTOMessage(new PlayerDTO(player)));
+
             periodicNetworkUpdate = 0;
         }
     }
