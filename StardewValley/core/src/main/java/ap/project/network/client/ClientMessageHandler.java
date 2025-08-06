@@ -2,6 +2,7 @@ package ap.project.network.client;
 
 import ap.project.Main;
 import ap.project.model.App.App;
+import ap.project.model.App.GameAssetsManager;
 import ap.project.model.game.Game;
 import ap.project.model.game.Player;
 import ap.project.network.server.GameWrapper;
@@ -10,7 +11,9 @@ import ap.project.screen.LobbyScreen;
 import ap.project.screen.PreLobbyScreen;
 import ap.project.screen.TradeWindow;
 import ap.project.screen.WorldScreen;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 
 public class ClientMessageHandler {
     public static void handle(Message message) {
@@ -85,7 +88,8 @@ public class ClientMessageHandler {
                 handleTradeRequestMessage((TradeRequestMessage) message);
                 break;
             case TRADE_RESPONSE:
-
+                handleTradeResponseMessage((TradeResponseMessage) message);
+                break;
             // Add other cases
         }
     }
@@ -316,14 +320,39 @@ public class ClientMessageHandler {
     }
 
     private static void handleTradeRequestMessage(TradeRequestMessage msg) {
-        Screen screen = Main.getApp().getScreen();
-        if (screen instanceof WorldScreen) {
-            WorldScreen ws = (WorldScreen) screen;
-            // prepare tradeWindow if not yet injected
-            TradeWindow tw = ws.getTradeWindow();
-            tw.setDependencies(ws.getInventoryWindow(), tw.getController());
-            // show the “respond” UI
-            tw.showRequestFrom(App.getCurrentGame().getPlayerByUserID(msg.getRequestID()));
+        if (Main.getApp().getScreen() instanceof WorldScreen) {
+            WorldScreen ws = (WorldScreen) Main.getApp().getScreen();
+
+            TradeWindow tradeWindow = new TradeWindow(
+                ws.getUiStage(),
+                GameAssetsManager.getGameAssetsManager().getSkin()
+            );
+            tradeWindow.showRequestFrom(App.getCurrentGame().getPlayerByUserID(msg.getRequestID()));
+        } else {
+            System.out.println("Received TradeRequestMessage, but not on WorldScreen.");
         }
     }
+
+
+    // In ClientMessageHandler.java
+    private static void handleTradeResponseMessage(TradeResponseMessage msg) {
+        if (Main.getApp().getScreen() instanceof WorldScreen) {
+            WorldScreen ws = (WorldScreen) Main.getApp().getScreen();
+
+            String message;
+            if (msg.isAccepted()) {
+                message = msg.getRequesterID() + " accepted your trade offer.";
+            } else {
+                message = msg.getResponderID() + " declined your trade offer.";
+            }
+
+            Dialog dialog = new Dialog("Trade Response", GameAssetsManager.getGameAssetsManager().getSkin());
+            dialog.text(message);
+            dialog.button("OK");
+            dialog.show(ws.getUiStage());
+        } else {
+            System.out.println("Received TradeResponseMessage, but not on WorldScreen.");
+        }
+    }
+
 }

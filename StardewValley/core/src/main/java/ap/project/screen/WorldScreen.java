@@ -3,6 +3,7 @@ package ap.project.screen;
 import ap.project.control.CharacterController;
 import ap.project.control.OnlineWorldController;
 import ap.project.control.WorldController;
+import ap.project.control.game.activities.TradeController;
 import ap.project.model.App.App;
 import ap.project.model.App.GameAssetsManager;
 import ap.project.model.App.User;
@@ -186,6 +187,7 @@ public final class WorldScreen implements Screen
         craftingItemWindow = new CraftingItemWindow(uiStage);
         communicationWindow = new CommunicationWindow(uiStage, this);
         tradeWindow = friendsWindow.getTradeWindow();
+        tradeWindow.setDependencies(inventoryWindow, new TradeController());
         greenHouseBuildWindow = new GreenHouseBuildWindow(uiStage);
         createTerminalDialog();
         worldController = new WorldController();
@@ -532,6 +534,11 @@ public final class WorldScreen implements Screen
         Gdx.input.setInputProcessor(inputMultiplexer);
         inputMultiplexerHadSetUp = true;
         centerVisibleWindows();
+
+        if (tradeWindow == null) {
+            tradeWindow = new TradeWindow(uiStage, skin);
+            tradeWindow.setDependencies(inventoryWindow, tradeWindow.getController());
+        }
     }
 
     private void sendPositionUpdate()
@@ -1464,10 +1471,22 @@ public final class WorldScreen implements Screen
     }
 
     public TradeWindow getTradeWindow() {
+        if (tradeWindow == null) {
+            tradeWindow = new TradeWindow(uiStage, skin);
+            tradeWindow.setDependencies(inventoryWindow, new TradeController());
+        }
         return tradeWindow;
+    }
+
+    public void setTradeWindow(TradeWindow tradeWindow) {
+        this.tradeWindow = tradeWindow;
     }
 
     public InventoryWindow getInventoryWindow() {
         return inventoryWindow;
+    }
+
+    public Stage getUiStage() {
+        return uiStage;
     }
 }
