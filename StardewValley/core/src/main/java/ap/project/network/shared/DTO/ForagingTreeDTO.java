@@ -10,7 +10,6 @@ import java.util.List;
 public class ForagingTreeDTO extends GameObjectDTO
 {
     public ForagingTreeType foragingTreeType;
-    public List<Season> seasons = new ArrayList<>();
 
     public ForagingTreeDTO() {}
 

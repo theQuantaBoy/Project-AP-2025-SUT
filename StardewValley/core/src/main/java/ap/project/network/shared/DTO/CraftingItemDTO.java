@@ -4,6 +4,7 @@ import ap.project.model.building.CraftingItem;
 import ap.project.model.enums.building_enums.ArtisanGoodsType;
 import ap.project.model.enums.building_enums.CraftingRecipeEnums;
 import ap.project.model.game.GameObject;
+import ap.project.model.game.Tile;
 
 import java.util.ArrayList;
 
@@ -22,7 +23,7 @@ public class CraftingItemDTO extends GameObjectDTO
     public int neededHours;
 
     public ArrayList<GameObjectDTO> craftingIngredients = new ArrayList<>();
-    public TreeDTO tileDTO;
+    public TileDTO tileDTO;
 
     public CraftingItemDTO() {}
 
@@ -48,7 +49,7 @@ public class CraftingItemDTO extends GameObjectDTO
             {
                 this.craftingIngredients.add(new GameObjectDTO(o));
             }
-            this.tileDTO = new TreeDTO();
+            this.tileDTO = new TileDTO(craftingItem.getTile());
         }
     }
 }

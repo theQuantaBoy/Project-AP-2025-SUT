@@ -3,7 +3,7 @@ package ap.project.network.shared.DTO;
 import ap.project.model.enums.tool_enums.*;
 import ap.project.model.tools.*;
 
-public class ToolDTO
+public class ToolDTO extends GameObjectDTO
 {
     public boolean initialized;
 
@@ -21,6 +21,8 @@ public class ToolDTO
 
     public ToolDTO(Tool tool)
     {
+        super(tool);
+
         if (tool != null)
         {
             this.type = tool.getToolType();

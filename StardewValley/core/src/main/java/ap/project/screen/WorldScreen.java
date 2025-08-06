@@ -18,6 +18,7 @@ import ap.project.network.client.GameClient;
 import ap.project.network.shared.DTO.PlayerDTO;
 import ap.project.network.shared.messages.*;
 import ap.project.screen.input.WorldScreenInputProcessor;
+import ap.project.util.JsonFileUtil;
 import ap.project.util.MapAssetLoader;
 import ap.project.visual.CharacterRenderer;
 import ap.project.model.game.*;
@@ -40,6 +41,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -271,6 +273,17 @@ public final class WorldScreen implements Screen
         inputMultiplexer = new InputMultiplexer();
         checkGameInfo();
         initializeHotbar();
+
+        PlayerDTO dto = new PlayerDTO(player);
+        try
+        {
+            System.out.println("start");
+            JsonFileUtil.saveToFile(dto, "save/player_test.json");
+            System.out.println("done");
+        } catch (IOException e)
+        {
+            throw new RuntimeException(e);
+        }
     }
 
     private void initializeHotbar() {

@@ -7,7 +7,7 @@ import java.util.ArrayList;
 
 public class GiantCropDTO extends CropDTO
 {
-    public Tile rootTile;
+    public TileDTO rootTileDTO;
 
     public GiantCropDTO() {}
 
@@ -17,7 +17,7 @@ public class GiantCropDTO extends CropDTO
 
         if (giantCrop != null)
         {
-            this.rootTile = giantCrop.getRootTile();
+            this.rootTileDTO = new TileDTO(giantCrop.getRootTile());
         }
     }
 }

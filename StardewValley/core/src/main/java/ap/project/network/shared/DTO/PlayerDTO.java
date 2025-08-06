@@ -7,7 +7,6 @@ import ap.project.model.enums.building_enums.CraftingRecipeEnums;
 import ap.project.model.enums.building_enums.KitchenRecipe;
 import ap.project.model.game.GameObject;
 import ap.project.model.game.Player;
-import ap.project.network.shared.messages.PlayerDTOMessage;
 import com.badlogic.gdx.math.Vector2;
 
 import java.util.ArrayList;
@@ -36,7 +35,7 @@ public class PlayerDTO
 
     public boolean newMessage;
 
-    public ToolDTO toolDTO;
+    public ToolDTO currentToolDTO;
     public GameObjectDTO currentObject;
     public double money;
 
@@ -90,7 +89,7 @@ public class PlayerDTO
 
         this.newMessage = player.isNewMessage();
 
-        this.toolDTO = new ToolDTO(player.getCurrentTool());
+        this.currentToolDTO = new ToolDTO(player.getCurrentTool());
         this.currentObject = new GameObjectDTO(player.getCurrentObject());
         this.money = player.getMoney();
 

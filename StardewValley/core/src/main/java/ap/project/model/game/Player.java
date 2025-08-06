@@ -1311,4 +1311,134 @@ public class Player {
     {
         isInShop = inShop;
     }
+
+    public void setCharacter(PlayerCharacter character)
+    {
+        this.character = character;
+    }
+
+    public void setCabin(Cabin cabin)
+    {
+        this.cabin = cabin;
+    }
+
+    public void setGreenHouse(GreenHouse greenHouse)
+    {
+        this.greenHouse = greenHouse;
+    }
+
+    public void setFarmingSkill(Skill farmingSkill)
+    {
+        this.farmingSkill = farmingSkill;
+    }
+
+    public void setMiningSkill(Skill miningSkill)
+    {
+        this.miningSkill = miningSkill;
+    }
+
+    public void setForagingSkill(Skill foragingSkill)
+    {
+        this.foragingSkill = foragingSkill;
+    }
+
+    public void setFishingSkill(Skill fishingSkill)
+    {
+        this.fishingSkill = fishingSkill;
+    }
+
+    public void setCurrentBackPack(BackPack currentBackPack)
+    {
+        this.currentBackPack = currentBackPack;
+    }
+
+    public void setFriendships(HashMap<Player, FriendshipData> friendships)
+    {
+        this.friendships = friendships;
+    }
+
+    public void setSentTrades(ArrayList<Trade> sentTrades)
+    {
+        this.sentTrades = sentTrades;
+    }
+
+    public void setReceivedTrades(ArrayList<Trade> receivedTrades)
+    {
+        this.receivedTrades = receivedTrades;
+    }
+
+    public void setArchiveTrades(ArrayList<Trade> archiveTrades)
+    {
+        this.archiveTrades = archiveTrades;
+    }
+
+    public void setSkills(List<Skill> skills)
+    {
+        this.skills = skills;
+    }
+
+    public void setNewGifts(ArrayList<Gift> newGifts)
+    {
+        this.newGifts = newGifts;
+    }
+
+    public void setArchiveGifts(ArrayList<Gift> archiveGifts)
+    {
+        this.archiveGifts = archiveGifts;
+    }
+
+    public void setGivenGifts(ArrayList<Gift> givenGifts)
+    {
+        this.givenGifts = givenGifts;
+    }
+
+    public void setPurposeList(HashMap<Player, GameObjectType> purposeList)
+    {
+        this.purposeList = purposeList;
+    }
+
+    public void setAnimalBuildings(ArrayList<AnimalBuilding> animalBuildings)
+    {
+        this.animalBuildings = animalBuildings;
+    }
+
+    public void setCraftingRecipes(ArrayList<CraftingRecipeEnums> craftingRecipes)
+    {
+        this.craftingRecipes = craftingRecipes;
+    }
+
+    public void setCookingRecipes(ArrayList<KitchenRecipe> cookingRecipes)
+    {
+        this.cookingRecipes = cookingRecipes;
+    }
+
+    public void setRefrigerator(ArrayList<GameObject> refrigerator)
+    {
+        this.refrigerator = refrigerator;
+    }
+
+    public static void setAppearences(ArrayList<String> appearences)
+    {
+        Player.appearences = appearences;
+    }
+
+    public void setApperance(String apperance)
+    {
+        this.apperance = apperance;
+    }
+
+    public void setNpcGiftsObject(ArrayList<GameObject> npcGiftsObject)
+    {
+        this.npcGiftsObject = npcGiftsObject;
+    }
+
+    public void setNpcGiftsNPC(ArrayList<NPC> npcGiftsNPC)
+    {
+        this.npcGiftsNPC = npcGiftsNPC;
+    }
+
+    public void setFishes(ArrayList<Fish> fishes)
+    {
+        this.fishes = fishes;
+    }
 }

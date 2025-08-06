@@ -186,6 +186,36 @@ public class CraftingItem extends GameObject
         return neededHours;
     }
 
+    public void setArtisanType(ArtisanGoodsType artisanType)
+    {
+        this.artisanType = artisanType;
+    }
+
+    public void setWorking(boolean working)
+    {
+        isWorking = working;
+    }
+
+    public void setStartDay(int startDay)
+    {
+        this.startDay = startDay;
+    }
+
+    public void setStartHour(int startHour)
+    {
+        this.startHour = startHour;
+    }
+
+    public void setNeededDays(int neededDays)
+    {
+        this.neededDays = neededDays;
+    }
+
+    public void setNeededHours(int neededHours)
+    {
+        this.neededHours = neededHours;
+    }
+
     public enum ItemType
     {
         ONE_TIME,

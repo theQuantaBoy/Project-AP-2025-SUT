@@ -5,10 +5,17 @@ import ap.project.model.resources.ForagingCrop;
 
 public class ForagingCropDTO extends GameObjectDTO
 {
+    public ForagingCropType foragingCropType;
+
     public ForagingCropDTO() {}
 
     public ForagingCropDTO(ForagingCrop foragingCrop)
     {
         super(foragingCrop);
+
+        if (foragingCrop != null)
+        {
+            this.foragingCropType = foragingCrop.getForagingCropType();
+        }
     }
 }

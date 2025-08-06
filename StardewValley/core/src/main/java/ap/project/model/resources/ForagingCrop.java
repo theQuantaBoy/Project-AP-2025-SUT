@@ -8,8 +8,16 @@ import java.util.List;
 
 public class ForagingCrop extends GameObject
 {
+    private final ForagingCropType foragingCropType;
+
     public ForagingCrop(ForagingCropType type)
     {
         this.ObjectType = type.getType();
+        this.foragingCropType = type;
+    }
+
+    public ForagingCropType getForagingCropType()
+    {
+        return foragingCropType;
     }
 }

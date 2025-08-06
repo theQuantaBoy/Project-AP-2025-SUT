@@ -263,4 +263,34 @@ public class Plant extends GameObject
     {
         return isInGreenhouse;
     }
+
+    public void setLastWatered(int lastWatered)
+    {
+        this.lastWatered = lastWatered;
+    }
+
+    public void setCurrentStageDay(int currentStageDay)
+    {
+        this.currentStageDay = currentStageDay;
+    }
+
+    public void setLastHarvested(int lastHarvested)
+    {
+        this.lastHarvested = lastHarvested;
+    }
+
+    public void setHasHarvested(boolean hasHarvested)
+    {
+        this.hasHarvested = hasHarvested;
+    }
+
+    public void setHarvestWaitTime(int harvestWaitTime)
+    {
+        this.harvestWaitTime = harvestWaitTime;
+    }
+
+    public void setInGreenhouse(boolean inGreenhouse)
+    {
+        isInGreenhouse = inGreenhouse;
+    }
 }

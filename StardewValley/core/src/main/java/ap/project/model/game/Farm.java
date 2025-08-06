@@ -40,6 +40,12 @@ public class Farm extends Map
 
     private final int MARGIN = 10;
 
+    public Farm(MapTypes farmType, boolean fromDTO)
+    {
+        super(farmType);
+        this.lakeTiles = getLakeTiles();
+    }
+
     public Farm(MapTypes farmType) {
         super(farmType);
 
