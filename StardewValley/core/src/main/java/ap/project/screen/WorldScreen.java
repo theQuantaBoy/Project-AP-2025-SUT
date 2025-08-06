@@ -93,6 +93,7 @@ public final class WorldScreen implements Screen
     private static StringBuilder dialogTextBuffer = new StringBuilder();
     private static Label dialogContentLabel;
     private InventoryWindow inventoryWindow;
+    private TradeWindow tradeWindow;
     private CookBookWindow cookBookWindow;
     private RefrigeratorWindow refrigeratorWindow;
     private CraftingItemWindow craftingItemWindow;
@@ -184,6 +185,7 @@ public final class WorldScreen implements Screen
         refrigeratorWindow = new RefrigeratorWindow(uiStage);
         craftingItemWindow = new CraftingItemWindow(uiStage);
         communicationWindow = new CommunicationWindow(uiStage, this);
+        tradeWindow = friendsWindow.getTradeWindow();
         greenHouseBuildWindow = new GreenHouseBuildWindow(uiStage);
         createTerminalDialog();
         worldController = new WorldController();
@@ -1459,5 +1461,13 @@ public final class WorldScreen implements Screen
             time.setTotalHoursPassed(totalHours);
             time.setTotalDaysPassed(totalDays);
         }
+    }
+
+    public TradeWindow getTradeWindow() {
+        return tradeWindow;
+    }
+
+    public InventoryWindow getInventoryWindow() {
+        return inventoryWindow;
     }
 }

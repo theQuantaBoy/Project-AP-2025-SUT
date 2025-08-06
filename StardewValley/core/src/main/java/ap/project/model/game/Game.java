@@ -787,4 +787,16 @@ public class Game
             }
         }
     }
+
+    public Player getPlayerByUserID(int userID)
+    {
+        for (Player player : players)
+        {
+            if (player.getUser().equals(userID))
+            {
+                return player;
+            }
+        }
+        return null;
+    }
 }

@@ -77,6 +77,9 @@ public class KryoRegistry
         kryo.register(UpdateGameMinuteMessage.class);
         kryo.register(CloseLobbyErrorMessage.class);
 
+        kryo.register(TradeRequestMessage.class);
+        kryo.register(TradeResponseMessage.class);
+
         // Register all other message classes ...
     }
 }

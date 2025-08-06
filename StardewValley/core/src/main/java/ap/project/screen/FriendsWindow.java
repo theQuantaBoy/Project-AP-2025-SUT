@@ -1,6 +1,7 @@
 package ap.project.screen;
 
 import ap.project.control.game.activities.CommunicateController;
+import ap.project.control.game.activities.TradeController;
 import ap.project.model.App.App;
 import ap.project.model.App.GameAssetsManager;
 import ap.project.model.App.Result;
@@ -8,6 +9,8 @@ import ap.project.model.game.GameObject;
 import ap.project.model.game.Gift;
 import ap.project.model.game.Player;
 import ap.project.model.player_data.FriendshipData;
+import ap.project.network.client.GameClient;
+import ap.project.network.shared.messages.TradeRequestMessage;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
@@ -39,6 +42,9 @@ public class FriendsWindow {
     private InventoryWindow inventoryWindow;
     private Table inventoryTable;
     private WorldScreen  worldScreen;
+    private TradeWindow tradeWindow;
+    private GameClient client;
+
 
     public FriendsWindow(Stage stage, WorldScreen worldScreen) {
         this.stage = stage;
@@ -82,6 +88,8 @@ public class FriendsWindow {
         this.controller = new  CommunicateController();
         this.inventoryWindow = new InventoryWindow(stage, worldScreen);
         controller.setFriendsWindow(this);
+        tradeWindow = new TradeWindow(stage, skin);
+        client = GameClient.getInstance();
     }
 
     private void refreshFriendsTable() {
@@ -94,8 +102,7 @@ public class FriendsWindow {
             Player friend = entry.getKey();
             FriendshipData data = entry.getValue();
 
-            Label nameLabel = new Label("Name: " + friend.getNickName()
-                    + " | Level: " + data.getLevel(), skin);
+            Label nameLabel = new Label(friend.getNickName() + "  ", skin);
 
             ProgressBar bar = new ProgressBar(0, data.getThresholdForLevel(data.getLevel()), 1, false, skin);
             bar.setValue(data.getXp());
@@ -117,11 +124,30 @@ public class FriendsWindow {
                 }
             });
 
+            TextButton tradeButton = new TextButton("Trade", skin);
+            tradeButton.addListener(new ClickListener() {
+                @Override
+                public void clicked(InputEvent event, float x, float y) {
+                    // 1) Inject dependencies:
+                    tradeWindow.setDependencies(
+                        inventoryWindow,               // your InventoryWindow instance
+                        new TradeController()
+                    );
+                    TradeRequestMessage msg = new TradeRequestMessage(player.getUser().getHashId(), friend.getUser().getHashId());
+                    client.send(msg);
+
+                    // 2) Show the popup:
+                    popup.setVisible(false);
+                    tradeWindow.showLoadingFor(friend);
+                }
+            });
+
             //stage.addActor(tooltip.getContainer());
 
-            friendsTable.add(nameLabel).left().padRight(10).padBottom(5);
-            friendsTable.add(bar).width(120).padRight(10).padBottom(5);
-            friendsTable.add(giftButton).size(80, 30).padRight(10).padBottom(5);
+            friendsTable.add(nameLabel).left().pad(15);
+            friendsTable.add(bar).pad(15);
+            friendsTable.add(giftButton).pad(15);
+            friendsTable.add(tradeButton).pad(15);
             friendsTable.row();
         }
 
@@ -391,5 +417,9 @@ public class FriendsWindow {
 
     public Window getPopup() {
         return popup;
+    }
+
+    public TradeWindow getTradeWindow() {
+        return tradeWindow;
     }
 }
