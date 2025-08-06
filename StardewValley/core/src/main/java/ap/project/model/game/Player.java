@@ -39,7 +39,6 @@ public class Player {
     private GreenHouse greenHouse;
 
     private Gender gender;
-    private Point location = null;
     private Map currentMap = null;
 
     private float energy;
@@ -105,8 +104,6 @@ public class Player {
     private NPC currentNPC = null;
     private ArrayList<GameObject> npcGiftsObject = new ArrayList<>();
     private ArrayList<NPC> npcGiftsNPC = new ArrayList<>();
-
-    private ArrayList<ArtisanGood> artisanGoods = new ArrayList<>();
 
     private ArrayList<Fish> fishes = new ArrayList<>();
 
@@ -1139,18 +1136,6 @@ public class Player {
             recieved = true;
         }
         return recieved;
-    }
-
-    public ArtisanGood getArtisan(ArtisanGoodsType type)
-    {
-        for (ArtisanGood good : artisanGoods)
-        {
-            if (good.getArtisanType() == type)
-            {
-                return good;
-            }
-        }
-        return null;
     }
 
     public boolean hasFishingPole()

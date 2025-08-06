@@ -34,5 +34,7 @@ public enum MessageType
     GAME_TIME_SYNC,
     GAME_PRESENCE,
     GAME_STARTED,
-    CLOSE_LOBBY_ERROR
+    CLOSE_LOBBY_ERROR,
+    PLAYER_DTO,
+    SKILL_DTO
 }

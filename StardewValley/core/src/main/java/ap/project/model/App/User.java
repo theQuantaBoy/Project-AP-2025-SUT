@@ -17,7 +17,6 @@ public class User
     private Gender gender;
     private String question;
     private String answer;
-    private boolean stay;
 
     private Texture avatar;
 

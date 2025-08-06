@@ -736,4 +736,9 @@ public class Tile
     {
         this.shouldBeWateredAutomatically = shouldBeWateredAutomatically;
     }
+
+    public boolean isInCity()
+    {
+        return isInCity;
+    }
 }

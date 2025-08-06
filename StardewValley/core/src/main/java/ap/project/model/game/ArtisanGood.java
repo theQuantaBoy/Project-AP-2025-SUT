@@ -4,7 +4,6 @@ import ap.project.model.enums.building_enums.ArtisanGoodsType;
 
 public class ArtisanGood extends GameObject
 {
-    private Tile tile;
     private final ArtisanGoodsType artisanType;
     private int lastStartedToWork = 0;
 
@@ -28,11 +27,4 @@ public class ArtisanGood extends GameObject
     {
         this.lastStartedToWork = lastStartedToWork;
     }
-
-    public Tile getTile()
-    {
-        return tile;
-    }
-
-
 }
