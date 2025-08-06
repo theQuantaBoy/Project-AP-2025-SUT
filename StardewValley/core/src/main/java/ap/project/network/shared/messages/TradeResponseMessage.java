@@ -14,6 +14,9 @@ public class TradeResponseMessage extends Message {
         this.accepted = accepted;
     }
 
+    public TradeResponseMessage() {
+    }
+
     @Override public MessageType getType() {
         return MessageType.TRADE_RESPONSE;
     }

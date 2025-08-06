@@ -23,6 +23,7 @@ import ap.project.view.GameMenu;
 import ap.project.view.HomeMenu;
 import ap.project.visual.UIRenderer;
 
+import java.net.Socket;
 import java.util.*;
 
 public class Game
@@ -792,7 +793,7 @@ public class Game
     {
         for (Player player : players)
         {
-            if (player.getUser().equals(userID))
+            if (player.getUser().getHashId() == userID)
             {
                 return player;
             }

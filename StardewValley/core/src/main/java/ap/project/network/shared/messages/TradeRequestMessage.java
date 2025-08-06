@@ -13,6 +13,9 @@ public class TradeRequestMessage extends Message {
         this.responseID = response;
     }
 
+    public TradeRequestMessage() {
+    }
+
     public int getRequestID() {
         return requestID;
     }

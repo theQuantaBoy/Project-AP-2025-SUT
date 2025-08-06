@@ -79,6 +79,8 @@ public class KryoRegistry
 
         kryo.register(TradeRequestMessage.class);
         kryo.register(TradeResponseMessage.class);
+        kryo.register(IncomingTradeRequestMessage.class);
+        kryo.register(IncomingTradeResponseMessage.class);
 
         // Register all other message classes ...
     }

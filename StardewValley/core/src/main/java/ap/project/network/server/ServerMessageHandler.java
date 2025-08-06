@@ -1,12 +1,17 @@
 package ap.project.network.server;
 
+import ap.project.Main;
 import ap.project.model.App.App;
+import ap.project.model.App.GameAssetsManager;
 import ap.project.model.App.User;
 import ap.project.model.enums.Gender;
 import ap.project.model.game.Game;
 import ap.project.model.game.Lobby;
 import ap.project.model.game.Player;
 import ap.project.network.shared.messages.*;
+import ap.project.screen.TradeWindow;
+import ap.project.screen.WorldScreen;
+import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 
 import java.util.ArrayList;
 
@@ -55,8 +60,14 @@ public class ServerMessageHandler
             case CLOSE_LOBBY_REQUEST:
                 handleCloseLobbyRequestMessage(client, (CloseLobbyRequestMessage) message);
                 break;
+            case TRADE_REQUEST:
+                handleTradeRequestMessage(client, (TradeRequestMessage) message);
+                break;
+            case TRADE_RESPONSE:
+                handleTradeResponseMessage(client, (TradeResponseMessage) message);
         }
     }
+
 
     private static void handleTestMessage(TestMessage msg)
     {
@@ -387,4 +398,43 @@ public class ServerMessageHandler
             server.getActiveLobbies().remove(lobby);
         }
     }
+
+    private static void handleTradeRequestMessage(ClientConnection senderConn, TradeRequestMessage msg) {
+        GameServer server = GameServer.getInstance();
+
+        User sender = server.getUser(senderConn);
+        if (sender == null) return;
+
+        // Find the receiver's client connection using ID
+        ClientConnection receiverConn = server.findClient(msg.getResponseID());
+        if (receiverConn == null) {
+            System.out.println("Trade request failed: Receiver not found");
+            return;
+        }
+
+        // Send notification to Player 2
+        IncomingTradeRequestMessage notify = new IncomingTradeRequestMessage(sender.getHashId());
+
+        receiverConn.send(notify);
+        System.out.println("Trade request sent from " + sender.getUsername() + " to " + msg.getResponseID());
+    }
+
+    private static void handleTradeResponseMessage(ClientConnection client, TradeResponseMessage message) {
+        GameServer server = GameServer.getInstance();
+
+        User sender = server.getUser(client);
+        if (sender == null) return;
+
+        ClientConnection receiverConn = server.findClient(message.getResponderID());
+        if (receiverConn == null) {
+            System.out.println("Trade request failed: Receiver not found");
+            return;
+        }
+
+        IncomingTradeResponseMessage notify = new IncomingTradeResponseMessage(sender.getHashId(), message.isAccepted());
+        receiverConn.send(notify);
+        System.out.println("Trade response sent from " + sender.getUsername() + " to " + message.getResponderID());
+    }
+
+
 }

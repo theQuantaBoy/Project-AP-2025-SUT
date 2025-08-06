@@ -1,10 +1,12 @@
 package ap.project.network.client;
 
 import ap.project.Main;
+import ap.project.control.game.activities.TradeController;
 import ap.project.model.App.App;
 import ap.project.model.App.GameAssetsManager;
 import ap.project.model.game.Game;
 import ap.project.model.game.Player;
+import ap.project.network.server.GameServer;
 import ap.project.network.server.GameWrapper;
 import ap.project.network.shared.messages.*;
 import ap.project.screen.LobbyScreen;
@@ -84,11 +86,11 @@ public class ClientMessageHandler {
             case CLOSE_LOBBY_ERROR:
                 handleCLoseLobbyErrorMessage((CloseLobbyErrorMessage) message);
                 break;
-            case TRADE_REQUEST:
-                handleTradeRequestMessage((TradeRequestMessage) message);
+            case INCOMING_TRADE_REQUEST:
+                handleIncomingTradeRequest((IncomingTradeRequestMessage) message);
                 break;
-            case TRADE_RESPONSE:
-                handleTradeResponseMessage((TradeResponseMessage) message);
+            case INCOMING_TRADE_RESPONSE:
+                handleIncomingTradeResponse((IncomingTradeResponseMessage) message);
                 break;
             // Add other cases
         }
@@ -319,40 +321,48 @@ public class ClientMessageHandler {
         }
     }
 
-    private static void handleTradeRequestMessage(TradeRequestMessage msg) {
+    private static void handleIncomingTradeRequest(IncomingTradeRequestMessage message) {
         if (Main.getApp().getScreen() instanceof WorldScreen) {
-            WorldScreen ws = (WorldScreen) Main.getApp().getScreen();
+            WorldScreen worldScreen = (WorldScreen) Main.getApp().getScreen();
 
-            TradeWindow tradeWindow = new TradeWindow(
-                ws.getUiStage(),
-                GameAssetsManager.getGameAssetsManager().getSkin()
-            );
-            tradeWindow.showRequestFrom(App.getCurrentGame().getPlayerByUserID(msg.getRequestID()));
-        } else {
-            System.out.println("Received TradeRequestMessage, but not on WorldScreen.");
-        }
-    }
+            int senderId = message.senderId;
+            Player senderPlayer = App.getCurrentGame().getPlayerByUserID(senderId);
 
-
-    // In ClientMessageHandler.java
-    private static void handleTradeResponseMessage(TradeResponseMessage msg) {
-        if (Main.getApp().getScreen() instanceof WorldScreen) {
-            WorldScreen ws = (WorldScreen) Main.getApp().getScreen();
-
-            String message;
-            if (msg.isAccepted()) {
-                message = msg.getRequesterID() + " accepted your trade offer.";
-            } else {
-                message = msg.getResponderID() + " declined your trade offer.";
+            if (senderPlayer == null) {
+                System.out.println("Sender player not found in game.");
+                return;
             }
 
-            Dialog dialog = new Dialog("Trade Response", GameAssetsManager.getGameAssetsManager().getSkin());
-            dialog.text(message);
-            dialog.button("OK");
-            dialog.show(ws.getUiStage());
-        } else {
-            System.out.println("Received TradeResponseMessage, but not on WorldScreen.");
+            TradeWindow tradeWindow = worldScreen.getTradeWindow();
+            if (tradeWindow != null) {
+                // ✅ Schedule UI update on render thread
+                Gdx.app.postRunnable(() -> {
+                    tradeWindow.getPopup().show(worldScreen.getUiStage());
+                    tradeWindow.showRequestFrom(senderPlayer);
+                });
+            } else {
+                System.out.println("TradeWindow is null.");
+            }
         }
     }
+
+    private static void handleIncomingTradeResponse(IncomingTradeResponseMessage message) {
+        if (Main.getApp().getScreen() instanceof WorldScreen) {
+            WorldScreen worldScreen = (WorldScreen) Main.getApp().getScreen();
+            TradeWindow tw = worldScreen.getTradeWindow();
+
+            int senderId = message.senderId;
+            Player senderPlayer = App.getCurrentGame().getPlayerByUserID(senderId);
+            tw.setDependencies(worldScreen.getInventoryWindow(), new TradeController()); // if not already set
+
+            // Run on the render thread
+            Gdx.app.postRunnable(() -> {
+                // This will clear the old request dialog and open the full trade screen
+                tw.showMainTradeScreen();
+                System.out.println("message sent");
+            });
+        }
+    }
+
 
 }
