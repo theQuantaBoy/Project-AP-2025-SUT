@@ -46,12 +46,7 @@ import java.util.List;
 public final class WorldScreen implements Screen
 {
 
-//    private final com.badlogic.gdx.Game miniGame;
-
-//    private final Stage gameStage;
-//    private final Array<AnimalActor> animalActors;
-//    private final AnimalInteractionScreen animalInteractionScreen;
-//    private float animalMoveTimer = 0f;
+    private FishingMinigameManager fishingMinigame;
 
     private static WorldScreen INSTANCE;
 
@@ -115,7 +110,9 @@ public final class WorldScreen implements Screen
         INSTANCE = this;
 
         this.shapeRenderer = new ShapeRenderer();
-//        this.miniGame = new FishingGame();
+        fishingMinigame = new FishingMinigameManager(skin);
+        uiStage.addActor(fishingMinigame);
+        fishingMinigame.setVisible(false);
         cam = new OrthographicCamera(20 * TILE_SIZE, 15 * TILE_SIZE);
         cam.setToOrtho(false);
 
@@ -371,10 +368,9 @@ public final class WorldScreen implements Screen
         uiStage.act(dt);
         uiStage.draw();
 
-//        if (fishingWindow != null)
-//        {
-//            fishingWindow.update(Gdx.graphics.getDeltaTime());
-//        }
+        if (fishingMinigame.isActive()) {
+            fishingMinigame.update(Gdx.graphics.getDeltaTime());
+        }
     }
 
     private void update(float dt) {
@@ -446,19 +442,15 @@ public final class WorldScreen implements Screen
             cam.position.set(camX, camY, 0);
         }
 
-//        if (Gdx.input.isKeyJustPressed(Input.Keys.F))
-//        {
-//            if (fishingWindow == null)
-//            {
-//                fishingWindow = new FishingMinigameWindow(skin);
-//                uiStage.clear();
-//                uiStage.addActor(fishingWindow);
-//            } else
-//            {
-//                fishingWindow.remove();
-//                fishingWindow = null;
-//            }
-//        }
+
+        if (Gdx.input.isKeyJustPressed(Input.Keys.F)) {
+            if (fishingMinigame.isActive()) {
+                fishingMinigame.hideMinigame();
+            } else {
+                fishingMinigame.showMinigame();
+            }
+        }
+
     }
 
     @Override
@@ -502,6 +494,9 @@ public final class WorldScreen implements Screen
         refrigeratorWindow.dispose();
         animalManager.dispose();
         communicationWindow.dispose();
+        if (fishingMinigame != null) {
+            fishingMinigame.remove();
+        }
     }
 
     private void checkMapSeason()
@@ -831,90 +826,6 @@ public final class WorldScreen implements Screen
     }
 
 
-
-    private boolean isPlayerNearDoor(Point playerLoc, Point door) {
-        if (door == null) {
-            return false;
-        }
-        int dx = Math.abs(playerLoc.getX() - door.getX());
-        int dy = Math.abs(playerLoc.getY() - door.getY());
-        return dx <= 1 && dy <= 1;
-    }
-
-//    public void openShop(ShopType shopType) {
-//        ShopMap shopMap = ShopManager.getShopMap(shopType);
-//
-//        player.setPreviousLocation(player.getLocation());
-//        player.setInShop(true);
-//        player.setCurrentShop(shopType);
-//        player.setCurrentMap(shopMap);
-//        player.setLocation(shopMap.getStartingPoint());
-//
-//
-//
-//        // FIX: Set character position using updated map reference
-//        Vector2 worldPos = shopMap.tileToWorld(shopMap.getTile(
-//            shopMap.getStartingPoint().getX(),
-//            shopMap.getStartingPoint().getY()
-//        ));
-//        worldPos.y -= Map.TILE_SIZE;
-//        character.setPosition(worldPos);
-//
-//        // FIX: Update game state AFTER visual update
-//        updateGameInfo();
-//
-//        shopWindow.setShopMap(shopMap);
-//        shopWindow.toggleVisibility();
-//
-//        // FIX: Center camera on the new map
-//        centerCameraOnMap(shopMap);
-//    }
-
-    public void exitShop() {
-        // 1. Get the map to return to (the main city map).
-        Map cityMap = App.getCurrentGame().getCity(); // Assumes a method to get the main city map.
-        player.setCurrentMap(cityMap);
-        player.setInShop(false);
-
-        // 2. Get the location to return to.
-        Point returnTilePoint = player.getPreviousLocation();
-        if (returnTilePoint == null) {
-            // As a fallback, use the city's main starting point.
-            returnTilePoint = cityMap.getStartingPoint();
-        }
-        player.setLocation(returnTilePoint);
-
-        // 3. **[THE FIX]** Teleport the character's VISUAL position back to their previous spot in town.
-        Tile returnTile = cityMap.getTile(returnTilePoint.getX(), returnTilePoint.getY());
-        if (returnTile != null) {
-            Vector2 returnWorldPos = cityMap.tileToWorld(returnTile);
-            // Adjust Y-coordinate for character's origin.
-            returnWorldPos.y -= Map.TILE_SIZE;
-            character.setPosition(returnWorldPos);
-        }
-
-        // 4. Centrally update all game screen information.
-        updateGameInfo();
-
-        // 5. Close the shop window.
-        if (shopWindow.isVisible()) {
-            shopWindow.toggleVisibility();
-        }
-    }
-
-    public void centerCameraOnMap(Map map) {
-        float mapPixelWidth = map.getWidth() * TILE_SIZE;
-        float mapPixelHeight = map.getHeight() * TILE_SIZE;
-
-        float centerX = mapPixelWidth / 2f;
-        float centerY = mapPixelHeight / 2f;
-
-        cam.position.set(centerX, centerY, 0);
-        cam.update();
-
-        // FIX: Always update renderer view
-        map.getMapVisual().getRenderer().setView(cam);
-    }
 
     public AnimalWindow getAnimalWindow() {
         return animalWindow;

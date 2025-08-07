@@ -16,7 +16,7 @@ public class FishModel {
     }
 
     public void reset() {
-        y = MiniGameState.TRACK_HEIGHT / 2f;
+        y = MiniGameState.TRACK_HEIGHT / 3f;
         targetY = y;
         sineWaveCounter = 0;
         dartTimer = 0;
@@ -78,7 +78,7 @@ public class FishModel {
 
     public Rectangle getBounds() {
         // Fish is centered horizontally
-        float x = (MiniGameState.TRACK_WIDTH - MiniGameState.FISH_SIZE) / 2f;
+        float x = (MiniGameState.TRACK_WIDTH - MiniGameState.FISH_SIZE) / 3f + 15f;
         return new Rectangle(x, y, MiniGameState.FISH_SIZE, MiniGameState.FISH_SIZE);
     }
 
