@@ -5,6 +5,8 @@ import ap.project.model.game.Tile;
 import ap.project.model.enums.resources_enums.FruitType;
 import ap.project.model.enums.resources_enums.TreeType;
 
+import java.util.ArrayList;
+
 public class Tree extends Plant
 {
     private FruitType fruit;
@@ -14,14 +16,14 @@ public class Tree extends Plant
     {
         this.type = treeType;
         this.name = treeType.getName();
-        this.stages = treeType.getStages();
+        this.stages = new ArrayList<>(treeType.getStages());
         this.totalHarvestTime = treeType.getTotalHarvestTime();
         this.fruit = treeType.getFruit();
         this.fruitHarvestCycle = treeType.getFruitHarvestCycle();
         this.baseSellPrice = treeType.getFruitBaseSellPrice();
         this.isEdible = treeType.isEdible();
         this.energy = treeType.getEnergy();
-        this.seasons = treeType.getSeasons();
+        this.seasons = new ArrayList<>(treeType.getSeasons());
 
         harvestWaitTime = this.totalHarvestTime;
         this.point = point;

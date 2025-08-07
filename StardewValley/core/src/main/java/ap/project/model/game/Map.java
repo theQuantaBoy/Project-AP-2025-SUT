@@ -148,7 +148,7 @@ public abstract class Map
 
     public void setTile(int x, int y, Tile tile)
     {
-        this.tiles[x][y] = tile;
+        this.tiles[y][x] = tile;
     }
 
     public Tile getTile(int x, int y)

@@ -23,6 +23,8 @@ import static ap.project.network.shared.KryoRegistry.BUFFER_LIMIT;
 
 public class GameClient
 {
+    private final String ip = "localhost";
+
     private static GameClient instance;
     private Client kryoClient;
     private final ConcurrentLinkedQueue<Message> incomingQueue = new ConcurrentLinkedQueue<>();
@@ -75,7 +77,7 @@ public class GameClient
         KryoRegistry.registerClasses(kryo);
     }
 
-    public void connect(String ip)
+    public void connect()
     {
         if (connected) return;
 

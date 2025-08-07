@@ -212,7 +212,7 @@ public class PreGameScreen implements Screen
             }
 
             GameClient client = GameClient.getInstance();
-            client.connect("localhost");
+            client.connect();
 
             // Wait for connection to establish
             int attempts = 0;

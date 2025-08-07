@@ -10,7 +10,7 @@ import java.io.File;
 import java.io.IOException;
 
 public class JsonFileUtil {
-    private static final ObjectMapper mapper = new ObjectMapper();
+    public static final ObjectMapper mapper = new ObjectMapper();
 
     static {
         // For handling polymorphic DTOs like GameObjectDTO

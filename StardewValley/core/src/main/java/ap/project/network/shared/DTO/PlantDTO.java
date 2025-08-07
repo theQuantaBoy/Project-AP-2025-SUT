@@ -12,12 +12,10 @@ public class PlantDTO extends GameObjectDTO
 {
     public String name;
     public Enum<?> type;
-    public List<Integer> stages = new ArrayList<>();
     public int totalHarvestTime;
     public int baseSellPrice;
     public boolean isEdible;
     public int energy;
-    public List<Season> seasons = new ArrayList<>();
 
     public boolean hasStarted;
     public int lastWatered;
@@ -43,12 +41,10 @@ public class PlantDTO extends GameObjectDTO
         {
             this.name = plant.getName();
             this.type = plant.getType();
-            this.stages = plant.getStages();
             this.totalHarvestTime = plant.getTotalHarvestTime();
             this.baseSellPrice = plant.getBaseSellPrice();
             this.isEdible = plant.isEdible();
             this.energy = plant.getEnergy();
-            this.seasons = plant.getSeasons();
 
             this.hasStarted = plant.hasStarted();
             this.lastWatered = plant.getLastWatered();

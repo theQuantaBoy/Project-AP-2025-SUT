@@ -12,8 +12,8 @@ import java.util.List;
 public class BackPackDTO
 {
     public BackPackLevel level;
-    public List<GameObjectDTO> slots = new ArrayList<>();
-    public List<ToolDTO> tools = new ArrayList<>();
+    public ArrayList<GameObjectDTO> slots = new ArrayList<>();
+    public ArrayList<ToolDTO> tools = new ArrayList<>();
 
     public BackPackDTO() {}
 

@@ -125,6 +125,22 @@ public class KryoRegistry
         kryo.register(ap.project.network.shared.DTO.ResourceDTO.class);
         kryo.register(ap.project.model.enums.resources_enums.ResourceItem.class);
 
+        kryo.register(ap.project.network.shared.DTO.CropDTO.class);
+        kryo.register(ap.project.network.shared.DTO.GiantCropDTO.class);
+        kryo.register(ap.project.network.shared.DTO.PlantDTO.class);
+        kryo.register(ap.project.network.shared.DTO.TreeDTO.class);
+        kryo.register(ap.project.network.shared.DTO.ForagingCropDTO.class);
+        kryo.register(ap.project.network.shared.DTO.ForagingMineralDTO.class);
+        kryo.register(ap.project.network.shared.DTO.ForagingSeedDTO.class);
+        kryo.register(ap.project.network.shared.DTO.ForagingTreeDTO.class);
+        kryo.register(ap.project.network.shared.DTO.CraftingItemDTO.class);
+
+        kryo.register(ap.project.model.enums.Season[].class);
+        kryo.register(ap.project.model.enums.Season.class);
+        kryo.register(ap.project.model.enums.resources_enums.CropType.class);
+        kryo.register(ap.project.model.enums.resources_enums.TreeType.class);
+        kryo.register(ap.project.model.enums.building_enums.CraftingRecipeEnums.class);
+
         // Register all other message classes ...
     }
 }

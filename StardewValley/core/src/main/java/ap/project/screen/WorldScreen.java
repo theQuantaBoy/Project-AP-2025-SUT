@@ -22,6 +22,7 @@ import ap.project.network.shared.messages.*;
 import ap.project.screen.input.WorldScreenInputProcessor;
 import ap.project.util.JsonFileUtil;
 import ap.project.util.MapAssetLoader;
+import ap.project.util.SQLiteUtil;
 import ap.project.visual.CharacterRenderer;
 import ap.project.model.game.*;
 import ap.project.visual.MapVisual;
@@ -43,6 +44,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -245,26 +247,30 @@ public final class WorldScreen implements Screen
             p.spawn();
         }
 
-//        System.out.println("loading save");
-//        try
-//        {
-//            PlayerDTO playerDTO = JsonFileUtil.loadPlayerDTO("save/player_test.json");
-//            App.getCurrentGame().setCurrentPlayer(Mapper.fromDTO(playerDTO));
-//            System.out.println("loaded save");
-//        } catch (IOException e)
-//        {
-//            System.out.println("failed");
-//            throw new RuntimeException(e);
-//        }
-//
-//        Player p = game.getCurrentPlayer();
-//        if (p.isInFarm())
-//        {
-//            p.setCurrentMap(p.getFarm());
-//        } else if (p.isInHome())
-//        {
-//            p.setCurrentMap(p.getCabin());
-//        }
+        System.out.println("loading save");
+        try
+        {
+            PlayerDTO dto = SQLiteUtil.loadPlayerState("81748504", "896418");
+            App.getCurrentGame().setCurrentPlayer(Mapper.fromDTO(dto));
+            System.out.println("loaded");
+            if (dto == null)
+            {
+                System.out.println("No save found");
+            }
+        } catch (Exception e)
+        {
+            System.out.println("failed");
+            throw new RuntimeException(e);
+        }
+
+        Player p = game.getCurrentPlayer();
+        if (p.isInFarm())
+        {
+            p.setCurrentMap(p.getFarm());
+        } else if (p.isInHome())
+        {
+            p.setCurrentMap(p.getCabin());
+        }
 
         this.map = game.getCurrentPlayer().getCabin();
         time = game.getCurrentTime();
@@ -527,23 +533,34 @@ public final class WorldScreen implements Screen
 
                 if (keycode == Input.Keys.P)
                 {
-                    PlayerDTO dto = new PlayerDTO(player);
+                    PlayerDTO playerDTO = new PlayerDTO(player);
                     try
                     {
-                        long t1 = System.currentTimeMillis();
-                        System.out.println("start");
-                        JsonFileUtil.saveToFile(dto, "save/player_test.json");
-                        long t2 = System.currentTimeMillis();
-                        System.out.println("saved: " + (t2 - t1));
+                        String gameId = "81748504";
+                        String playerId = "896418";
+
+                        System.out.println("Saving to game: " + gameId + " player: " + playerId);
+
+                        long sqliteStart = System.nanoTime();
+                        SQLiteUtil.savePlayerState(gameId, playerId, playerDTO);
+                        long sqliteTime = System.nanoTime() - sqliteStart;
+
+                        long networkStart = System.nanoTime();
+
                         if (ONLINE_MODE)
                         {
-                            client.send(new PlayerDTOMessage(dto));
-                            client.processMessages();
-                            long t3 = System.currentTimeMillis();
-                            System.out.println("sent: " + (t3 - t2));
+                            GameClient.getInstance().send(new PlayerDTOMessage(playerDTO));
                         }
-                    } catch (IOException e)
-                    {
+
+                        long networkTime = System.nanoTime() - networkStart;
+
+                        float sqliteMs = sqliteTime / 1_000_000f;
+                        float networkMs = networkTime / 1_000_000f;
+
+                        System.out.printf("SQLite save: %.2f ms | Network send: %.2f ms%n",
+                            sqliteMs, networkMs);
+                    } catch (Exception e) {
+                        e.printStackTrace(); // More detailed error
                         throw new RuntimeException(e);
                     }
                 }

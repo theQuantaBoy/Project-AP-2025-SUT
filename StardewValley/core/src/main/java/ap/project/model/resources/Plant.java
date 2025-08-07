@@ -7,18 +7,19 @@ import ap.project.model.game.Point;
 import ap.project.model.game.Tile;
 import ap.project.model.enums.Season;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Plant extends GameObject
 {
     protected String name;
     protected Enum<?> type;
-    protected List<Integer> stages;
+    protected ArrayList<Integer> stages;
     protected int totalHarvestTime;
     protected int baseSellPrice;
     protected boolean isEdible;
     protected int energy;
-    protected List<Season> seasons;
+    protected ArrayList<Season> seasons;
 
     protected boolean hasStarted = false;
     protected int lastWatered = 1; // TODO: can this fix the problem?
@@ -204,7 +205,7 @@ public class Plant extends GameObject
         return type;
     }
 
-    public List<Integer> getStages()
+    public ArrayList<Integer> getStages()
     {
         return stages;
     }
@@ -229,7 +230,7 @@ public class Plant extends GameObject
         return energy;
     }
 
-    public List<Season> getSeasons()
+    public ArrayList<Season> getSeasons()
     {
         return seasons;
     }
