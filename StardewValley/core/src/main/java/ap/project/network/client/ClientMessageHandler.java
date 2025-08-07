@@ -3,6 +3,8 @@ package ap.project.network.client;
 import ap.project.Main;
 import ap.project.model.App.App;
 import ap.project.model.App.User;
+import ap.project.network.server.ClientConnection;
+import ap.project.network.server.GameServer;
 import ap.project.network.shared.DTO.UserDTO;
 import ap.project.network.shared.Mapper.Mapper;
 import ap.project.network.shared.messages.*;
@@ -87,6 +89,9 @@ public class ClientMessageHandler
                 break;
             case USER_SYNC_RESPONSE:
                 handleUserSyncResponse((UserSyncResponseMessage) message);
+                break;
+            case USER_UPDATE:
+                handleUserUpdate((UserUpdateMessage) message);
                 break;
             // Add other cases
         }
@@ -371,5 +376,12 @@ public class ClientMessageHandler
         }
 
         App.syncUsersWithServer(serverUsers);
+        GameClient.getInstance().setUserSyncComplete(true);
+    }
+
+    private static void handleUserUpdate(UserUpdateMessage msg)
+    {
+        User user = Mapper.fromDTO(msg.userDTO);
+        App.createOrUpdateUser(user);
     }
 }

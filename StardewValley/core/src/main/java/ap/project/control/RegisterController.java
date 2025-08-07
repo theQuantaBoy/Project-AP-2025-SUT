@@ -19,37 +19,7 @@ public class RegisterController
 
     public Result register(String username, String password, String passwordConfirm, String email, String nickName, Gender gender, String secQ, String secA)
     {
-//        String username = matcher.group("username");
-//        String password = matcher.group("password");
-//        String passwordConfirm = matcher.group("passwordConfirm");
-//        String input;
         boolean random = false;
-//        if (password.equals("random") && passwordConfirm.equals("password")) {
-//            random = true;
-//            do {
-//                password = generatePassword();
-//                passwordConfirm = password;
-//                System.out.println("your password is " + password +
-//                        ". type y to confirm, n for another password or exit for rejection");
-//                input = scanner.nextLine().trim();
-//
-//                if (input.equalsIgnoreCase("y")) {
-//                    break;
-//                } else if (input.equalsIgnoreCase("exit")) {
-//                    return new Result(false, "registration cancelled by user.");
-//                }
-//
-//            } while (input.equalsIgnoreCase("n"));
-//        }
-//        String nickName = matcher.group("nickname");
-//        String email = matcher.group("email");
-//        String genderName = matcher.group("gender");
-
-//        Gender gender = Gender.getGender(genderName);
-//        if (gender == null)
-//        {
-//            return new Result(false, "invalid gender");
-//        }
 
         if (RegisterCommands.CHECK_USERNAME.getMatcher(username) == null) {
             return new Result(false, "username is not valid!");
@@ -81,30 +51,9 @@ public class RegisterController
         }
 
         newUser = new User(username, password, nickName, email, gender, secQ, secA);
-        App.getUsers().add(newUser);
+        App.createUser(newUser);
         return new Result(true, "user created successfully!");
     }
-
-//    public Result pickQuestion(Matcher matcher)
-//    {
-//        int questionId = Integer.parseInt(matcher.group("questionNumber"));
-//        int answer = Integer.parseInt(matcher.group("answer"));
-//        int confirmAnswer = Integer.parseInt(matcher.group("answerConfirm"));
-//        if (questionId > 2 || questionId < 1) {
-//            return new Result(false, "question number invalid");
-//        } else if (answer > 2 || answer < 1) {
-//                return new Result(false, "answer is invalid");
-//        } else if (confirmAnswer > 2 || confirmAnswer < 1) {
-//            return new Result(false, "confirm answer is invalid");
-//        } else if (answer != confirmAnswer) {
-//            return new Result(false, "answer is not equal to confirm answer");
-//        } else if (newUser == null) {
-//            return new Result(false, "register first");
-//        }
-//        newUser.setQuestion(SecurityQuestionType.getQuestionById(questionId));
-//        newUser.setAnswer(answer);
-//        return new Result(true, "security question set.");
-//    }
 
     public Result enterMenu(String menuName)
     {
@@ -164,16 +113,19 @@ public class RegisterController
                 "    Shows this help message.\n");
     }
 
-    public static String generatePassword() {
-        String specialChars = "!@#$%^&*-_=+{};:,.<>?";
-        String allowedChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789" + specialChars;
+    public static String generatePassword()
+    {
+//        String specialChars = "!@#$%^&*-_=+{};:,.<>?";
+//        String allowedChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789" + specialChars;
+//
+//        int length = 8 + random.nextInt(9);
+//        StringBuilder password = new StringBuilder(length);
+//        for (int i = 0; i < length; i++) {
+//            int index = random.nextInt(allowedChars.length());
+//            password.append(allowedChars.charAt(index));
+//        }
+//        return password.toString();
 
-        int length = 8 + random.nextInt(9);
-        StringBuilder password = new StringBuilder(length);
-        for (int i = 0; i < length; i++) {
-            int index = random.nextInt(allowedChars.length());
-            password.append(allowedChars.charAt(index));
-        }
-        return password.toString();
+        return ProfileController.generateStrongRandomPassword();
     }
 }

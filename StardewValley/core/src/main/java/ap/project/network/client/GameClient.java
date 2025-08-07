@@ -4,6 +4,7 @@ import ap.project.Main;
 import ap.project.model.App.App;
 import ap.project.model.App.User;
 import ap.project.model.game.AbstractCharacter;
+import ap.project.network.shared.DTO.UserDTO;
 import ap.project.network.shared.KryoRegistry;
 import ap.project.network.shared.messages.*;
 import ap.project.screen.PreGameScreen;
@@ -32,6 +33,7 @@ public class GameClient
 
     private boolean connected = false;
     private boolean registered =  false;
+    private volatile boolean userSyncComplete = false;
 
     private GameClient()
     {
@@ -152,5 +154,25 @@ public class GameClient
     public void setRegistered(boolean registered)
     {
         this.registered = registered;
+    }
+
+    public void requestUserSync()
+    {
+        send(new UserSyncRequestMessage());
+    }
+
+    public void sendUserUpdate(User user)
+    {
+        send(new UserUpdateMessage(new UserDTO(user)));
+    }
+
+    public void setUserSyncComplete(boolean userSyncComplete)
+    {
+        this.userSyncComplete = userSyncComplete;
+    }
+
+    public boolean isUserSyncComplete()
+    {
+        return userSyncComplete;
     }
 }

@@ -36,11 +36,8 @@ public class LoginScreen implements Screen {
     private Label errorLabel;
     private Table table;
 
-
-
-
     public LoginScreen(LoginController controller) {
-        stage =  new Stage(new ScreenViewport());
+        stage = new Stage(new ScreenViewport());
         Gdx.input.setInputProcessor(stage);
         this.controller = controller;
 
@@ -57,6 +54,12 @@ public class LoginScreen implements Screen {
         this.username = new TextField("", GameAssetsManager.getGameAssetsManager().getSkin());
         this.username.setMessageText("Username");
         this.username.setAlignment(Align.center);
+
+        User u = App.getLoggedInUser();
+        if (u != null)
+        {
+            this.username.setText(u.getUsername());
+        }
 
         this.password = new TextField("", GameAssetsManager.getGameAssetsManager().getSkin());
         this.password.setMessageText("Password");
@@ -85,7 +88,6 @@ public class LoginScreen implements Screen {
         table.add(errorLabel).width(500).height(50).pad(10).row();
 
         addButtonListeners();
-
     }
 
     private void addButtonListeners() {

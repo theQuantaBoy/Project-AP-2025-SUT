@@ -276,6 +276,8 @@ public class PreLobbyScreen implements Screen
         // Navigation buttons and preview area
         Table navTable = new Table();
 
+        User currentUser = App.getCurrentUser();
+
         TextButton prevButton = new TextButton("<", skin);
         prevButton.addListener(new ClickListener() {
             @Override
@@ -283,6 +285,7 @@ public class PreLobbyScreen implements Screen
                 currentAvatarIndex = (currentAvatarIndex - 1 + CharacterType.values().length) % CharacterType.values().length;
                 user.setCharacterChoice(currentAvatarIndex);
                 updateAvatarPreview();
+                client.send(new UserChoicesMessage(currentUser.getCharacterChoice(), currentUser.getMapChoice()));
             }
         });
 
@@ -296,6 +299,7 @@ public class PreLobbyScreen implements Screen
                 currentAvatarIndex = (currentAvatarIndex + 1) % CharacterType.values().length;
                 user.setCharacterChoice(currentAvatarIndex);
                 updateAvatarPreview();
+                client.send(new UserChoicesMessage(currentUser.getCharacterChoice(), currentUser.getMapChoice()));
             }
         });
 
@@ -332,6 +336,8 @@ public class PreLobbyScreen implements Screen
         // Navigation buttons and preview area
         Table navTable = new Table();
 
+        User currentUser = App.getCurrentUser();
+
         TextButton prevButton = new TextButton("<", skin);
         prevButton.addListener(new ClickListener() {
             @Override
@@ -340,6 +346,7 @@ public class PreLobbyScreen implements Screen
                 currentMapIndex = (currentMapIndex - 1 + farms.size()) % farms.size();
                 user.setMapChoice(currentMapIndex);
                 updateMapPreview();
+                client.send(new UserChoicesMessage(currentUser.getCharacterChoice(), currentUser.getMapChoice()));
             }
         });
 
@@ -354,6 +361,7 @@ public class PreLobbyScreen implements Screen
                 currentMapIndex = (currentMapIndex + 1) % farms.size();
                 user.setMapChoice(currentMapIndex);
                 updateMapPreview();
+                client.send(new UserChoicesMessage(currentUser.getCharacterChoice(), currentUser.getMapChoice()));
             }
         });
 
@@ -731,10 +739,6 @@ public class PreLobbyScreen implements Screen
             User currentUser = App.getCurrentUser();
 
             client.send(new PreLobbyPresenceMessage());
-            client.send(new UserChoicesMessage(
-                currentUser.getCharacterChoice(),
-                currentUser.getMapChoice()
-            ));
 
             setStatus("connected");
             messageTimer = 0;
@@ -829,59 +833,4 @@ public class PreLobbyScreen implements Screen
             createActiveLobbiesDialogContent();
         }
     }
-
-    // ======================
-    // Logic To Implement
-    // ======================
-
-    /*
-     * Complete Logic Checklist:
-     *
-     * 1. Network Communication:
-     *    + Send periodic requests to server for lobby/user lists
-     *    + Implement message handlers for lobby/user list responses
-     *    + Create message classes: LobbyListRequest, UserListRequest,
-     *      LobbyListResponse, UserListResponse
-     *
-     * 2. Lobby Management:
-     *    - Handle lobby creation (send CreateLobbyMessage to server)
-     *    - Handle lobby joining (send JoinLobbyMessage to server)
-     *    - Implement lobby creation response handling
-     *    - Implement lobby join response handling (success/failure)
-     *
-     * 3. UI Updates:
-     *    - Update onlineUsersTable with data from server
-     *    - Update activeLobbiesTable with data from server
-     *    - Implement click handlers for lobby entries (join directly)
-     *    - Update status label based on connection state
-     *
-     * 4. Preference Management:
-     *    + Save selected avatar, map, and gender to user profile
-     *    + Send preferences to server when creating/joining lobby
-     *
-     * 5. Navigation:
-     *    - Transition to LobbyScreen after creating/joining lobby
-     *    - Implement back navigation properly
-     *
-     * 6. Error Handling:
-     *    - Show error dialogs for failed lobby operations
-     *    - Handle disconnections gracefully
-     *
-     * 7. Data Synchronization:
-     *    - Periodically refresh lobby/user lists
-     *    - Implement lobby/user list caching to minimize flickering
-     *
-     * 8. Security:
-     *    - Handle password-protected lobbies
-     *    - Validate lobby names/passwords
-     *
-     * 9. Admin Features:
-     *    - Implement kick player functionality (for lobby admin)
-     *    - Implement start game functionality
-     *
-     * 10. Performance:
-     *     - Optimize texture loading
-     *     - Implement object pooling for UI elements
-     *     - Throttle network requests when appropriate
-     */
 }

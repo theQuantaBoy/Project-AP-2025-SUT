@@ -320,5 +320,27 @@ public class App
     public static void setLoggedInUser(User loggedInUser)
     {
         App.loggedInUser = loggedInUser;
+        SQLiteUtil.saveLoggedInUser("saves/app/logged_in_user.db", loggedInUser.getHashId());
+    }
+
+    public static void createOrUpdateUser(User user)
+    {
+        boolean found = false;
+        for (int i = 0; i < users.size(); i++)
+        {
+            if (users.get(i).getHashId() == user.getHashId())
+            {
+                users.set(i, user);
+                found = true;
+                break;
+            }
+        }
+
+        if (!found)
+        {
+            users.add(user);
+        }
+
+        SQLiteUtil.saveUserList("saves/app/users_server.db", new ArrayList<>(users));
     }
 }

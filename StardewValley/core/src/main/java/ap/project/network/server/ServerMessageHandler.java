@@ -78,31 +78,35 @@ public class ServerMessageHandler
 
     private static void handleUserProfile(ClientConnection connection, UserProfileMessage msg)
     {
-        String username = msg.username;
-        String nickname = msg.nickname;
-        Gender gender = Gender.getGender(msg.gender);
-        int id = msg.userId;
-
-        User user = new User(username, nickname, gender, id);
-
-        System.out.println("Received profile: " + user.getUsername());
-
-        // Check if user already exists in server's connection list
+        int userId = msg.userId;
         GameServer server = GameServer.getInstance();
-        boolean userExists = server.getConnectedClients().stream()
-            .anyMatch(c -> c.getUserId() == user.getHashId());
 
-        if (userExists) {
+        // 1. Find user in server's list
+        User user = server.getUser(userId);
+
+        if (user == null)
+        {
+            System.out.println("User not found: " + userId);
+            connection.send(new ConnectionFailedMessage("User not registered on server"));
+            return;
+        }
+
+        System.out.println("Received profile for: " + user.getUsername());
+
+        // 2. Check if user is already connected
+        boolean userExists = server.getConnectedClients().stream()
+            .anyMatch(c -> c.getUserId() == userId);
+
+        if (userExists)
+        {
             System.out.println("User already connected: " + user.getUsername());
             connection.send(new ConnectionFailedMessage("User already connected"));
-        } else {
-            // Register user
+        } else
+        {
+            // 3. Register connection
             connection.setUserId(user);
             System.out.println("Registered user: " + user.getUsername());
             connection.send(new ConnectionConfirmedMessage());
-
-            // Add to server's user list
-            server.addUser(user);
         }
     }
 
@@ -118,18 +122,20 @@ public class ServerMessageHandler
 
     private static void handleUserChoice(ClientConnection client, UserChoicesMessage msg)
     {
-        // Update client preferences
-        client.characterChoice = msg.characterChoice;
-        client.mapChoice = msg.mapChoice;
+        GameServer server = GameServer.getInstance();
+        User user = server.getUser(client);
 
-        User user = GameServer.getInstance().getUser(client);
         if (user != null)
         {
             user.setMapChoice(msg.mapChoice);
             user.setCharacterChoice(msg.characterChoice);
+
+            SQLiteUtil.saveUserList("saves/app/users_server.db", server.getUsers());
+
+            UserUpdateMessage update = new UserUpdateMessage(new UserDTO(user));
+            server.broadcast(update);
         }
 
-        // Send confirmation
         client.send(new PreLobbyConfirmationMessage());
     }
 
