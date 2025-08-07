@@ -7,6 +7,7 @@ import ap.project.model.enums.building_enums.CraftingRecipeEnums;
 import ap.project.model.enums.building_enums.KitchenRecipe;
 import ap.project.model.game.GameObject;
 import ap.project.model.game.Player;
+import ap.project.network.shared.Mapper.Mapper;
 import com.badlogic.gdx.math.Vector2;
 
 import java.util.ArrayList;
@@ -17,7 +18,8 @@ public class PlayerDTO
     public FarmDTO farmDTO;
 
     public CharacterType characterType;
-    public Vector2 position;
+    public float positionX;
+    public float positionY;
 
     public Gender gender;
 
@@ -63,7 +65,8 @@ public class PlayerDTO
         this.farmDTO = new FarmDTO(player.getFarm());
 
         this.characterType = player.getCharacter().getType();
-        this.position = player.getPosition();
+        this.positionX = player.getPosition().x;
+        this.positionY = player.getPosition().y;
 
         this.gender = player.getGender();
 
@@ -79,7 +82,7 @@ public class PlayerDTO
 
         for (GameObject object : player.getRefrigerator())
         {
-            this.refrigerator.add(new GameObjectDTO(object));
+            this.refrigerator.add(Mapper.toDTO(object));
         }
 
         this.fishingSKill = new SkillDTO(player.getFishingSkill());
@@ -90,7 +93,7 @@ public class PlayerDTO
         this.newMessage = player.isNewMessage();
 
         this.currentToolDTO = new ToolDTO(player.getCurrentTool());
-        this.currentObject = new GameObjectDTO(player.getCurrentObject());
+        this.currentObject = Mapper.toDTO(player.getCurrentObject());
         this.money = player.getMoney();
 
         this.isInFarm = player.isInFarm();

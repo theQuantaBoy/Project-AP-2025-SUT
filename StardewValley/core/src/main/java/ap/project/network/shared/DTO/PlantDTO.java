@@ -2,6 +2,7 @@ package ap.project.network.shared.DTO;
 
 import ap.project.model.enums.Season;
 import ap.project.model.game.GameObject;
+import ap.project.model.game.Point;
 import ap.project.model.resources.Plant;
 
 import java.util.ArrayList;
@@ -26,8 +27,11 @@ public class PlantDTO extends GameObjectDTO
     public boolean hasHarvested;
     public int harvestWaitTime;
 
+    public boolean isGrowFaster;
     public boolean isInGreenhouse;
-    public TileDTO tileDTO;
+
+    public int playerIndex;
+    public Point point;
 
     public PlantDTO() {}
 
@@ -54,8 +58,11 @@ public class PlantDTO extends GameObjectDTO
             this.hasHarvested = plant.isHasHarvested();
             this.harvestWaitTime = plant.getHarvestWaitTime();
 
+            this.isGrowFaster = plant.isGrowFaster();
             this.isInGreenhouse = plant.isInGreenhouse();
-            this.tileDTO = new TileDTO(plant.getTile());
+
+            this.playerIndex = plant.getPlayerIndex();
+            this.point = plant.getPoint();
         }
     }
 }

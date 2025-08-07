@@ -3,6 +3,7 @@ package ap.project.network.shared.DTO;
 import ap.project.model.enums.TileTexture;
 import ap.project.model.game.Point;
 import ap.project.model.game.Tile;
+import ap.project.network.shared.Mapper.Mapper;
 
 public class TileDTO
 {
@@ -39,7 +40,7 @@ public class TileDTO
             this.hitByThunder = tile.isHitByThunder();
             this.texture = tile.getTexture();
 
-            this.gameObjectDTO = new GameObjectDTO(tile.getObject());
+            this.gameObjectDTO = Mapper.toDTO(tile.getObject());
             this.isPloughed = tile.isPloughed();
             this.isFertilized = tile.isFertilized();
 

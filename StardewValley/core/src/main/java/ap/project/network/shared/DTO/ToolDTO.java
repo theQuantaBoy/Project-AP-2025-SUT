@@ -5,8 +5,6 @@ import ap.project.model.tools.*;
 
 public class ToolDTO extends GameObjectDTO
 {
-    public boolean initialized;
-
     public ToolType type;
     public String name;
 
@@ -47,11 +45,6 @@ public class ToolDTO extends GameObjectDTO
             {
                 this.trashCanLevel = ((TrashCan) tool).getLevel();
             }
-
-            this.initialized = true;
-        } else
-        {
-            this.initialized = false;
         }
     }
 }

@@ -99,6 +99,14 @@ public class KryoRegistry
         kryo.register(ap.project.model.enums.SkillType.class);
         kryo.register(ap.project.model.enums.building_enums.KitchenRecipe.class);
         kryo.register(com.badlogic.gdx.math.Vector2.class);
+        kryo.register(ap.project.model.enums.tool_enums.AxeLevel.class);
+        kryo.register(ap.project.model.enums.tool_enums.FishingPoleLevel.class);
+        kryo.register(ap.project.model.enums.tool_enums.PickaxeLevel.class);
+        kryo.register(ap.project.model.enums.tool_enums.HoeLevel.class);
+        kryo.register(ap.project.model.enums.tool_enums.BackPackLevel.class);
+        kryo.register(ap.project.model.enums.tool_enums.ToolType.class);
+        kryo.register(ap.project.model.enums.tool_enums.TrashCanLevel.class);
+        kryo.register(ap.project.model.enums.tool_enums.WateringCanLevel.class);
 
         // Register all other message classes ...
     }

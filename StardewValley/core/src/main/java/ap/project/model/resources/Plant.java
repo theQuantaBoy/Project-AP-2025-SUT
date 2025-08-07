@@ -2,6 +2,8 @@ package ap.project.model.resources;
 
 import ap.project.model.App.App;
 import ap.project.model.game.GameObject;
+import ap.project.model.game.Player;
+import ap.project.model.game.Point;
 import ap.project.model.game.Tile;
 import ap.project.model.enums.Season;
 
@@ -26,8 +28,11 @@ public class Plant extends GameObject
     protected boolean hasHarvested = false;
     protected int harvestWaitTime;
 
+    protected boolean isGrowFaster = false;
     protected boolean isInGreenhouse = false;
-    protected Tile tile = null;
+    protected Point point;
+
+    protected int playerIndex;
 
     public void water()
     {
@@ -70,7 +75,7 @@ public class Plant extends GameObject
 
     public void update()
     {
-        if (hasBeenWateredToday() || (Math.random() < tile.getWateringChance() / 100.0) || tile.isShouldBeWateredAutomatically())
+        if (hasBeenWateredToday() || (Math.random() < getTile().getWateringChance() / 100.0) || getTile().isShouldBeWateredAutomatically())
         {
             grow();
         }
@@ -162,11 +167,6 @@ public class Plant extends GameObject
         }
 
         return lastWatered;
-    }
-
-    public Tile getTile()
-    {
-        return tile;
     }
 
     public boolean hasStarted()
@@ -292,5 +292,36 @@ public class Plant extends GameObject
     public void setInGreenhouse(boolean inGreenhouse)
     {
         isInGreenhouse = inGreenhouse;
+    }
+
+    public Point getPoint()
+    {
+        return point;
+    }
+
+    public int getPlayerIndex()
+    {
+        return playerIndex;
+    }
+
+    public Tile getTile()
+    {
+        Player player = App.getCurrentGame().getPlayers().get(this.playerIndex);
+        if (!isInGreenhouse())
+        {
+            return player.getFarm().getTile(point.getX(), point.getY());
+        }
+
+        return player.getGreenHouse().getTile(point.getX(), point.getY());
+    }
+
+    public boolean isGrowFaster()
+    {
+        return isGrowFaster;
+    }
+
+    public void setGrowFaster(boolean growFaster)
+    {
+        isGrowFaster = growFaster;
     }
 }

@@ -4,6 +4,7 @@ import ap.project.model.enums.tool_enums.BackPackLevel;
 import ap.project.model.game.GameObject;
 import ap.project.model.tools.BackPack;
 import ap.project.model.tools.Tool;
+import ap.project.network.shared.Mapper.Mapper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,12 +23,18 @@ public class BackPackDTO
 
         for (GameObject o : backPack.getSlots())
         {
-            slots.add(new GameObjectDTO(o));
+            if (o != null)
+            {
+                slots.add(Mapper.toDTO(o));
+            }
         }
 
         for (Tool tool : backPack.getTools())
         {
-            tools.add(new ToolDTO(tool));
+            if (tool != null)
+            {
+                tools.add(new ToolDTO(tool));
+            }
         }
     }
 }

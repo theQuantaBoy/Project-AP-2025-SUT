@@ -1,5 +1,6 @@
 package ap.project.model.resources;
 
+import ap.project.model.game.Point;
 import ap.project.model.game.Tile;
 import ap.project.model.enums.resources_enums.FruitType;
 import ap.project.model.enums.resources_enums.TreeType;
@@ -9,7 +10,7 @@ public class Tree extends Plant
     private FruitType fruit;
     private int fruitHarvestCycle;
 
-    public Tree(TreeType treeType, Tile tile)
+    public Tree(TreeType treeType, Point point, int playerIndex, boolean isGrowFaster)
     {
         this.type = treeType;
         this.name = treeType.getName();
@@ -23,9 +24,11 @@ public class Tree extends Plant
         this.seasons = treeType.getSeasons();
 
         harvestWaitTime = this.totalHarvestTime;
-        this.tile = tile;
+        this.point = point;
+        this.playerIndex = playerIndex;
 
-        if (tile.isGrowFaster())
+        this.isGrowFaster = isGrowFaster;
+        if (isGrowFaster)
         {
             setGrowFaster();
         }

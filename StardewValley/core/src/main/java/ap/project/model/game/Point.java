@@ -4,7 +4,9 @@ import java.util.Objects;
 
 public class Point
 {
-    private final int x, y;
+    private int x, y;
+
+    public Point() {}
 
     public Point(int x, int y)
     {

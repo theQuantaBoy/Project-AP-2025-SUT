@@ -12,6 +12,7 @@ import ap.project.model.player_data.Skill;
 import ap.project.model.resources.*;
 import ap.project.model.tools.*;
 import ap.project.network.shared.DTO.*;
+import com.badlogic.gdx.math.Vector2;
 
 public class Mapper
 {
@@ -28,14 +29,17 @@ public class Mapper
 
     public static GameObject fromDTO(GameObjectDTO gameObjectDTO)
     {
-        if (!gameObjectDTO.initialized) return null;
+        if (!gameObjectDTO.initialized)
+        {
+            return null;
+        }
 
         if (gameObjectDTO instanceof PlantDTO)
         {
             if (gameObjectDTO instanceof TreeDTO)
             {
                 TreeDTO treeDTO = (TreeDTO)gameObjectDTO;
-                Tree tree = new Tree((TreeType) treeDTO.type, fromDTO(treeDTO.tileDTO));
+                Tree tree = new Tree((TreeType) treeDTO.type, treeDTO.point, treeDTO.playerIndex, treeDTO.isGrowFaster);
 
                 tree.setHasStarted(treeDTO.hasStarted);
                 tree.setLastWatered(treeDTO.lastWatered);
@@ -59,7 +63,7 @@ public class Mapper
                 if (gameObjectDTO instanceof GiantCropDTO)
                 {
                     GiantCropDTO giantCropDTO = (GiantCropDTO) gameObjectDTO;
-                    GiantCrop giantCrop = new GiantCrop((CropType) giantCropDTO.type, fromDTO(giantCropDTO.rootTileDTO));
+                    GiantCrop giantCrop = new GiantCrop((CropType) giantCropDTO.type, giantCropDTO.rootPoint, giantCropDTO.playerIndex, giantCropDTO.isGrowFaster);
 
                     giantCrop.setHasStarted(giantCropDTO.hasStarted);
                     giantCrop.setLastWatered(giantCropDTO.lastWatered);
@@ -79,7 +83,7 @@ public class Mapper
                 }
 
                 CropDTO cropDTO = (CropDTO) gameObjectDTO;
-                Crop crop = new Crop((CropType) cropDTO.type, fromDTO(cropDTO.tileDTO));
+                Crop crop = new Crop((CropType) cropDTO.type, cropDTO.point, cropDTO.playerIndex, cropDTO.isGrowFaster);
 
                 crop.setHasStarted(cropDTO.hasStarted);
                 crop.setLastWatered(cropDTO.lastWatered);
@@ -167,7 +171,7 @@ public class Mapper
         if (gameObjectDTO instanceof CraftingItemDTO)
         {
             CraftingItemDTO craftingItemDTO = (CraftingItemDTO) gameObjectDTO;
-            CraftingItem craftingItem = new CraftingItem(craftingItemDTO.craftingType, fromDTO(craftingItemDTO.tileDTO));
+            CraftingItem craftingItem = new CraftingItem(craftingItemDTO.craftingType, craftingItemDTO.point);
 
             craftingItem.setArtisanType(craftingItemDTO.artisanType);
             craftingItem.setWorking(craftingItemDTO.isWorking);
@@ -217,6 +221,66 @@ public class Mapper
         tile.setShouldBeWateredAutomatically(tileDTO.shouldBeWateredAutomatically);
 
         return tile;
+    }
+
+    public static GameObjectDTO toDTO(GameObject gameObject)
+    {
+        if (gameObject == null) return new GameObjectDTO(gameObject);
+
+        if (gameObject instanceof Plant)
+        {
+            if (gameObject instanceof Tree)
+            {
+                return new TreeDTO((Tree) gameObject);
+            }
+
+            if (gameObject instanceof Crop)
+            {
+                if (gameObject instanceof GiantCrop)
+                {
+                    return new GiantCropDTO((GiantCrop) gameObject);
+                }
+
+                return new CropDTO((Crop) gameObject);
+            }
+        }
+
+        if (gameObject instanceof ForagingCrop)
+        {
+            return new ForagingCropDTO((ForagingCrop) gameObject);
+        }
+
+        if (gameObject instanceof ForagingMineral)
+        {
+            return new ForagingMineralDTO((ForagingMineral) gameObject);
+        }
+
+        if (gameObject instanceof ForagingSeed)
+        {
+            return new ForagingSeedDTO((ForagingSeed) gameObject);
+        }
+
+        if (gameObject instanceof ForagingTree)
+        {
+            return new ForagingTreeDTO((ForagingTree) gameObject);
+        }
+
+        if (gameObject instanceof Resource)
+        {
+            return new ResourceDTO((Resource) gameObject);
+        }
+
+        if (gameObject instanceof Tool)
+        {
+            return new ToolDTO((Tool) gameObject);
+        }
+
+        if (gameObject instanceof CraftingItem)
+        {
+            return new CraftingItemDTO((CraftingItem) gameObject);
+        }
+
+        return new GameObjectDTO(gameObject);
     }
 
     public static Tool fromDTO(ToolDTO toolDTO)
@@ -394,9 +458,7 @@ public class Mapper
 
     public static BackPack fromDTO(BackPackDTO backPackDTO)
     {
-        BackPack backPack = new BackPack();
-
-        backPack.setLevel(backPackDTO.level);
+        BackPack backPack = new BackPack(backPackDTO.level);
 
         for (GameObjectDTO o : backPackDTO.slots)
         {
@@ -417,7 +479,7 @@ public class Mapper
         player.setFarm(fromDTO(playerDTO.farmDTO));
 
         player.spawn();
-        player.getCharacter().setPosition(playerDTO.position);
+        player.getCharacter().setPosition(new Vector2(playerDTO.positionX, playerDTO.positionY));
 
         player.setGender(playerDTO.gender);
 

@@ -16,6 +16,7 @@ import ap.project.model.tools.BackPack;
 import ap.project.model.tools.Tool;
 import ap.project.network.client.GameClient;
 import ap.project.network.shared.DTO.PlayerDTO;
+import ap.project.network.shared.Mapper.Mapper;
 import ap.project.network.shared.messages.*;
 import ap.project.screen.input.WorldScreenInputProcessor;
 import ap.project.util.JsonFileUtil;
@@ -243,7 +244,28 @@ public final class WorldScreen implements Screen
             p.spawn();
         }
 
-        this.map = game.getCurrentPlayer().getCurrentMap();
+        System.out.println("loading save");
+        try
+        {
+            PlayerDTO playerDTO = JsonFileUtil.loadPlayerDTO("save/player_test.json");
+            App.getCurrentGame().setCurrentPlayer(Mapper.fromDTO(playerDTO));
+            System.out.println("loaded save");
+        } catch (IOException e)
+        {
+            System.out.println("failed");
+            throw new RuntimeException(e);
+        }
+
+        Player p = game.getCurrentPlayer();
+        if (p.isInFarm())
+        {
+            p.setCurrentMap(p.getFarm());
+        } else if (p.isInHome())
+        {
+            p.setCurrentMap(p.getCabin());
+        }
+
+        this.map = game.getCurrentPlayer().getCabin();
         time = game.getCurrentTime();
         currentSeason = time.getSeason();
 
@@ -273,17 +295,6 @@ public final class WorldScreen implements Screen
         inputMultiplexer = new InputMultiplexer();
         checkGameInfo();
         initializeHotbar();
-
-        PlayerDTO dto = new PlayerDTO(player);
-        try
-        {
-            System.out.println("start");
-            JsonFileUtil.saveToFile(dto, "save/player_test.json");
-            System.out.println("done");
-        } catch (IOException e)
-        {
-            throw new RuntimeException(e);
-        }
     }
 
     private void initializeHotbar() {
@@ -511,6 +522,21 @@ public final class WorldScreen implements Screen
 
                 if (isCraftingWindowVisible()) {
                     return false;
+                }
+
+                if (keycode == Input.Keys.P)
+                {
+                    PlayerDTO dto = new PlayerDTO(player);
+                    try
+                    {
+                        System.out.println("start");
+                        JsonFileUtil.saveToFile(dto, "save/player_test.json");
+                        UIRenderer.showTextBox("saved");
+                        System.out.println("done");
+                    } catch (IOException e)
+                    {
+                        throw new RuntimeException(e);
+                    }
                 }
 
                 if (keycode == Input.Keys.E || keycode == Input.Keys.ESCAPE) {

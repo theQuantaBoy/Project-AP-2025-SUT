@@ -26,6 +26,7 @@ public class BackPack extends Tool {
     }
 
     public BackPack(BackPackLevel level) {
+        super.ObjectType = GameObjectType.BackPack;
         super.toolType = ToolType.BackPack;
         super.name = toolType.getName();
         this.level = level;
@@ -150,5 +151,10 @@ public class BackPack extends Tool {
         if (slot >= 0 && slot < hotbarSlots.size()) {
             hotbarSlots.set(slot, null);
         }
+    }
+
+    public void setItemCount(int itemCount)
+    {
+        this.itemCount = itemCount;
     }
 }

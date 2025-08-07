@@ -778,7 +778,7 @@ public class WorldController
             return true;
         }
 
-        CraftingItem newCraftedItem = new CraftingItem(craftingItem.getCraftingType(), tile);
+        CraftingItem newCraftedItem = new CraftingItem(craftingItem.getCraftingType(), tile.getPoint());
         tile.setObject(newCraftedItem);
 
         if (object.getNumber() == 1)
@@ -1004,7 +1004,8 @@ public class WorldController
 
         if (cropType != null)
         {
-            Crop crop = new Crop(cropType, tile);
+            int index =  App.getCurrentGame().getPlayerIndex();
+            Crop crop = new Crop(cropType, tile.getPoint(), index, tile.isGrowFaster());
             tile.setObject(crop);
 
             Tile rootTile;
@@ -1047,7 +1048,8 @@ public class WorldController
 
         if (treeType != null)
         {
-            Tree tree = new Tree(treeType, tile);
+            int index = App.getCurrentGame().getPlayerIndex();
+            Tree tree = new Tree(treeType, tile.getPoint(), index, tile.isGrowFaster());
             tile.setObject(tree);
             if (player.isInGreenHouse())
             {
