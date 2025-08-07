@@ -12,6 +12,8 @@ import java.util.ArrayList;
 
 public class KryoRegistry
 {
+    public static final int BUFFER_LIMIT = 5120000;
+
     public static void registerClasses(Kryo kryo)
     {
         kryo.register(MessageType.class);
@@ -107,6 +109,21 @@ public class KryoRegistry
         kryo.register(ap.project.model.enums.tool_enums.ToolType.class);
         kryo.register(ap.project.model.enums.tool_enums.TrashCanLevel.class);
         kryo.register(ap.project.model.enums.tool_enums.WateringCanLevel.class);
+
+        kryo.register(ap.project.network.shared.DTO.TileDTO[][].class);
+        kryo.register(ap.project.network.shared.DTO.TileDTO[].class);
+        kryo.register(ap.project.network.shared.DTO.ForagingTreeDTO.class);
+        kryo.register(ap.project.network.shared.DTO.ForagingSeedDTO.class);
+        kryo.register(ap.project.network.shared.DTO.ForagingMineralDTO.class);
+        kryo.register(ap.project.network.shared.DTO.ForagingCropDTO.class);
+
+        kryo.register(ap.project.model.enums.resources_enums.ForagingTreeType.class);
+        kryo.register(ap.project.model.enums.resources_enums.ForagingCropType.class);
+        kryo.register(ap.project.model.enums.resources_enums.ForagingSeedType.class);
+        kryo.register(ap.project.model.enums.resources_enums.ForagingMineralType.class);
+
+        kryo.register(ap.project.network.shared.DTO.ResourceDTO.class);
+        kryo.register(ap.project.model.enums.resources_enums.ResourceItem.class);
 
         // Register all other message classes ...
     }

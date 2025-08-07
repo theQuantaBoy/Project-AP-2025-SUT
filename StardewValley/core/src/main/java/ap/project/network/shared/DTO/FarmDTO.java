@@ -11,13 +11,18 @@ public class FarmDTO
 {
     public MapTypes mapType;
 
-    public ArrayList<TileDTO> tilesWithResources = new ArrayList<>();
-    public ArrayList<TileDTO> tilesWithForagingTrees = new ArrayList<>();
-    public ArrayList<TileDTO> tilesWithForagingItems = new ArrayList<>();
-    public ArrayList<TileDTO> plantingTiles = new ArrayList<>();
-    public ArrayList<TileDTO> tilesWIthCraftingItems = new ArrayList<>();
-    public ArrayList<TileDTO> lightningTiles = new ArrayList<>();
-    public ArrayList<TileDTO> hazardTiles = new ArrayList<>();
+    public int width;
+    public int height;
+
+    public TileDTO[][] tiles;
+
+    public ArrayList<Point> tilesWithResources = new ArrayList<>();
+    public ArrayList<Point> tilesWithForagingTrees = new ArrayList<>();
+    public ArrayList<Point> tilesWithForagingItems = new ArrayList<>();
+    public ArrayList<Point> plantingTiles = new ArrayList<>();
+    public ArrayList<Point> tilesWIthCraftingItems = new ArrayList<>();
+    public ArrayList<Point> lightningTiles = new ArrayList<>();
+    public ArrayList<Point> hazardTiles = new ArrayList<>();
 
     public FarmDTO() {}
 
@@ -25,39 +30,52 @@ public class FarmDTO
     {
         this.mapType = farm.getMapType();
 
+        this.width = farm.getWidth();
+        this.height = farm.getHeight();
+
+        this.tiles = new TileDTO[this.height][this.width];
+
+        for(int y = 0; y < this.height; y++)
+        {
+            for (int x =  0; x < this.width; x++)
+            {
+                this.tiles[y][x] = new TileDTO(farm.getTile(x, y));
+            }
+        }
+
         for (Tile tile : farm.getTilesWithResources())
         {
-            tilesWithResources.add(new TileDTO(tile));
+            tilesWithResources.add(tile.getPoint());
         }
 
         for (Tile tile : farm.getTilesWithForagingTrees())
         {
-            tilesWithForagingTrees.add(new TileDTO(tile));
+            tilesWithForagingTrees.add(tile.getPoint());
         }
 
         for (Tile tile : farm.getTilesWithForagingItems())
         {
-            tilesWithForagingItems.add(new TileDTO(tile));
+            tilesWithForagingItems.add(tile.getPoint());
         }
 
         for (Tile tile : farm.getPlantingTiles())
         {
-            plantingTiles.add(new TileDTO(tile));
+            plantingTiles.add(tile.getPoint());
         }
 
         for (Tile tile : farm.getTilesWithCraftingItems())
         {
-            tilesWIthCraftingItems.add(new TileDTO(tile));
+            tilesWIthCraftingItems.add(tile.getPoint());
         }
 
         for (Tile tile : farm.getLightningTiles())
         {
-            lightningTiles.add(new TileDTO(tile));
+            lightningTiles.add(tile.getPoint());
         }
 
         for (Tile tile : farm.getHazardTiles())
         {
-            hazardTiles.add(new TileDTO(tile));
+            hazardTiles.add(tile.getPoint());
         }
     }
 }

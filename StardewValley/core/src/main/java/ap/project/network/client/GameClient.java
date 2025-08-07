@@ -19,6 +19,8 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+import static ap.project.network.shared.KryoRegistry.BUFFER_LIMIT;
+
 public class GameClient
 {
     private static GameClient instance;
@@ -31,7 +33,7 @@ public class GameClient
 
     private GameClient()
     {
-        kryoClient = new Client();
+        kryoClient = new Client(BUFFER_LIMIT, BUFFER_LIMIT);
         kryoClient.start();
         registerClasses(kryoClient.getKryo());
 

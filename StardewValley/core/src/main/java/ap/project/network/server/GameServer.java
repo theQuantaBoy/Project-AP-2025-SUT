@@ -17,6 +17,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import static ap.project.network.shared.KryoRegistry.BUFFER_LIMIT;
+
 public class GameServer
 {
     private static GameServer instance;
@@ -332,7 +334,7 @@ public class GameServer
 
     public GameServer() throws IOException
     {
-        kryoServer = new Server();
+        kryoServer = new Server(BUFFER_LIMIT, BUFFER_LIMIT);
         kryoServer.start();
         registerClasses(kryoServer.getKryo());
         kryoServer.bind(54555, 54777);

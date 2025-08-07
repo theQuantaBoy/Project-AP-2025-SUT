@@ -418,39 +418,50 @@ public class Mapper
     {
         Farm farm = new Farm(farmDTO.mapType, true);
 
-        for (TileDTO t : farmDTO.tilesWithResources)
+        int height = farmDTO.height;
+        int width = farmDTO.width;
+
+        for (int y = 0; y < height; y++)
         {
-            farm.getTilesWithResources().add(fromDTO(t));
+            for (int x = 0; x < width; x++)
+            {
+                farm.setTile(x, y, fromDTO(farmDTO.tiles[y][x]));
+            }
         }
 
-        for (TileDTO t : farmDTO.tilesWithForagingTrees)
+        for (Point p : farmDTO.tilesWithResources)
         {
-            farm.getTilesWithForagingTrees().add(fromDTO(t));
+            farm.getTilesWithResources().add(farm.getTile(p.getX(), p.getY()));
         }
 
-        for (TileDTO t : farmDTO.tilesWithForagingItems)
+        for (Point p : farmDTO.tilesWithForagingTrees)
         {
-            farm.getTilesWithForagingItems().add(fromDTO(t));
+            farm.getTilesWithForagingTrees().add(farm.getTile(p.getX(), p.getY()));
         }
 
-        for (TileDTO t : farmDTO.plantingTiles)
+        for (Point p : farmDTO.tilesWithForagingItems)
         {
-            farm.getPlantingTiles().add(fromDTO(t));
+            farm.getTilesWithForagingItems().add(farm.getTile(p.getX(), p.getY()));
         }
 
-        for (TileDTO t : farmDTO.tilesWIthCraftingItems)
+        for (Point p : farmDTO.plantingTiles)
         {
-            farm.getTilesWithCraftingItems().add(fromDTO(t));
+            farm.getPlantingTiles().add(farm.getTile(p.getX(), p.getY()));
         }
 
-        for (TileDTO t : farmDTO.lightningTiles)
+        for (Point p : farmDTO.tilesWIthCraftingItems)
         {
-            farm.getLightningTiles().add(fromDTO(t));
+            farm.getTilesWithCraftingItems().add(farm.getTile(p.getX(), p.getY()));
         }
 
-        for (TileDTO t : farmDTO.hazardTiles)
+        for (Point p : farmDTO.lightningTiles)
         {
-            farm.getHazardTiles().add(fromDTO(t));
+            farm.getLightningTiles().add(farm.getTile(p.getX(), p.getY()));
+        }
+
+        for (Point p : farmDTO.hazardTiles)
+        {
+            farm.getHazardTiles().add(farm.getTile(p.getX(), p.getY()));
         }
 
         return farm;

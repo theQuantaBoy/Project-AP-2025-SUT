@@ -16,6 +16,7 @@ import ap.project.model.tools.BackPack;
 import ap.project.model.tools.Tool;
 import ap.project.network.client.GameClient;
 import ap.project.network.shared.DTO.PlayerDTO;
+import ap.project.network.shared.DTO.TileDTO;
 import ap.project.network.shared.Mapper.Mapper;
 import ap.project.network.shared.messages.*;
 import ap.project.screen.input.WorldScreenInputProcessor;
@@ -244,26 +245,26 @@ public final class WorldScreen implements Screen
             p.spawn();
         }
 
-        System.out.println("loading save");
-        try
-        {
-            PlayerDTO playerDTO = JsonFileUtil.loadPlayerDTO("save/player_test.json");
-            App.getCurrentGame().setCurrentPlayer(Mapper.fromDTO(playerDTO));
-            System.out.println("loaded save");
-        } catch (IOException e)
-        {
-            System.out.println("failed");
-            throw new RuntimeException(e);
-        }
-
-        Player p = game.getCurrentPlayer();
-        if (p.isInFarm())
-        {
-            p.setCurrentMap(p.getFarm());
-        } else if (p.isInHome())
-        {
-            p.setCurrentMap(p.getCabin());
-        }
+//        System.out.println("loading save");
+//        try
+//        {
+//            PlayerDTO playerDTO = JsonFileUtil.loadPlayerDTO("save/player_test.json");
+//            App.getCurrentGame().setCurrentPlayer(Mapper.fromDTO(playerDTO));
+//            System.out.println("loaded save");
+//        } catch (IOException e)
+//        {
+//            System.out.println("failed");
+//            throw new RuntimeException(e);
+//        }
+//
+//        Player p = game.getCurrentPlayer();
+//        if (p.isInFarm())
+//        {
+//            p.setCurrentMap(p.getFarm());
+//        } else if (p.isInHome())
+//        {
+//            p.setCurrentMap(p.getCabin());
+//        }
 
         this.map = game.getCurrentPlayer().getCabin();
         time = game.getCurrentTime();
@@ -529,10 +530,18 @@ public final class WorldScreen implements Screen
                     PlayerDTO dto = new PlayerDTO(player);
                     try
                     {
+                        long t1 = System.currentTimeMillis();
                         System.out.println("start");
                         JsonFileUtil.saveToFile(dto, "save/player_test.json");
-                        UIRenderer.showTextBox("saved");
-                        System.out.println("done");
+                        long t2 = System.currentTimeMillis();
+                        System.out.println("saved: " + (t2 - t1));
+                        if (ONLINE_MODE)
+                        {
+                            client.send(new PlayerDTOMessage(dto));
+                            client.processMessages();
+                            long t3 = System.currentTimeMillis();
+                            System.out.println("sent: " + (t3 - t2));
+                        }
                     } catch (IOException e)
                     {
                         throw new RuntimeException(e);
@@ -619,8 +628,6 @@ public final class WorldScreen implements Screen
         if (periodicNetworkUpdate >= PERIODIC_NETWORK_INTERVAL)
         {
             sendPlayerPresenceMessage();
-
-            client.send(new PlayerDTOMessage(new PlayerDTO(player)));
 
             periodicNetworkUpdate = 0;
         }

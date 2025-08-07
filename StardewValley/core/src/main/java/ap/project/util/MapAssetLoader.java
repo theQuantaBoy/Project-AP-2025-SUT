@@ -45,7 +45,6 @@ public final class MapAssetLoader
         public final int depth;
         public final TiledMap tiledMap;
         public final Tile[][] tiles;
-        public final Tile[][][] layerTiles;
         public final Point startingPoint;
         public Point cabinDoor;
         public Point greenhouseDoor;
@@ -139,7 +138,6 @@ public final class MapAssetLoader
             }
 
             tiles = new Tile[height][width]; // [y][x]
-            layerTiles = new Tile[depth][height][width];
 
             for (int i = 0; i < tiledMap.getLayers().size(); i++)
             {
@@ -157,8 +155,6 @@ public final class MapAssetLoader
                         String typeName = props.get("type", String.class);
 
                         int flippedY = height - 1 - y;
-
-                        layerTiles[i][flippedY][x] = new Tile(new Point(x, flippedY), typeName);
 
                         if (typeName == null)
                         {
