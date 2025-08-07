@@ -92,6 +92,11 @@ public class ClientMessageHandler {
             case INCOMING_TRADE_RESPONSE:
                 handleIncomingTradeResponse((IncomingTradeResponseMessage) message);
                 break;
+            case MOVING_ITEM_TO_TRADE:
+                handleMovingItemToTrade((MovingItemToTadeMessage) message);
+                break;
+            case MOVING_ITEM_TO_INVENTORY:
+                handleMovingItemToInventory((MovingItemToInventoryMessage) message);
             // Add other cases
         }
     }
@@ -364,5 +369,39 @@ public class ClientMessageHandler {
         }
     }
 
+    private static void handleMovingItemToTrade(MovingItemToTadeMessage message) {
+        if (Main.getApp().getScreen() instanceof WorldScreen) {
+            WorldScreen worldScreen = (WorldScreen) Main.getApp().getScreen();
+            TradeWindow tw = worldScreen.getTradeWindow();
 
+            int receiver = message.getReceiverID();
+            Player player = App.getCurrentGame().getPlayerByUserID(receiver);
+            tw.setDependencies(worldScreen.getInventoryWindow(), new TradeController()); // if not already set
+
+            // Run on the render thread
+            Gdx.app.postRunnable(() -> {
+                // This will clear the old request dialog and open the full trade screen
+                tw.moveOneItemFromInventoryToTrade(player, message.item);
+                tw.refreshTradeScreen();
+            });
+        }
+    }
+
+    private static void handleMovingItemToInventory(MovingItemToInventoryMessage message) {
+        if (Main.getApp().getScreen() instanceof WorldScreen) {
+            WorldScreen worldScreen = (WorldScreen) Main.getApp().getScreen();
+            TradeWindow tw = worldScreen.getTradeWindow();
+
+            int receiver = message.receiverID;
+            Player player = App.getCurrentGame().getPlayerByUserID(receiver);
+            tw.setDependencies(worldScreen.getInventoryWindow(), new TradeController()); // if not already set
+
+            // Run on the render thread
+            Gdx.app.postRunnable(() -> {
+                // This will clear the old request dialog and open the full trade screen
+                tw.moveOneItemFromTradeToInventory(player, message.object);
+                tw.refreshTradeScreen();
+            });
+        }
+    }
 }

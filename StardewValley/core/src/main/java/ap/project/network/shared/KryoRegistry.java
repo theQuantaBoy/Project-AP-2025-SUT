@@ -3,6 +3,7 @@ package ap.project.network.shared;
 import ap.project.model.App.User;
 import ap.project.model.enums.*;
 import ap.project.model.game.AbstractCharacter;
+import ap.project.model.game.GameObject;
 import ap.project.model.game.Time;
 import com.esotericsoftware.kryo.Kryo;
 import ap.project.network.shared.enums.MessageType;
@@ -81,6 +82,11 @@ public class KryoRegistry
         kryo.register(TradeResponseMessage.class);
         kryo.register(IncomingTradeRequestMessage.class);
         kryo.register(IncomingTradeResponseMessage.class);
+
+        kryo.register(MovingItemToTadeMessage.class);
+        kryo.register(MovingItemToInventoryMessage.class);
+        kryo.register(GameObject.class);
+        kryo.register(GameObjectType.class);
 
         // Register all other message classes ...
     }

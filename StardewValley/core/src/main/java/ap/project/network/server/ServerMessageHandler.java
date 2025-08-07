@@ -65,9 +65,18 @@ public class ServerMessageHandler
                 break;
             case TRADE_RESPONSE:
                 handleTradeResponseMessage(client, (TradeResponseMessage) message);
+                break;
+            case MOVING_ITEM_TO_TRADE:
+                handleMovingItemToTrade(client, (MovingItemToTadeMessage) message);
+                break;
+            case MOVING_ITEM_TO_INVENTORY:
+                handleMovingItemToInventory(client, (MovingItemToInventoryMessage) message);
+                break;
+            case TRADE_CONFIRM:
+                handleTradeConfirm(client, (TradeConfirmMessage) message);
+                break;
         }
     }
-
 
     private static void handleTestMessage(TestMessage msg)
     {
@@ -436,5 +445,48 @@ public class ServerMessageHandler
         System.out.println("Trade response sent from " + sender.getUsername() + " to " + message.getResponderID());
     }
 
+    private static void handleMovingItemToTrade(ClientConnection client, MovingItemToTadeMessage message) {
+        GameServer server = GameServer.getInstance();
 
+        User sender = server.getUser(client);
+        if (sender == null) return;
+
+        ClientConnection receiverConn = server.findClient(message.receiverID);
+        if (receiverConn == null) {
+            System.out.println("object moving failed: Receiver not found");
+            return;
+        }
+        receiverConn.send(message);
+        System.out.println("Moving Item to Trade from " + sender.getUsername() + " to " + message.receiverID);
+    }
+
+    private static void handleMovingItemToInventory(ClientConnection client, MovingItemToInventoryMessage message) {
+        GameServer server = GameServer.getInstance();
+
+        User sender = server.getUser(client);
+        if (sender == null) return;
+
+        ClientConnection receiverConn = server.findClient(message.receiverID);
+        if (receiverConn == null) {
+            System.out.println("object moving failed: Receiver not found");
+            return;
+        }
+        receiverConn.send(message);
+        System.out.println("Moving Item to Inventory from " + sender.getUsername() + " to " + message.receiverID);
+    }
+
+    private static void handleTradeConfirm(ClientConnection client, TradeConfirmMessage message) {
+        GameServer server = GameServer.getInstance();
+
+        User sender = server.getUser(client);
+        if (sender == null) return;
+
+        ClientConnection receiverConn = server.findClient(message.receiverID);
+        if (receiverConn == null) {
+            System.out.println("confirm failed: Receiver not found");
+            return;
+        }
+        receiverConn.send(message);
+        System.out.println("Moving Item to Inventory from " + sender.getUsername() + " to " + message.receiverID);
+    }
 }

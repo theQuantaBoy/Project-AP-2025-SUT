@@ -3,9 +3,14 @@ package ap.project.screen;
 import ap.project.control.game.activities.TradeController;
 import ap.project.model.App.App;
 import ap.project.model.App.GameAssetsManager;
+import ap.project.model.enums.GameObjectType;
 import ap.project.model.game.GameObject;
 import ap.project.model.game.Player;
+import ap.project.model.tools.Tool;
 import ap.project.network.client.GameClient;
+import ap.project.network.shared.messages.MovingItemToInventoryMessage;
+import ap.project.network.shared.messages.MovingItemToTadeMessage;
+import ap.project.network.shared.messages.TradeConfirmMessage;
 import ap.project.network.shared.messages.TradeResponseMessage;
 import ap.project.visual.UIRenderer;
 import com.badlogic.gdx.graphics.Color;
@@ -21,6 +26,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 public class TradeWindow {
@@ -71,6 +77,9 @@ public class TradeWindow {
     private Drawable slotBackground;
     private static final int BORDER_THICKNESS = 3;
     private static final Color BORDER_COLOR = new Color(0.2f, 0.6f, 1f, 1f); // Blue selection
+
+    List<GameObject> playerInventory = new ArrayList<>();
+    List<GameObject> friendInventory = new ArrayList<>();
 
     public TradeWindow(Stage stage, Skin skin) {
         this.stage = stage;
@@ -321,78 +330,168 @@ public class TradeWindow {
 
         if (isPlayerInventorySource && targetGridType == GridType.PLAYER_TRADE_SLOTS) {
             // Move one item from player inventory to trade slots
-            moveOneItemFromInventoryToTrade();
+            moveOneItemFromInventoryToTrade(selectedFriend);
+            MovingItemToTadeMessage msg = new MovingItemToTadeMessage(selectedFriend.getUser().getHashId(), selectedItem);
+            client.send(msg);
         } else if (isTradeSlotSource && targetGridType == GridType.FRIEND_INVENTORY) {
             // Move one item from trade slots back to inventory
-            moveOneItemFromTradeToInventory();
+            moveOneItemFromTradeToInventory(selectedFriend);
+            MovingItemToInventoryMessage msg = new MovingItemToInventoryMessage(selectedFriend.getUser().getHashId(), selectedItem);
+            client.send(msg);
         }
+        refreshTradeScreen();
     }
 
-    private void moveOneItemFromInventoryToTrade() {
-        Player player = App.getCurrentGame().getCurrentPlayer();
+    public void moveOneItemFromInventoryToTrade(Player player) {
+        // Same pattern as above
+        boolean found = false;
 
-        // Find empty slot in player trade area
+        // First check for existing stacks
         for (int i = 0; i < playerTradeItems.size(); i++) {
-            if (playerTradeItems.get(i) == null) {
-                // Create new GameObject with quantity 1
-                GameObject tradeItem = new GameObject(selectedItem.getObjectType(), 1);
-                playerTradeItems.set(i, tradeItem);
-
-                // Remove one from inventory
-                selectedItem.setNumber(selectedItem.getNumber() - 1);
-                if (selectedItem.getNumber() <= 0) {
-                    selectedFriend.removeFromInventory(selectedItem);
-                }
-
-                UIRenderer.showTextBox("Added " + tradeItem.getObjectType() + " to trade offer");
-                return;
+            GameObject existing = playerTradeItems.get(i);
+            if (existing != null &&
+                existing.getObjectType().equals(selectedItem.getObjectType())) {
+                existing.addNumber(1);
+                found = true;
+                break;
             }
         }
 
-        UIRenderer.showTextBox("Trade slots are full!");
+        // Then check for empty slots
+        if (!found) {
+            for (int i = 0; i < playerTradeItems.size(); i++) {
+                if (playerTradeItems.get(i) == null) {
+                    GameObject tradeItem = new GameObject(selectedItem.getObjectType(), 1);
+                    playerTradeItems.set(i, tradeItem);
+                    found = true;
+                    break;
+                }
+            }
+        }
+
+        if (found) {
+            updateDisplayInventory(friendInventory, selectedItem.getObjectType(), -1);
+            UIRenderer.showTextBox(player.getNickName() + " added " + selectedItem.getObjectType() + " to trade offer");
+        } else {
+            UIRenderer.showTextBox("Trade slots are full!");
+        }
     }
 
-    private void moveOneItemFromTradeToInventory() {
-        Player player = App.getCurrentGame().getCurrentPlayer();
+    public void moveOneItemFromInventoryToTrade(Player player, GameObject selectedItem) {
+        // First, try to find existing stack of same item type
+        boolean found = false;
+        for (int i = 0; i < friendTradeItems.size(); i++) {
+            GameObject existingItem = friendTradeItems.get(i);
+            if (existingItem != null &&
+                existingItem.getObjectType().equals(selectedItem.getObjectType())) {
+                // Found existing stack - add to it
+                existingItem.addNumber(1);
+                found = true;
+                break;
+            }
+        }
+
+        // If no existing stack found, find an empty slot
+        if (!found) {
+            for (int i = 0; i < friendTradeItems.size(); i++) {
+                if (friendTradeItems.get(i) == null) {
+                    // Create new GameObject with quantity 1
+                    GameObject tradeItem = new GameObject(selectedItem.getObjectType(), 1);
+                    friendTradeItems.set(i, tradeItem);
+                    found = true;
+                    break;
+                }
+            }
+        }
+
+        if (found) {
+            // Remove one from inventory
+            updateDisplayInventory(playerInventory, selectedItem.getObjectType(), -1);
+            UIRenderer.showTextBox(player.getNickName() + " added " + selectedItem.getObjectType() + " to trade offer");
+        } else {
+            UIRenderer.showTextBox("Trade slots are full!");
+        }
+    }
+
+    public void moveOneItemFromTradeToInventory(Player player) {
 
         if (selectedIndex >= 0 && selectedIndex < playerTradeItems.size()) {
             GameObject tradeItem = playerTradeItems.get(selectedIndex);
             if (tradeItem != null) {
                 // Add back to inventory
-                GameObject existingInInventory = player.getItemInInventory(tradeItem.getObjectType());
-                if (existingInInventory != null) {
-                    existingInInventory.setNumber(existingInInventory.getNumber() + 1);
-                } else {
-                    GameObject newItem = new GameObject(tradeItem.getObjectType(), 1);
-                    selectedFriend.addToInventory(newItem);
-                }
+                updateDisplayInventory(friendInventory, tradeItem.getObjectType(), 1);
 
                 // Remove from trade slots
-                playerTradeItems.set(selectedIndex, null);
+                playerTradeItems.get(selectedIndex).setNumber(tradeItem.getNumber() - 1);
+                if (playerTradeItems.get(selectedIndex).getNumber() == 0) {
+                    playerTradeItems.remove(selectedIndex);
+                }
 
-                UIRenderer.showTextBox("Removed " + tradeItem.getObjectType() + " from trade offer");
+                UIRenderer.showTextBox(player.getNickName() + " removed " + tradeItem.getObjectType() + " from trade offer");
             }
         }
     }
 
-    private void refreshTradeScreen() {
-        Player player = App.getCurrentGame().getCurrentPlayer();
-        // Build grids with current data
-        buildGrid(playerInventoryTable, player.getInventory(), INVENTORY_ROWS, INVENTORY_COLS, GridType.PLAYER_INVENTORY);
-        buildGrid(playerTradeSlots, playerTradeItems, TRADE_ROWS, TRADE_COLS, GridType.PLAYER_TRADE_SLOTS);
+    public void moveOneItemFromTradeToInventory(Player player,  GameObject selectedItem) {
 
-        // For friend's inventory and trade slots - use mock data for now
-        // TODO: Replace with actual friend's data when available
-        ArrayList<GameObject> friendInventory = selectedFriend.getInventory(); // Mock empty for now
+        if (selectedItem != null) {
+            // Add back to inventory
+            updateDisplayInventory(playerInventory, selectedItem.getObjectType(), 1);
+
+            // Remove from trade slots
+            List<GameObject> removeItems  = new ArrayList<GameObject>();
+
+            for (GameObject item : friendTradeItems) {
+                if (item != null) {
+                    if (item.getObjectType().equals(selectedItem.getObjectType())) {
+                        item.setNumber(item.getNumber() - 1);
+                        if (item.getNumber() == 0) {
+                            removeItems.add(item);
+                        }
+                    }
+                }
+            }
+            friendTradeItems.removeAll(removeItems);
+
+            UIRenderer.showTextBox(player.getNickName() + " removed " + selectedItem.getObjectType() + " from trade offer");
+        }
+
+    }
+
+    public void refreshTradeScreen() {
+
+        buildGrid(playerInventoryTable, playerInventory, INVENTORY_ROWS, INVENTORY_COLS, GridType.PLAYER_INVENTORY);
+        buildGrid(playerTradeSlots, playerTradeItems, TRADE_ROWS, TRADE_COLS, GridType.PLAYER_TRADE_SLOTS);
         buildGrid(friendInventoryTable, friendInventory, INVENTORY_ROWS, INVENTORY_COLS, GridType.FRIEND_INVENTORY);
         buildGrid(friendTradeSlots, friendTradeItems, TRADE_ROWS, TRADE_COLS, GridType.FRIEND_TRADE_SLOTS);
+
     }
 
     private void confirmTrade() {
-        // TODO: Send trade confirmation with actual trade items to server
-        // TradeConfirmMessage message = new TradeConfirmMessage(playerTradeItems, friendTradeItems);
-        // client.send(message);
-        UIRenderer.showTextBox("Trade confirmed! (Not implemented yet)");
+        Player player = App.getCurrentGame().getCurrentPlayer();
+
+        // Apply trade to actual player inventory
+        for (GameObject tradeItem : friendTradeItems) {
+            if (tradeItem != null) {
+                player.removeAmountFromInventory(tradeItem.getObjectType(), tradeItem.getNumber());
+            }
+        }
+
+        for (GameObject tradeItem : playerTradeItems) {
+            if (tradeItem != null) {
+                player.addToInventory(tradeItem.getObjectType(), tradeItem.getNumber());
+            }
+        }
+
+        // Send confirmation to server
+//        TradeConfirmMessage message = new TradeConfirmMessage(
+//            selectedFriend.getUser().getHashId(),
+//            friendTradeItems,
+//            playerTradeItems
+//        );
+//        client.send(message);
+
+        UIRenderer.showTextBox("Trade confirmed!");
         hide();
     }
 
@@ -409,12 +508,12 @@ public class TradeWindow {
         for (int i = 0; i < playerTradeItems.size(); i++) {
             GameObject tradeItem = playerTradeItems.get(i);
             if (tradeItem != null) {
-                GameObject existingInInventory = player.getItemInInventory(tradeItem.getObjectType());
-                if (existingInInventory != null) {
-                    existingInInventory.setNumber(existingInInventory.getNumber() + tradeItem.getNumber());
-                } else {
-                    player.addToInventory(new GameObject(tradeItem.getObjectType(), tradeItem.getNumber()));
-                }
+//                GameObject existingInInventory = player.getItemInInventory(tradeItem.getObjectType());
+//                if (existingInInventory != null) {
+//                    existingInInventory.setNumber(existingInInventory.getNumber() + tradeItem.getNumber());
+//                } else {
+//                    player.addToInventory(new GameObject(tradeItem.getObjectType(), tradeItem.getNumber()));
+//                }
                 playerTradeItems.set(i, null);
             }
         }
@@ -449,7 +548,19 @@ public class TradeWindow {
         if (selectedFriend != null) {
             friendNameLabel.setText(selectedFriend.getNickName());
         }
+        playerInventory.clear();
+        for (GameObject item : App.getCurrentGame().getCurrentPlayer().getInventory()) {
+            if (item != null && !(item instanceof Tool)) {
+                playerInventory.add(new GameObject(item.getObjectType(), item.getNumber())); // Create a copy
+            }
+        }
 
+        friendInventory.clear();
+        for (GameObject item : selectedFriend.getInventory()) {
+            if (item != null && !(item instanceof Tool)) {
+                friendInventory.add(new GameObject(item.getObjectType(), item.getNumber())); // Create a copy
+            }
+        }
         // Clear previous content and show main trade screen
         popup.getContentTable().clear();
         popup.getContentTable().add(mainTradeTable).grow();
@@ -522,4 +633,29 @@ public class TradeWindow {
     public Dialog getPopup() {
         return popup;
     }
+
+    private void updateDisplayInventory(List<GameObject> inventory, GameObjectType type, int delta) {
+        for (GameObject item : inventory) {
+            if (item != null && item.getObjectType().equals(type)) {
+                item.setNumber(item.getNumber() + delta);
+                if (item.getNumber() <= 0) {
+                    inventory.remove(item);
+                }
+                return;
+            }
+        }
+
+        // If we're adding and no existing stack found
+        if (delta > 0) {
+            for (int i = 0; i < inventory.size(); i++) {
+                if (inventory.get(i) == null) {
+                    inventory.set(i, new GameObject(type, delta));
+                    return;
+                }
+            }
+            // Add new item if no null slot found
+            inventory.add(new GameObject(type, delta));
+        }
+    }
+
 }
