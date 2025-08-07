@@ -141,6 +141,11 @@ public class KryoRegistry
         kryo.register(ap.project.model.enums.resources_enums.TreeType.class);
         kryo.register(ap.project.model.enums.building_enums.CraftingRecipeEnums.class);
 
+        kryo.register(PlayerDataMessage.class);
+        kryo.register(UserSyncRequestMessage.class);
+        kryo.register(UserSyncResponseMessage.class);
+        kryo.register(UserUpdateMessage.class);
+
         // Register all other message classes ...
     }
 }

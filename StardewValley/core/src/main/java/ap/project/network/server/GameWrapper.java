@@ -6,6 +6,7 @@ import ap.project.model.game.Time;
 import ap.project.network.shared.messages.GameTimeSyncMessage;
 import ap.project.network.shared.messages.Message;
 import ap.project.network.shared.messages.UpdateGameMinuteMessage;
+import ap.project.util.SQLiteUtil;
 
 import java.util.ArrayList;
 
@@ -65,6 +66,11 @@ public class GameWrapper
             secondAccumulator = 0;
 
             syncGameTime();
+        }
+
+        if (game.getCurrentTime().getMinute() % 5 == 0)
+        {
+            SQLiteUtil.saveGameTime(game.getId(), game.getCurrentTime());
         }
     }
 

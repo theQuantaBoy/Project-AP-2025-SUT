@@ -4,6 +4,7 @@ import ap.project.model.App.User;
 import ap.project.model.game.Lobby;
 import ap.project.network.shared.KryoRegistry;
 import ap.project.network.shared.messages.*;
+import ap.project.util.SQLiteUtil;
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.backends.headless.HeadlessApplication;
 import com.badlogic.gdx.backends.headless.HeadlessApplicationConfiguration;
@@ -260,6 +261,8 @@ public class GameServer
 
     public void stop()
     {
+        SQLiteUtil.saveUserList("saves/app/users_server.db", new ArrayList<>(users));
+
         running = false;
         if (gameThread != null)
         {
@@ -332,8 +335,31 @@ public class GameServer
         return null;
     }
 
+    public void createOrUpdateUser(User user)
+    {
+        boolean found = false;
+        for (int i = 0; i < users.size(); i++)
+        {
+            if (users.get(i).getHashId() == user.getHashId())
+            {
+                users.set(i, user);
+                found = true;
+                break;
+            }
+        }
+
+        if (!found)
+        {
+            users.add(user);
+        }
+
+        SQLiteUtil.saveUserList("saves/app/users_server.db", new ArrayList<>(users));
+    }
+
     public GameServer() throws IOException
     {
+        users.addAll(SQLiteUtil.loadUserList("saves/app/users_server.db"));
+
         kryoServer = new Server(BUFFER_LIMIT, BUFFER_LIMIT);
         kryoServer.start();
         registerClasses(kryoServer.getKryo());
@@ -457,5 +483,10 @@ public class GameServer
     public CopyOnWriteArrayList<Lobby> getActiveLobbies()
     {
         return activeLobbies;
+    }
+
+    public ArrayList<User> getUsers()
+    {
+        return users;
     }
 }

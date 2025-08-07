@@ -126,7 +126,9 @@ public final class WorldScreen implements Screen
     private final boolean ONLINE_MODE;
 
     private float periodicNetworkUpdate = 0;
+    private float periodicPlayerDataUpdate = 0;
     private static final float PERIODIC_NETWORK_INTERVAL = 0.016f;
+    private static final float PERIODIC_PLAYER_DATA_INTERVAL = 0.5f;
 
 //    private FishingMinigameWindow fishingWindow;
 
@@ -638,6 +640,7 @@ public final class WorldScreen implements Screen
     private void doNetworkStuff(float delta)
     {
         periodicNetworkUpdate += delta;
+        periodicPlayerDataUpdate += delta;
         client.processMessages();
 
         updateOtherPlayers(delta);
@@ -647,6 +650,17 @@ public final class WorldScreen implements Screen
             sendPlayerPresenceMessage();
 
             periodicNetworkUpdate = 0;
+        }
+
+        if (periodicPlayerDataUpdate >= PERIODIC_PLAYER_DATA_INTERVAL)
+        {
+            PlayerDTO playerDTO = new PlayerDTO(player);
+            String id = game.getId();
+
+            PlayerDataMessage msg = new  PlayerDataMessage(playerDTO, id);
+            client.send(msg);
+
+            periodicPlayerDataUpdate = 0;
         }
     }
 

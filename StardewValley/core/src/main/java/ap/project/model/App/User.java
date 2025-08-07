@@ -1,5 +1,6 @@
 package ap.project.model.App;
 
+import ap.project.model.enums.CharacterType;
 import ap.project.model.game.Game;
 import ap.project.model.enums.Gender;
 import com.badlogic.gdx.graphics.Texture;
@@ -17,8 +18,6 @@ public class User
     private Gender gender;
     private String question;
     private String answer;
-
-    private Texture avatar;
 
     private int numberOfGames = 0;
     private Game currentGame = null;
@@ -71,7 +70,6 @@ public class User
         this.gender = gender;
         this.question = secQ;
         this.answer = secA;
-        this.avatar = getRandomAvatar();
 
         this.hashId = SHA256Hasher.randomizedHashInt(username,  HASH_DIGIT_COUNT);
     }
@@ -176,11 +174,12 @@ public class User
     }
 
     public Texture getAvatar() {
-        return avatar;
+        return new Texture(CharacterType.values()[characterChoice].getProfilePath());
     }
 
-    public void setAvatar(Texture avatar) {
-        this.avatar = avatar;
+    public void setAvatar(Texture avatar)
+    {
+//        this.avatar = avatar;
     }
 
     public int getHashId()

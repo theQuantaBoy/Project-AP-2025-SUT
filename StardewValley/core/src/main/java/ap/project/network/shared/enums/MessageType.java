@@ -36,5 +36,9 @@ public enum MessageType
     GAME_STARTED,
     CLOSE_LOBBY_ERROR,
     PLAYER_DTO,
-    SKILL_DTO
+    SKILL_DTO,
+    PLAYER_DATA,
+    USER_SYNC_REQUEST,
+    USER_SYNC_RESPONSE,
+    USER_UPDATE
 }

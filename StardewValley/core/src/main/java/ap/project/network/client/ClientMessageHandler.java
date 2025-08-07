@@ -2,11 +2,16 @@ package ap.project.network.client;
 
 import ap.project.Main;
 import ap.project.model.App.App;
+import ap.project.model.App.User;
+import ap.project.network.shared.DTO.UserDTO;
+import ap.project.network.shared.Mapper.Mapper;
 import ap.project.network.shared.messages.*;
 import ap.project.screen.LobbyScreen;
 import ap.project.screen.PreLobbyScreen;
 import ap.project.screen.WorldScreen;
 import com.badlogic.gdx.Screen;
+
+import java.util.ArrayList;
 
 public class ClientMessageHandler
 {
@@ -79,6 +84,9 @@ public class ClientMessageHandler
                 break;
             case CLOSE_LOBBY_ERROR:
                 handleCLoseLobbyErrorMessage((CloseLobbyErrorMessage) message);
+                break;
+            case USER_SYNC_RESPONSE:
+                handleUserSyncResponse((UserSyncResponseMessage) message);
                 break;
             // Add other cases
         }
@@ -352,5 +360,16 @@ public class ClientMessageHandler
             LobbyScreen ls = (LobbyScreen) Main.getApp().getScreen();
             ls.showText(message.message);
         }
+    }
+
+    private static void handleUserSyncResponse(UserSyncResponseMessage msg)
+    {
+        ArrayList<User> serverUsers = new ArrayList<>();
+        for (UserDTO dto : msg.userDTOs)
+        {
+            serverUsers.add(Mapper.fromDTO(dto));
+        }
+
+        App.syncUsersWithServer(serverUsers);
     }
 }

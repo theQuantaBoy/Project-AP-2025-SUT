@@ -19,37 +19,36 @@ import java.util.Scanner;
 
 public class Main extends com.badlogic.gdx.Game
 {
-    private static Main instance;
     private static Main app;
     private SpriteBatch batch;
 
     @Override
     public void create()
     {
-        instance = this;
         app = this;
         batch = new SpriteBatch();
 
         GameObjectAssetLoader.queueAllTextures();
         GameObjectAssetLoader.finishLoadingAndAssign();
+        App.initialize();
 
-        // --- Set custom cursor ---
+        // set custom cursor
         Pixmap cursorPixmap = new Pixmap(Gdx.files.internal("general/cursor/cursor.png"));
         int hotspotX = 0; // adjust to your cursor's "click point"
         int hotspotY = 0;
         Gdx.graphics.setCursor(Gdx.graphics.newCursor(cursorPixmap, hotspotX, hotspotY));
         cursorPixmap.dispose();
 
-        System.out.println("enter name: ");
+//        System.out.println("enter name: ");
 //        Scanner scanner = new Scanner(System.in);
 //        String name = scanner.nextLine().trim();
-        String name = "mohsen";
+//        String name = "mohsen";
+//
+//        User user = new User(name, "1234", name, "mail", Gender.MALE, "", "");
+//        App.setCurrentUser(user);
+//        app.setScreen(new PreGameScreen());
 
-        User user = new User(name, "1234", name, "mail", Gender.MALE, "", "");
-        App.setCurrentUser(user);
-        app.setScreen(new PreGameScreen());
-
-//        app.setScreen(new RegisterScreen(new RegisterController()));
+        app.setScreen(new RegisterScreen(new RegisterController()));
     }
 
     @Override

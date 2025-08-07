@@ -5,8 +5,12 @@ import ap.project.model.App.User;
 import ap.project.model.enums.Gender;
 import ap.project.model.game.Game;
 import ap.project.model.game.Lobby;
+import ap.project.model.game.Map;
 import ap.project.model.game.Player;
+import ap.project.network.shared.DTO.UserDTO;
+import ap.project.network.shared.Mapper.Mapper;
 import ap.project.network.shared.messages.*;
+import ap.project.util.SQLiteUtil;
 
 import java.util.ArrayList;
 
@@ -54,6 +58,15 @@ public class ServerMessageHandler
                 break;
             case CLOSE_LOBBY_REQUEST:
                 handleCloseLobbyRequestMessage(client, (CloseLobbyRequestMessage) message);
+                break;
+            case PLAYER_DATA:
+                handlePlayerDataMessage(client, (PlayerDataMessage) message);
+                break;
+            case USER_SYNC_REQUEST:
+                handleUserSyncRequest(client);
+                break;
+            case USER_UPDATE:
+                handleUserUpdate(client, (UserUpdateMessage) message);
                 break;
         }
     }
@@ -386,5 +399,36 @@ public class ServerMessageHandler
             server.closeLobby(lobby);
             server.getActiveLobbies().remove(lobby);
         }
+    }
+
+    private static void handlePlayerDataMessage(ClientConnection client, PlayerDataMessage msg)
+    {
+        try
+        {
+            SQLiteUtil.savePlayerState(msg.gameId, String.valueOf(msg.playerDTO.userDTO.hashID), msg.playerDTO);
+        } catch (Exception e)
+        {
+            System.err.println("Error saving player data: " + e.getMessage());
+        }
+    }
+
+    private static void handleUserSyncRequest(ClientConnection client)
+    {
+        GameServer server = GameServer.getInstance();
+        ArrayList<User> users = server.getUsers();
+        ArrayList<UserDTO> dtos = new ArrayList<>();
+
+        for (User user : users)
+        {
+            dtos.add(new UserDTO(user));
+        }
+
+        client.send(new UserSyncResponseMessage(dtos));
+    }
+
+    private static void handleUserUpdate(ClientConnection client, UserUpdateMessage msg)
+    {
+        User user = Mapper.fromDTO(msg.userDTO);
+        GameServer.getInstance().createOrUpdateUser(user);
     }
 }

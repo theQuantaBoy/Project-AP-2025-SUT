@@ -4,20 +4,25 @@ import com.badlogic.gdx.graphics.Texture;
 
 public enum CharacterType
 {
-    ABIGAIL("Abigail", "characters/Abigail/Abigail_Sheet.atlas", "characters/Abigail/Abigail_Avatar.png"),
-    ALEX("Alex", "characters/Alex/Alex_Sheet.atlas", "characters/Alex/Alex_Avatar.png"),
+    ABIGAIL("Abigail", "characters/Abigail/Abigail_Sheet.atlas",
+        "characters/Abigail/Abigail_Avatar.png", "characters/Abigail/Abigail_Profile.png"),
+
+    ALEX("Alex", "characters/Alex/Alex_Sheet.atlas",
+        "characters/Alex/Alex_Avatar.png", ""),
     ;
 
     private final String name;
     private final String spritesAddress;
     private final String avatarPath;
+    private final String profilePath;
     private Texture avatarTexture;
 
-    CharacterType(String name, String spritesAddress, String avatarPath)
+    CharacterType(String name, String spritesAddress, String avatarPath, String profilePath)
     {
         this.name = name;
         this.spritesAddress = spritesAddress;
         this.avatarPath = avatarPath;
+        this.profilePath = profilePath;
     }
 
     public String getName()
@@ -43,5 +48,10 @@ public enum CharacterType
     public void setAvatarTexture(Texture avatarTexture)
     {
         this.avatarTexture = avatarTexture;
+    }
+
+    public String getProfilePath()
+    {
+        return profilePath;
     }
 }
