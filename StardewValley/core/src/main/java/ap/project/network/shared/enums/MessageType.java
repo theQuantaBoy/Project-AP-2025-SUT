@@ -42,5 +42,7 @@ public enum MessageType
     MOVING_ITEM_TO_TRADE,
     MOVING_ITEM_TO_INVENTORY,
     TRADE_CONFIRM,
+    TRADE_CONFIRM_FAILED,
+    TRADE_COMPLETE,
     ;
 }

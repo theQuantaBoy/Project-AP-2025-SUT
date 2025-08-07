@@ -88,6 +88,8 @@ public class KryoRegistry
         kryo.register(GameObject.class);
         kryo.register(GameObjectType.class);
 
+        kryo.register(TradeConfirmMessage.class);
+
         // Register all other message classes ...
     }
 }

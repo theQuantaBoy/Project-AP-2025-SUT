@@ -97,10 +97,12 @@ public class ClientMessageHandler {
                 break;
             case MOVING_ITEM_TO_INVENTORY:
                 handleMovingItemToInventory((MovingItemToInventoryMessage) message);
+                break;
+            case TRADE_CONFIRM:
+                handleTradeConfirm((TradeConfirmMessage) message);
             // Add other cases
         }
     }
-
     private static void handleTestMessage(TestMessage msg) {
         System.out.println("Test Received: " + msg.getText());
     }
@@ -404,4 +406,17 @@ public class ClientMessageHandler {
             });
         }
     }
+
+    private static void handleTradeConfirm(TradeConfirmMessage message) {
+        if (Main.getApp().getScreen() instanceof WorldScreen) {
+            WorldScreen worldScreen = (WorldScreen) Main.getApp().getScreen();
+            TradeWindow tw = worldScreen.getTradeWindow();
+
+            // Run on the render thread
+            Gdx.app.postRunnable(() -> {
+                tw.setFriendConfirmed(true);
+            });
+        }
+    }
+
 }

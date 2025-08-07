@@ -487,6 +487,6 @@ public class ServerMessageHandler
             return;
         }
         receiverConn.send(message);
-        System.out.println("Moving Item to Inventory from " + sender.getUsername() + " to " + message.receiverID);
+        System.out.println("Confirmed");
     }
 }

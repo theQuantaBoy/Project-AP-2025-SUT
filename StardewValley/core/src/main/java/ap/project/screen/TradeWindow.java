@@ -81,6 +81,9 @@ public class TradeWindow {
     List<GameObject> playerInventory = new ArrayList<>();
     List<GameObject> friendInventory = new ArrayList<>();
 
+    boolean playerConfirmed = false;
+    boolean friendConfirmed = false;
+
     public TradeWindow(Stage stage, Skin skin) {
         this.stage = stage;
         this.skin = skin;
@@ -176,6 +179,8 @@ public class TradeWindow {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 confirmTrade();
+                TradeConfirmMessage message = new TradeConfirmMessage(selectedFriend.getUser().getHashId());
+                client.send(message);
             }
         });
 
@@ -468,36 +473,56 @@ public class TradeWindow {
     }
 
     private void confirmTrade() {
-        Player player = App.getCurrentGame().getCurrentPlayer();
+        if (playerConfirmed) return; // Prevent duplicate confirmation
 
-        // Apply trade to actual player inventory
+        playerConfirmed = true;
+        confirmTradeBtn.setDisabled(true); // Disable button after confirmation
+
+        // Send confirmation message to friend
+        TradeConfirmMessage message = new TradeConfirmMessage(selectedFriend.getUser().getHashId());
+        client.send(message);
+
+        UIRenderer.showTextBox("Trade confirmed! Waiting for friend...");
+        checkAndCompleteTrade(); // Check if both have confirmed
+    }
+
+    private void cancelTrade() {
+        // Return all trade items to inventories
+        returnTradeItemsToInventory();
+        hide();
+    }
+
+    private void completeTrade() {
+        Player player = App.getCurrentGame().getCurrentPlayer();
+        Player friend = getPlayerByID(selectedFriend.getUser().getHashId());
+
+        if (friend == null) return;
+
+        // Update local player's inventory
         for (GameObject tradeItem : friendTradeItems) {
             if (tradeItem != null) {
                 player.removeAmountFromInventory(tradeItem.getObjectType(), tradeItem.getNumber());
             }
         }
-
         for (GameObject tradeItem : playerTradeItems) {
             if (tradeItem != null) {
                 player.addToInventory(tradeItem.getObjectType(), tradeItem.getNumber());
             }
         }
 
-        // Send confirmation to server
-//        TradeConfirmMessage message = new TradeConfirmMessage(
-//            selectedFriend.getUser().getHashId(),
-//            friendTradeItems,
-//            playerTradeItems
-//        );
-//        client.send(message);
+        // Update friend's inventory in local game state
+        for (GameObject tradeItem : playerTradeItems) {
+            if (tradeItem != null) {
+                friend.removeAmountFromInventory(tradeItem.getObjectType(), tradeItem.getNumber());
+            }
+        }
+        for (GameObject tradeItem : friendTradeItems) {
+            if (tradeItem != null) {
+                friend.addToInventory(tradeItem.getObjectType(), tradeItem.getNumber());
+            }
+        }
 
-        UIRenderer.showTextBox("Trade confirmed!");
-        hide();
-    }
-
-    private void cancelTrade() {
-        // Return all trade items to inventories
-        returnTradeItemsToInventory();
+        UIRenderer.showTextBox("Trade completed successfully!");
         hide();
     }
 
@@ -542,6 +567,11 @@ public class TradeWindow {
     }
 
     public void showMainTradeScreen() {
+        selectedFriend = getPlayerByID(selectedFriend.getUser().getHashId());
+        if (selectedFriend == null) {
+            hide();
+            return;
+        }
         popup.text("Trading with " + (selectedFriend != null ? selectedFriend.getNickName() : "Friend"));
         // Update player names
         playerNameLabel.setText(App.getCurrentGame().getCurrentPlayer().getNickName());
@@ -554,6 +584,10 @@ public class TradeWindow {
                 playerInventory.add(new GameObject(item.getObjectType(), item.getNumber())); // Create a copy
             }
         }
+
+        playerConfirmed = false;
+        friendConfirmed = false;
+        confirmTradeBtn.setDisabled(false);
 
         friendInventory.clear();
         for (GameObject item : selectedFriend.getInventory()) {
@@ -612,10 +646,16 @@ public class TradeWindow {
         if (popup.isVisible()) {
             popup.hide();
         }
-        selectedFriend = null;
         selectedItem = null;
         selectedIndex = -1;
-        returnTradeItemsToInventory();
+
+        // Clear trade items
+        for (int i = 0; i < playerTradeItems.size(); i++) {
+            playerTradeItems.set(i, null);
+        }
+        for (int i = 0; i < friendTradeItems.size(); i++) {
+            friendTradeItems.set(i, null);
+        }
     }
 
     private void centerPopup() {
@@ -658,4 +698,40 @@ public class TradeWindow {
         }
     }
 
+    public boolean isFriendConfirmed() {
+        return friendConfirmed;
+    }
+
+    public boolean isPlayerConfirmed() {
+        return playerConfirmed;
+    }
+
+    public void setSelectedFriend(Player selectedFriend) {
+        this.selectedFriend = selectedFriend;
+    }
+
+    public void setFriendConfirmed(boolean friendConfirmed) {
+        this.friendConfirmed = friendConfirmed;
+        checkAndCompleteTrade();
+    }
+
+    public void setPlayerConfirmed(boolean playerConfirmed) {
+        this.playerConfirmed = playerConfirmed;
+        checkAndCompleteTrade();
+    }
+
+    private void checkAndCompleteTrade() {
+        if (playerConfirmed && friendConfirmed) {
+            completeTrade();
+        }
+    }
+
+    private Player getPlayerByID(int userID) {
+        for (Player player : App.getCurrentGame().getPlayers()) {
+            if ((player.getUser().getHashId() == userID)) {
+                return player;
+            }
+        }
+        return null;
+    }
 }

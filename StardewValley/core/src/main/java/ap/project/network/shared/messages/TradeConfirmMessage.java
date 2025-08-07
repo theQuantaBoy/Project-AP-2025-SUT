@@ -7,16 +7,12 @@ import java.util.List;
 
 public class TradeConfirmMessage extends Message {
     public int receiverID;
-    public List<GameObject> playerTrade;
-    public List<GameObject> friendTrade;
 
     public TradeConfirmMessage() {
     }
 
-    public TradeConfirmMessage(int receiverID, List<GameObject> playerTrade, List<GameObject> friendTrade) {
+    public TradeConfirmMessage(int receiverID) {
         this.receiverID = receiverID;
-        this.playerTrade = playerTrade;
-        this.friendTrade = friendTrade;
     }
 
     @Override
