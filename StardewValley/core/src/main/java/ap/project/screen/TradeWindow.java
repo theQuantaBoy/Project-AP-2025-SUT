@@ -202,7 +202,7 @@ public class TradeWindow {
         playerInvContainer.add(playerInventoryTable).pad(5);
 
         Table friendInvContainer = new Table();
-        friendInvContainer.add(new Label("Friend's Inventory", skin)).row();
+        friendInvContainer.add(new Label(  "Friend's Inventory", skin)).row();
         friendInvContainer.add(friendInventoryTable).pad(5);
 
         mainTradeTable.add(playerInvContainer).pad(10).fill().expand();
@@ -287,8 +287,8 @@ public class TradeWindow {
             selectedIndex = index;
 
             // Set source flags
-            isPlayerInventorySource = (gridType == GridType.PLAYER_INVENTORY);
-            isTradeSlotSource = (gridType == GridType.PLAYER_TRADE_SLOTS || gridType == GridType.FRIEND_TRADE_SLOTS);
+            isPlayerInventorySource = (gridType == GridType.FRIEND_INVENTORY);
+            isTradeSlotSource = (gridType == GridType.PLAYER_TRADE_SLOTS/* || gridType == GridType.FRIEND_TRADE_SLOTS*/);
 
             refreshTradeScreen();
             UIRenderer.showTextBox("Selected " + selectedItem.getObjectType());
@@ -300,7 +300,7 @@ public class TradeWindow {
 
             if (isPlayerInventorySource && gridType == GridType.PLAYER_TRADE_SLOTS) {
                 canMove = true;
-            } else if (isTradeSlotSource && gridType == GridType.PLAYER_INVENTORY) {
+            } else if (isTradeSlotSource && gridType == GridType.FRIEND_INVENTORY) {
                 canMove = true;
             }
 
@@ -322,7 +322,7 @@ public class TradeWindow {
         if (isPlayerInventorySource && targetGridType == GridType.PLAYER_TRADE_SLOTS) {
             // Move one item from player inventory to trade slots
             moveOneItemFromInventoryToTrade();
-        } else if (isTradeSlotSource && targetGridType == GridType.PLAYER_INVENTORY) {
+        } else if (isTradeSlotSource && targetGridType == GridType.FRIEND_INVENTORY) {
             // Move one item from trade slots back to inventory
             moveOneItemFromTradeToInventory();
         }
@@ -341,7 +341,7 @@ public class TradeWindow {
                 // Remove one from inventory
                 selectedItem.setNumber(selectedItem.getNumber() - 1);
                 if (selectedItem.getNumber() <= 0) {
-                    player.getInventory().remove(selectedItem);
+                    selectedFriend.removeFromInventory(selectedItem);
                 }
 
                 UIRenderer.showTextBox("Added " + tradeItem.getObjectType() + " to trade offer");
@@ -364,7 +364,7 @@ public class TradeWindow {
                     existingInInventory.setNumber(existingInInventory.getNumber() + 1);
                 } else {
                     GameObject newItem = new GameObject(tradeItem.getObjectType(), 1);
-                    player.addToInventory(newItem);
+                    selectedFriend.addToInventory(newItem);
                 }
 
                 // Remove from trade slots
@@ -383,7 +383,7 @@ public class TradeWindow {
 
         // For friend's inventory and trade slots - use mock data for now
         // TODO: Replace with actual friend's data when available
-        ArrayList<GameObject> friendInventory = new ArrayList<>(); // Mock empty for now
+        ArrayList<GameObject> friendInventory = selectedFriend.getInventory(); // Mock empty for now
         buildGrid(friendInventoryTable, friendInventory, INVENTORY_ROWS, INVENTORY_COLS, GridType.FRIEND_INVENTORY);
         buildGrid(friendTradeSlots, friendTradeItems, TRADE_ROWS, TRADE_COLS, GridType.FRIEND_TRADE_SLOTS);
     }
@@ -444,7 +444,6 @@ public class TradeWindow {
 
     public void showMainTradeScreen() {
         popup.text("Trading with " + (selectedFriend != null ? selectedFriend.getNickName() : "Friend"));
-
         // Update player names
         playerNameLabel.setText(App.getCurrentGame().getCurrentPlayer().getNickName());
         if (selectedFriend != null) {
@@ -464,7 +463,7 @@ public class TradeWindow {
     }
 
     public void setDependencies(InventoryWindow inv, TradeController controller) {
-        this.selectedFriend = null;
+        //this.selectedFriend = null;
         this.inventoryWindow = inv;
         this.controller = controller;
     }
