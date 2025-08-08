@@ -130,8 +130,6 @@ public final class WorldScreen implements Screen
     private static final float PERIODIC_NETWORK_INTERVAL = 0.016f;
     private static final float PERIODIC_PLAYER_DATA_INTERVAL = 0.5f;
 
-//    private FishingMinigameWindow fishingWindow;
-
     public WorldScreen(ArrayList<Player> players)
     {
         INSTANCE = this;
@@ -139,24 +137,11 @@ public final class WorldScreen implements Screen
         client = GameClient.getInstance();
 
         this.shapeRenderer = new ShapeRenderer();
-//        this.miniGame = new FishingGame();
         cam = new OrthographicCamera(20 * TILE_SIZE, 15 * TILE_SIZE);
         cam.setToOrtho(false);
 
         this.game = App.getCurrentGame();
         App.setCurrentMenu(Menu.HomeMenu);
-
-//        gameStage = new Stage(new ExtendViewport(20 * TILE_SIZE, 15 * TILE_SIZE, cam));
-//        animalActors = new Array<>();
-//        animalInteractionScreen = new AnimalInteractionScreen(uiStage.getViewport(), skin);
-//
-//        Animal testChicken = new Animal("Clucky", FarmAnimalsType.CHICKEN);
-//        testChicken.setX(20 * TILE_SIZE);
-//        testChicken.setY(15 * TILE_SIZE);
-//        testChicken.goOut(); // Make sure it's set to be outside
-//        AnimalActor chickenActor = new AnimalActor(testChicken, animalInteractionScreen);
-//        animalActors.add(chickenActor);
-//        gameStage.addActor(chickenActor);
 
         for (Player p : game.getPlayers())
         {
