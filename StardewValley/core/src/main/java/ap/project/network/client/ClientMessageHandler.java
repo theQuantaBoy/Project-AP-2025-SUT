@@ -4,8 +4,10 @@ import ap.project.Main;
 import ap.project.control.game.activities.TradeController;
 import ap.project.model.App.App;
 import ap.project.model.App.GameAssetsManager;
+import ap.project.model.App.User;
 import ap.project.model.game.Game;
 import ap.project.model.game.Player;
+import ap.project.network.server.ClientConnection;
 import ap.project.network.server.GameServer;
 import ap.project.network.server.GameWrapper;
 import ap.project.network.shared.messages.*;
@@ -100,6 +102,10 @@ public class ClientMessageHandler {
                 break;
             case TRADE_CONFIRM:
                 handleTradeConfirm((TradeConfirmMessage) message);
+                break;
+            case TRADE_CANCELLED:
+                handleTradeCancelled((TradeCancelMessage)  message);
+                break;
             // Add other cases
         }
     }
@@ -365,7 +371,8 @@ public class ClientMessageHandler {
             // Run on the render thread
             Gdx.app.postRunnable(() -> {
                 // This will clear the old request dialog and open the full trade screen
-                tw.showMainTradeScreen();
+                if (message.accepted) tw.showMainTradeScreen();
+                else tw.hide();
                 System.out.println("message sent");
             });
         }
@@ -415,6 +422,18 @@ public class ClientMessageHandler {
             // Run on the render thread
             Gdx.app.postRunnable(() -> {
                 tw.setFriendConfirmed(true);
+            });
+        }
+    }
+
+    private static void handleTradeCancelled(TradeCancelMessage message) {
+        if (Main.getApp().getScreen() instanceof WorldScreen) {
+            WorldScreen worldScreen = (WorldScreen) Main.getApp().getScreen();
+            TradeWindow tw = worldScreen.getTradeWindow();
+
+            // Run on the render thread
+            Gdx.app.postRunnable(() -> {
+                tw.cancelTrade();
             });
         }
     }

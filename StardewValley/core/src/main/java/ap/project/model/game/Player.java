@@ -16,7 +16,6 @@ import ap.project.model.enums.tool_enums.ToolType;
 import ap.project.model.player_data.FriendshipData;
 import ap.project.model.player_data.FriendshipWithNpcData;
 import ap.project.model.player_data.Skill;
-import ap.project.model.player_data.Trade;
 import ap.project.model.resources.Plant;
 import ap.project.screen.WorldScreen;
 import ap.project.view.CityMenu;
@@ -50,8 +49,8 @@ public class Player {
 
     BackPack currentBackPack = new BackPack();
     private HashMap<Player, FriendshipData> friendships = new HashMap<>();
-    private ArrayList<Trade> sentTrades = new ArrayList<>();
-    private ArrayList<Trade> receivedTrades = new ArrayList<>();
+//    private ArrayList<Trade> sentTrades = new ArrayList<>();
+//    private ArrayList<Trade> receivedTrades = new ArrayList<>();
     private ArrayList<Trade> archiveTrades = new ArrayList<>();
     private List<Skill> skills = new LinkedList<>();
 
@@ -375,13 +374,13 @@ public class Player {
         return friendships;
     }
 
-    public ArrayList<Trade> getSentTrades() {
-        return sentTrades;
-    }
-
-    public ArrayList<Trade> getReceivedTrades() {
-        return receivedTrades;
-    }
+//    public ArrayList<Trade> getSentTrades() {
+//        return sentTrades;
+//    }
+//
+//    public ArrayList<Trade> getReceivedTrades() {
+//        return receivedTrades;
+//    }
 
     public boolean isNewMessage() {
         return newMessage;
@@ -476,14 +475,14 @@ public class Player {
         return null;
     }
 
-    public Trade getTradeById (int id) {
-        for (Trade trade : this.getReceivedTrades()) {
-            if (trade.getId() == id) {
-                return trade;
-            }
-        }
-        return null;
-    }
+//    public Trade getTradeById (int id) {
+//        for (Trade trade : this.getReceivedTrades()) {
+//            if (trade.getId() == id) {
+//                return trade;
+//            }
+//        }
+//        return null;
+//    }
 
     public GameObject getItemInInventory(GameObjectType objectType) {
         for (GameObject object : getInventory()) {

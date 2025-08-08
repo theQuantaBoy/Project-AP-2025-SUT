@@ -75,6 +75,9 @@ public class ServerMessageHandler
             case TRADE_CONFIRM:
                 handleTradeConfirm(client, (TradeConfirmMessage) message);
                 break;
+            case TRADE_CANCELLED:
+                handleTradeCancelled(client, (TradeCancelMessage) message);
+                break;
         }
     }
 
@@ -488,5 +491,20 @@ public class ServerMessageHandler
         }
         receiverConn.send(message);
         System.out.println("Confirmed");
+    }
+
+    private static void handleTradeCancelled(ClientConnection client, TradeCancelMessage message) {
+        GameServer server = GameServer.getInstance();
+
+        User sender = server.getUser(client);
+        if (sender == null) return;
+
+        ClientConnection receiverConn = server.findClient(message.receiverID);
+        if (receiverConn == null) {
+            System.out.println("cancellation failed: Receiver not found");
+            return;
+        }
+        receiverConn.send(message);
+        System.out.println("cancelled");
     }
 }

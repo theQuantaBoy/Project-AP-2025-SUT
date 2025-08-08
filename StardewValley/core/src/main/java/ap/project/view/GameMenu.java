@@ -281,12 +281,12 @@ public class GameMenu implements AppMenu
             println(animalController.fishing(input));
         }
 
-        else if (GeneralCommands.START_TRADE.getMatcher(input) != null)
-        {
-            App.setCurrentMenu(Menu.TradeMenu);
-            println("redirecting to trade menu...");
-            tradeController.tradeList();
-        }
+//        else if (GeneralCommands.START_TRADE.getMatcher(input) != null)
+//        {
+//            App.setCurrentMenu(Menu.TradeMenu);
+//            println("redirecting to trade menu...");
+//            tradeController.tradeList();
+//        }
 //        else if((matcher = GameCommands.CHECK_SHOP.getMatcher(input)) != null) {
 //            App.setCurrentMenu(Menu.ShopMenu);
 //            Shop shop = new Blacksmith();
@@ -570,12 +570,12 @@ public class GameMenu implements AppMenu
             println(animalController.fishing(input));
         }
 
-        else if (GeneralCommands.START_TRADE.getMatcher(input) != null)
-        {
-            App.setCurrentMenu(Menu.TradeMenu);
-            println("redirecting to trade menu...");
-            tradeController.tradeList();
-        }
+//        else if (GeneralCommands.START_TRADE.getMatcher(input) != null)
+//        {
+//            App.setCurrentMenu(Menu.TradeMenu);
+//            println("redirecting to trade menu...");
+//            tradeController.tradeList();
+//        }
 //        else if((matcher = GameCommands.CHECK_SHOP.getMatcher(input)) != null) {
 //            App.setCurrentMenu(Menu.ShopMenu);
 //            Shop shop = new Blacksmith();

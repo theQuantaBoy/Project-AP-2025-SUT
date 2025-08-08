@@ -6,12 +6,10 @@ import ap.project.model.App.GameAssetsManager;
 import ap.project.model.enums.GameObjectType;
 import ap.project.model.game.GameObject;
 import ap.project.model.game.Player;
+import ap.project.model.game.Trade;
 import ap.project.model.tools.Tool;
 import ap.project.network.client.GameClient;
-import ap.project.network.shared.messages.MovingItemToInventoryMessage;
-import ap.project.network.shared.messages.MovingItemToTadeMessage;
-import ap.project.network.shared.messages.TradeConfirmMessage;
-import ap.project.network.shared.messages.TradeResponseMessage;
+import ap.project.network.shared.messages.*;
 import ap.project.visual.UIRenderer;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
@@ -188,6 +186,8 @@ public class TradeWindow {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 cancelTrade();
+                TradeCancelMessage message = new TradeCancelMessage(selectedFriend.getUser().getHashId());
+                client.send(message);
             }
         });
 
@@ -486,9 +486,10 @@ public class TradeWindow {
         checkAndCompleteTrade(); // Check if both have confirmed
     }
 
-    private void cancelTrade() {
+    public void cancelTrade() {
         // Return all trade items to inventories
         returnTradeItemsToInventory();
+        UIRenderer.showTextBox("Trade failed");
         hide();
     }
 
@@ -521,6 +522,11 @@ public class TradeWindow {
                 friend.addToInventory(tradeItem.getObjectType(), tradeItem.getNumber());
             }
         }
+
+        Trade newTrade = new Trade(player, selectedFriend, playerTradeItems, friendTradeItems);
+        player.getArchiveTrades().add(newTrade);
+        friend.getArchiveTrades().add(newTrade);
+        //TODO: might send message
 
         UIRenderer.showTextBox("Trade completed successfully!");
         hide();
