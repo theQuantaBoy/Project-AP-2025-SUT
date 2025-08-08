@@ -9,6 +9,8 @@ import ap.project.model.enums.MapTypes;
 import ap.project.model.enums.Season;
 import ap.project.model.game.*;
 import ap.project.network.client.GameClient;
+import ap.project.network.shared.DTO.PlayerDTO;
+import ap.project.network.shared.Mapper.Mapper;
 import ap.project.network.shared.messages.*;
 import ap.project.util.MapAssetLoader;
 import ap.project.visual.CharacterRenderer;
@@ -600,6 +602,24 @@ public class LobbyScreen implements Screen
         }
 
         Main.getApp().setScreen(new WorldScreen(game.getCurrentPlayer(), true, true));
+    }
+
+    public void createGame(String gameID, Time gameTime)
+    {
+        Game game = App.loadGame(gameID);
+        App.setCurrentGame(game);
+
+        // Find current player
+        for (Player player : game.getPlayers())
+        {
+            if (player.getUser().getHashId() == localPlayer.getUser().getHashId())
+            {
+                game.setCurrentPlayer(player);
+                break;
+            }
+        }
+
+        Main.getApp().setScreen(new WorldScreen(game.getCurrentPlayer(), true, false));
     }
 
     public void removeOtherPlayer(int userId)

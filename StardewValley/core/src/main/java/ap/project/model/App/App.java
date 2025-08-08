@@ -10,10 +10,7 @@ import ap.project.network.shared.Mapper.Mapper;
 import ap.project.util.SQLiteUtil;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static ap.project.util.SQLiteUtil.loadPlayerState;
 
@@ -116,7 +113,7 @@ public class App
                     }
                 } catch (Exception e)
                 {
-                    // Skip invalid files
+                    System.err.println(Arrays.toString(e.getStackTrace()));
                 }
             }
         }

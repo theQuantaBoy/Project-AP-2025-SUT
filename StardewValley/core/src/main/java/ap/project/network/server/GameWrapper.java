@@ -220,21 +220,7 @@ public class GameWrapper
     public void handleSaveAndLeave(int playerId)
     {
         // Save the leaving player's state if available
-        PlayerDTO dto = playerStateCache.get(playerId);
-        if (dto != null)
-        {
-            try
-            {
-                SQLiteUtil.savePlayerState(
-                    game.getId(),
-                    String.valueOf(playerId),
-                    dto
-                );
-            } catch (Exception e)
-            {
-                System.err.println("Error saving player state: " + e.getMessage());
-            }
-        }
+        saveGameState();
 
         // Notify other players
         List<Integer> disconnectedList = new ArrayList<>();

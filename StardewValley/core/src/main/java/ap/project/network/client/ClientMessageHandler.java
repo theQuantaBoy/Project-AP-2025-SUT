@@ -94,6 +94,15 @@ public class ClientMessageHandler
             case GAME_SHUTDOWN:
                 handleGameShutDownMessage((GameShutdownMessage) message);
                 break;
+            case LOAD_GAME_SUCCESS:
+                handleLoadGameSuccessMessage((LoadGameSuccessMessage) message);
+                break;
+            case LOAD_GAME_FAILED:
+                handleLoadGameFailedMessage((LoadGameFailedMessage) message);
+                break;
+            case LOADED_GAME_START:
+                handleLoadedGameStartMessage((LoadedGameStartedMessage) message);
+                break;
             // Add other cases
         }
     }
@@ -390,6 +399,37 @@ public class ClientMessageHandler
         {
             WorldScreen ws = (WorldScreen) Main.getApp().getScreen();
             ws.handleGameShutdownMessage(message);
+        }
+    }
+
+    private static void handleLoadGameSuccessMessage(LoadGameSuccessMessage message)
+    {
+        String name = message.lobbyName;
+        String id =  message.lobbyId;
+
+        Screen currentScreen = Main.getApp().getScreen();
+        if (currentScreen instanceof PreLobbyScreen)
+        {
+            ((PreLobbyScreen) currentScreen).showTextBox("Lobby Created Successfully");
+            ((PreLobbyScreen) currentScreen).joinLobby(name, id);
+        }
+    }
+
+    private static void handleLoadGameFailedMessage(LoadGameFailedMessage message)
+    {
+        Screen currentScreen = Main.getApp().getScreen();
+        if (currentScreen instanceof PreLobbyScreen)
+        {
+            ((PreLobbyScreen) currentScreen).showTextBox(message.reason);
+        }
+    }
+
+    private static void handleLoadedGameStartMessage(LoadedGameStartedMessage message)
+    {
+        if (Main.getApp().getScreen() instanceof LobbyScreen)
+        {
+            LobbyScreen ls = (LobbyScreen) Main.getApp().getScreen();
+            ls.createGame(message.gameId, message.gameTime);
         }
     }
 }

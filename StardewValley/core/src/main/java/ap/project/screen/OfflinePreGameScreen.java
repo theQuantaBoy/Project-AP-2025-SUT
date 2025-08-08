@@ -8,6 +8,7 @@ import ap.project.model.App.GameAssetsManager;
 import ap.project.model.App.User;
 import ap.project.model.enums.CharacterType;
 import ap.project.model.enums.MapTypes;
+import ap.project.model.enums.Season;
 import ap.project.model.game.DummyGame;
 import ap.project.model.game.Game;
 import ap.project.model.game.Player;
@@ -15,6 +16,9 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -45,8 +49,63 @@ public class OfflinePreGameScreen implements Screen
     private ArrayList<Player> players;
     private Table playerListTable;
 
-    private MapTypes selectedMap;
-    private CharacterType selectedCharacter;
+    private Dialog gamePrefsDialog;
+    private Dialog avatarSelectionDialog;
+    private Dialog mapSelectionDialog;
+
+    private Label avatarNameLabel;
+    private Label mapNameLabel;
+
+    private TexturePreviewActor avatarPreviewActor;
+    private TexturePreviewActor mapPreviewActor;
+
+    private int currentAvatarIndex = 0;
+    private int currentMapIndex = 0;
+    private User prefsTargetUser;
+    private Label activeRowMapLabel;
+    private Label activeRowAvatarLabel;
+
+    // Custom actor for texture preview
+    private static class TexturePreviewActor extends Actor
+    {
+        private TextureRegion textureRegion;
+
+        public void setTexture(Texture texture)
+        {
+            this.textureRegion = texture != null ? new TextureRegion(texture) : null;
+        }
+
+        @Override
+        public void draw(Batch batch, float parentAlpha)
+        {
+            if (textureRegion != null)
+            {
+                // Calculate aspect ratio
+                float textureWidth = textureRegion.getRegionWidth();
+                float textureHeight = textureRegion.getRegionHeight();
+                float aspectRatio = textureWidth / textureHeight;
+
+                // Calculate dimensions to fit in actor bounds
+                float drawWidth = getWidth();
+                float drawHeight = getHeight();
+
+                if (drawWidth / drawHeight > aspectRatio)
+                {
+                    drawWidth = drawHeight * aspectRatio;
+                } else
+                {
+                    drawHeight = drawWidth / aspectRatio;
+                }
+
+                // Center the texture
+                float x = getX() + (getWidth() - drawWidth) / 2;
+                float y = getY() + (getHeight() - drawHeight) / 2;
+
+                // Draw the texture
+                batch.draw(textureRegion, x, y, drawWidth, drawHeight);
+            }
+        }
+    }
 
     public OfflinePreGameScreen(PreGameController controller)
     {
@@ -93,6 +152,7 @@ public class OfflinePreGameScreen implements Screen
         table.add(exitButton).width(500).height(50).pad(10).row();
 
         addButtonListeners();
+        createPrefsDialogs();
     }
 
     private void addButtonListeners() {
@@ -217,97 +277,49 @@ public class OfflinePreGameScreen implements Screen
         table.setPosition(x, y);
     }
 
-    public void showMapSelectionDialog(MapTypes current)
-    {
+    private void addPlayerRow(Player player) {
         Skin skin = GameAssetsManager.getGameAssetsManager().getSkin();
 
-        final int[] mapIndex = {0};
-        ArrayList<MapTypes> farms = MapTypes.getFarms();
-
-        if (current != null)
-            mapIndex[0] = farms.indexOf(current);
-        if (mapIndex[0] == -1) mapIndex[0] = 0;
-
-        Label mapNameLabel = new Label(farms.get(mapIndex[0]).getName(), skin);
-        mapNameLabel.setFontScale(1.1f);
-
-        TextButton left = new TextButton("<", skin);
-        TextButton right = new TextButton(">", skin);
-
-        left.addListener(new ClickListener() {
-            public void clicked(InputEvent event, float x, float y) {
-                mapIndex[0] = (mapIndex[0] - 1 + farms.size()) % farms.size();
-                mapNameLabel.setText(farms.get(mapIndex[0]).getName());
-            }
-        });
-
-        right.addListener(new ClickListener() {
-            public void clicked(InputEvent event, float x, float y) {
-                mapIndex[0] = (mapIndex[0] + 1) % farms.size();
-                mapNameLabel.setText(farms.get(mapIndex[0]).getName());
-            }
-        });
-
-        Dialog dialog = new Dialog("Select Map", skin)
-        {
-            @Override
-            protected void result(Object object)
-            {
-                if ((Boolean) object)
-                {
-                    selectedMap = farms.get(mapIndex[0]);
-                }
-            }
-        };
-
-        dialog.getTitleLabel().setFontScale(1.2f);
-
-        Table content = new Table();
-        content.defaults().pad(20);
-        content.add(left).padRight(30);
-        content.add(right).padLeft(30).row();
-        content.add(mapNameLabel).colspan(2).center().padTop(10).row();
-        dialog.getContentTable().add(content);
-
-        TextButton confirmBtn = new TextButton("Confirm", skin);
-        TextButton cancelBtn = new TextButton("Cancel", skin);
-
-        dialog.button(confirmBtn, true);
-        dialog.button(cancelBtn, false);
-
-        dialog.show(stage);
-    }
-
-    private void addPlayerRow(Player player)
-    {
-        Label nameLabel = new Label(player.getUser().getUsername(), GameAssetsManager.getGameAssetsManager().getSkin());
+        Label nameLabel = new Label(player.getUser().getUsername(), skin);
         nameLabel.setColor(Color.WHITE);
 
-        String mapName = player.getMapType() != null
-            ? player.getMapType().getName()
-            : "No Map";
-
-        Label mapLabel = new Label(mapName, GameAssetsManager.getGameAssetsManager().getSkin());
+        String mapName = player.getMapType() != null ? player.getMapType().getName() : "No Map";
+        Label mapLabel = new Label(mapName, skin);
         mapLabel.setColor(Color.SKY);
 
-        TextButton selectMapBtn = new TextButton("Select Map", GameAssetsManager.getGameAssetsManager().getSkin());
+        int avatarIdx = player.getUser().getCharacterChoice();
+        String avatarName = CharacterType.values()[Math.max(0, Math.min(avatarIdx, CharacterType.values().length - 1))].name();
+        Label avatarLabel = new Label(avatarName, skin);
+        avatarLabel.setColor(Color.GOLD);
 
-        selectMapBtn.addListener(new ChangeListener() {
-            @Override
-            public void changed(ChangeEvent event, Actor actor) {
-                showMapSelectionDialog(player.getMapType());
-                // wait a tiny bit for selection to register, then update UI
-                Gdx.app.postRunnable(() -> {
-                    mapLabel.setText(selectedMap != null ? selectedMap.getName() : "No Map");
-                    player.setMapType(selectedMap);
-                });
+        TextButton prefsBtn = new TextButton("Prefs…", skin);
+        prefsBtn.addListener(new ChangeListener() {
+            @Override public void changed(ChangeEvent event, Actor actor) {
+                // Set the context for dialogs
+                prefsTargetUser = player.getUser();
+                activeRowMapLabel = mapLabel;
+                activeRowAvatarLabel = avatarLabel;
+
+                // Initialize indices from current player
+                currentAvatarIndex = Math.max(0, Math.min(player.getUser().getCharacterChoice(), CharacterType.values().length - 1));
+                ArrayList<MapTypes> farms = MapTypes.getFarms();
+                currentMapIndex = Math.max(0, farms.indexOf(player.getMapType()));
+
+                updateAvatarPreview();
+                updateMapPreview();
+
+                gamePrefsDialog.show(stage);
             }
         });
 
         Table row = new Table();
-        row.add(nameLabel).width(200);
-        row.add(mapLabel).width(200);
-        row.add(selectMapBtn).width(150);
+        row.defaults().pad(6);
+        row.add(nameLabel).width(200).left();
+        row.add(new Label("Map:", skin)).right().padRight(8);
+        row.add(mapLabel).width(200).left().padRight(20);
+        row.add(new Label("Avatar:", skin)).right().padRight(8);
+        row.add(avatarLabel).width(160).left().padRight(20);
+        row.add(prefsBtn).width(140).right();
 
         playerListTable.add(row).row();
     }
@@ -403,4 +415,160 @@ public class OfflinePreGameScreen implements Screen
 
         return t;
     }
+
+    private void createPrefsDialogs() {
+        Skin skin = GameAssetsManager.getGameAssetsManager().getSkin();
+
+        gamePrefsDialog = new Dialog("Game Preferences", skin);
+        gamePrefsDialog.getContentTable().pad(50);
+        createGamePrefsDialogContent();
+
+        avatarSelectionDialog = new Dialog("Select Avatar", skin);
+        avatarSelectionDialog.getContentTable().pad(50);
+        createAvatarDialogContent();
+
+        mapSelectionDialog = new Dialog("Select Map", skin);
+        mapSelectionDialog.getContentTable().pad(50);
+        createMapDialogContent();
+    }
+
+    private void createGamePrefsDialogContent() {
+        Skin skin = GameAssetsManager.getGameAssetsManager().getSkin();
+        Table content = gamePrefsDialog.getContentTable();
+
+        TextButton avatarButton = new TextButton("Avatar", skin);
+        avatarButton.addListener(new ClickListener() {
+            @Override public void clicked(InputEvent event, float x, float y) {
+                avatarSelectionDialog.show(stage);
+            }
+        });
+        content.add(avatarButton).pad(15).minWidth(200).minHeight(60).row();
+
+        TextButton mapButton = new TextButton("Map", skin);
+        mapButton.addListener(new ClickListener() {
+            @Override public void clicked(InputEvent event, float x, float y) {
+                mapSelectionDialog.show(stage);
+            }
+        });
+        content.add(mapButton).pad(15).minWidth(200).minHeight(60).row();
+
+        gamePrefsDialog.button("Close");
+    }
+
+    private void createAvatarDialogContent() {
+        Skin skin = GameAssetsManager.getGameAssetsManager().getSkin();
+        Table content = avatarSelectionDialog.getContentTable();
+
+        avatarNameLabel = new Label("", skin);
+        content.add(avatarNameLabel).padBottom(10).row();
+
+        Table nav = new Table();
+        TextButton prev = new TextButton("<", skin);
+        TextButton next = new TextButton(">", skin);
+
+        avatarPreviewActor = new TexturePreviewActor();
+
+        prev.addListener(new ClickListener() {
+            @Override public void clicked(InputEvent event, float x, float y) {
+                currentAvatarIndex = (currentAvatarIndex - 1 + CharacterType.values().length) % CharacterType.values().length;
+                applyAvatarSelection();
+                App.updateUser(prefsTargetUser);
+            }
+        });
+        next.addListener(new ClickListener() {
+            @Override public void clicked(InputEvent event, float x, float y) {
+                currentAvatarIndex = (currentAvatarIndex + 1) % CharacterType.values().length;
+                applyAvatarSelection();
+                App.updateUser(prefsTargetUser);
+            }
+        });
+
+        nav.add(prev).width(80).padRight(20);
+        nav.add(avatarPreviewActor).width(300).height(300).pad(20);
+        nav.add(next).width(80).padLeft(20);
+
+        content.add(nav).row();
+        avatarSelectionDialog.button("Close");
+
+        updateAvatarPreview();
+    }
+
+    private void createMapDialogContent() {
+        Skin skin = GameAssetsManager.getGameAssetsManager().getSkin();
+        Table content = mapSelectionDialog.getContentTable();
+
+        mapNameLabel = new Label("", skin);
+        content.add(mapNameLabel).padBottom(10).row();
+
+        Table nav = new Table();
+        TextButton prev = new TextButton("<", skin);
+        TextButton next = new TextButton(">", skin);
+
+        mapPreviewActor = new TexturePreviewActor();
+
+        prev.addListener(new ClickListener() {
+            @Override public void clicked(InputEvent event, float x, float y) {
+                ArrayList<MapTypes> farms = MapTypes.getFarms();
+                currentMapIndex = (currentMapIndex - 1 + farms.size()) % farms.size();
+                applyMapSelection();
+                App.updateUser(prefsTargetUser);
+            }
+        });
+        next.addListener(new ClickListener() {
+            @Override public void clicked(InputEvent event, float x, float y) {
+                ArrayList<MapTypes> farms = MapTypes.getFarms();
+                currentMapIndex = (currentMapIndex + 1) % farms.size();
+                applyMapSelection();
+                App.updateUser(prefsTargetUser);
+            }
+        });
+
+        nav.add(prev).width(80).padRight(20);
+        nav.add(mapPreviewActor).width(400).height(300).pad(20);
+        nav.add(next).width(80).padLeft(20);
+
+        content.add(nav).row();
+        mapSelectionDialog.button("Close");
+
+        updateMapPreview();
+    }
+
+    private void updateAvatarPreview() {
+        CharacterType selected = CharacterType.values()[currentAvatarIndex];
+        avatarNameLabel.setText(selected.name());
+        Texture texture = selected.getAvatarTexture();
+        avatarPreviewActor.setTexture(texture);
+    }
+
+    private void updateMapPreview() {
+        ArrayList<MapTypes> farms = MapTypes.getFarms();
+        if (farms.isEmpty()) return;
+        MapTypes selected = farms.get(currentMapIndex);
+        mapNameLabel.setText(selected.name());
+        Texture texture = MapTypes.getMiniMapTexture(selected, Season.Spring);
+        mapPreviewActor.setTexture(texture);
+    }
+
+    private void applyAvatarSelection() {
+        updateAvatarPreview();
+        if (prefsTargetUser != null) {
+            prefsTargetUser.setCharacterChoice(currentAvatarIndex);
+            if (activeRowAvatarLabel != null) {
+                activeRowAvatarLabel.setText(CharacterType.values()[currentAvatarIndex].name());
+            }
+        }
+    }
+
+    private void applyMapSelection() {
+        updateMapPreview();
+        if (prefsTargetUser != null) {
+            ArrayList<MapTypes> farms = MapTypes.getFarms();
+            MapTypes sel = farms.get(currentMapIndex);
+            prefsTargetUser.setMapChoice(currentMapIndex);
+            if (activeRowMapLabel != null) {
+                activeRowMapLabel.setText(sel.getName());
+            }
+        }
+    }
+
 }

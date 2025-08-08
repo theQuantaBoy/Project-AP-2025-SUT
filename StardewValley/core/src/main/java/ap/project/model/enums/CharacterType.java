@@ -8,7 +8,7 @@ public enum CharacterType
         "characters/Abigail/Abigail_Avatar.png", "characters/Abigail/Abigail_Profile.png"),
 
     ALEX("Alex", "characters/Alex/Alex_Sheet.atlas",
-        "characters/Alex/Alex_Avatar.png", ""),
+        "characters/Alex/Alex_Avatar.png", "characters/Alex/Alex_Profile.png"),
     ;
 
     private final String name;

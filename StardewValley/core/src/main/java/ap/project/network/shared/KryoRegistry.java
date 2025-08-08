@@ -149,6 +149,13 @@ public class KryoRegistry
         kryo.register(GameShutdownMessage.class);
         kryo.register(SaveAndLeaveMessage.class);
 
+        kryo.register(LoadedGameStartedMessage.class);
+        kryo.register(LoadGameFailedMessage.class);
+        kryo.register(LoadGameRequestMessage.class);
+        kryo.register(LoadGameSuccessMessage.class);
+        kryo.register(UserSavedGameRequestMessage.class);
+        kryo.register(UserSavedGameResponseMessage.class);
+
         // Register all other message classes ...
     }
 }

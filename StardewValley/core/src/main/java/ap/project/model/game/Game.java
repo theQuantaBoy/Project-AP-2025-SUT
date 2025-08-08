@@ -846,4 +846,17 @@ public class Game
     {
         this.players = players;
     }
+
+
+    public Set<Integer> getPlayerIDs()
+    {
+        Set<Integer> playerIDs = new HashSet<>();
+
+        for (Player p : players)
+        {
+            playerIDs.add(p.getUser().getHashId());
+        }
+
+        return playerIDs;
+    }
 }

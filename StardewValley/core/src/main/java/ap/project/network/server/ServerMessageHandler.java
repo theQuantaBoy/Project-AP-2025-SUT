@@ -2,13 +2,16 @@ package ap.project.network.server;
 
 import ap.project.model.App.App;
 import ap.project.model.App.User;
+import ap.project.model.game.DummyGame;
 import ap.project.model.game.Game;
 import ap.project.model.game.Lobby;
 import ap.project.model.game.Player;
+import ap.project.network.shared.DTO.PlayerDTO;
 import ap.project.network.shared.DTO.UserDTO;
 import ap.project.network.shared.Mapper.Mapper;
 import ap.project.network.shared.messages.*;
 import ap.project.util.SQLiteUtil;
+import com.esotericsoftware.kryonet.Server;
 
 import java.util.ArrayList;
 
@@ -68,6 +71,12 @@ public class ServerMessageHandler
                 break;
             case SAVE_AND_LEAVE:
                 handleSaveAndLeaveMessage(client, (SaveAndLeaveMessage) message);
+                break;
+            case USER_SAVED_GAME_REQUEST:
+                handleUserSavedGamesRequest(client, (UserSavedGameRequestMessage) message);
+                break;
+            case LOAD_GAME_REQUEST:
+                handleLoadSavedGameRequest(client, (LoadGameRequestMessage) message);
                 break;
         }
     }
@@ -303,29 +312,54 @@ public class ServerMessageHandler
                 return;
             }
 
-            int[] playerIDs = new int[4];
-            for (int i = 0; i < lobby.getUsers().size(); i++)
+            GameWrapper wrapper;
+
+            if (lobby.isLoadedGame())
             {
-                playerIDs[i] = lobby.getUsers().get(i).getHashId();
-            }
+                Game game = App.loadGame(lobby.getGameId());
 
-            ArrayList<Player> players = new ArrayList<>();
-            for (User u : lobby.getUsers())
+                ArrayList<Player> players = game.getPlayers();
+                for (User u : lobby.getUsers())
+                {
+                    players.add(new Player(u));
+                }
+
+                game.setPlayers(players);
+
+                App.setCurrentGame(game);
+                game.setCurrentPlayer(players.get(0));
+
+                wrapper = new GameWrapper(game);
+                server.getGameWrappers().add(wrapper);
+
+                server.broadcastToLobby(lobby, new LoadedGameStartedMessage(game.getId(), game.getCurrentTime()));
+                server.getActiveLobbies().remove(lobby);
+            } else
             {
-                players.add(new Player(u));
+                int[] playerIDs = new int[4];
+                for (int i = 0; i < lobby.getUsers().size(); i++)
+                {
+                    playerIDs[i] = lobby.getUsers().get(i).getHashId();
+                }
+
+                ArrayList<Player> players = new ArrayList<>();
+                for (User u : lobby.getUsers())
+                {
+                    players.add(new Player(u));
+                }
+
+                Game game = new Game(players);
+                String id = game.getId();
+
+                App.setCurrentGame(game);
+                game.setCurrentPlayer(players.get(0));
+
+                wrapper = new GameWrapper(game);
+                server.getGameWrappers().add(wrapper);
+
+                server.broadcastToLobby(lobby, new GameCreationSuccessMessage(id, playerIDs[0], playerIDs[1], playerIDs[2], playerIDs[3]));
+                server.getActiveLobbies().remove(lobby);
             }
-
-            Game game = new Game(players);
-            String id = game.getId();
-
-            App.setCurrentGame(game);
-            game.setCurrentPlayer(players.get(0));
-
-            GameWrapper wrapper = new GameWrapper(game);
-            server.getGameWrappers().add(wrapper);
-
-            server.broadcastToLobby(lobby, new GameCreationSuccessMessage(id, playerIDs[0], playerIDs[1], playerIDs[2], playerIDs[3]));
-            server.getActiveLobbies().remove(lobby);
 
             for (User u : lobby.getUsers())
             {
@@ -465,6 +499,35 @@ public class ServerMessageHandler
             // Update connection state
             client.setInGame(false);
             client.wrapper = null;
+        }
+    }
+
+    private static void handleUserSavedGamesRequest(ClientConnection client, UserSavedGameRequestMessage msg)
+    {
+        GameServer server = GameServer.getInstance();
+        User user = server.getUser(client);
+
+        ArrayList<DummyGame> savedGames = App.getGamesForPlayer(user.getHashId());
+        client.send(new UserSavedGameResponseMessage(savedGames));
+    }
+
+    private static void handleLoadSavedGameRequest(ClientConnection client, LoadGameRequestMessage msg)
+    {
+        GameServer server = GameServer.getInstance();
+        User user = server.getUser(client);
+
+        Game savedGame = App.loadGame(msg.gameId);
+        Lobby lobby = new Lobby("Loaded Game", user, true, msg.gameId, savedGame.getPlayerIDs(), msg.gameId);
+
+        if (server.addLobby(lobby))
+        {
+            client.send(new LobbyCreatedMessage(lobby.getName(), lobby.getId(), false, true));
+            client.setInLobby(true);
+            client.lobby = lobby;
+            client.send(new LoadGameSuccessMessage(lobby.getName(), lobby.getId()));
+        } else
+        {
+            client.send(new LoadGameFailedMessage("couldn't add lobby"));
         }
     }
 }

@@ -1,5 +1,6 @@
 package ap.project.network.server;
 
+import ap.project.model.App.App;
 import ap.project.model.App.User;
 import ap.project.model.game.Lobby;
 import ap.project.network.shared.KryoRegistry;
@@ -195,7 +196,9 @@ public class GameServer
         // Process disconnects after iteration
         for (ClientConnection client : toDisconnect)
         {
-            handleDisconnect(client);
+            User u = getUser(client);
+            connections.remove(client);
+            users.remove(u);
         }
     }
 
@@ -212,11 +215,6 @@ public class GameServer
                 }
             }
         }
-    }
-
-    private void handleDisconnect(ClientConnection client)
-    {
-        // TODO: put a should remove boolean to remove later, also handle lobby stuff
     }
 
     private void startGameLoop()
@@ -445,6 +443,7 @@ public class GameServer
     {
         HeadlessApplicationConfiguration config = new HeadlessApplicationConfiguration();
         new HeadlessApplication(new DummyAppListener(), config); // Dummy listener
+        App.initialize();
 
         try
         {

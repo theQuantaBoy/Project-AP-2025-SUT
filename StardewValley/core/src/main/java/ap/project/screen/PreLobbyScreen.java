@@ -290,6 +290,7 @@ public class PreLobbyScreen implements Screen
                 currentAvatarIndex = (currentAvatarIndex - 1 + CharacterType.values().length) % CharacterType.values().length;
                 user.setCharacterChoice(currentAvatarIndex);
                 updateAvatarPreview();
+                App.updateUser(currentUser);
                 client.send(new UserChoicesMessage(currentUser.getCharacterChoice(), currentUser.getMapChoice()));
             }
         });
@@ -304,6 +305,7 @@ public class PreLobbyScreen implements Screen
                 currentAvatarIndex = (currentAvatarIndex + 1) % CharacterType.values().length;
                 user.setCharacterChoice(currentAvatarIndex);
                 updateAvatarPreview();
+                App.updateUser(currentUser);
                 client.send(new UserChoicesMessage(currentUser.getCharacterChoice(), currentUser.getMapChoice()));
             }
         });
@@ -351,6 +353,7 @@ public class PreLobbyScreen implements Screen
                 currentMapIndex = (currentMapIndex - 1 + farms.size()) % farms.size();
                 user.setMapChoice(currentMapIndex);
                 updateMapPreview();
+                App.updateUser(currentUser);
                 client.send(new UserChoicesMessage(currentUser.getCharacterChoice(), currentUser.getMapChoice()));
             }
         });
@@ -366,6 +369,7 @@ public class PreLobbyScreen implements Screen
                 currentMapIndex = (currentMapIndex + 1) % farms.size();
                 user.setMapChoice(currentMapIndex);
                 updateMapPreview();
+                App.updateUser(currentUser);
                 client.send(new UserChoicesMessage(currentUser.getCharacterChoice(), currentUser.getMapChoice()));
             }
         });
@@ -637,6 +641,7 @@ public class PreLobbyScreen implements Screen
             }
         });
 
+        // load a saved game
         loadGameButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
@@ -718,22 +723,7 @@ public class PreLobbyScreen implements Screen
             loadButton.pad(5, 15, 5, 15); // extra padding inside button
             loadButton.addListener(new ChangeListener() {
                 @Override public void changed(ChangeEvent event, Actor actor) {
-                    Game loadedGame = App.loadGame(game.getGameId());
-                    if (loadedGame == null) return;
-
-                    Player currentPlayer = null;
-                    for (Player p : loadedGame.getPlayers()) {
-                        if (p.getUser().getHashId() == currentPlayerId) {
-                            currentPlayer = p;
-                            break;
-                        }
-                    }
-                    if (currentPlayer == null) return;
-
-                    loadedGame.setCurrentPlayer(currentPlayer);
-                    App.setCurrentGame(loadedGame);
-                    Gdx.graphics.setWindowedMode(1800, 960);
-                    Main.getApp().setScreen(new WorldScreen(currentPlayer, false, false));
+                    client.send(new LoadGameRequestMessage(game.getGameId(), user.getHashId()));
                 }
             });
 

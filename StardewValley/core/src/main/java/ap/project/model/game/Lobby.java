@@ -20,6 +20,8 @@ public class Lobby
     private final long createdAt;
 
     private boolean isLoadedGame = false;
+    private String gameId;
+
     private String originalGameId;
     private Set<Integer> originalPlayerIds = new HashSet<>();
 
@@ -44,12 +46,13 @@ public class Lobby
         this.createdAt = System.currentTimeMillis();
     }
 
-    public Lobby(String name, User admin, boolean isVisible, String originalGameId, Set<Integer> originalPlayerIds)
+    public Lobby(String name, User admin, boolean isVisible, String originalGameId, Set<Integer> originalPlayerIds, String gameId)
     {
         this(name, admin, isVisible);
-        this.isLoadedGame = true;
         this.originalGameId = originalGameId;
         this.originalPlayerIds = originalPlayerIds;
+        this.isLoadedGame = true;
+        this.gameId = gameId;
     }
 
     public boolean isLoadedGame()
@@ -74,6 +77,11 @@ public class Lobby
         }
 
         return null;
+    }
+
+    public String getGameId()
+    {
+        return gameId;
     }
 
     public ArrayList<User> getUsers()
