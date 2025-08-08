@@ -17,19 +17,8 @@ import java.util.Scanner;
 
 public class PreGameController
 {
-    public void createGame(ArrayList<Player> players)
+    public Game createGame(ArrayList<Player> players)
     {
-        int usersCount = players.size();
-
-        for (int i = 0; i < 4 - usersCount; i++)
-        {
-            User newUser = new User("guest" + (i + 1));
-            Player newPlayer = new Player(newUser, MapTypes.STANDARD, 0);
-            players.add(newPlayer);
-        }
-
-        PreGameMenu.println("Users selected successfully.");
-
         ArrayList<Player> finalPlayers = new ArrayList<>();
 
         for (int i = 0; i < players.size(); i++)
@@ -55,6 +44,8 @@ public class PreGameController
 
         PreGameMenu.println("New Game created.\n\n" +
             "Welcome to Stardew Valley!");
+
+        return game;
     }
 
     public void newGame(String[] usernames)

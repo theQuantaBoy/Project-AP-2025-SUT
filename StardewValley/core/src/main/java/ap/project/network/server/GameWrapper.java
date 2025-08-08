@@ -248,7 +248,6 @@ public class GameWrapper
 
         // Deactivate wrapper
         pause();
-        GameServer.getInstance().getGameWrappers().remove(this);
     }
 
     private Player findPlayerById(int playerId)

@@ -330,7 +330,7 @@ public class InventoryWindow {
         popup.add(craftingTab).expandX().fillX();
         popup.add(settingsTab).expandX().fillX();
         popup.row();
-        popup.add(contentStack).colspan(6).expand().fill().center().row();
+        popup.add(contentStack).colspan(7).expand().fill().center().row();
         popup.pack();
         center(stage);
         stage.addActor(popup);

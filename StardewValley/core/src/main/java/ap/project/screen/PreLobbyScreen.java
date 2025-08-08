@@ -8,6 +8,8 @@ import ap.project.model.enums.CharacterType;
 import ap.project.model.enums.Gender;
 import ap.project.model.enums.MapTypes;
 import ap.project.model.enums.Season;
+import ap.project.model.game.DummyGame;
+import ap.project.model.game.Game;
 import ap.project.model.game.Player;
 import ap.project.network.client.GameClient;
 import ap.project.network.shared.messages.*;
@@ -24,6 +26,7 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
@@ -56,6 +59,7 @@ public class PreLobbyScreen implements Screen
     private TextButton joinLobbyButton;
     private TextButton onlineUsersButton;
     private TextButton activeLobbiesButton;
+    private TextButton loadGameButton;
     private TextButton backButton;
 
     // Dialogs
@@ -176,6 +180,7 @@ public class PreLobbyScreen implements Screen
         joinLobbyButton = new TextButton("Join Lobby", skin);
         onlineUsersButton = new TextButton("Online Users", skin);
         activeLobbiesButton = new TextButton("Active Lobbies", skin);
+        loadGameButton = new TextButton("Saved Games", skin);
         backButton = new TextButton("Go Back", skin);
     }
 
@@ -554,6 +559,7 @@ public class PreLobbyScreen implements Screen
         mainTable.add(gamePrefsButton).row();
         mainTable.add(createLobbyButton).row();
         mainTable.add(joinLobbyButton).row();
+        mainTable.add(loadGameButton).row();
 
         // Side-by-side buttons
         Table sideBySideTable = new Table();
@@ -631,6 +637,13 @@ public class PreLobbyScreen implements Screen
             }
         });
 
+        loadGameButton.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                showOnlineSavedGamesDialog();
+            }
+        });
+
         // Back button
         backButton.addListener(new ClickListener() {
             @Override
@@ -641,6 +654,108 @@ public class PreLobbyScreen implements Screen
 
         // Close button for all dialogs
         setupDialogCloseListeners();
+    }
+
+    private void showOnlineSavedGamesDialog() {
+        Skin skin = GameAssetsManager.getGameAssetsManager().getSkin();
+
+        Dialog dialog = new Dialog("Saved Games", skin);
+
+        // Responsive size (~85% of current stage)
+        float w = Math.min(1100f, stage.getWidth() * 0.85f);
+        float h = Math.min(800f,  stage.getHeight() * 0.75f);
+
+        Table table = createSavedGamesTable();
+        ScrollPane scrollPane = new ScrollPane(table, skin);
+
+        // Make list fill width and scroll only vertically
+        scrollPane.setFadeScrollBars(false);
+        scrollPane.setScrollingDisabled(true, false);
+        scrollPane.setForceScroll(false, true);
+        scrollPane.setOverscroll(false, false);
+
+        dialog.getContentTable().clear();
+        dialog.getContentTable().add(scrollPane).width(w).height(h).pad(20);
+        dialog.button("Close", false);
+        dialog.show(stage);
+    }
+
+    private Table createSavedGamesTable() {
+        Skin skin = GameAssetsManager.getGameAssetsManager().getSkin();
+
+        Table t = new Table();
+        t.top().left();
+        t.defaults()
+            .pad(10)              // more vertical/horizontal padding between cells
+            .left()
+            .expandX()
+            .fillX();
+
+        int currentPlayerId = App.getLoggedInUser().getHashId();
+        ArrayList<DummyGame> playerGames = App.getGamesForPlayer(currentPlayerId);
+
+        if (playerGames == null || playerGames.isEmpty()) {
+            Label empty = new Label("No saved games found.", skin);
+            empty.setAlignment(Align.center);
+            t.add(empty).colspan(5).expandX().pad(20);
+            t.row();
+            return t;
+        }
+
+        // Header with extra bottom padding
+        t.add(new Label("Game ID", skin)).left().minWidth(200).padBottom(15);
+        t.add(new Label("Players", skin)).left().width(100).padBottom(15);
+        t.add(new Label("Duration", skin)).left().minWidth(180).padBottom(15);
+        t.add().padBottom(15);
+        t.row();
+
+        for (DummyGame game : playerGames) {
+            Label id       = new Label(game.getGameId(), skin);
+            Label players  = new Label(String.valueOf(game.getPlayerIds().size()), skin);
+            Label duration = new Label(game.getDurationString(), skin);
+
+            TextButton loadButton = new TextButton("Load", skin);
+            loadButton.pad(5, 15, 5, 15); // extra padding inside button
+            loadButton.addListener(new ChangeListener() {
+                @Override public void changed(ChangeEvent event, Actor actor) {
+                    Game loadedGame = App.loadGame(game.getGameId());
+                    if (loadedGame == null) return;
+
+                    Player currentPlayer = null;
+                    for (Player p : loadedGame.getPlayers()) {
+                        if (p.getUser().getHashId() == currentPlayerId) {
+                            currentPlayer = p;
+                            break;
+                        }
+                    }
+                    if (currentPlayer == null) return;
+
+                    loadedGame.setCurrentPlayer(currentPlayer);
+                    App.setCurrentGame(loadedGame);
+                    Gdx.graphics.setWindowedMode(1800, 960);
+                    Main.getApp().setScreen(new WorldScreen(currentPlayer, false, false));
+                }
+            });
+
+            // Row with wider spacing
+            t.add(id)      .left().minWidth(200).padRight(20);
+            t.add(players) .left().width(100).padRight(20);
+            t.add(duration).left().minWidth(180).padRight(20);
+            t.add(loadButton).right().width(130);
+            t.row();
+        }
+
+        return t;
+    }
+
+    private void loadOnlineGame(DummyGame game)
+    {
+        // Send load request to server
+        LoadGameRequestMessage msg = new LoadGameRequestMessage(
+            game.getGameId(),
+            App.getLoggedInUser().getHashId()
+        );
+        GameClient.getInstance().send(msg);
     }
 
     private void setupDialogCloseListeners()

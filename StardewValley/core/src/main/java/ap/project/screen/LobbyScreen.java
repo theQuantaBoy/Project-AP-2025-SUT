@@ -599,7 +599,7 @@ public class LobbyScreen implements Screen
             }
         }
 
-        Main.getApp().setScreen(new WorldScreen(players));
+        Main.getApp().setScreen(new WorldScreen(game.getCurrentPlayer(), true, true));
     }
 
     public void removeOtherPlayer(int userId)

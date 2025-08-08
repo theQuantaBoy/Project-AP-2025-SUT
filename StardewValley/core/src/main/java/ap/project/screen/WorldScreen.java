@@ -130,31 +130,44 @@ public final class WorldScreen implements Screen
     private float offlineSaveTimer = 0;
     private static final float OFFLINE_SAVE_INTERVAL = 300; // 5 minutes
 
-    public WorldScreen(ArrayList<Player> players)
+    public WorldScreen(Player currentPlayer, boolean onlineMode, boolean newGame)
     {
         INSTANCE = this;
-        ONLINE_MODE = true;
-        client = GameClient.getInstance();
+        ONLINE_MODE = onlineMode;
 
         this.shapeRenderer = new ShapeRenderer();
         cam = new OrthographicCamera(20 * TILE_SIZE, 15 * TILE_SIZE);
         cam.setToOrtho(false);
 
         this.game = App.getCurrentGame();
+
         App.setCurrentMenu(Menu.HomeMenu);
 
-        for (Player p : game.getPlayers())
+        if (newGame)
         {
-            Farm f = new Farm(p.getMapType());
-            p.setFarm(f);
-            p.setCurrentMap(f);
+            for (Player p : game.getPlayers())
+            {
+                Farm f = new Farm(p.getMapType());
+                p.setFarm(f);
+                p.setCurrentMap(f);
+            }
+
+            for (Player p : game.getPlayers())
+            {
+                p.spawn();
+            }
+        } else
+        {
+            for (Player p : game.getPlayers())
+            {
+                restorePlayerState(p);
+            }
+
+            restorePlayerState(currentPlayer);
+            game.setCurrentPlayer(currentPlayer);
         }
 
-        for (Player p : game.getPlayers())
-        {
-            p.spawn();
-        }
-
+        // Set up current player
         this.map = game.getCurrentPlayer().getCurrentMap();
         time = game.getCurrentTime();
         currentSeason = time.getSeason();
@@ -164,6 +177,7 @@ public final class WorldScreen implements Screen
         ShaderProgram.pedantic = false;
         uiRenderer = new UIRenderer(time);
 
+        // Initialize UI components
         inventoryWindow = new InventoryWindow(uiStage, this);
         friendsWindow = new FriendsWindow(uiStage, this);
         cookBookWindow = new CookBookWindow(uiStage);
@@ -178,7 +192,14 @@ public final class WorldScreen implements Screen
         checkGameInfo();
         initializeHotbar();
 
-        client.send(new GameStartedMessage(game.getId()));
+        if (ONLINE_MODE)
+        {
+            client = GameClient.getInstance();
+            client.send(new GameStartedMessage(game.getId()));
+        } else
+        {
+            client = null;
+        }
     }
 
     public WorldScreen()
@@ -236,6 +257,43 @@ public final class WorldScreen implements Screen
         inputMultiplexer = new InputMultiplexer();
         checkGameInfo();
         initializeHotbar();
+    }
+
+    private void restorePlayerState(Player player)
+    {
+        // Restore map state
+        if (player.isInFarm())
+        {
+            player.setCurrentMap(player.getFarm());
+            App.setCurrentMenu(Menu.GameMenu);
+        } else if (player.isInHome())
+        {
+            player.setCurrentMap(player.getCabin());
+            App.setCurrentMenu(Menu.HomeMenu);
+        } else if (player.isInGreenHouse())
+        {
+            player.setCurrentMap(player.getGreenHouse());
+            App.setCurrentMenu(Menu.GameMenu);
+        } else if (player.isInCity())
+        {
+            player.setCurrentMap(game.getCity());
+            App.setCurrentMenu(Menu.CityMenu);
+        } else if (player.isInShop() && player.getCurrentShop() != null)
+        {
+            ShopType type = ShopType.getShopType(player.getCurrentShop());
+            if (type != null)
+            {
+                for (java.util.Map.Entry<Point, Shop> entry : game.getCity().getShopDoors().entrySet())
+                {
+                    if (entry.getValue().getType() == type)
+                    {
+                        player.setCurrentMap(entry.getValue());
+                        App.setCurrentMenu(Menu.CityMenu);
+                        break;
+                    }
+                }
+            }
+        }
     }
 
     private void initializeHotbar() {
@@ -380,8 +438,10 @@ public final class WorldScreen implements Screen
         }
     }
 
-    public void checkGameInfo() {
-        if (player == null || !App.getCurrentGame().getCurrentPlayer().equals(player)) {
+    public void checkGameInfo()
+    {
+        if (player == null || !App.getCurrentGame().getCurrentPlayer().equals(player))
+        {
             updateGameInfo();
             refreshHotbarUI(); // Add this line
         }

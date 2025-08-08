@@ -8,6 +8,8 @@ import ap.project.model.App.GameAssetsManager;
 import ap.project.model.App.User;
 import ap.project.model.enums.CharacterType;
 import ap.project.model.enums.MapTypes;
+import ap.project.model.game.DummyGame;
+import ap.project.model.game.Game;
 import ap.project.model.game.Player;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
@@ -36,6 +38,7 @@ public class OfflinePreGameScreen implements Screen
     TextField username;
     private TextButton addPlayerButton;
     private TextButton newGameButton;
+    private TextButton loadGame;
     private TextButton backButton;
     private TextButton exitButton;
 
@@ -68,6 +71,7 @@ public class OfflinePreGameScreen implements Screen
 
         this.addPlayerButton = new TextButton("Add Player", GameAssetsManager.getGameAssetsManager().getSkin());
         this.newGameButton = new TextButton("Create Game", GameAssetsManager.getGameAssetsManager().getSkin());
+        this.loadGame = new TextButton("Load Game", GameAssetsManager.getGameAssetsManager().getSkin());
         this.backButton = new TextButton("Back", GameAssetsManager.getGameAssetsManager().getSkin());
         this.exitButton = new TextButton("Exit", GameAssetsManager.getGameAssetsManager().getSkin());
 
@@ -75,7 +79,7 @@ public class OfflinePreGameScreen implements Screen
         this.playerListTable.defaults().pad(5);
 
         players = new ArrayList<>();
-        Player player = new Player(App.getCurrentUser(), MapTypes.STANDARD, 0);
+        Player player = new Player(App.getCurrentUser());
         players.add(player);
 
         addPlayerRow(player);
@@ -84,6 +88,7 @@ public class OfflinePreGameScreen implements Screen
         table.add(username).width(500).height(50).pad(10).row();
         table.add(addPlayerButton).width(500).height(50).pad(10).row();
         table.add(newGameButton).width(500).height(50).pad(10).row();
+        table.add(loadGame).width(500).height(50).pad(10).row();
         table.add(backButton).width(500).height(50).pad(10).row();
         table.add(exitButton).width(500).height(50).pad(10).row();
 
@@ -106,10 +111,19 @@ public class OfflinePreGameScreen implements Screen
         newGameButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                controller.createGame(players);
-                dispose(); // Dispose of the stage and actors before switching
-                Gdx.input.setInputProcessor(null); // Optional: Clear input processor
-                Main.getApp().setScreen(new WorldScreen());
+                Game game = new Game(players);
+                game.setCurrentPlayer(players.get(0));
+                App.addGame(game);
+                App.setCurrentGame(game);
+                Gdx.graphics.setWindowedMode(1800, 960);
+                Main.getApp().setScreen(new WorldScreen(game.getCurrentPlayer(), false, true));
+            }
+        });
+
+        loadGame.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                showSavedGamesDialog();
             }
         });
 
@@ -296,5 +310,97 @@ public class OfflinePreGameScreen implements Screen
         row.add(selectMapBtn).width(150);
 
         playerListTable.add(row).row();
+    }
+
+    private void showSavedGamesDialog() {
+        Skin skin = GameAssetsManager.getGameAssetsManager().getSkin();
+
+        Dialog dialog = new Dialog("Saved Games", skin);
+
+        // Responsive size (~85% of current stage)
+        float w = Math.min(1100f, stage.getWidth() * 0.85f);
+        float h = Math.min(800f,  stage.getHeight() * 0.75f);
+
+        Table table = createSavedGamesTable();
+        ScrollPane scrollPane = new ScrollPane(table, skin);
+
+        // Make list fill width and scroll only vertically
+        scrollPane.setFadeScrollBars(false);
+        scrollPane.setScrollingDisabled(true, false);
+        scrollPane.setForceScroll(false, true);
+        scrollPane.setOverscroll(false, false);
+
+        dialog.getContentTable().clear();
+        dialog.getContentTable().add(scrollPane).width(w).height(h).pad(20);
+        dialog.button("Close", false);
+        dialog.show(stage);
+    }
+
+    private Table createSavedGamesTable() {
+        Skin skin = GameAssetsManager.getGameAssetsManager().getSkin();
+
+        Table t = new Table();
+        t.top().left();
+        t.defaults()
+            .pad(10)              // more vertical/horizontal padding between cells
+            .left()
+            .expandX()
+            .fillX();
+
+        int currentPlayerId = App.getLoggedInUser().getHashId();
+        ArrayList<DummyGame> playerGames = App.getGamesForPlayer(currentPlayerId);
+
+        if (playerGames == null || playerGames.isEmpty()) {
+            Label empty = new Label("No saved games found.", skin);
+            empty.setAlignment(Align.center);
+            t.add(empty).colspan(5).expandX().pad(20);
+            t.row();
+            return t;
+        }
+
+        // Header with extra bottom padding
+        t.add(new Label("Game ID", skin)).left().minWidth(200).padBottom(15);
+        t.add(new Label("Players", skin)).left().width(100).padBottom(15);
+        t.add(new Label("Duration", skin)).left().minWidth(180).padBottom(15);
+        t.add().padBottom(15);
+        t.row();
+
+        for (DummyGame game : playerGames) {
+            Label id       = new Label(game.getGameId(), skin);
+            Label players  = new Label(String.valueOf(game.getPlayerIds().size()), skin);
+            Label duration = new Label(game.getDurationString(), skin);
+
+            TextButton loadButton = new TextButton("Load", skin);
+            loadButton.pad(5, 15, 5, 15); // extra padding inside button
+            loadButton.addListener(new ChangeListener() {
+                @Override public void changed(ChangeEvent event, Actor actor) {
+                    Game loadedGame = App.loadGame(game.getGameId());
+                    if (loadedGame == null) return;
+
+                    Player currentPlayer = null;
+                    for (Player p : loadedGame.getPlayers()) {
+                        if (p.getUser().getHashId() == currentPlayerId) {
+                            currentPlayer = p;
+                            break;
+                        }
+                    }
+                    if (currentPlayer == null) return;
+
+                    loadedGame.setCurrentPlayer(currentPlayer);
+                    App.setCurrentGame(loadedGame);
+                    Gdx.graphics.setWindowedMode(1800, 960);
+                    Main.getApp().setScreen(new WorldScreen(currentPlayer, false, false));
+                }
+            });
+
+            // Row with wider spacing
+            t.add(id)      .left().minWidth(200).padRight(20);
+            t.add(players) .left().width(100).padRight(20);
+            t.add(duration).left().minWidth(180).padRight(20);
+            t.add(loadButton).right().width(130);
+            t.row();
+        }
+
+        return t;
     }
 }

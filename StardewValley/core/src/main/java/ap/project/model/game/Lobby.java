@@ -4,6 +4,9 @@ import ap.project.model.App.User;
 import ap.project.util.StringToNumber;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class Lobby
 {
@@ -15,6 +18,10 @@ public class Lobby
     private final boolean isVisible;
 
     private final long createdAt;
+
+    private boolean isLoadedGame = false;
+    private String originalGameId;
+    private Set<Integer> originalPlayerIds = new HashSet<>();
 
     public Lobby(String name, String password, User user, boolean isVisible)
     {
@@ -35,6 +42,28 @@ public class Lobby
         this.id = StringToNumber.generateId(6);
         this.isVisible = isVisible;
         this.createdAt = System.currentTimeMillis();
+    }
+
+    public Lobby(String name, User admin, boolean isVisible, String originalGameId, Set<Integer> originalPlayerIds)
+    {
+        this(name, admin, isVisible);
+        this.isLoadedGame = true;
+        this.originalGameId = originalGameId;
+        this.originalPlayerIds = originalPlayerIds;
+    }
+
+    public boolean isLoadedGame()
+    {
+        return isLoadedGame;
+    }
+
+    public boolean allOriginalPlayersPresent()
+    {
+        Set<Integer> currentPlayerIds = users.stream()
+            .map(User::getHashId)
+            .collect(Collectors.toSet());
+
+        return currentPlayerIds.containsAll(originalPlayerIds);
     }
 
     public User getAdmin()

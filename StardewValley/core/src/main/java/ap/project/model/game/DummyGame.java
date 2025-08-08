@@ -11,15 +11,12 @@ public class DummyGame
     private final ArrayList<Integer> playerIds;
     private final int totalDays;
     private final int totalHours;
-    private final long lastSaved;
-
-    public DummyGame(String gameId, ArrayList<Integer> playerIds, int totalDays, int totalHours, long lastSaved)
+    public DummyGame(String gameId, ArrayList<Integer> playerIds, int totalDays, int totalHours)
     {
         this.gameId = gameId;
         this.playerIds = playerIds;
         this.totalDays = totalDays;
         this.totalHours = totalHours;
-        this.lastSaved = lastSaved;
     }
 
     // Getters
@@ -27,11 +24,10 @@ public class DummyGame
     public ArrayList<Integer> getPlayerIds() { return playerIds; }
     public int getTotalDays() { return totalDays; }
     public int getTotalHours() { return totalHours; }
-    public long getLastSaved() { return lastSaved; }
 
-    public String getLastSavedString()
+    public String getDurationString()
     {
-        return new SimpleDateFormat("MMM dd, yyyy HH:mm").format(new Date(lastSaved));
+        return totalDays + " days, " + (totalHours % 24) + " hours";
     }
 
     @Override

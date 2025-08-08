@@ -69,9 +69,9 @@ public class App
         return savedGames;
     }
 
-    public static List<DummyGame> getGamesForPlayer(int playerHashId)
+    public static ArrayList<DummyGame> getGamesForPlayer(int playerHashId)
     {
-        List<DummyGame> playerGames = new ArrayList<>();
+        ArrayList<DummyGame> playerGames = new ArrayList<>();
         for (DummyGame game : savedGames)
         {
             if (game.getPlayerIds().contains(playerHashId))
@@ -171,8 +171,7 @@ public class App
                         gameId,
                         playerIds,
                         time.getTotalDaysPassed(),
-                        time.getTotalHoursPassed(),
-                        System.currentTimeMillis()
+                        time.getTotalHoursPassed()
                     ));
                 }
             }
