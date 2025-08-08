@@ -77,8 +77,8 @@ public class FishModel {
     }
 
     public Rectangle getBounds() {
-        // Fish is centered horizontally
-        float x = (MiniGameState.TRACK_WIDTH - MiniGameState.FISH_SIZE) / 3f + 15f;
+        // Center fish horizontally
+        float x = (MiniGameState.TRACK_WIDTH - MiniGameState.FISH_SIZE) / 2f;
         return new Rectangle(x, y, MiniGameState.FISH_SIZE, MiniGameState.FISH_SIZE);
     }
 

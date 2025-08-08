@@ -3,19 +3,19 @@ package ap.project.model.animal;
 import com.badlogic.gdx.math.Rectangle;
 
 public class MiniGameState {
-    public static final float TRACK_WIDTH = 400f;
-    public static final float TRACK_HEIGHT = 300f;
+    public static final float TRACK_WIDTH = 800f;
+    public static final float TRACK_HEIGHT = 400f;
     public static final float PLAYER_BAR_WIDTH = 100f;
-    public static final float PLAYER_BAR_HEIGHT = 40f;
-    public static final float FISH_SIZE = 60f;
+    public static final float PLAYER_BAR_HEIGHT = 60f;
+    public static final float FISH_SIZE = 90f;
     public static final float MAX_CATCH_PROGRESS = 100f;
+    public static final float INITIAL_PROGRESS = 25f; // Start with 25% progress
 
-    private static final double BASE_CATCH_RATE = 0.5;
-    private static final double BASE_LOSE_RATE = 0.3;
+    private static final float BASE_CATCH_RATE = 20f; // Rate when fish is in bar
+    private static final float BASE_LOSE_RATE = 10f;  // Rate when fish is not in bar
 
     private FishModel fish;
     private PlayerBarModel playerBar;
-    private double catchProgress;
     private float catchProgressValue;
     private boolean isGameOver;
     private boolean playerWon;
@@ -23,11 +23,11 @@ public class MiniGameState {
     private boolean trapBobberEquipped;
 
     public enum FishBehavior {
-        SMOOTH(1.0), SINKER(0.8), FLOATER(0.8), DART(1.2), MIXED(1.1);
+        SMOOTH(1.0f), SINKER(0.8f), FLOATER(0.8f), DART(1.2f), MIXED(1.1f);
 
-        public final double difficultyModifier;
+        public final float difficultyModifier;
 
-        FishBehavior(double difficultyModifier) {
+        FishBehavior(float difficultyModifier) {
             this.difficultyModifier = difficultyModifier;
         }
     }
@@ -53,33 +53,35 @@ public class MiniGameState {
             perfectCatch = false;
         }
 
-        // Update progress
+        // Update progress based on fish position
         if (fishInBar) {
-            double catchRate = BASE_CATCH_RATE * fish.getBehavior().difficultyModifier;
-            catchProgress += catchRate * delta;
-            catchProgressValue += catchRate * delta * 20f; // For the visual progress bar
-            catchProgressValue = Math.min(catchProgressValue, MAX_CATCH_PROGRESS);
+            // Fill progress faster when fish is in bar
+            float catchRate = BASE_CATCH_RATE * fish.getBehavior().difficultyModifier;
+            catchProgressValue += catchRate * delta;
 
-            // Check if fish is caught
+            // Cap progress at max
             if (catchProgressValue >= MAX_CATCH_PROGRESS) {
+                catchProgressValue = MAX_CATCH_PROGRESS;
                 setGameOver(true, true);
             }
         } else {
-            double loseRate = BASE_LOSE_RATE;
+            // Empty progress when fish is not in bar
+            float loseRate = BASE_LOSE_RATE;
             if (trapBobberEquipped) {
-                loseRate *= 0.7; // Reduce escape rate with trap bobber
+                loseRate *= 0.7f; // Reduce escape rate with trap bobber
             }
-            catchProgress -= loseRate * delta;
-            catchProgressValue = (float) Math.max(0, catchProgressValue - loseRate * delta * 5f);
-        }
+            catchProgressValue -= loseRate * delta;
 
-        // Clamp progress between 0 and 1
-        catchProgress = Math.max(0.0, Math.min(1.0, catchProgress));
+            // Check if progress is empty (fish escaped)
+            if (catchProgressValue <= 0) {
+                catchProgressValue = 0;
+                setGameOver(true, false);
+            }
+        }
     }
 
     public void reset() {
-        catchProgress = 0.25;
-        catchProgressValue = 0;
+        catchProgressValue = INITIAL_PROGRESS; // Start with some progress
         isGameOver = false;
         playerWon = false;
         perfectCatch = true;
@@ -90,7 +92,6 @@ public class MiniGameState {
     // Getters
     public FishModel getFish() { return fish; }
     public PlayerBarModel getPlayerBar() { return playerBar; }
-    public double getCatchProgress() { return catchProgress; }
     public float getCatchProgressValue() { return catchProgressValue; }
     public boolean isGameOver() { return isGameOver; }
     public boolean didPlayerWin() { return playerWon; }
@@ -107,4 +108,6 @@ public class MiniGameState {
         this.isGameOver = isGameOver;
         this.playerWon = playerWon;
     }
+
+
 }

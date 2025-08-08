@@ -27,7 +27,7 @@ public class PlayerBarModel {
     }
 
     public Rectangle getBounds() {
-        // Player bar is always centered horizontally
+        // Center player bar horizontally (same as fish)
         float x = (MiniGameState.TRACK_WIDTH - MiniGameState.PLAYER_BAR_WIDTH) / 2f;
         return new Rectangle(x, y, MiniGameState.PLAYER_BAR_WIDTH, MiniGameState.PLAYER_BAR_HEIGHT);
     }

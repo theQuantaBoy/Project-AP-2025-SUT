@@ -34,8 +34,6 @@ public class FishingMinigameManager extends Window {
     private BitmapFont font;
     private String resultMessage = "";
     private float resultTimer = 0;
-    private ProgressBar verticalProgressBar;
-    private ProgressBar horizontalProgressBar;
     private GlyphLayout glyphLayout = new GlyphLayout();
 
     // Game area dimensions
@@ -71,16 +69,14 @@ public class FishingMinigameManager extends Window {
     private void setupUI() {
         clearChildren();
 
-        // Create vertical progress bar for catch progress (left side)
+        // Create vertical progress bar for catch progress
         ProgressBar.ProgressBarStyle catchStyle = new ProgressBar.ProgressBarStyle();
         catchStyle.background = new TextureRegionDrawable(createColorTexture(Color.DARK_GRAY));
         catchStyle.knobBefore = new TextureRegionDrawable(createColorTexture(Color.BLUE));
 
-        // Wider vertical progress bar (60px wide)
+        // Wider vertical progress bar (80px wide)
         catchProgressBar = new ProgressBar(0, MiniGameState.MAX_CATCH_PROGRESS, 1f, true, catchStyle);
-        catchProgressBar.setSize(60, gameHeight - 40); // Wider bar
-
-
+        catchProgressBar.setSize(80, gameHeight - 40); // Wider bar
 
         Table mainTable = new Table();
         mainTable.setFillParent(true);
@@ -90,8 +86,8 @@ public class FishingMinigameManager extends Window {
         gameArea.setBackground(new TextureRegionDrawable(backgroundTexture));
         gameArea.pad(20).setSize(gameWidth, gameHeight);
 
-        // Layout: Left progress bar | Game area | Right progress bar
-        mainTable.add(catchProgressBar).width(60).height(gameHeight - 40).padRight(10);
+        // Layout: Progress bar | Game area
+        mainTable.add(catchProgressBar).width(80).height(gameHeight - 40).padRight(10);
         mainTable.add(gameArea).width(gameWidth).height(gameHeight).padRight(10);
 
         addActor(mainTable);
@@ -131,10 +127,10 @@ public class FishingMinigameManager extends Window {
                 gameState.getFish().update(delta);
                 gameState.update(delta);
 
-                // Update progress bars
+                // Update progress bar
                 catchProgressBar.setValue(gameState.getCatchProgressValue());
 
-                // Update horizontal progress bar color
+                // Update progress bar color
                 float progress = gameState.getCatchProgressValue() / MiniGameState.MAX_CATCH_PROGRESS;
                 ProgressBar.ProgressBarStyle style = catchProgressBar.getStyle();
                 if (progress > 0.7f) {
@@ -146,9 +142,11 @@ public class FishingMinigameManager extends Window {
                 }
 
                 if (gameState.isGameOver()) {
-                    resultMessage = gameState.didPlayerWin() ?
-                        (gameState.isPerfectCatch() ? "Perfect catch!" : "Fish caught!") :
-                        "Fish escaped!";
+                    if (gameState.didPlayerWin()) {
+                        resultMessage = gameState.isPerfectCatch() ? "Perfect catch!" : "Fish caught!";
+                    } else {
+                        resultMessage = "Fish escaped!";
+                    }
                     currentState = GameState.RESULT;
                     resultTimer = 0;
                 }
@@ -172,19 +170,19 @@ public class FishingMinigameManager extends Window {
         float gameAreaY = (getHeight() - gameHeight) / 2;
 
         if (currentState != GameState.READY) {
-            // Draw fish with offset
+            // Draw fish centered horizontally
             Rectangle fishBounds = gameState.getFish().getBounds();
             batch.setColor(fishTexture.getTextureData().getFormat() == Pixmap.Format.RGB565 ? Color.RED : Color.WHITE);
             batch.draw(fishTexture,
-                gameAreaX + fishBounds.x - HORIZONTAL_OFFSET,
+                gameAreaX + fishBounds.x,
                 gameAreaY + fishBounds.y,
                 fishSize, fishSize);
 
-            // Draw player bar with offset
+            // Draw player bar centered horizontally (same x position as fish)
             Rectangle barBounds = gameState.getPlayerBar().getBounds();
             batch.setColor(playerBarTexture.getTextureData().getFormat() == Pixmap.Format.RGB565 ? Color.GREEN : Color.WHITE);
             batch.draw(playerBarTexture,
-                gameAreaX + barBounds.x - HORIZONTAL_OFFSET,
+                gameAreaX + barBounds.x,
                 gameAreaY + barBounds.y,
                 barBounds.width, barBounds.height);
         }
@@ -198,6 +196,8 @@ public class FishingMinigameManager extends Window {
                 drawCenteredText(batch, resultMessage, getHeight() / 2);
                 if (gameState.didPlayerWin()) {
                     drawCenteredText(batch, "You caught a fish!", getHeight() / 2 - 30);
+                } else {
+                    drawCenteredText(batch, "The fish got away!", getHeight() / 2 - 30);
                 }
                 break;
         }

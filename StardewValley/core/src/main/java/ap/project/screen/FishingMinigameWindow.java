@@ -133,7 +133,7 @@ public class FishingMinigameWindow extends Window {
 
                 gameState.getFish().update(delta);
                 gameState.update(delta);
-                progressBar.setValue((float) gameState.getCatchProgress());
+                progressBar.setValue((float) gameState.getCatchProgressValue());
 
                 if (gameState.isGameOver()) {
                     resultMessage = gameState.didPlayerWin() ?
