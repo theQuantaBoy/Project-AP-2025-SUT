@@ -484,14 +484,20 @@ public class LobbyScreen implements Screen
         return lobbyId;
     }
 
-    public boolean addOtherPlayer(int userId, String username, String nickname, int avatarChoice, int mapChoice)
+    public boolean addOtherPlayer(int userId)
     {
         if (isInLobby(userId))
         {
             return false;
         }
 
-        User user = new User(username, nickname, userId, avatarChoice, mapChoice);
+        User user = App.getUserByHashId(userId);
+        if (user == null)
+        {
+            System.err.println("User not found: " + userId);
+            return false;
+        }
+
         Player player = new Player(user, true);
 
         if (otherPlayers.size() < 3)
@@ -570,14 +576,12 @@ public class LobbyScreen implements Screen
     public void createGame(String gameID, int[] userIds)
     {
         ArrayList<Player> players = new ArrayList<>();
-        for (int i = 0; i < userIds.length; i++)
+        for (int id : userIds)
         {
-            int id = userIds[i];
-            Player player = getPlayer(id);
-
-            if (player != null)
+            User user = App.getUserByHashId(id);
+            if (user != null)
             {
-                players.add(new Player(player.getUser()));
+                players.add(new Player(user));
             }
         }
 
@@ -585,6 +589,7 @@ public class LobbyScreen implements Screen
         App.addGame(game);
         App.setCurrentGame(game);
 
+        // Find current player
         for (Player player : players)
         {
             if (player.getUser().getHashId() == localPlayer.getUser().getHashId())

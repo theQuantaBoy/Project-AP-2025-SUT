@@ -227,22 +227,27 @@ public class ServerMessageHandler
 
             lobby.getUsers().add(user);
             client.setInLobby(true);
-            client.send(new JoinLobbySuccessMessage(lobby.getName(), lobby.getId()));
-            client.setInLobby(true);
             client.lobby = lobby;
 
-            for (User u : lobby.getUsers())
+            client.send(new JoinLobbySuccessMessage(lobby.getName(), lobby.getId()));
+
+            PlayerJoinedLobbyMessage joinMessage = new PlayerJoinedLobbyMessage(
+                user.getHashId(),
+                lobby.getId()
+            );
+            server.broadcastToLobby(lobby, joinMessage);
+
+            // Send existing players to new client
+            for (User existingUser : lobby.getUsers())
             {
-                if (u.getHashId() != user.getHashId())
+                if (existingUser.getHashId() != user.getHashId())
                 {
-                    ClientConnection c = server.findClient(u.getHashId());
-                    client.send(new PlayerJoinedLobbyMessage(u.getHashId(), u.getUsername(), lobby.getId(), u.getNickname(),
-                        c.characterChoice, c.mapChoice));
+                    client.send(new PlayerJoinedLobbyMessage(
+                        existingUser.getHashId(),
+                        lobby.getId()
+                    ));
                 }
             }
-
-            server.broadcastToLobby(lobby, new PlayerJoinedLobbyMessage(user.getHashId(), user.getUsername(),
-                lobby.getId(), user.getNickname(), client.characterChoice, client.mapChoice));
         } else
         {
             client.send(new JoinLobbyErrorMessage("invalid id"));
@@ -256,20 +261,21 @@ public class ServerMessageHandler
         client.setOnline(true);
         client.lastOnlineCheckTime = 0;
 
-        float x = msg.x;
-        float y = msg.y;
-        byte direction = msg.direction;
-        boolean isMoving = msg.isMoving;
-
         User user = server.getUser(client);
+        Lobby lobby = server.getActiveLobby(user);
 
-        if (user != null)
+        if (Math.abs(client.lastX - msg.x) > 0.1 || Math.abs(client.lastY - msg.y) > 0.1)
         {
-            Lobby lobby = server.getActiveLobby(user);
-            if (lobby != null)
-            {
-                server.broadcastToLobby(lobby, new PlayerPositionUpdateMessage(user.getHashId(), x, y, direction, isMoving));
-            }
+            server.broadcastToLobby(lobby, new PlayerPositionUpdateMessage(
+                user.getHashId(),
+                msg.x,
+                msg.y,
+                msg.direction,
+                msg.isMoving
+            ));
+
+            client.lastX = msg.x;
+            client.lastY = msg.y;
         }
     }
 
@@ -303,15 +309,9 @@ public class ServerMessageHandler
             }
 
             ArrayList<Player> players = new ArrayList<>();
-            for (int i = 0; i < 4; i++)
+            for (User u : lobby.getUsers())
             {
-                int id = playerIDs[i];
-                User u = server.getUser(id);
-                if (u != null)
-                {
-                    Player p = new Player(u);
-                    players.add(p);
-                }
+                players.add(new Player(u));
             }
 
             Game game = new Game(players);
@@ -429,7 +429,7 @@ public class ServerMessageHandler
             dtos.add(new UserDTO(user));
         }
 
-        client.send(new UserSyncResponseMessage(dtos));
+        server.broadcast(new UserSyncResponseMessage(dtos));
     }
 
     private static void handleUserUpdate(ClientConnection client, UserUpdateMessage msg)

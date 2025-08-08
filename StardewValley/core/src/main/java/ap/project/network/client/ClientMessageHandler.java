@@ -206,21 +206,19 @@ public class ClientMessageHandler
         {
             LobbyScreen ls = (LobbyScreen) Main.getApp().getScreen();
 
-            int userId = message.userId;
-            String username = message.username;
-            String nickname = message.nickname;
-            int avatarChoice = message.avatarChoice;
-            int mapChoice = message.mapChoice;
-
             if (!ls.getLobbyId().equals(message.lobbyId))
             {
                 ls.showText("Error: Lobby ID mismatch");
                 return;
             }
 
-            if (ls.addOtherPlayer(userId, username, nickname, avatarChoice, mapChoice))
+            if (ls.addOtherPlayer(message.userId))
             {
-                ls.showText(username + " joined the lobby");
+                User user = App.getUserByHashId(message.userId);
+                if (user != null)
+                {
+                    ls.showText(user.getUsername() + " joined the lobby");
+                }
             }
         }
     }

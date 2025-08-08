@@ -181,7 +181,7 @@ public class App
         return games;
     }
 
-    private static User findUserByHashId(int hashId)
+    public static User getUserByHashId(int hashId)
     {
         for (User user : App.getUsers())
         {
