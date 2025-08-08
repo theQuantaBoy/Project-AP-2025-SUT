@@ -3,8 +3,6 @@ package ap.project.network.client;
 import ap.project.Main;
 import ap.project.model.App.App;
 import ap.project.model.App.User;
-import ap.project.network.server.ClientConnection;
-import ap.project.network.server.GameServer;
 import ap.project.network.shared.DTO.UserDTO;
 import ap.project.network.shared.Mapper.Mapper;
 import ap.project.network.shared.messages.*;
@@ -82,7 +80,7 @@ public class ClientMessageHandler
                 handleGameTimeSyncMessage((GameTimeSyncMessage) message);
                 break;
             case GAME_PRESENCE:
-                handleGamePlayerPresenceMessage((PlayerGamePresenceMessage) message);
+                handleGamePlayerPresenceMessage((GamePresenceMessage) message);
                 break;
             case CLOSE_LOBBY_ERROR:
                 handleCLoseLobbyErrorMessage((CloseLobbyErrorMessage) message);
@@ -92,6 +90,9 @@ public class ClientMessageHandler
                 break;
             case USER_UPDATE:
                 handleUserUpdate((UserUpdateMessage) message);
+                break;
+            case GAME_SHUTDOWN:
+                handleGameShutDownMessage((GameShutdownMessage) message);
                 break;
             // Add other cases
         }
@@ -324,7 +325,7 @@ public class ClientMessageHandler
         }
     }
 
-    private static void handleGamePlayerPresenceMessage(PlayerGamePresenceMessage message)
+    private static void handleGamePlayerPresenceMessage(GamePresenceMessage message)
     {
         String gameID = message.gameID;
         int userID = message.userID;
@@ -381,5 +382,14 @@ public class ClientMessageHandler
     {
         User user = Mapper.fromDTO(msg.userDTO);
         App.createOrUpdateUser(user);
+    }
+
+    private static void handleGameShutDownMessage(GameShutdownMessage message)
+    {
+        if (Main.getApp().getScreen() instanceof WorldScreen)
+        {
+            WorldScreen ws = (WorldScreen) Main.getApp().getScreen();
+            ws.handleGameShutdownMessage(message);
+        }
     }
 }

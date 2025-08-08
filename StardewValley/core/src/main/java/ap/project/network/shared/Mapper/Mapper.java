@@ -2,6 +2,7 @@ package ap.project.network.shared.Mapper;
 
 import ap.project.model.App.User;
 import ap.project.model.building.CraftingItem;
+import ap.project.model.enums.CharacterType;
 import ap.project.model.enums.building_enums.CraftingRecipeEnums;
 import ap.project.model.enums.resources_enums.CropType;
 import ap.project.model.enums.resources_enums.ForagingCropType;
@@ -489,8 +490,10 @@ public class Mapper
         Player player = new Player(fromDTO(playerDTO.userDTO));
         player.setFarm(fromDTO(playerDTO.farmDTO));
 
-        player.spawn();
-        player.getCharacter().setPosition(new Vector2(playerDTO.positionX, playerDTO.positionY));
+        User user = fromDTO(playerDTO.userDTO);
+        CharacterType type = CharacterType.values()[user.getCharacterChoice()];
+        player.setCharacter(new PlayerCharacter(type, new Vector2(playerDTO.positionX, playerDTO.positionY),
+            user.getNickname(), player));
 
         player.setGender(playerDTO.gender);
 

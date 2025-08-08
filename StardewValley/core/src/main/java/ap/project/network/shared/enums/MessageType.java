@@ -40,5 +40,7 @@ public enum MessageType
     PLAYER_DATA,
     USER_SYNC_REQUEST,
     USER_SYNC_RESPONSE,
-    USER_UPDATE
+    USER_UPDATE,
+    GAME_SHUTDOWN,
+    SAVE_AND_LEAVE
 }

@@ -87,7 +87,7 @@ public class PreGameScreen implements Screen
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 System.out.println("Play Offline selected");
-                Main.getApp().setScreen(new WorldScreen());
+                Main.getApp().setScreen(new OfflinePreGameScreen(new PreGameController()));
             }
         });
 

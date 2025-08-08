@@ -14,7 +14,7 @@ public final class FishingGame extends Game {
     @Override
     public void create() {
         // Create the screen instances, passing 'this' (the Game object) to them
-        worldScreen = new WorldScreen();
+//        worldScreen = new WorldScreen();
         fishingMinigameScreen = new FishingMinigameScreen(this);
 
         // Set the starting screen

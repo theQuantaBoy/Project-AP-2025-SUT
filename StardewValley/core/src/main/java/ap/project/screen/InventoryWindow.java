@@ -17,9 +17,7 @@ import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
@@ -36,8 +34,6 @@ import com.badlogic.gdx.utils.Scaling;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-
-import static ap.project.model.game.Map.TILE_SIZE;
 
 public class InventoryWindow {
     private final Window popup;
@@ -1082,8 +1078,15 @@ public class InventoryWindow {
         exitButton.getLabel().setFontScale(1.2f); // Larger text
         exitButton.addListener(new ClickListener() {
             @Override
-            public void clicked(InputEvent event, float x, float y) {
-                System.out.println("Exit Game clicked");
+            public void clicked(InputEvent event, float x, float y)
+            {
+                if (WorldScreen.getInstance().ONLINE_MODE)
+                {
+                    WorldScreen.getInstance().saveAndExitOnline();
+                } else
+                {
+                    WorldScreen.getInstance().saveAndExitOffline();
+                }
             }
         });
 

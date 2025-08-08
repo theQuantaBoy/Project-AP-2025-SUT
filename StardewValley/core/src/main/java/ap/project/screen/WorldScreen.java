@@ -1,7 +1,9 @@
 package ap.project.screen;
 
+import ap.project.Main;
 import ap.project.control.CharacterController;
 import ap.project.control.OnlineWorldController;
+import ap.project.control.PreGameController;
 import ap.project.control.WorldController;
 import ap.project.model.App.App;
 import ap.project.model.App.GameAssetsManager;
@@ -16,11 +18,9 @@ import ap.project.model.tools.BackPack;
 import ap.project.model.tools.Tool;
 import ap.project.network.client.GameClient;
 import ap.project.network.shared.DTO.PlayerDTO;
-import ap.project.network.shared.DTO.TileDTO;
 import ap.project.network.shared.Mapper.Mapper;
 import ap.project.network.shared.messages.*;
 import ap.project.screen.input.WorldScreenInputProcessor;
-import ap.project.util.JsonFileUtil;
 import ap.project.util.MapAssetLoader;
 import ap.project.util.SQLiteUtil;
 import ap.project.visual.CharacterRenderer;
@@ -44,8 +44,6 @@ import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -84,7 +82,6 @@ public final class WorldScreen implements Screen
     private Point hoveredTile = null;
     private final ShapeRenderer shapeRenderer;
 
-    private final boolean SECOND_PLAYER = false;
     private PlayerCharacter player2;
     private CharacterController controller2;
 
@@ -123,12 +120,15 @@ public final class WorldScreen implements Screen
     private float localTimeKeeper = 0f;
 
     private OnlineWorldController onlineWorldController = new OnlineWorldController();
-    private final boolean ONLINE_MODE;
+    public final boolean ONLINE_MODE;
 
     private float periodicNetworkUpdate = 0;
     private float periodicPlayerDataUpdate = 0;
-    private static final float PERIODIC_NETWORK_INTERVAL = 0.016f;
-    private static final float PERIODIC_PLAYER_DATA_INTERVAL = 0.5f;
+    private static final float PERIODIC_NETWORK_INTERVAL = 0.016f; // ~ 60 Hz
+    private static final float PERIODIC_PLAYER_DATA_INTERVAL = 5.0f; // 0.2 Hz
+
+    private float offlineSaveTimer = 0;
+    private static final float OFFLINE_SAVE_INTERVAL = 300; // 5 minutes
 
     public WorldScreen(ArrayList<Player> players)
     {
@@ -160,14 +160,6 @@ public final class WorldScreen implements Screen
         currentSeason = time.getSeason();
 
         this.characterRenderer = new CharacterRenderer(shapeRenderer);
-
-        if (SECOND_PLAYER) {
-            Vector2 spawn2 = new Vector2(62 * TILE_SIZE, 60 * TILE_SIZE);
-            Player player2p = new Player(new User("arash", "", "arash", "", Gender.FEMALE, "", ""), MapTypes.FISHING, 0);
-            player2 = new PlayerCharacter(CharacterType.ABIGAIL, spawn2, "Player 456", player2p);
-            controller2 = new CharacterController(player2, map, PLAYER_SPEED, TILE_SIZE);
-            controller2.chnageMoveKeys(Input.Keys.UP, Input.Keys.LEFT, Input.Keys.DOWN, Input.Keys.RIGHT);
-        }
 
         ShaderProgram.pedantic = false;
         uiRenderer = new UIRenderer(time);
@@ -212,18 +204,6 @@ public final class WorldScreen implements Screen
         App.setCurrentUser(game.getPlayers().get(0).getUser());
         game.setCurrentPlayer(game.getPlayers().get(0));
 
-//        gameStage = new Stage(new ExtendViewport(20 * TILE_SIZE, 15 * TILE_SIZE, cam));
-//        animalActors = new Array<>();
-//        animalInteractionScreen = new AnimalInteractionScreen(uiStage.getViewport(), skin);
-//
-//        Animal testChicken = new Animal("Clucky", FarmAnimalsType.CHICKEN);
-//        testChicken.setX(20 * TILE_SIZE);
-//        testChicken.setY(15 * TILE_SIZE);
-//        testChicken.goOut(); // Make sure it's set to be outside
-//        AnimalActor chickenActor = new AnimalActor(testChicken, animalInteractionScreen);
-//        animalActors.add(chickenActor);
-//        gameStage.addActor(chickenActor);
-
         for (Player p : game.getPlayers()) {
             Farm f = new Farm(p.getMapType());
             p.setFarm(f);
@@ -234,44 +214,11 @@ public final class WorldScreen implements Screen
             p.spawn();
         }
 
-        System.out.println("loading save");
-        try
-        {
-            PlayerDTO dto = SQLiteUtil.loadPlayerState("81748504", "896418");
-            App.getCurrentGame().setCurrentPlayer(Mapper.fromDTO(dto));
-            System.out.println("loaded");
-            if (dto == null)
-            {
-                System.out.println("No save found");
-            }
-        } catch (Exception e)
-        {
-            System.out.println("failed");
-            throw new RuntimeException(e);
-        }
-
-        Player p = game.getCurrentPlayer();
-        if (p.isInFarm())
-        {
-            p.setCurrentMap(p.getFarm());
-        } else if (p.isInHome())
-        {
-            p.setCurrentMap(p.getCabin());
-        }
-
         this.map = game.getCurrentPlayer().getCabin();
         time = game.getCurrentTime();
         currentSeason = time.getSeason();
 
         this.characterRenderer = new CharacterRenderer(shapeRenderer);
-
-        if (SECOND_PLAYER) {
-            Vector2 spawn2 = new Vector2(62 * TILE_SIZE, 60 * TILE_SIZE);
-            Player player2p = new Player(new User("arash", "", "arash", "", Gender.FEMALE, "", ""), MapTypes.FISHING, 0);
-            player2 = new PlayerCharacter(CharacterType.ABIGAIL, spawn2, "Player 456", player2p);
-            controller2 = new CharacterController(player2, map, PLAYER_SPEED, TILE_SIZE);
-            controller2.chnageMoveKeys(Input.Keys.UP, Input.Keys.LEFT, Input.Keys.DOWN, Input.Keys.RIGHT);
-        }
 
         ShaderProgram.pedantic = false;
         uiRenderer = new UIRenderer(time);
@@ -518,40 +465,6 @@ public final class WorldScreen implements Screen
                     return false;
                 }
 
-                if (keycode == Input.Keys.P)
-                {
-                    PlayerDTO playerDTO = new PlayerDTO(player);
-                    try
-                    {
-                        String gameId = "81748504";
-                        String playerId = "896418";
-
-                        System.out.println("Saving to game: " + gameId + " player: " + playerId);
-
-                        long sqliteStart = System.nanoTime();
-                        SQLiteUtil.savePlayerState(gameId, playerId, playerDTO);
-                        long sqliteTime = System.nanoTime() - sqliteStart;
-
-                        long networkStart = System.nanoTime();
-
-                        if (ONLINE_MODE)
-                        {
-                            GameClient.getInstance().send(new PlayerDTOMessage(playerDTO));
-                        }
-
-                        long networkTime = System.nanoTime() - networkStart;
-
-                        float sqliteMs = sqliteTime / 1_000_000f;
-                        float networkMs = networkTime / 1_000_000f;
-
-                        System.out.printf("SQLite save: %.2f ms | Network send: %.2f ms%n",
-                            sqliteMs, networkMs);
-                    } catch (Exception e) {
-                        e.printStackTrace(); // More detailed error
-                        throw new RuntimeException(e);
-                    }
-                }
-
                 if (keycode == Input.Keys.E || keycode == Input.Keys.ESCAPE) {
                     boolean nowVisible = !inventoryWindow.isVisible();
                     inventoryWindow.toggleVisibility();
@@ -617,9 +530,43 @@ public final class WorldScreen implements Screen
 
         String currentShop = player.getCurrentShop();
 
-        PlayerGamePresenceMessage msg = new PlayerGamePresenceMessage(gameID, userID, x, y, direction, isMoving, isInFarm,
+        GamePresenceMessage msg = new GamePresenceMessage(gameID, userID, x, y, direction, isMoving, isInFarm,
             isInCity, isInGreenHouse, isInHome, isInZeidiesFarm, isInZeidiesHome, isInShop, currentShop);
         client.send(msg);
+    }
+
+    private void sendPlayerData()
+    {
+        PlayerDTO playerDTO = new PlayerDTO(player);
+        client.send(new PlayerDataMessage(playerDTO, game.getId()));
+    }
+
+    public void saveAndExitOnline()
+    {
+        sendPlayerData();
+        client.send(new SaveAndLeaveMessage(game.getId(), player.getUser().getHashId()));
+        Main.getApp().setScreen(new PreLobbyScreen());
+    }
+
+    public void handleGameShutdownMessage(GameShutdownMessage message)
+    {
+        if (Main.getApp().getScreen() instanceof WorldScreen)
+        {
+            WorldScreen ws = (WorldScreen) Main.getApp().getScreen();
+
+            // Check if current player is affected
+            int currentPlayerId = ws.player.getUser().getHashId();
+            if (message.disconnectedPlayers.contains(currentPlayerId))
+            {
+                UIRenderer.showTextBox("You were disconnected: " + message.reason);
+            } else
+            {
+                UIRenderer.showTextBox("Game closed: " + message.reason);
+            }
+
+            System.out.println("shutting down");
+            ws.saveAndExitOnline();
+        }
     }
 
     private void doNetworkStuff(float delta)
@@ -633,18 +580,12 @@ public final class WorldScreen implements Screen
         if (periodicNetworkUpdate >= PERIODIC_NETWORK_INTERVAL)
         {
             sendPlayerPresenceMessage();
-
             periodicNetworkUpdate = 0;
         }
 
         if (periodicPlayerDataUpdate >= PERIODIC_PLAYER_DATA_INTERVAL)
         {
-            PlayerDTO playerDTO = new PlayerDTO(player);
-            String id = game.getId();
-
-            PlayerDataMessage msg = new  PlayerDataMessage(playerDTO, id);
-            client.send(msg);
-
+            sendPlayerData();
             periodicPlayerDataUpdate = 0;
         }
     }
@@ -658,6 +599,7 @@ public final class WorldScreen implements Screen
         } else
         {
             updateLocally(dt);
+            handleOfflineSaving(dt);
         }
 
         Gdx.gl.glClearColor(0f, 0f, 0f, 1f);
@@ -686,8 +628,6 @@ public final class WorldScreen implements Screen
         float worldMouseY = mouseWorldPos.y;
 
         renderCharacters(batch);
-
-        if (SECOND_PLAYER) characterRenderer.render(batch, player2, CHAR_SCALE);
 
         if (!isDialogVisible() && !isInventoryVisible() && !isCookBookVisible() && !isRefrigeratorVisible()
             && !greenHouseBuildWindow.isVisible())
@@ -738,20 +678,12 @@ public final class WorldScreen implements Screen
         uiStage.draw();
 
         map.getMapVisual().renderLightningEffect();
-
-//        if (fishingWindow != null)
-//        {
-//            fishingWindow.update(Gdx.graphics.getDeltaTime());
-//        }
-//        animalInteractionScreen.render();
     }
 
-    private void update(float dt) {
+    private void update(float dt)
+    {
         characterController.update(dt);
-        if (SECOND_PLAYER) controller2.update(dt);
 
-//        gameStage.act(dt);
-//        updateAnimalMovement(dt);
         updateSeason();
         checkGameInfo();
         checkMapSeason();
@@ -761,13 +693,6 @@ public final class WorldScreen implements Screen
             map.getMapType() == MapTypes.MARNIE_RANCH) {
             cameraFixed = false;
         }
-
-//        Vector2 targetPos = new Vector2(
-//            player.getPosition().x + TILE_SIZE / 2,
-//            player.getPosition().y + TILE_SIZE / 2
-//        );
-//
-//        cam.position.lerp(new Vector3(targetPos.x, targetPos.y, 0), 5f * dt);
 
         if (!cameraFixed) {
             float playerX = character.getPosition().x + TILE_SIZE / 2;
@@ -821,20 +746,6 @@ public final class WorldScreen implements Screen
 
             cam.position.set(camX, camY, 0);
         }
-
-//        if (Gdx.input.isKeyJustPressed(Input.Keys.F))
-//        {
-//            if (fishingWindow == null)
-//            {
-//                fishingWindow = new FishingMinigameWindow(skin);
-//                uiStage.clear();
-//                uiStage.addActor(fishingWindow);
-//            } else
-//            {
-//                fishingWindow.remove();
-//                fishingWindow = null;
-//            }
-//        }
     }
 
     @Override
@@ -1362,14 +1273,64 @@ public final class WorldScreen implements Screen
 
         if (localTimeKeeper >= 1f)
         {
-            App.getCurrentGame().getCurrentTime().updateMinute(1);
-
+            game.getCurrentTime().updateMinute(1);
             localTimeKeeper = 0;
+
+            // Auto-save every game day
+            if (game.getCurrentTime().getMinute() == 0 && game.getCurrentTime().getHour() == 9)
+            {
+                saveOfflineGameState();
+            }
         }
 
         if (player.getEnergy() <= 0)
         {
             game.nextTurn();
+            saveOfflineGameState();
+        }
+    }
+
+    private void handleOfflineSaving(float delta)
+    {
+        offlineSaveTimer += delta;
+
+        // Periodic auto-save
+        if (offlineSaveTimer >= OFFLINE_SAVE_INTERVAL)
+        {
+            saveOfflineGameState();
+            offlineSaveTimer = 0;
+        }
+    }
+
+    public void saveAndExitOffline()
+    {
+        saveOfflineGameState();
+        Main.getApp().setScreen(new OfflinePreGameScreen(new PreGameController()));
+        App.setCurrentGame(null);
+    }
+
+    private void saveOfflineGameState()
+    {
+        try
+        {
+            // Save game time
+            SQLiteUtil.saveGameTime(game.getId(), game.getCurrentTime());
+
+            // Save all players
+            for (Player player : game.getPlayers())
+            {
+                PlayerDTO dto = new PlayerDTO(player);
+                SQLiteUtil.savePlayerState(
+                    game.getId(),
+                    String.valueOf(player.getUser().getHashId()),
+                    dto
+                );
+            }
+
+            System.out.println("Offline game saved successfully");
+        } catch (Exception e)
+        {
+            System.err.println("Error saving offline game: " + e.getMessage());
         }
     }
 

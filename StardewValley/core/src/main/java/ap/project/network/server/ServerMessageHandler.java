@@ -2,10 +2,8 @@ package ap.project.network.server;
 
 import ap.project.model.App.App;
 import ap.project.model.App.User;
-import ap.project.model.enums.Gender;
 import ap.project.model.game.Game;
 import ap.project.model.game.Lobby;
-import ap.project.model.game.Map;
 import ap.project.model.game.Player;
 import ap.project.network.shared.DTO.UserDTO;
 import ap.project.network.shared.Mapper.Mapper;
@@ -48,7 +46,7 @@ public class ServerMessageHandler
                 handleCreateGameRequestMessage(client, (CreateGameRequestMessage) message);
                 break;
             case GAME_PRESENCE:
-                handleGamePresenceMessage(client, (PlayerGamePresenceMessage) message);
+                handleGamePresenceMessage(client, (GamePresenceMessage) message);
                 break;
             case GAME_STARTED:
                 handleGameStartedMessage(client, (GameStartedMessage) message);
@@ -67,6 +65,9 @@ public class ServerMessageHandler
                 break;
             case USER_UPDATE:
                 handleUserUpdate(client, (UserUpdateMessage) message);
+                break;
+            case SAVE_AND_LEAVE:
+                handleSaveAndLeaveMessage(client, (SaveAndLeaveMessage) message);
                 break;
         }
     }
@@ -353,19 +354,24 @@ public class ServerMessageHandler
         }
     }
 
-    private static void handleGamePresenceMessage(ClientConnection client, PlayerGamePresenceMessage msg)
+    private static void handleGamePresenceMessage(ClientConnection client, GamePresenceMessage msg)
     {
         GameServer server = GameServer.getInstance();
 
         String gameID = msg.gameID;
         GameWrapper wrapper = server.findGameWrapper(gameID);
 
-        for (ClientConnection c : wrapper.getClientConnections())
+        if (wrapper != null)
         {
-            if (c.getUserId() != client.getUserId())
+            for (ClientConnection c : wrapper.getClientConnections())
             {
-                c.send(msg);
+                if (c.getUserId() != client.getUserId())
+                {
+                    c.send(msg);
+                }
             }
+
+            wrapper.updatePlayerPresence(msg.userID);
         }
     }
 
@@ -411,10 +417,19 @@ public class ServerMessageHandler
     {
         try
         {
-            SQLiteUtil.savePlayerState(msg.gameId, String.valueOf(msg.playerDTO.userDTO.hashID), msg.playerDTO);
+            GameServer server = GameServer.getInstance();
+            GameWrapper wrapper = server.findGameWrapper(msg.gameId);
+
+            if (wrapper != null)
+            {
+                // Update cache instead of saving immediately
+                wrapper.updatePlayerState(msg.playerDTO.userDTO.hashID, msg.playerDTO);
+            }
+
+            // Periodic save handled by GameWrapper
         } catch (Exception e)
         {
-            System.err.println("Error saving player data: " + e.getMessage());
+            System.err.println("Error handling player data: " + e.getMessage());
         }
     }
 
@@ -436,5 +451,20 @@ public class ServerMessageHandler
     {
         User user = Mapper.fromDTO(msg.userDTO);
         GameServer.getInstance().createOrUpdateUser(user);
+    }
+
+    private static void handleSaveAndLeaveMessage(ClientConnection client, SaveAndLeaveMessage msg)
+    {
+        GameServer server = GameServer.getInstance();
+        GameWrapper wrapper = server.findGameWrapper(msg.gameId);
+
+        if (wrapper != null)
+        {
+            wrapper.handleSaveAndLeave(msg.playerId);
+
+            // Update connection state
+            client.setInGame(false);
+            client.wrapper = null;
+        }
     }
 }

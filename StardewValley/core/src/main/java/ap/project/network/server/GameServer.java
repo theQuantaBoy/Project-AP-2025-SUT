@@ -51,9 +51,6 @@ public class GameServer
 
             periodicMessageTimer = 0;
         }
-
-        // Add other server update logic here
-        // (game state updates, lobby management, etc.)
     }
 
     private void handleGames(float delta)
