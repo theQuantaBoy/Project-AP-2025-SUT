@@ -107,6 +107,8 @@ public final class WorldScreen implements Screen
     private GreenHouseBuildWindow greenHouseBuildWindow;
     private CommunicationWindow communicationWindow;
     private WorldController worldController;
+    private ReactionWindow reactionWindow;
+    private TextButton reactButton;
     private InputMultiplexer inputMultiplexer;
     private boolean inputMultiplexerHadSetUp = false;
 
@@ -195,6 +197,8 @@ public final class WorldScreen implements Screen
         createTerminalDialog();
         worldController = new WorldController();
         worldController.setCommunicationWindow(communicationWindow);
+        reactionWindow = new ReactionWindow(uiStage);
+        createReactButton();
         inputMultiplexer = new InputMultiplexer();
         checkGameInfo();
         initializeHotbar();
@@ -209,63 +213,6 @@ public final class WorldScreen implements Screen
         {
             client = null;
         }
-    }
-
-    public WorldScreen()
-    {
-        INSTANCE = this;
-        ONLINE_MODE = false;
-        client = null;
-
-        this.shapeRenderer = new ShapeRenderer();
-//        this.miniGame = new FishingGame();
-        cam = new OrthographicCamera(20 * TILE_SIZE, 15 * TILE_SIZE);
-        cam.setToOrtho(false);
-
-        this.game = new Game(new ArrayList<>(List.of(
-            new Player(new User("mohsen","","mohsen","", Gender.MALE, "", ""), MapTypes.MINING, 0),
-            new Player(new User("arash","","arash","", Gender.FEMALE, "", ""), MapTypes.FISHING, 0),
-            new Player(new User("moshtagh","","moshtagh","", Gender.FEMALE, "", ""), MapTypes.FORAGING, 0),
-            new Player(new User("ottie","","ottie","", Gender.FEMALE, "", ""), MapTypes.COMBAT, 0)
-        )));
-
-        App.setCurrentGame(game);
-        App.setCurrentMenu(Menu.HomeMenu);
-        App.setCurrentUser(game.getPlayers().get(0).getUser());
-        game.setCurrentPlayer(game.getPlayers().get(0));
-
-        for (Player p : game.getPlayers()) {
-            Farm f = new Farm(p.getMapType());
-            p.setFarm(f);
-            p.setCurrentMap(f);
-        }
-
-        for (Player p : game.getPlayers()) {
-            p.spawn();
-        }
-
-        this.map = game.getCurrentPlayer().getCabin();
-        time = game.getCurrentTime();
-        currentSeason = time.getSeason();
-
-        this.characterRenderer = new CharacterRenderer(shapeRenderer);
-
-        ShaderProgram.pedantic = false;
-        uiRenderer = new UIRenderer(time);
-
-        inventoryWindow = new InventoryWindow(uiStage, this);
-        friendsWindow = new FriendsWindow(uiStage, this);
-        cookBookWindow = new CookBookWindow(uiStage);
-        refrigeratorWindow = new RefrigeratorWindow(uiStage);
-        craftingItemWindow = new CraftingItemWindow(uiStage);
-        communicationWindow = new CommunicationWindow(uiStage, this);
-        greenHouseBuildWindow = new GreenHouseBuildWindow(uiStage);
-        createTerminalDialog();
-        worldController = new WorldController();
-        worldController.setCommunicationWindow(communicationWindow);
-        inputMultiplexer = new InputMultiplexer();
-        checkGameInfo();
-        initializeHotbar();
     }
 
     private void restorePlayerState(Player player)
@@ -303,6 +250,28 @@ public final class WorldScreen implements Screen
                 }
             }
         }
+    }
+
+    private void createReactButton()
+    {
+        reactButton = new TextButton("React", skin);
+        reactButton.setSize(40, 200);
+        reactButton.setPosition(20, 20); // Bottom left
+
+        reactButton.addListener(new ClickListener()
+        {
+            @Override
+            public void clicked(InputEvent event, float x, float y)
+            {
+                // TODO: change this
+//                if (ONLINE_MODE)
+//                {
+                    reactionWindow.toggleVisibility();
+//                }
+            }
+        });
+
+        uiStage.addActor(reactButton);
     }
 
     private void initializeHotbar() {
@@ -697,6 +666,11 @@ public final class WorldScreen implements Screen
             cam.update();
         }
 
+        for (Player p : game.getPlayers())
+        {
+            p.updateReactionTimer(dt);
+        }
+
         UIRenderer.updateTextBoxes(dt);
         map.getMapVisual().render(cam);
 
@@ -859,6 +833,8 @@ public final class WorldScreen implements Screen
 
         // Center all visible windows after resize
         centerVisibleWindows();
+
+        reactButton.setPosition(20, 20);
     }
 
     // Helper method to center all visible windows
@@ -934,6 +910,7 @@ public final class WorldScreen implements Screen
         refrigeratorWindow.dispose();
 //        gameStage.dispose();
         communicationWindow.dispose();
+        reactionWindow.dispose();
     }
 
     private void handleHotbarSelection(int keycode) {

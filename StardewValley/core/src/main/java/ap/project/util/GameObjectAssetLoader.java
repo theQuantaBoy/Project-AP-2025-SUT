@@ -84,6 +84,11 @@ public class GameObjectAssetLoader
         {
             assetManager.load(type.getAvatarPath(), Texture.class);
         }
+
+        for (ReactionEmoji type : ReactionEmoji.values())
+        {
+            assetManager.load(type.getTexturePath(), Texture.class);
+        }
     }
 
     public static void finishLoadingAndAssign()
@@ -186,6 +191,13 @@ public class GameObjectAssetLoader
             Texture texture = assetManager.get(type.getAvatarPath(), Texture.class);
             texture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
             type.setAvatarTexture(texture);
+        }
+
+        for (ReactionEmoji type : ReactionEmoji.values())
+        {
+            Texture texture = assetManager.get(type.getTexturePath(), Texture.class);
+            texture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
+            type.setTexture(texture);
         }
     }
 

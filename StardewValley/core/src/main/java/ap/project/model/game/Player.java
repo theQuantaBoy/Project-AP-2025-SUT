@@ -106,6 +106,10 @@ public class Player {
 
     private Buff buff = null;
 
+    private ReactionEmoji currentEmoji;
+    private String currentReactionText;
+    private float reactionTimer;
+
     public void setMapType(MapTypes mapType)
     {
         this.mapType = mapType;
@@ -1435,5 +1439,46 @@ public class Player {
     public void setFishes(ArrayList<Fish> fishes)
     {
         this.fishes = fishes;
+    }
+
+    public void setReaction(ReactionEmoji emoji) {
+        this.currentEmoji = emoji;
+        this.currentReactionText = null;
+        this.reactionTimer = 5.0f; // 5 seconds
+    }
+
+    public void setReaction(String text) {
+        if (text.length() > 10) text = text.substring(0, 10);
+        this.currentReactionText = text;
+        this.currentEmoji = null;
+        this.reactionTimer = 5.0f;
+    }
+
+    public void updateReactionTimer(float delta)
+    {
+        if (reactionTimer > 0)
+        {
+            reactionTimer -= delta;
+            if (reactionTimer <= 0)
+            {
+                clearReaction();
+            }
+        }
+    }
+
+    public void clearReaction() {
+        currentEmoji = null;
+        currentReactionText = null;
+        reactionTimer = 0;
+    }
+
+    public ReactionEmoji getCurrentEmoji()
+    {
+        return currentEmoji;
+    }
+
+    public String getCurrentReactionText()
+    {
+        return currentReactionText;
     }
 }

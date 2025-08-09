@@ -61,6 +61,8 @@ public class CharacterRenderer
                 batch.draw(playerCharacter.getLowEnergy(), pos.x, pos.y + 26);
                 lowEnergy = true;
             }
+
+            renderReaction(batch, player, pos);
         }
 
         String name = character.getNickName();
@@ -126,6 +128,39 @@ public class CharacterRenderer
 
             // Draw at the mouse position
             batch.draw(texture, mouseX, mouseY + 5, width, height);
+        }
+    }
+
+    private void renderReaction(Batch batch, Player player, Vector2 charPos)
+    {
+        if (player.getCurrentEmoji() != null) {
+            Texture emoji = player.getCurrentEmoji().getTexture();
+            batch.draw(emoji, charPos.x + 20, charPos.y + 60, 24, 24);
+        }
+        else if (player.getCurrentReactionText() != null) {
+            String text = player.getCurrentReactionText();
+            GlyphLayout layout = new GlyphLayout(nameBadgeFont, text);
+
+            float padding = 5f;
+            float badgeWidth = layout.width + 2 * padding;
+            float badgeHeight = layout.height + 2 * padding;
+            float badgeX = charPos.x + 15;
+            float badgeY = charPos.y + 60;
+
+            // Draw background
+            batch.end();
+            Gdx.gl.glEnable(GL20.GL_BLEND);
+            shapeRenderer.setProjectionMatrix(batch.getProjectionMatrix());
+            shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+            shapeRenderer.setColor(Color.WHITE);
+            shapeRenderer.rect(badgeX, badgeY, badgeWidth, badgeHeight);
+            shapeRenderer.end();
+            batch.begin();
+
+            // Draw text
+            nameBadgeFont.setColor(Color.BLACK);
+            nameBadgeFont.draw(batch, text, badgeX + padding, badgeY + padding + layout.height);
+            nameBadgeFont.setColor(Color.WHITE); // Reset to white
         }
     }
 }
