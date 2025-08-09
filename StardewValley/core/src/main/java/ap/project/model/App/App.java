@@ -123,6 +123,32 @@ public class App
         return game;
     }
 
+    public static Set<Integer> loadGamePlayers (String gameId)
+    {
+        Set<Integer> playerIDs = new HashSet<>();
+        File gameDir = new File("saves/games/" + gameId);
+
+        for (File playerFile : gameDir.listFiles())
+        {
+            String fileName = playerFile.getName();
+            if (playerFile.isFile() && fileName.endsWith(".db") &&
+                !fileName.equals("game_data.db"))
+            {
+                try
+                {
+                    int playerHashId = Integer.parseInt(fileName.replace(".db", ""));
+                    playerIDs.add(playerHashId);
+
+                } catch (Exception e)
+                {
+                    System.err.println(Arrays.toString(e.getStackTrace()));
+                }
+            }
+        }
+
+        return playerIDs;
+    }
+
     private static ArrayList<DummyGame> loadSavedGames()
     {
         ArrayList<DummyGame> games = new ArrayList<>();

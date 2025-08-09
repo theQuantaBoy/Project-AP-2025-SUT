@@ -653,6 +653,8 @@ public class PreLobbyScreen implements Screen
         backButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
+                client.send(new LeaveMessage());
+                client.getKryoClient().close();
                 Main.getApp().setScreen(new PreGameScreen());
             }
         });

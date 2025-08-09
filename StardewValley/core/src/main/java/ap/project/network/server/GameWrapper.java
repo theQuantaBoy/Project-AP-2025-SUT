@@ -124,6 +124,12 @@ public class GameWrapper
     public void activate()
     {
         isActive = true;
+
+        if (playerStateCache.size() == game.getPlayers().size())
+        {
+            saveGameState();
+            System.out.println("initial save");
+        }
     }
 
     public void pause()

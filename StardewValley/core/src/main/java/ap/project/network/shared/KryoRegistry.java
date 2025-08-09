@@ -156,6 +156,8 @@ public class KryoRegistry
         kryo.register(UserSavedGameRequestMessage.class);
         kryo.register(UserSavedGameResponseMessage.class);
 
+        kryo.register(LeaveMessage.class);
+
         // Register all other message classes ...
     }
 }

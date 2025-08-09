@@ -14,6 +14,8 @@ import ap.project.util.SQLiteUtil;
 import com.esotericsoftware.kryonet.Server;
 
 import java.util.ArrayList;
+import java.util.Map;
+import java.util.Set;
 
 import static ap.project.network.server.GameServer.MAX_PLAYERS_FOR_GAME;
 import static ap.project.network.server.GameServer.MIN_PLAYERS_FOR_GAME;
@@ -77,6 +79,9 @@ public class ServerMessageHandler
                 break;
             case LOAD_GAME_REQUEST:
                 handleLoadSavedGameRequest(client, (LoadGameRequestMessage) message);
+                break;
+            case LEAVE:
+                handleLeaveMessage(client, (LeaveMessage) message);
                 break;
         }
     }
@@ -258,6 +263,14 @@ public class ServerMessageHandler
                     ));
                 }
             }
+
+            for (Map.Entry<Integer, PlayerPositionUpdateMessage> entry : lobby.getPlayerPositionCache().entrySet())
+            {
+                if (entry.getKey() != user.getHashId())
+                {
+                    client.send(entry.getValue());
+                }
+            }
         } else
         {
             client.send(new JoinLobbyErrorMessage("invalid id"));
@@ -274,15 +287,22 @@ public class ServerMessageHandler
         User user = server.getUser(client);
         Lobby lobby = server.getActiveLobby(user);
 
+        PlayerPositionUpdateMessage message = new PlayerPositionUpdateMessage(
+            user.getHashId(),
+            msg.x,
+            msg.y,
+            msg.direction,
+            msg.isMoving
+        );
+
+        if (lobby != null)
+        {
+            lobby.updatePlayerPosition(user.getHashId(), message);
+        }
+
         if (Math.abs(client.lastX - msg.x) > 0.1 || Math.abs(client.lastY - msg.y) > 0.1)
         {
-            server.broadcastToLobby(lobby, new PlayerPositionUpdateMessage(
-                user.getHashId(),
-                msg.x,
-                msg.y,
-                msg.direction,
-                msg.isMoving
-            ));
+            server.broadcastToLobby(lobby, message);
 
             client.lastX = msg.x;
             client.lastY = msg.y;
@@ -316,15 +336,22 @@ public class ServerMessageHandler
 
             if (lobby.isLoadedGame())
             {
-                Game game = App.loadGame(lobby.getGameId());
+                if (!lobby.allOriginalPlayersPresent())
+                {
+                    client.send(new GameCreationFailedMessage("all original players must be in the lobby"));
+                    return;
+                }
 
-                ArrayList<Player> players = game.getPlayers();
+                Game game = new Game(lobby.getGameId());
+
+                ArrayList<Player> players = new ArrayList<>();
                 for (User u : lobby.getUsers())
                 {
                     players.add(new Player(u));
                 }
 
                 game.setPlayers(players);
+                game.setCurrentTime(SQLiteUtil.loadGameTime(lobby.getGameId()));
 
                 App.setCurrentGame(game);
                 game.setCurrentPlayer(players.get(0));
@@ -382,8 +409,11 @@ public class ServerMessageHandler
         String gameID = msg.gameID;
         GameWrapper wrapper = server.findGameWrapper(gameID);
 
-        if (wrapper != null && !wrapper.isActive())
+        if (wrapper != null)
         {
+            PlayerDTO dto = msg.playerDTO;
+            wrapper.updatePlayerState(dto.userDTO.hashID, dto);
+            System.out.println("added " + dto.userDTO.username);
             wrapper.activate();
         }
     }
@@ -516,8 +546,8 @@ public class ServerMessageHandler
         GameServer server = GameServer.getInstance();
         User user = server.getUser(client);
 
-        Game savedGame = App.loadGame(msg.gameId);
-        Lobby lobby = new Lobby("Loaded Game", user, true, msg.gameId, savedGame.getPlayerIDs(), msg.gameId);
+        Set<Integer> playerIDs = App.loadGamePlayers(msg.gameId);
+        Lobby lobby = new Lobby("Loaded Game", user, true, msg.gameId, playerIDs, msg.gameId);
 
         if (server.addLobby(lobby))
         {
@@ -529,5 +559,12 @@ public class ServerMessageHandler
         {
             client.send(new LoadGameFailedMessage("couldn't add lobby"));
         }
+    }
+
+    private static void handleLeaveMessage(ClientConnection client, LeaveMessage msg)
+    {
+        GameServer server = GameServer.getInstance();
+        server.getConnectedClients().remove(client);
+        client.getConnection().close();
     }
 }

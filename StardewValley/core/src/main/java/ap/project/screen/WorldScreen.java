@@ -128,7 +128,7 @@ public final class WorldScreen implements Screen
     private static final float PERIODIC_PLAYER_DATA_INTERVAL = 5.0f; // 0.2 Hz
 
     private float offlineSaveTimer = 0;
-    private static final float OFFLINE_SAVE_INTERVAL = 300; // 5 minutes
+    private static final float OFFLINE_SAVE_INTERVAL = 120; // 5 minutes
 
     public WorldScreen(Player currentPlayer, boolean onlineMode, boolean newGame)
     {
@@ -195,7 +195,7 @@ public final class WorldScreen implements Screen
         if (ONLINE_MODE)
         {
             client = GameClient.getInstance();
-            client.send(new GameStartedMessage(game.getId()));
+            client.send(new GameStartedMessage(game.getId(), new PlayerDTO(player)));
         } else
         {
             client = null;

@@ -175,4 +175,9 @@ public class GameClient
     {
         return userSyncComplete;
     }
+
+    public Client getKryoClient()
+    {
+        return kryoClient;
+    }
 }

@@ -1,11 +1,15 @@
 package ap.project.model.game;
 
 import ap.project.model.App.User;
+import ap.project.network.shared.messages.PlayerPositionUpdateMessage;
 import ap.project.util.StringToNumber;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 public class Lobby
@@ -24,6 +28,7 @@ public class Lobby
 
     private String originalGameId;
     private Set<Integer> originalPlayerIds = new HashSet<>();
+    private java.util.Map<Integer, PlayerPositionUpdateMessage> playerPositionCache = new ConcurrentHashMap<>();
 
     public Lobby(String name, String password, User user, boolean isVisible)
     {
@@ -53,6 +58,16 @@ public class Lobby
         this.originalPlayerIds = originalPlayerIds;
         this.isLoadedGame = true;
         this.gameId = gameId;
+    }
+
+    public void updatePlayerPosition(Integer playerID, PlayerPositionUpdateMessage dto)
+    {
+        playerPositionCache.put(playerID, dto);
+    }
+
+    public Map<Integer, PlayerPositionUpdateMessage> getPlayerPositionCache()
+    {
+        return playerPositionCache;
     }
 
     public boolean isLoadedGame()
