@@ -940,4 +940,23 @@ public class PreLobbyScreen implements Screen
             createActiveLobbiesDialogContent();
         }
     }
+
+    public void rejoinLoadedGame(String gameID)
+    {
+        Game game = App.loadGame(gameID);
+        App.setCurrentGame(game);
+
+        // Find current player
+        for (Player player : game.getPlayers())
+        {
+            if (player.getUser().getHashId() == user.getHashId())
+            {
+                game.setCurrentPlayer(player);
+                break;
+            }
+        }
+
+        Gdx.graphics.setWindowedMode(1800, 960);
+        Main.getApp().setScreen(new WorldScreen(game.getCurrentPlayer(), true, false));
+    }
 }

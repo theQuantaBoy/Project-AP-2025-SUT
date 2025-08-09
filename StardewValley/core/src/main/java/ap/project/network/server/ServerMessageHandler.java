@@ -6,6 +6,7 @@ import ap.project.model.game.DummyGame;
 import ap.project.model.game.Game;
 import ap.project.model.game.Lobby;
 import ap.project.model.game.Player;
+import ap.project.network.client.ClientMessageHandler;
 import ap.project.network.shared.DTO.PlayerDTO;
 import ap.project.network.shared.DTO.UserDTO;
 import ap.project.network.shared.Mapper.Mapper;
@@ -13,12 +14,11 @@ import ap.project.network.shared.messages.*;
 import ap.project.util.SQLiteUtil;
 import com.esotericsoftware.kryonet.Server;
 
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static ap.project.network.server.GameServer.MAX_PLAYERS_FOR_GAME;
 import static ap.project.network.server.GameServer.MIN_PLAYERS_FOR_GAME;
+import static java.lang.Thread.sleep;
 
 public class ServerMessageHandler
 {
@@ -545,6 +545,30 @@ public class ServerMessageHandler
     {
         GameServer server = GameServer.getInstance();
         User user = server.getUser(client);
+
+        for (GameWrapper game : server.getGameWrappers())
+        {
+            if (game.isActive() && game.getId().equals(msg.gameId))
+            {
+                client.send(new JoinActiveGameMessage(msg.gameId));
+
+                Iterator<ClientConnection> iterator = (game.getClientConnections()).iterator();
+                while (iterator.hasNext())
+                {
+                    ClientConnection cc = iterator.next();
+                    if (cc.getUserId() == user.getHashId())
+                    {
+                        iterator.remove();
+                    }
+                }
+
+                client.setInGame(true);
+                client.wrapper = game;
+
+                game.getClientConnections().add(client);
+                return;
+            }
+        }
 
         Set<Integer> playerIDs = App.loadGamePlayers(msg.gameId);
         Lobby lobby = new Lobby("Loaded Game", user, true, msg.gameId, playerIDs, msg.gameId);

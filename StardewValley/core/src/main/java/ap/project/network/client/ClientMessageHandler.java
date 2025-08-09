@@ -106,6 +106,9 @@ public class ClientMessageHandler
             case PLAYERS_DTO_UPDATE:
                 handleOtherPlayersDTOMessage((UpdatePlayerDTOsMessage) message);
                 break;
+            case JOIN_GAME:
+                handleJoinActiveGameMessage((JoinActiveGameMessage) message);
+                break;
             // Add other cases
         }
     }
@@ -452,6 +455,15 @@ public class ClientMessageHandler
         {
             WorldScreen ws = (WorldScreen) Main.getApp().getScreen();
             ws.updatePlayersStateCache(message.playerStateCache);
+        }
+    }
+
+    private static void handleJoinActiveGameMessage(JoinActiveGameMessage message)
+    {
+        if (Main.getApp().getScreen() instanceof PreLobbyScreen)
+        {
+            PreLobbyScreen ps = (PreLobbyScreen) Main.getApp().getScreen();
+            ps.rejoinLoadedGame(message.gameID);
         }
     }
 }

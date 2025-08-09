@@ -128,7 +128,7 @@ public final class WorldScreen implements Screen
     private static final float PERIODIC_PLAYER_DATA_INTERVAL = 5.0f; // 0.2 Hz
 
     private float saveTimer = 0;
-    private static final float SAVE_INTERVAL = 120; // 2 minutes
+    private static final float SAVE_INTERVAL = 30; // 2 minutes
 
     private java.util.Map<Integer, PlayerDTO> playerStateCache = new ConcurrentHashMap<>();
 
@@ -1578,6 +1578,14 @@ public final class WorldScreen implements Screen
             {
                 System.err.println("Error saving player state: " + e.getMessage());
             }
+        }
+
+        try
+        {
+            SQLiteUtil.savePlayerState(game.getId(), String.valueOf(player.getUser().getHashId()), new PlayerDTO(player));
+        } catch (Exception e)
+        {
+            System.err.println("Error saving player state: " + e.getMessage());
         }
     }
 

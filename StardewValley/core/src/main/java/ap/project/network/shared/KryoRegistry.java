@@ -160,6 +160,8 @@ public class KryoRegistry
         kryo.register(UpdatePlayerDTOsMessage.class);
         kryo.register(java.util.concurrent.ConcurrentHashMap.class);
 
+        kryo.register(JoinActiveGameMessage.class);
+
         // Register all other message classes ...
     }
 }

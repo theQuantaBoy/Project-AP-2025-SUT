@@ -76,7 +76,6 @@ public class GameWrapper
         {
             game.getCurrentTime().updateMinute(1);
             broadcastMessage(new UpdateGameMinuteMessage());
-            System.out.println("called update time minute");
             secondAccumulator = 0;
 
             if (game.getCurrentTime().getMinute() == 0)

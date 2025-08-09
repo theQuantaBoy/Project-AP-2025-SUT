@@ -829,8 +829,8 @@ public class Player {
         City city = App.getCurrentGame().getCity();
         this.isInFarm = false;
         this.isInCity = true;
-        this.currentMap = this.user.getCurrentGame().getCity();
-        setLocation(this.user.getCurrentGame().getCity().getStartingPoint());
+        this.currentMap = App.getCurrentGame().getCity();
+        setLocation(App.getCurrentGame().getCity().getStartingPoint());
         WorldScreen.getInstance().updateGameInfo();
         App.setCurrentMenu(Menu.CityMenu);
     }
