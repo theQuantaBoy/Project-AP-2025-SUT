@@ -5,6 +5,7 @@ import ap.project.model.enums.*;
 import ap.project.model.game.AbstractCharacter;
 import ap.project.model.game.GameObject;
 import ap.project.model.game.Time;
+import ap.project.network.shared.DTO.*;
 import com.esotericsoftware.kryo.Kryo;
 import ap.project.network.shared.enums.MessageType;
 import ap.project.network.shared.messages.*;
@@ -12,6 +13,8 @@ import java.util.ArrayList;
 
 public class KryoRegistry
 {
+    public static final int BUFFER_LIMIT = 5120000;
+
     public static void registerClasses(Kryo kryo)
     {
         kryo.register(MessageType.class);
@@ -74,7 +77,7 @@ public class KryoRegistry
 
         kryo.register(GameStartedMessage.class);
         kryo.register(GameTimeSyncMessage.class);
-        kryo.register(PlayerGamePresenceMessage.class);
+        kryo.register(GamePresenceMessage.class);
         kryo.register(UpdateGameMinuteMessage.class);
         kryo.register(CloseLobbyErrorMessage.class);
 

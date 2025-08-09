@@ -175,4 +175,9 @@ public abstract class AbstractCharacter
     {
         this.isMoving = moving;
     }
+
+    public CharacterType getType()
+    {
+        return type;
+    }
 }

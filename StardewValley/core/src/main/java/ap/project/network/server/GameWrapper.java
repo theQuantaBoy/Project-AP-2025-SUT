@@ -1,13 +1,15 @@
 package ap.project.network.server;
 
+import ap.project.model.game.Farm;
 import ap.project.model.game.Game;
 import ap.project.model.game.Player;
 import ap.project.model.game.Time;
-import ap.project.network.shared.messages.GameTimeSyncMessage;
-import ap.project.network.shared.messages.Message;
-import ap.project.network.shared.messages.UpdateGameMinuteMessage;
+import ap.project.network.shared.DTO.PlayerDTO;
+import ap.project.network.shared.messages.*;
+import ap.project.util.SQLiteUtil;
 
-import java.util.ArrayList;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class GameWrapper
 {
@@ -24,6 +26,12 @@ public class GameWrapper
     private long lastMinuteAdvance;
 
     private boolean gameStarted = false;
+
+    private float saveTimer = 0;
+    private static final float AUTO_SAVE_INTERVAL = 120; // 2 minutes
+    private final Map<Integer, Long> lastPlayerPresence = new ConcurrentHashMap<>();
+
+    private final Map<Integer, PlayerDTO> playerStateCache = new ConcurrentHashMap<>();
 
     public String getId()
     {
@@ -47,9 +55,15 @@ public class GameWrapper
             {
                 clientConnections.add(c);
             }
+            lastPlayerPresence.put(player.getUser().getHashId(), System.currentTimeMillis());
         }
 
         gameStarted = true;
+    }
+
+    public void updatePlayerState(int playerId, PlayerDTO dto)
+    {
+        playerStateCache.put(playerId, dto);
     }
 
     public void update(float delta)
@@ -64,8 +78,23 @@ public class GameWrapper
             broadcastMessage(new UpdateGameMinuteMessage());
             secondAccumulator = 0;
 
-            syncGameTime();
+            if (game.getCurrentTime().getMinute() == 0)
+            {
+                syncGameTime();
+            }
         }
+
+        // Auto-save logic
+        saveTimer += delta;
+        if (saveTimer >= AUTO_SAVE_INTERVAL)
+        {
+            saveGameState();
+            sendPlayerStates();
+            saveTimer = 0;
+        }
+
+        // Check for disconnected players
+        checkPlayerPresence();
     }
 
     private void syncGameTime()
@@ -90,6 +119,13 @@ public class GameWrapper
     public void activate()
     {
         isActive = true;
+
+        if (playerStateCache.size() == game.getPlayers().size())
+        {
+            saveGameState();
+            sendPlayerStates();
+            System.out.println("initial save");
+        }
     }
 
     public void pause()
@@ -117,6 +153,123 @@ public class GameWrapper
         for (ClientConnection c : clientConnections)
         {
             c.send(message);
+        }
+    }
+
+    private void saveGameState()
+    {
+        // Save game time
+        SQLiteUtil.saveGameTime(game.getId(), game.getCurrentTime());
+
+        // Save all players from cache
+        for (Map.Entry<Integer, PlayerDTO> entry : playerStateCache.entrySet())
+        {
+            try
+            {
+                SQLiteUtil.savePlayerState(
+                    game.getId(),
+                    String.valueOf(entry.getKey()),
+                    entry.getValue()
+                );
+            } catch (Exception e)
+            {
+                System.err.println("Error saving player state: " + e.getMessage());
+            }
+        }
+    }
+
+    public void updatePlayerPresence(int playerId)
+    {
+        lastPlayerPresence.put(playerId, System.currentTimeMillis());
+    }
+
+    private void checkPlayerPresence()
+    {
+        long currentTime = System.currentTimeMillis();
+        ArrayList<Integer> disconnectedPlayers = new ArrayList<>();
+
+        for (Map.Entry<Integer, Long> entry : lastPlayerPresence.entrySet())
+        {
+            if (currentTime - entry.getValue() > 120_000) // 2-minute DC
+            {
+                disconnectedPlayers.add(entry.getKey());
+            }
+        }
+
+        if (!disconnectedPlayers.isEmpty())
+        {
+            handleDisconnectedPlayers(disconnectedPlayers);
+        }
+    }
+
+    private void handleDisconnectedPlayers(ArrayList<Integer> playerIds)
+    {
+        // Save game state before shutdown
+        saveGameState();
+
+        // Notify all players
+        GameShutdownMessage msg = new GameShutdownMessage(
+            "Game closed due to player disconnection",
+            new ArrayList<>(playerIds)
+        );
+        broadcastMessage(msg);
+
+        // Deactivate wrapper
+        pause();
+        GameServer.getInstance().getGameWrappers().remove(this);
+    }
+
+    public void handleSaveAndLeave(int playerId)
+    {
+        // Save the leaving player's state if available
+        saveGameState();
+
+        // Notify other players
+        List<Integer> disconnectedList = new ArrayList<>();
+        disconnectedList.add(playerId);
+
+        GameShutdownMessage msg = new GameShutdownMessage(
+            "Game closed by player request",
+            disconnectedList
+        );
+        broadcastMessage(msg);
+
+        // Deactivate wrapper
+        pause();
+    }
+
+    private Player findPlayerById(int playerId)
+    {
+        for (Player player : game.getPlayers())
+        {
+            if (player.getUser().getHashId() == playerId)
+            {
+                return player;
+            }
+        }
+        return null;
+    }
+
+    private Map<Integer, PlayerDTO> getOtherPlayerStates(int id)
+    {
+        Map<Integer, PlayerDTO> map = new ConcurrentHashMap<>();
+
+        for (Map.Entry<Integer, PlayerDTO> entry : playerStateCache.entrySet())
+        {
+            if (entry.getKey() != id)
+            {
+                map.put(entry.getKey(), entry.getValue());
+            }
+        }
+
+        return map;
+    }
+
+    private void sendPlayerStates()
+    {
+        for (ClientConnection c : clientConnections)
+        {
+            c.send(new UpdatePlayerDTOsMessage(getOtherPlayerStates(c.getUserId())));
         }
     }
 }

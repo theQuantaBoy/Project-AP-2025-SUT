@@ -81,12 +81,13 @@ public class PreGameScreen implements Screen
         addButtonListeners();
     }
 
-    private void addButtonListeners() {
+    private void addButtonListeners()
+    {
         playOffline.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 System.out.println("Play Offline selected");
-                Main.getApp().setScreen(new WorldScreen());
+                Main.getApp().setScreen(new OfflinePreGameScreen(new PreGameController()));
             }
         });
 
@@ -169,7 +170,8 @@ public class PreGameScreen implements Screen
     }
 
     @Override
-    public void render(float delta) {
+    public void render(float delta)
+    {
         Gdx.gl.glClearColor(0.1f, 0.1f, 0.1f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         stage.act(Math.min(delta, 1/30f));
@@ -212,7 +214,7 @@ public class PreGameScreen implements Screen
             }
 
             GameClient client = GameClient.getInstance();
-            client.connect("localhost");
+            client.connect();
 
             // Wait for connection to establish
             int attempts = 0;
@@ -224,23 +226,41 @@ public class PreGameScreen implements Screen
 
             if (client.isConnected())
             {
-                UserProfileMessage message = new UserProfileMessage(currentUser.getUsername(),
-                    currentUser.getNickname(), currentUser.getGender().toString(), currentUser.getHashId());
+                client.requestUserSync();
+
+                // Wait for user sync to complete
+                attempts = 0;
+                while (!client.isUserSyncComplete() && attempts < 50)
+                {
+                    client.processMessages();
+                    sleep(100);
+                    attempts++;
+                }
+
+                if (!client.isUserSyncComplete())
+                {
+                    System.err.println("User sync timed out");
+                    return;
+                }
+
+                // 2. Send user update to ensure server has latest version
+                client.sendUserUpdate(currentUser);
+
+                // 3. Send minimal profile message with just ID
+                UserProfileMessage message = new UserProfileMessage(currentUser.getHashId());
                 client.send(message);
 
-                // Process messages and wait for response
+                // 4. Wait for registration confirmation
                 attempts = 0;
                 while (!client.isRegistered() && attempts < 50)
                 {
-                    client.processMessages();  // Process any incoming messages
+                    client.processMessages();
                     sleep(100);
                     attempts++;
                 }
             }
-        } catch (Exception ex)
-        {
+        } catch (Exception ex) {
             ex.printStackTrace();
         }
     }
-
 }

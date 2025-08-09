@@ -292,7 +292,9 @@ public class FriendsWindow {
                     amountField.setText("1");
                     inventoryWindow.clearSelection();
                     inventoryTable = inventoryWindow.buildLimitedInventoryTable();
-                    newGiftTable.getCells().get(1).setActor(inventoryTable);
+                    @SuppressWarnings("unchecked")
+                    Cell<Table> cell = (Cell<Table>) newGiftTable.getCells().get(1);
+                    cell.setActor(inventoryTable);
                 }
             }
         });

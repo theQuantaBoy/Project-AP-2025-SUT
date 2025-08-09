@@ -8,6 +8,8 @@ import ap.project.model.enums.CharacterType;
 import ap.project.model.enums.Gender;
 import ap.project.model.enums.MapTypes;
 import ap.project.model.enums.Season;
+import ap.project.model.game.DummyGame;
+import ap.project.model.game.Game;
 import ap.project.model.game.Player;
 import ap.project.network.client.GameClient;
 import ap.project.network.shared.messages.*;
@@ -24,6 +26,7 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
@@ -56,6 +59,7 @@ public class PreLobbyScreen implements Screen
     private TextButton joinLobbyButton;
     private TextButton onlineUsersButton;
     private TextButton activeLobbiesButton;
+    private TextButton loadGameButton;
     private TextButton backButton;
 
     // Dialogs
@@ -176,6 +180,7 @@ public class PreLobbyScreen implements Screen
         joinLobbyButton = new TextButton("Join Lobby", skin);
         onlineUsersButton = new TextButton("Online Users", skin);
         activeLobbiesButton = new TextButton("Active Lobbies", skin);
+        loadGameButton = new TextButton("Saved Games", skin);
         backButton = new TextButton("Go Back", skin);
     }
 
@@ -276,6 +281,8 @@ public class PreLobbyScreen implements Screen
         // Navigation buttons and preview area
         Table navTable = new Table();
 
+        User currentUser = App.getCurrentUser();
+
         TextButton prevButton = new TextButton("<", skin);
         prevButton.addListener(new ClickListener() {
             @Override
@@ -283,6 +290,8 @@ public class PreLobbyScreen implements Screen
                 currentAvatarIndex = (currentAvatarIndex - 1 + CharacterType.values().length) % CharacterType.values().length;
                 user.setCharacterChoice(currentAvatarIndex);
                 updateAvatarPreview();
+                App.updateUser(currentUser);
+                client.send(new UserChoicesMessage(currentUser.getCharacterChoice(), currentUser.getMapChoice()));
             }
         });
 
@@ -296,6 +305,8 @@ public class PreLobbyScreen implements Screen
                 currentAvatarIndex = (currentAvatarIndex + 1) % CharacterType.values().length;
                 user.setCharacterChoice(currentAvatarIndex);
                 updateAvatarPreview();
+                App.updateUser(currentUser);
+                client.send(new UserChoicesMessage(currentUser.getCharacterChoice(), currentUser.getMapChoice()));
             }
         });
 
@@ -332,6 +343,8 @@ public class PreLobbyScreen implements Screen
         // Navigation buttons and preview area
         Table navTable = new Table();
 
+        User currentUser = App.getCurrentUser();
+
         TextButton prevButton = new TextButton("<", skin);
         prevButton.addListener(new ClickListener() {
             @Override
@@ -340,6 +353,8 @@ public class PreLobbyScreen implements Screen
                 currentMapIndex = (currentMapIndex - 1 + farms.size()) % farms.size();
                 user.setMapChoice(currentMapIndex);
                 updateMapPreview();
+                App.updateUser(currentUser);
+                client.send(new UserChoicesMessage(currentUser.getCharacterChoice(), currentUser.getMapChoice()));
             }
         });
 
@@ -354,6 +369,8 @@ public class PreLobbyScreen implements Screen
                 currentMapIndex = (currentMapIndex + 1) % farms.size();
                 user.setMapChoice(currentMapIndex);
                 updateMapPreview();
+                App.updateUser(currentUser);
+                client.send(new UserChoicesMessage(currentUser.getCharacterChoice(), currentUser.getMapChoice()));
             }
         });
 
@@ -546,6 +563,7 @@ public class PreLobbyScreen implements Screen
         mainTable.add(gamePrefsButton).row();
         mainTable.add(createLobbyButton).row();
         mainTable.add(joinLobbyButton).row();
+        mainTable.add(loadGameButton).row();
 
         // Side-by-side buttons
         Table sideBySideTable = new Table();
@@ -623,16 +641,113 @@ public class PreLobbyScreen implements Screen
             }
         });
 
+        // load a saved game
+        loadGameButton.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                showOnlineSavedGamesDialog();
+            }
+        });
+
         // Back button
         backButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
+                client.send(new LeaveMessage());
+                client.getKryoClient().close();
                 Main.getApp().setScreen(new PreGameScreen());
             }
         });
 
         // Close button for all dialogs
         setupDialogCloseListeners();
+    }
+
+    private void showOnlineSavedGamesDialog() {
+        Skin skin = GameAssetsManager.getGameAssetsManager().getSkin();
+
+        Dialog dialog = new Dialog("Saved Games", skin);
+
+        // Responsive size (~85% of current stage)
+        float w = Math.min(1100f, stage.getWidth() * 0.85f);
+        float h = Math.min(800f,  stage.getHeight() * 0.75f);
+
+        Table table = createSavedGamesTable();
+        ScrollPane scrollPane = new ScrollPane(table, skin);
+
+        // Make list fill width and scroll only vertically
+        scrollPane.setFadeScrollBars(false);
+        scrollPane.setScrollingDisabled(true, false);
+        scrollPane.setForceScroll(false, true);
+        scrollPane.setOverscroll(false, false);
+
+        dialog.getContentTable().clear();
+        dialog.getContentTable().add(scrollPane).width(w).height(h).pad(20);
+        dialog.button("Close", false);
+        dialog.show(stage);
+    }
+
+    private Table createSavedGamesTable() {
+        Skin skin = GameAssetsManager.getGameAssetsManager().getSkin();
+
+        Table t = new Table();
+        t.top().left();
+        t.defaults()
+            .pad(10)              // more vertical/horizontal padding between cells
+            .left()
+            .expandX()
+            .fillX();
+
+        int currentPlayerId = App.getLoggedInUser().getHashId();
+        ArrayList<DummyGame> playerGames = App.getGamesForPlayer(currentPlayerId);
+
+        if (playerGames == null || playerGames.isEmpty()) {
+            Label empty = new Label("No saved games found.", skin);
+            empty.setAlignment(Align.center);
+            t.add(empty).colspan(5).expandX().pad(20);
+            t.row();
+            return t;
+        }
+
+        // Header with extra bottom padding
+        t.add(new Label("Game ID", skin)).left().minWidth(200).padBottom(15);
+        t.add(new Label("Players", skin)).left().width(100).padBottom(15);
+        t.add(new Label("Duration", skin)).left().minWidth(180).padBottom(15);
+        t.add().padBottom(15);
+        t.row();
+
+        for (DummyGame game : playerGames) {
+            Label id       = new Label(game.getGameId(), skin);
+            Label players  = new Label(String.valueOf(game.getPlayerIds().size()), skin);
+            Label duration = new Label(game.getDurationString(), skin);
+
+            TextButton loadButton = new TextButton("Load", skin);
+            loadButton.pad(5, 15, 5, 15); // extra padding inside button
+            loadButton.addListener(new ChangeListener() {
+                @Override public void changed(ChangeEvent event, Actor actor) {
+                    client.send(new LoadGameRequestMessage(game.getGameId(), user.getHashId()));
+                }
+            });
+
+            // Row with wider spacing
+            t.add(id)      .left().minWidth(200).padRight(20);
+            t.add(players) .left().width(100).padRight(20);
+            t.add(duration).left().minWidth(180).padRight(20);
+            t.add(loadButton).right().width(130);
+            t.row();
+        }
+
+        return t;
+    }
+
+    private void loadOnlineGame(DummyGame game)
+    {
+        // Send load request to server
+        LoadGameRequestMessage msg = new LoadGameRequestMessage(
+            game.getGameId(),
+            App.getLoggedInUser().getHashId()
+        );
+        GameClient.getInstance().send(msg);
     }
 
     private void setupDialogCloseListeners()
@@ -731,10 +846,6 @@ public class PreLobbyScreen implements Screen
             User currentUser = App.getCurrentUser();
 
             client.send(new PreLobbyPresenceMessage());
-            client.send(new UserChoicesMessage(
-                currentUser.getCharacterChoice(),
-                currentUser.getMapChoice()
-            ));
 
             setStatus("connected");
             messageTimer = 0;
@@ -830,58 +941,22 @@ public class PreLobbyScreen implements Screen
         }
     }
 
-    // ======================
-    // Logic To Implement
-    // ======================
+    public void rejoinLoadedGame(String gameID)
+    {
+        Game game = App.loadGame(gameID);
+        App.setCurrentGame(game);
 
-    /*
-     * Complete Logic Checklist:
-     *
-     * 1. Network Communication:
-     *    + Send periodic requests to server for lobby/user lists
-     *    + Implement message handlers for lobby/user list responses
-     *    + Create message classes: LobbyListRequest, UserListRequest,
-     *      LobbyListResponse, UserListResponse
-     *
-     * 2. Lobby Management:
-     *    - Handle lobby creation (send CreateLobbyMessage to server)
-     *    - Handle lobby joining (send JoinLobbyMessage to server)
-     *    - Implement lobby creation response handling
-     *    - Implement lobby join response handling (success/failure)
-     *
-     * 3. UI Updates:
-     *    - Update onlineUsersTable with data from server
-     *    - Update activeLobbiesTable with data from server
-     *    - Implement click handlers for lobby entries (join directly)
-     *    - Update status label based on connection state
-     *
-     * 4. Preference Management:
-     *    + Save selected avatar, map, and gender to user profile
-     *    + Send preferences to server when creating/joining lobby
-     *
-     * 5. Navigation:
-     *    - Transition to LobbyScreen after creating/joining lobby
-     *    - Implement back navigation properly
-     *
-     * 6. Error Handling:
-     *    - Show error dialogs for failed lobby operations
-     *    - Handle disconnections gracefully
-     *
-     * 7. Data Synchronization:
-     *    - Periodically refresh lobby/user lists
-     *    - Implement lobby/user list caching to minimize flickering
-     *
-     * 8. Security:
-     *    - Handle password-protected lobbies
-     *    - Validate lobby names/passwords
-     *
-     * 9. Admin Features:
-     *    - Implement kick player functionality (for lobby admin)
-     *    - Implement start game functionality
-     *
-     * 10. Performance:
-     *     - Optimize texture loading
-     *     - Implement object pooling for UI elements
-     *     - Throttle network requests when appropriate
-     */
+        // Find current player
+        for (Player player : game.getPlayers())
+        {
+            if (player.getUser().getHashId() == user.getHashId())
+            {
+                game.setCurrentPlayer(player);
+                break;
+            }
+        }
+
+        Gdx.graphics.setWindowedMode(1800, 960);
+        Main.getApp().setScreen(new WorldScreen(game.getCurrentPlayer(), true, false));
+    }
 }

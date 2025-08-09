@@ -2,6 +2,7 @@ package ap.project.model.resources;
 
 import ap.project.model.App.App;
 import ap.project.model.game.Map;
+import ap.project.model.game.Point;
 import ap.project.model.game.Tile;
 import ap.project.model.enums.resources_enums.CropType;
 
@@ -13,26 +14,27 @@ public class Crop extends Plant
     private int growthTime;
     private boolean canBecomeGiant;
 
-    public Crop(CropType cropType, Tile tile)
+    public Crop(CropType cropType, Point point, int playerIndex, boolean isGrowFaster)
     {
         this.type = cropType;
         this.name = cropType.getName();
-        this.source = cropType.getSeedType();
-        this.stages = cropType.getStages();
+        this.stages = new ArrayList<>(cropType.getStages());
         this.totalHarvestTime = cropType.getTotalHarvestTime();
         this.oneTime = cropType.isOneTime();
         this.growthTime = cropType.getGrowthTime();
         this.baseSellPrice = cropType.getBaseSellPrice();
         this.isEdible = cropType.isEdible();
         this.energy = cropType.getEnergy();
-        this.seasons = cropType.getSeasons();
+        this.seasons = new ArrayList<>(cropType.getSeasons());
         this.canBecomeGiant = cropType.isCanBecomeGiant();
         this.ObjectType = cropType.getType();
 
         this.harvestWaitTime = totalHarvestTime;
-        this.tile = tile;
+        this.point = point;
+        this.playerIndex = playerIndex;
 
-        if (tile.isGrowFaster())
+        this.isGrowFaster = isGrowFaster;
+        if (isGrowFaster)
         {
             setGrowFaster();
         }
@@ -71,8 +73,8 @@ public class Crop extends Plant
     {
         Map map = App.getCurrentGame().getCurrentPlayer().getCurrentMap();
 
-        int x = tile.getX();
-        int y = tile.getY();
+        int x = point.getX();
+        int y = point.getY();
 
         int[][] offsets = switch (pos)
         {
@@ -116,7 +118,7 @@ public class Crop extends Plant
                 return null;
             }
 
-            if (!crop.getCropType().equals(((Crop) tile.getObject()).getCropType()))
+            if (!crop.getCropType().equals(((Crop) getTile().getObject()).getCropType()))
             {
                 return null;
             }
@@ -155,7 +157,7 @@ public class Crop extends Plant
             }
         }
 
-        GiantCrop giantCrop = new GiantCrop(getCropType(), rootTile);
+        GiantCrop giantCrop = new GiantCrop(getCropType(), rootTile.getPoint(), playerIndex, isGrowFaster);
         for (Tile tile : tiles)
         {
             tile.setObject(giantCrop);
@@ -171,11 +173,26 @@ public class Crop extends Plant
         {
             if (oneTime)
             {
-                tile.unPlant();
+                getTile().unPlant();
             } else
             {
                 lastHarvested += 1;
             }
         }
+    }
+
+    public boolean isOneTime()
+    {
+        return oneTime;
+    }
+
+    public int getGrowthTime()
+    {
+        return growthTime;
+    }
+
+    public boolean isCanBecomeGiant()
+    {
+        return canBecomeGiant;
     }
 }

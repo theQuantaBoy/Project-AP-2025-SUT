@@ -736,4 +736,44 @@ public class Tile
     {
         this.shouldBeWateredAutomatically = shouldBeWateredAutomatically;
     }
+
+    public boolean isInCity()
+    {
+        return isInCity;
+    }
+
+    public void setHitByThunder(boolean hitByThunder)
+    {
+        this.hitByThunder = hitByThunder;
+    }
+
+    public void setPloughed(boolean ploughed)
+    {
+        isPloughed = ploughed;
+    }
+
+    public void setFertilized(boolean fertilized)
+    {
+        isFertilized = fertilized;
+    }
+
+    public void setGrowFaster(boolean growFaster)
+    {
+        this.growFaster = growFaster;
+    }
+
+    public void setImmuneFromCrows(boolean immuneFromCrows)
+    {
+        isImmuneFromCrows = immuneFromCrows;
+    }
+
+    public void setInCity(boolean inCity)
+    {
+        isInCity = inCity;
+    }
+
+    public void setTypeName(String typeName)
+    {
+        this.typeName = typeName;
+    }
 }

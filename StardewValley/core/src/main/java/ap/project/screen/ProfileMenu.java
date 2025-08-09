@@ -107,7 +107,7 @@ public class ProfileMenu implements Screen {
                 random.setVisible(false);
                 change.setVisible(false);
                 avatar.setDrawable(new TextureRegionDrawable(avatarOption.getSelected().texture));
-                user.setAvatar(avatarOption.getSelected().texture);
+//                user.setAvatar(avatarOption.getSelected().texture);
             }
         });
         changeUsernameButton.addListener(new ChangeListener() {

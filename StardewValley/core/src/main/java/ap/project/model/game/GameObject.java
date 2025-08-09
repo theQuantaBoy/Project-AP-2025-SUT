@@ -8,7 +8,6 @@ public class GameObject
 {
     protected GameObjectType ObjectType;
     protected int number = 1;
-    protected String appearance;
     protected int price = 0;
 
     public GameObject(GameObjectType objectType, int number) {

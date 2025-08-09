@@ -232,7 +232,7 @@ public class CraftingItemWindow
     private void doBombThing()
     {
         Map map = App.getCurrentGame().getCurrentPlayer().getCurrentMap();
-        Tile tile = currentItem.getTile();
+        Tile tile = map.getTile(currentItem.getPoint().getX(), currentItem.getPoint().getY());
 
         if (currentItem.getCraftingType() == CraftingRecipeEnums.CHERRY_BOMB_RECIPE)
         {

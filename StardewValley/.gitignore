@@ -162,3 +162,8 @@ Thumbs.db
 ## You could also add that configuration to the text in nativeimage.gradle .
 ## You should delete or comment out the next line if you have configuration in a different resource-config.json .
 **/resource-config.json
+/containers/client_1/saves/app/logged_in_user.db
+/containers/client_2/saves/app/logged_in_user.db
+/containers/client_1/saves/app/users_client.db
+/containers/client_2/saves/app/users_client.db
+/containers/server/saves/app/users_server.db

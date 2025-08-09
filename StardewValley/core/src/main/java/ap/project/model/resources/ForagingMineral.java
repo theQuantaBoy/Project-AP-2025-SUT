@@ -12,4 +12,9 @@ public class ForagingMineral extends GameObject
         this.mineralType = mineralType;
         this.ObjectType = mineralType.getType();
     }
+
+    public ForagingMineralType getMineralType()
+    {
+        return mineralType;
+    }
 }

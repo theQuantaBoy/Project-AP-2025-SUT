@@ -10,6 +10,9 @@ import ap.project.model.game.Player;
 import ap.project.network.server.ClientConnection;
 import ap.project.network.server.GameServer;
 import ap.project.network.server.GameWrapper;
+import ap.project.model.App.User;
+import ap.project.network.shared.DTO.UserDTO;
+import ap.project.network.shared.Mapper.Mapper;
 import ap.project.network.shared.messages.*;
 import ap.project.screen.LobbyScreen;
 import ap.project.screen.PreLobbyScreen;
@@ -19,9 +22,14 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 
-public class ClientMessageHandler {
-    public static void handle(Message message) {
-        switch (message.getType()) {
+import java.util.ArrayList;
+
+public class ClientMessageHandler
+{
+    public static void handle(Message message)
+    {
+        switch (message.getType())
+        {
             case TEST:
                 handleTestMessage((TestMessage) message);
                 break;
@@ -83,7 +91,7 @@ public class ClientMessageHandler {
                 handleGameTimeSyncMessage((GameTimeSyncMessage) message);
                 break;
             case GAME_PRESENCE:
-                handleGamePlayerPresenceMessage((PlayerGamePresenceMessage) message);
+                handleGamePlayerPresenceMessage((GamePresenceMessage) message);
                 break;
             case CLOSE_LOBBY_ERROR:
                 handleCLoseLobbyErrorMessage((CloseLobbyErrorMessage) message);
@@ -105,6 +113,30 @@ public class ClientMessageHandler {
                 break;
             case TRADE_CANCELLED:
                 handleTradeCancelled((TradeCancelMessage)  message);
+                break;
+            case USER_SYNC_RESPONSE:
+                handleUserSyncResponse((UserSyncResponseMessage) message);
+                break;
+            case USER_UPDATE:
+                handleUserUpdate((UserUpdateMessage) message);
+                break;
+            case GAME_SHUTDOWN:
+                handleGameShutDownMessage((GameShutdownMessage) message);
+                break;
+            case LOAD_GAME_SUCCESS:
+                handleLoadGameSuccessMessage((LoadGameSuccessMessage) message);
+                break;
+            case LOAD_GAME_FAILED:
+                handleLoadGameFailedMessage((LoadGameFailedMessage) message);
+                break;
+            case LOADED_GAME_START:
+                handleLoadedGameStartMessage((LoadedGameStartedMessage) message);
+                break;
+            case PLAYERS_DTO_UPDATE:
+                handleOtherPlayersDTOMessage((UpdatePlayerDTOsMessage) message);
+                break;
+            case JOIN_GAME:
+                handleJoinActiveGameMessage((JoinActiveGameMessage) message);
                 break;
             // Add other cases
         }
@@ -160,8 +192,14 @@ public class ClientMessageHandler {
         String list = msg.list;
 
         Screen currentScreen = Main.getApp().getScreen();
-        if (currentScreen instanceof PreLobbyScreen) {
-            ((PreLobbyScreen) currentScreen).setActiveLobbiesText(list);
+        if (currentScreen instanceof PreLobbyScreen)
+        {
+            PreLobbyScreen pls = (PreLobbyScreen) currentScreen;
+            if (!pls.getActiveLobbiesText().equals(list))
+            {
+                ((PreLobbyScreen) currentScreen).setActiveLobbiesText(list);
+                pls.refreshActiveLobbiesList();
+            }
         }
     }
 
@@ -169,53 +207,62 @@ public class ClientMessageHandler {
         String list = msg.list;
 
         Screen currentScreen = Main.getApp().getScreen();
-        if (currentScreen instanceof PreLobbyScreen) {
+        if (currentScreen instanceof PreLobbyScreen)
+        {
             ((PreLobbyScreen) currentScreen).setOnlineUsersText(list);
         }
     }
 
-    private static void handleJoinedLobbySuccessfullyMessage(JoinLobbySuccessMessage message) {
+    private static void handleJoinedLobbySuccessfullyMessage(JoinLobbySuccessMessage message)
+    {
         String name = message.name;
         String id = message.id;
 
         Screen currentScreen = Main.getApp().getScreen();
-        if (currentScreen instanceof PreLobbyScreen) {
+        if (currentScreen instanceof PreLobbyScreen)
+        {
             ((PreLobbyScreen) currentScreen).joinLobby(name, id);
         }
     }
 
-    private static void handleFailedToJoinLobbyMessage(JoinLobbyErrorMessage message) {
+    private static void handleFailedToJoinLobbyMessage(JoinLobbyErrorMessage message)
+    {
         String reason = message.reason;
 
         Screen currentScreen = Main.getApp().getScreen();
-        if (currentScreen instanceof PreLobbyScreen) {
+        if (currentScreen instanceof PreLobbyScreen)
+        {
             ((PreLobbyScreen) currentScreen).showTextBox("Failed to Join Lobby: " + reason);
         }
     }
 
-    private static void handlePlayerJoinedLobbyMessage(PlayerJoinedLobbyMessage message) {
-        if (Main.getApp().getScreen() instanceof LobbyScreen) {
+    private static void handlePlayerJoinedLobbyMessage(PlayerJoinedLobbyMessage message)
+    {
+        if (Main.getApp().getScreen() instanceof LobbyScreen)
+        {
             LobbyScreen ls = (LobbyScreen) Main.getApp().getScreen();
 
-            int userId = message.userId;
-            String username = message.username;
-            String nickname = message.nickname;
-            int avatarChoice = message.avatarChoice;
-            int mapChoice = message.mapChoice;
-
-            if (!ls.getLobbyId().equals(message.lobbyId)) {
+            if (!ls.getLobbyId().equals(message.lobbyId))
+            {
                 ls.showText("Error: Lobby ID mismatch");
                 return;
             }
 
-            if (ls.addOtherPlayer(userId, username, nickname, avatarChoice, mapChoice)) {
-                ls.showText(username + " joined the lobby");
+            if (ls.addOtherPlayer(message.userId))
+            {
+                User user = App.getUserByHashId(message.userId);
+                if (user != null)
+                {
+                    ls.showText(user.getUsername() + " joined the lobby");
+                }
             }
         }
     }
 
-    private static void handleUpdatePlayerPositionMessage(PlayerPositionUpdateMessage message) {
-        if (Main.getApp().getScreen() instanceof LobbyScreen) {
+    private static void handleUpdatePlayerPositionMessage(PlayerPositionUpdateMessage message)
+    {
+        if (Main.getApp().getScreen() instanceof LobbyScreen)
+        {
             LobbyScreen ls = (LobbyScreen) Main.getApp().getScreen();
 
             int userId = message.userId;
@@ -228,13 +275,16 @@ public class ClientMessageHandler {
         }
     }
 
-    private static void handlePlayerLeftLobbyMessage(PlayerLeftLobbyMessage message) {
-        if (Main.getApp().getScreen() instanceof LobbyScreen) {
+    private static void handlePlayerLeftLobbyMessage(PlayerLeftLobbyMessage message)
+    {
+        if (Main.getApp().getScreen() instanceof LobbyScreen)
+        {
             LobbyScreen ls = (LobbyScreen) Main.getApp().getScreen();
 
             String lobbyId = message.lobbyID;
 
-            if (!ls.getLobbyId().equals(lobbyId)) {
+            if (!ls.getLobbyId().equals(lobbyId))
+            {
                 ls.showText("Error: Lobby ID mismatch");
                 return;
             }
@@ -244,46 +294,57 @@ public class ClientMessageHandler {
         }
     }
 
-    private static void handleGameCreationFailedMessage(GameCreationFailedMessage message) {
+    private static void handleGameCreationFailedMessage(GameCreationFailedMessage message)
+    {
         String text = message.reason;
 
-        if (Main.getApp().getScreen() instanceof LobbyScreen) {
+        if (Main.getApp().getScreen() instanceof LobbyScreen)
+        {
             ((LobbyScreen) Main.getApp().getScreen()).showText("Failed to Start Game: " + text);
         }
     }
 
-    private static void handleGameCreationSuccessMessage(GameCreationSuccessMessage message) {
+    private static void handleGameCreationSuccessMessage(GameCreationSuccessMessage message)
+    {
         int[] userIDs = {message.player_1_id, message.player_2_id, message.player_3_id, message.player_4_id};
         String id = message.gameID;
 
-        if (Main.getApp().getScreen() instanceof LobbyScreen) {
+        if (Main.getApp().getScreen() instanceof LobbyScreen)
+        {
             LobbyScreen ls = (LobbyScreen) Main.getApp().getScreen();
             ls.createGame(id, userIDs);
         }
     }
 
-    private static void handleCLoseLobbyMessage() {
-        if (Main.getApp().getScreen() instanceof LobbyScreen) {
+    private static void handleCLoseLobbyMessage()
+    {
+        if (Main.getApp().getScreen() instanceof LobbyScreen)
+        {
             Main.getApp().setScreen(new PreLobbyScreen());
         }
     }
 
-    private static void handleLobbyTimeUpdateMessage(LobbyTimeUpdateMessage message) {
+    private static void handleLobbyTimeUpdateMessage(LobbyTimeUpdateMessage message)
+    {
         int remainingSeconds = message.remainingSeconds;
-        if (Main.getApp().getScreen() instanceof LobbyScreen) {
+        if (Main.getApp().getScreen() instanceof LobbyScreen)
+        {
             LobbyScreen ls = (LobbyScreen) Main.getApp().getScreen();
             ls.setRemainingTime(remainingSeconds);
         }
     }
 
-    private static void handleUpdateGameTimeMinute(UpdateGameMinuteMessage message) {
-        if (Main.getApp().getScreen() instanceof WorldScreen) {
+    private static void handleUpdateGameTimeMinute(UpdateGameMinuteMessage message)
+    {
+        if (Main.getApp().getScreen() instanceof WorldScreen)
+        {
             WorldScreen ws = (WorldScreen) Main.getApp().getScreen();
             ws.updateTimeMinute();
         }
     }
 
-    private static void handleGameTimeSyncMessage(GameTimeSyncMessage message) {
+    private static void handleGameTimeSyncMessage(GameTimeSyncMessage message)
+    {
         int minute = message.minute;
         int hour = message.hour;
         int day = message.day;
@@ -292,13 +353,15 @@ public class ClientMessageHandler {
         String currentWeather = message.currentWeather;
         String tomorrowWeather = message.tomorrowWeather;
 
-        if (Main.getApp().getScreen() instanceof WorldScreen) {
+        if (Main.getApp().getScreen() instanceof WorldScreen)
+        {
             WorldScreen ws = (WorldScreen) Main.getApp().getScreen();
             ws.syncTime(minute, hour, day, totalHours, totalDays, currentWeather, tomorrowWeather);
         }
     }
 
-    private static void handleGamePlayerPresenceMessage(PlayerGamePresenceMessage message) {
+    private static void handleGamePlayerPresenceMessage(GamePresenceMessage message)
+    {
         String gameID = message.gameID;
         int userID = message.userID;
 
@@ -317,18 +380,22 @@ public class ClientMessageHandler {
 
         String currentShop = message.currentShop;
 
-        if (Main.getApp().getScreen() instanceof WorldScreen) {
+        if (Main.getApp().getScreen() instanceof WorldScreen)
+        {
             WorldScreen ws = (WorldScreen) Main.getApp().getScreen();
 
-            if (App.getCurrentGame().getId().equals(gameID)) {
+            if (App.getCurrentGame().getId().equals(gameID))
+            {
                 ws.updatePlayerPosition(userID, x, y, direction, isMoving, isInFarm, isInCity, isInGreenHouse, isInHome,
                     isInZeidiesFarm, isInZeidiesHome, isInShop, currentShop);
             }
         }
     }
 
-    private static void handleCLoseLobbyErrorMessage(CloseLobbyErrorMessage message) {
-        if (Main.getApp().getScreen() instanceof LobbyScreen) {
+    private static void handleCLoseLobbyErrorMessage(CloseLobbyErrorMessage message)
+    {
+        if (Main.getApp().getScreen() instanceof LobbyScreen)
+        {
             LobbyScreen ls = (LobbyScreen) Main.getApp().getScreen();
             ls.showText(message.message);
         }
@@ -438,4 +505,80 @@ public class ClientMessageHandler {
         }
     }
 
+
+    private static void handleUserSyncResponse(UserSyncResponseMessage msg)
+    {
+        ArrayList<User> serverUsers = new ArrayList<>();
+        for (UserDTO dto : msg.userDTOs)
+        {
+            serverUsers.add(Mapper.fromDTO(dto));
+        }
+
+        App.syncUsersWithServer(serverUsers);
+        GameClient.getInstance().setUserSyncComplete(true);
+    }
+
+    private static void handleUserUpdate(UserUpdateMessage msg)
+    {
+        User user = Mapper.fromDTO(msg.userDTO);
+        App.createOrUpdateUser(user);
+    }
+
+    private static void handleGameShutDownMessage(GameShutdownMessage message)
+    {
+        if (Main.getApp().getScreen() instanceof WorldScreen)
+        {
+            WorldScreen ws = (WorldScreen) Main.getApp().getScreen();
+            ws.handleGameShutdownMessage(message);
+        }
+    }
+
+    private static void handleLoadGameSuccessMessage(LoadGameSuccessMessage message)
+    {
+        String name = message.lobbyName;
+        String id =  message.lobbyId;
+
+        Screen currentScreen = Main.getApp().getScreen();
+        if (currentScreen instanceof PreLobbyScreen)
+        {
+            ((PreLobbyScreen) currentScreen).showTextBox("Lobby Created Successfully");
+            ((PreLobbyScreen) currentScreen).joinLobby(name, id);
+        }
+    }
+
+    private static void handleLoadGameFailedMessage(LoadGameFailedMessage message)
+    {
+        Screen currentScreen = Main.getApp().getScreen();
+        if (currentScreen instanceof PreLobbyScreen)
+        {
+            ((PreLobbyScreen) currentScreen).showTextBox(message.reason);
+        }
+    }
+
+    private static void handleLoadedGameStartMessage(LoadedGameStartedMessage message)
+    {
+        if (Main.getApp().getScreen() instanceof LobbyScreen)
+        {
+            LobbyScreen ls = (LobbyScreen) Main.getApp().getScreen();
+            ls.createGame(message.gameId, message.gameTime);
+        }
+    }
+
+    private static void handleOtherPlayersDTOMessage(UpdatePlayerDTOsMessage message)
+    {
+        if (Main.getApp().getScreen() instanceof WorldScreen)
+        {
+            WorldScreen ws = (WorldScreen) Main.getApp().getScreen();
+            ws.updatePlayersStateCache(message.playerStateCache);
+        }
+    }
+
+    private static void handleJoinActiveGameMessage(JoinActiveGameMessage message)
+    {
+        if (Main.getApp().getScreen() instanceof PreLobbyScreen)
+        {
+            PreLobbyScreen ps = (PreLobbyScreen) Main.getApp().getScreen();
+            ps.rejoinLoadedGame(message.gameID);
+        }
+    }
 }

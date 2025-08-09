@@ -1,9 +1,11 @@
 package ap.project.network.server;
 
+import ap.project.model.App.App;
 import ap.project.model.App.User;
 import ap.project.model.game.Lobby;
 import ap.project.network.shared.KryoRegistry;
 import ap.project.network.shared.messages.*;
+import ap.project.util.SQLiteUtil;
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.backends.headless.HeadlessApplication;
 import com.badlogic.gdx.backends.headless.HeadlessApplicationConfiguration;
@@ -16,6 +18,8 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+
+import static ap.project.network.shared.KryoRegistry.BUFFER_LIMIT;
 
 public class GameServer
 {
@@ -33,7 +37,7 @@ public class GameServer
     private float periodicMessageTimer = 0;
     private static final float PERIODIC_MESSAGE_INTERVAL = 0.016f;
 
-    public static final int MIN_PLAYERS_FOR_GAME = 2;
+    public static final int MIN_PLAYERS_FOR_GAME = 1;
     public static final int MAX_PLAYERS_FOR_GAME = 4;
 
     public void update(float delta)
@@ -48,9 +52,6 @@ public class GameServer
 
             periodicMessageTimer = 0;
         }
-
-        // Add other server update logic here
-        // (game state updates, lobby management, etc.)
     }
 
     private void handleGames(float delta)
@@ -195,7 +196,9 @@ public class GameServer
         // Process disconnects after iteration
         for (ClientConnection client : toDisconnect)
         {
-            handleDisconnect(client);
+            User u = getUser(client);
+            connections.remove(client);
+            users.remove(u);
         }
     }
 
@@ -212,11 +215,6 @@ public class GameServer
                 }
             }
         }
-    }
-
-    private void handleDisconnect(ClientConnection client)
-    {
-        // TODO: put a should remove boolean to remove later, also handle lobby stuff
     }
 
     private void startGameLoop()
@@ -258,6 +256,8 @@ public class GameServer
 
     public void stop()
     {
+        SQLiteUtil.saveUserList("saves/app/users_server.db", new ArrayList<>(users));
+
         running = false;
         if (gameThread != null)
         {
@@ -330,9 +330,32 @@ public class GameServer
         return null;
     }
 
+    public void createOrUpdateUser(User user)
+    {
+        boolean found = false;
+        for (int i = 0; i < users.size(); i++)
+        {
+            if (users.get(i).getHashId() == user.getHashId())
+            {
+                users.set(i, user);
+                found = true;
+                break;
+            }
+        }
+
+        if (!found)
+        {
+            users.add(user);
+        }
+
+        SQLiteUtil.saveUserList("saves/app/users_server.db", new ArrayList<>(users));
+    }
+
     public GameServer() throws IOException
     {
-        kryoServer = new Server();
+        users.addAll(SQLiteUtil.loadUserList("saves/app/users_server.db"));
+
+        kryoServer = new Server(BUFFER_LIMIT, BUFFER_LIMIT);
         kryoServer.start();
         registerClasses(kryoServer.getKryo());
         kryoServer.bind(54555, 54777);
@@ -420,6 +443,7 @@ public class GameServer
     {
         HeadlessApplicationConfiguration config = new HeadlessApplicationConfiguration();
         new HeadlessApplication(new DummyAppListener(), config); // Dummy listener
+        App.initialize();
 
         try
         {
@@ -455,5 +479,10 @@ public class GameServer
     public CopyOnWriteArrayList<Lobby> getActiveLobbies()
     {
         return activeLobbies;
+    }
+
+    public ArrayList<User> getUsers()
+    {
+        return users;
     }
 }

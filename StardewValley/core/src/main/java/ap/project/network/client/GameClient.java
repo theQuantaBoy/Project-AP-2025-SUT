@@ -4,6 +4,7 @@ import ap.project.Main;
 import ap.project.model.App.App;
 import ap.project.model.App.User;
 import ap.project.model.game.AbstractCharacter;
+import ap.project.network.shared.DTO.UserDTO;
 import ap.project.network.shared.KryoRegistry;
 import ap.project.network.shared.messages.*;
 import ap.project.screen.PreGameScreen;
@@ -19,8 +20,12 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+import static ap.project.network.shared.KryoRegistry.BUFFER_LIMIT;
+
 public class GameClient
 {
+    private final String ip = "localhost";
+
     private static GameClient instance;
     private Client kryoClient;
     private final ConcurrentLinkedQueue<Message> incomingQueue = new ConcurrentLinkedQueue<>();
@@ -28,10 +33,11 @@ public class GameClient
 
     private boolean connected = false;
     private boolean registered =  false;
+    private volatile boolean userSyncComplete = false;
 
     private GameClient()
     {
-        kryoClient = new Client();
+        kryoClient = new Client(BUFFER_LIMIT, BUFFER_LIMIT);
         kryoClient.start();
         registerClasses(kryoClient.getKryo());
 
@@ -73,7 +79,7 @@ public class GameClient
         KryoRegistry.registerClasses(kryo);
     }
 
-    public void connect(String ip)
+    public void connect()
     {
         if (connected) return;
 
@@ -148,5 +154,30 @@ public class GameClient
     public void setRegistered(boolean registered)
     {
         this.registered = registered;
+    }
+
+    public void requestUserSync()
+    {
+        send(new UserSyncRequestMessage());
+    }
+
+    public void sendUserUpdate(User user)
+    {
+        send(new UserUpdateMessage(new UserDTO(user)));
+    }
+
+    public void setUserSyncComplete(boolean userSyncComplete)
+    {
+        this.userSyncComplete = userSyncComplete;
+    }
+
+    public boolean isUserSyncComplete()
+    {
+        return userSyncComplete;
+    }
+
+    public Client getKryoClient()
+    {
+        return kryoClient;
     }
 }

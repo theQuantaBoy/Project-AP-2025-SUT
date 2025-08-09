@@ -38,6 +38,55 @@ public class Game
     private Player oppenheimer; // I actually wanted to call this "opener", but thought it would be funnier this way
     private City city = new City();
 
+    public Game(String id)
+    {
+        this.id = id;
+    }
+
+    public void initialize()
+    {
+        for (Player player : players)
+        {
+            player.getUser().setCurrentGame(this);
+
+            for (Player other : players)
+            {
+                if (!player.equals(other))
+                {
+                    FriendshipData newFriendshipData = new FriendshipData(0, 0, false);
+                    player.addFriendship(other, newFriendshipData);
+                }
+            }
+        }
+
+//        setNPCs();
+
+        for (NPC npc : NPCs)
+        {
+            for (Player player : players)
+            {
+                switch (npc.getName().toLowerCase())
+                {
+                    case "robin":
+                        player.setRobinFriendship(new FriendshipWithNpcData(npc, player));
+                        break;
+                    case "abigail":
+                        player.setAbigailFriendship(new FriendshipWithNpcData(npc, player));
+                        break;
+                    case "sebastian":
+                        player.setSebastianFriendship(new FriendshipWithNpcData(npc, player));
+                        break;
+                    case "harvey":
+                        player.setHarveyFriendship(new FriendshipWithNpcData(npc, player));
+                        break;
+                    case "lia":
+                        player.setLiaFriendship(new FriendshipWithNpcData(npc, player));
+                        break;
+                }
+            }
+        }
+    }
+
     public Game(ArrayList<Player> players)
     {
         this.players = players;
@@ -799,5 +848,28 @@ public class Game
             }
         }
         return null;
+    }
+
+    public void setCurrentTime(Time currentTime)
+    {
+        this.currentTime = currentTime;
+    }
+
+    public void setPlayers(ArrayList<Player> players)
+    {
+        this.players = players;
+    }
+
+
+    public Set<Integer> getPlayerIDs()
+    {
+        Set<Integer> playerIDs = new HashSet<>();
+
+        for (Player p : players)
+        {
+            playerIDs.add(p.getUser().getHashId());
+        }
+
+        return playerIDs;
     }
 }

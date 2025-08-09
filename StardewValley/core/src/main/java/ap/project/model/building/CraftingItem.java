@@ -5,6 +5,7 @@ import ap.project.model.enums.GameObjectType;
 import ap.project.model.enums.building_enums.ArtisanGoodsType;
 import ap.project.model.enums.building_enums.CraftingRecipeEnums;
 import ap.project.model.game.GameObject;
+import ap.project.model.game.Point;
 import ap.project.model.game.Tile;
 import ap.project.model.game.Time;
 
@@ -25,14 +26,14 @@ public class CraftingItem extends GameObject
     private int neededHours = -1;
 
     private ArrayList<GameObject> craftingIngredients = new ArrayList<>();
-    private final Tile tile;
+    private final Point point;
 
-    public CraftingItem (CraftingRecipeEnums craftingType, Tile tile)
+    public CraftingItem (CraftingRecipeEnums craftingType, Point point)
     {
         super(craftingType.getProduct(), 1);
         this.craftingType = craftingType;
         this.itemType = craftingType.getItemType();
-        this.tile = tile;
+        this.point = point;
     }
 
     public CraftingRecipeEnums getCraftingType()
@@ -151,14 +152,69 @@ public class CraftingItem extends GameObject
         }
     }
 
-    public Tile getTile()
+    public Point getPoint()
     {
-        return tile;
+        return point;
     }
 
     public ItemType getItemType()
     {
         return itemType;
+    }
+
+    public ArtisanGoodsType getArtisanType()
+    {
+        return artisanType;
+    }
+
+    public int getStartDay()
+    {
+        return startDay;
+    }
+
+    public int getStartHour()
+    {
+        return startHour;
+    }
+
+    public int getNeededDays()
+    {
+        return neededDays;
+    }
+
+    public int getNeededHours()
+    {
+        return neededHours;
+    }
+
+    public void setArtisanType(ArtisanGoodsType artisanType)
+    {
+        this.artisanType = artisanType;
+    }
+
+    public void setWorking(boolean working)
+    {
+        isWorking = working;
+    }
+
+    public void setStartDay(int startDay)
+    {
+        this.startDay = startDay;
+    }
+
+    public void setStartHour(int startHour)
+    {
+        this.startHour = startHour;
+    }
+
+    public void setNeededDays(int neededDays)
+    {
+        this.neededDays = neededDays;
+    }
+
+    public void setNeededHours(int neededHours)
+    {
+        this.neededHours = neededHours;
     }
 
     public enum ItemType

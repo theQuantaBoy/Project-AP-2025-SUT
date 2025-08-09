@@ -44,7 +44,6 @@ public class RegisterScreen implements Screen {
     private Label errorLabel;
     private Table table;
     private RegisterController controller;
-    private TextButton miniGame;
 
     public RegisterScreen(RegisterController controller) {
         this.stage = new Stage(new ScreenViewport());
@@ -133,9 +132,6 @@ public class RegisterScreen implements Screen {
 
         // Add button listeners
         addButtonListeners();
-
-        this.miniGame = new TextButton("MiniGame", GameAssetsManager.getGameAssetsManager().getSkin());
-        table.add(miniGame).width(500).height(50).pad(20).row();
     }
 
     private void addButtonListeners() {
@@ -187,23 +183,6 @@ public class RegisterScreen implements Screen {
                 Main.getApp().setScreen(new LoginScreen(new LoginController()));
             }
         });
-
-//        miniGame.addListener(new ChangeListener() {
-//            @Override
-//            public void changed(ChangeEvent event, Actor actor) {
-//                game.setScreen(((FishingGame) game).fishingScreen);
-//            }
-//        });
-    }
-
-    private String generateRandomPassword(int length) {
-        String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()";
-        StringBuilder password = new StringBuilder();
-        for (int i = 0; i < length; i++) {
-            int index = (int) (Math.random() * chars.length());
-            password.append(chars.charAt(index));
-        }
-        return password.toString();
     }
 
     @Override
@@ -222,15 +201,6 @@ public class RegisterScreen implements Screen {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         stage.act(Math.min(delta, 1/30f));
         stage.draw();
-
-//        miniGame.addListener(new ChangeListener() {
-//            @Override
-//            public void changed(ChangeEvent event, Actor actor) {
-//                // When the button is clicked, switch to the fishing game screen.
-//                // This is the correct way to switch screens.
-//                game.setScreen(((FishingGame) game).fishingScreen);
-//            }
-//        });
     }
 
     @Override

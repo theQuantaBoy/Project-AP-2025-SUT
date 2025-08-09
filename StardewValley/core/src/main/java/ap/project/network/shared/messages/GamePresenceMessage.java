@@ -2,7 +2,7 @@ package ap.project.network.shared.messages;
 
 import ap.project.network.shared.enums.MessageType;
 
-public class PlayerGamePresenceMessage extends Message
+public class GamePresenceMessage extends Message
 {
     public String gameID;
     public int userID;
@@ -22,9 +22,9 @@ public class PlayerGamePresenceMessage extends Message
 
     public String currentShop;
 
-    public PlayerGamePresenceMessage() {}
+    public GamePresenceMessage() {}
 
-    public PlayerGamePresenceMessage(String gameID, int userID, float x, float y, byte direction, boolean isMoving, boolean isInFarm, boolean isInCity, boolean isInGreenHouse, boolean isInHome, boolean isInZeidiesFarm, boolean isInZeidiesHome, boolean isInShop, String currentShop)
+    public GamePresenceMessage(String gameID, int userID, float x, float y, byte direction, boolean isMoving, boolean isInFarm, boolean isInCity, boolean isInGreenHouse, boolean isInHome, boolean isInZeidiesFarm, boolean isInZeidiesHome, boolean isInShop, String currentShop)
     {
         this.gameID = gameID;
         this.userID = userID;

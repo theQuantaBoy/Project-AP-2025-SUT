@@ -285,6 +285,7 @@ public class WorldController
                 }
 
                 tile.plough();
+                MapVisual.playAnimationAt(GameAnimationType.PLOUGH, tile);
                 player.increaseEnergy((int) (weatherModifier * -((Hoe) tool).getLevel().getBaseEnergyUsage()));
                 UIRenderer.showTextBox("hoe used");
                 return true;
@@ -323,6 +324,7 @@ public class WorldController
 
                     ((WateringCan) tool).decreaseVolume(1);
                     plant.water();
+                    MapVisual.playAnimationAt(GameAnimationType.WATER, tile);
 
                     UIRenderer.showTextBox("Plant has been watered.");
                     return true;
@@ -363,6 +365,11 @@ public class WorldController
             if (tile.getTexture().equals(TileTexture.GRASS) &&
                 tile.getObject() == null) {
                 tile.setTexture(TileTexture.LAND);
+
+                if (player.isInFarm())
+                {
+                    player.getFarm().getHazardTiles().add(tile);
+                }
 
                 UIRenderer.showTextBox("alaf is harzed successfully");
                 return true;
@@ -771,7 +778,7 @@ public class WorldController
             return true;
         }
 
-        CraftingItem newCraftedItem = new CraftingItem(craftingItem.getCraftingType(), tile);
+        CraftingItem newCraftedItem = new CraftingItem(craftingItem.getCraftingType(), tile.getPoint());
         tile.setObject(newCraftedItem);
 
         if (object.getNumber() == 1)
@@ -874,6 +881,7 @@ public class WorldController
         if (fertilizer.getObjectType() == GameObjectType.FERTILIZER)
         {
             tile.fertilize();
+            MapVisual.playAnimationAt(GameAnimationType.FERTILIZE, tile);
             player.removeAmountFromInventory(fertilizer.getObjectType(), 1);
             tile.setWateringChance(0);
 
@@ -996,7 +1004,8 @@ public class WorldController
 
         if (cropType != null)
         {
-            Crop crop = new Crop(cropType, tile);
+            int index =  App.getCurrentGame().getPlayerIndex();
+            Crop crop = new Crop(cropType, tile.getPoint(), index, tile.isGrowFaster());
             tile.setObject(crop);
 
             Tile rootTile;
@@ -1039,7 +1048,8 @@ public class WorldController
 
         if (treeType != null)
         {
-            Tree tree = new Tree(treeType, tile);
+            int index = App.getCurrentGame().getPlayerIndex();
+            Tree tree = new Tree(treeType, tile.getPoint(), index, tile.isGrowFaster());
             tile.setObject(tree);
             if (player.isInGreenHouse())
             {

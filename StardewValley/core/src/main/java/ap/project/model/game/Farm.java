@@ -36,8 +36,15 @@ public class Farm extends Map
     private ArrayList<Tile> plantingTiles = new ArrayList<>();
     private ArrayList<Tile> tilesWithCraftingItems = new ArrayList<>();
     private ArrayList<Tile> lightningTiles = new ArrayList<>();
+    private ArrayList<Tile> hazardTiles = new ArrayList<>();
 
     private final int MARGIN = 10;
+
+    public Farm(MapTypes farmType, boolean fromDTO)
+    {
+        super(farmType);
+        this.lakeTiles = getLakeTiles();
+    }
 
     public Farm(MapTypes farmType) {
         super(farmType);
@@ -590,5 +597,10 @@ public class Farm extends Map
     public ArrayList<Tile> getLightningTiles()
     {
         return lightningTiles;
+    }
+
+    public ArrayList<Tile> getHazardTiles()
+    {
+        return hazardTiles;
     }
 }

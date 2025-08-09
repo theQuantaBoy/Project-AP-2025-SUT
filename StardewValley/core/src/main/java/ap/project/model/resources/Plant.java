@@ -2,22 +2,24 @@ package ap.project.model.resources;
 
 import ap.project.model.App.App;
 import ap.project.model.game.GameObject;
+import ap.project.model.game.Player;
+import ap.project.model.game.Point;
 import ap.project.model.game.Tile;
 import ap.project.model.enums.Season;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Plant extends GameObject
 {
     protected String name;
     protected Enum<?> type;
-    protected Object source;
-    protected List<Integer> stages;
+    protected ArrayList<Integer> stages;
     protected int totalHarvestTime;
     protected int baseSellPrice;
     protected boolean isEdible;
     protected int energy;
-    protected List<Season> seasons;
+    protected ArrayList<Season> seasons;
 
     protected boolean hasStarted = false;
     protected int lastWatered = 1; // TODO: can this fix the problem?
@@ -27,8 +29,11 @@ public class Plant extends GameObject
     protected boolean hasHarvested = false;
     protected int harvestWaitTime;
 
+    protected boolean isGrowFaster = false;
     protected boolean isInGreenhouse = false;
-    protected Tile tile = null;
+    protected Point point;
+
+    protected int playerIndex;
 
     public void water()
     {
@@ -71,7 +76,7 @@ public class Plant extends GameObject
 
     public void update()
     {
-        if (hasBeenWateredToday() || (Math.random() < tile.getWateringChance() / 100.0) || tile.isShouldBeWateredAutomatically())
+        if (hasBeenWateredToday() || (Math.random() < getTile().getWateringChance() / 100.0) || getTile().isShouldBeWateredAutomatically())
         {
             grow();
         }
@@ -165,11 +170,6 @@ public class Plant extends GameObject
         return lastWatered;
     }
 
-    public Tile getTile()
-    {
-        return tile;
-    }
-
     public boolean hasStarted()
     {
         return hasStarted;
@@ -193,5 +193,136 @@ public class Plant extends GameObject
     public void getAttacked()
     {
         // overrided in Crop and Tree
+    }
+
+    public String getName()
+    {
+        return name;
+    }
+
+    public Enum<?> getType()
+    {
+        return type;
+    }
+
+    public ArrayList<Integer> getStages()
+    {
+        return stages;
+    }
+
+    public int getTotalHarvestTime()
+    {
+        return totalHarvestTime;
+    }
+
+    public int getBaseSellPrice()
+    {
+        return baseSellPrice;
+    }
+
+    public boolean isEdible()
+    {
+        return isEdible;
+    }
+
+    public int getEnergy()
+    {
+        return energy;
+    }
+
+    public ArrayList<Season> getSeasons()
+    {
+        return seasons;
+    }
+
+    public boolean isHasStarted()
+    {
+        return hasStarted;
+    }
+
+    public int getCurrentStageDay()
+    {
+        return currentStageDay;
+    }
+
+    public int getLastHarvested()
+    {
+        return lastHarvested;
+    }
+
+    public boolean isHasHarvested()
+    {
+        return hasHarvested;
+    }
+
+    public int getHarvestWaitTime()
+    {
+        return harvestWaitTime;
+    }
+
+    public boolean isInGreenhouse()
+    {
+        return isInGreenhouse;
+    }
+
+    public void setLastWatered(int lastWatered)
+    {
+        this.lastWatered = lastWatered;
+    }
+
+    public void setCurrentStageDay(int currentStageDay)
+    {
+        this.currentStageDay = currentStageDay;
+    }
+
+    public void setLastHarvested(int lastHarvested)
+    {
+        this.lastHarvested = lastHarvested;
+    }
+
+    public void setHasHarvested(boolean hasHarvested)
+    {
+        this.hasHarvested = hasHarvested;
+    }
+
+    public void setHarvestWaitTime(int harvestWaitTime)
+    {
+        this.harvestWaitTime = harvestWaitTime;
+    }
+
+    public void setInGreenhouse(boolean inGreenhouse)
+    {
+        isInGreenhouse = inGreenhouse;
+    }
+
+    public Point getPoint()
+    {
+        return point;
+    }
+
+    public int getPlayerIndex()
+    {
+        return playerIndex;
+    }
+
+    public Tile getTile()
+    {
+        Player player = App.getCurrentGame().getPlayers().get(this.playerIndex);
+        if (!isInGreenhouse())
+        {
+            return player.getFarm().getTile(point.getX(), point.getY());
+        }
+
+        return player.getGreenHouse().getTile(point.getX(), point.getY());
+    }
+
+    public boolean isGrowFaster()
+    {
+        return isGrowFaster;
+    }
+
+    public void setGrowFaster(boolean growFaster)
+    {
+        isGrowFaster = growFaster;
     }
 }

@@ -1,32 +1,36 @@
 package ap.project.model.resources;
 
+import ap.project.model.game.Point;
 import ap.project.model.game.Tile;
 import ap.project.model.enums.resources_enums.FruitType;
 import ap.project.model.enums.resources_enums.TreeType;
+
+import java.util.ArrayList;
 
 public class Tree extends Plant
 {
     private FruitType fruit;
     private int fruitHarvestCycle;
 
-    public Tree(TreeType treeType, Tile tile)
+    public Tree(TreeType treeType, Point point, int playerIndex, boolean isGrowFaster)
     {
         this.type = treeType;
         this.name = treeType.getName();
-        this.source = treeType.getSource();
-        this.stages = treeType.getStages();
+        this.stages = new ArrayList<>(treeType.getStages());
         this.totalHarvestTime = treeType.getTotalHarvestTime();
         this.fruit = treeType.getFruit();
         this.fruitHarvestCycle = treeType.getFruitHarvestCycle();
         this.baseSellPrice = treeType.getFruitBaseSellPrice();
         this.isEdible = treeType.isEdible();
         this.energy = treeType.getEnergy();
-        this.seasons = treeType.getSeasons();
+        this.seasons = new ArrayList<>(treeType.getSeasons());
 
         harvestWaitTime = this.totalHarvestTime;
-        this.tile = tile;
+        this.point = point;
+        this.playerIndex = playerIndex;
 
-        if (tile.isGrowFaster())
+        this.isGrowFaster = isGrowFaster;
+        if (isGrowFaster)
         {
             setGrowFaster();
         }
@@ -71,6 +75,11 @@ public class Tree extends Plant
     public TreeType getTreeType()
     {
         return (TreeType)type;
+    }
+
+    public int getFruitHarvestCycle()
+    {
+        return fruitHarvestCycle;
     }
 
     @Override

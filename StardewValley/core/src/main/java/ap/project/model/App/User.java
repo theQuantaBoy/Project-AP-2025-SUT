@@ -1,5 +1,6 @@
 package ap.project.model.App;
 
+import ap.project.model.enums.CharacterType;
 import ap.project.model.game.Game;
 import ap.project.model.enums.Gender;
 import com.badlogic.gdx.graphics.Texture;
@@ -17,9 +18,6 @@ public class User
     private Gender gender;
     private String question;
     private String answer;
-    private boolean stay;
-
-    private Texture avatar;
 
     private int numberOfGames = 0;
     private Game currentGame = null;
@@ -72,7 +70,6 @@ public class User
         this.gender = gender;
         this.question = secQ;
         this.answer = secA;
-        this.avatar = getRandomAvatar();
 
         this.hashId = SHA256Hasher.randomizedHashInt(username,  HASH_DIGIT_COUNT);
     }
@@ -177,11 +174,12 @@ public class User
     }
 
     public Texture getAvatar() {
-        return avatar;
+        return new Texture(CharacterType.values()[characterChoice].getProfilePath());
     }
 
-    public void setAvatar(Texture avatar) {
-        this.avatar = avatar;
+    public void setAvatar(Texture avatar)
+    {
+//        this.avatar = avatar;
     }
 
     public int getHashId()
@@ -206,6 +204,21 @@ public class User
 
     public void setMapChoice(int mapChoice)
     {
+        this.mapChoice = mapChoice;
+    }
+
+    public User(String username, String password, String nickname, String email, Gender gender, String question, String answer, int numberOfGames, int hashId, int characterChoice, int mapChoice)
+    {
+        this.username = username;
+        this.password = password;
+        this.nickname = nickname;
+        this.email = email;
+        this.gender = gender;
+        this.question = question;
+        this.answer = answer;
+        this.numberOfGames = numberOfGames;
+        this.hashId = hashId;
+        this.characterChoice = characterChoice;
         this.mapChoice = mapChoice;
     }
 }

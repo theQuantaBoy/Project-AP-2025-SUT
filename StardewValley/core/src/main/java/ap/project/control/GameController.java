@@ -438,7 +438,8 @@ public class GameController
 
         if (cropType != null)
         {
-            Crop crop = new Crop(cropType, tile);
+            int index = App.getCurrentGame().getPlayerIndex();
+            Crop crop = new Crop(cropType, tile.getPoint(), index, tile.isGrowFaster());
             tile.setObject(crop);
 
             Tile rootTile;
@@ -480,7 +481,8 @@ public class GameController
 
         if (treeType != null)
         {
-            Tree tree = new Tree(treeType, tile);
+            int index = App.getCurrentGame().getPlayerIndex();
+            Tree tree = new Tree(treeType, tile.getPoint(), index, tile.isGrowFaster());
             tile.setObject(tree);
             if (player.isInGreenHouse())
             {

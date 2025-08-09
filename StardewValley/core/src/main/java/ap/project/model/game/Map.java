@@ -31,7 +31,6 @@ public abstract class Map
     protected MapVisual visual;
     protected TiledMap tiledMap;
 
-    protected Tile[][][] layerTiles;
     protected int depth;
 
     public static final float TILE_SIZE = 16f * WorldScreen.MAP_SCALE;
@@ -48,7 +47,6 @@ public abstract class Map
         this.HEIGHT = loaded.height;
         this.tiledMap = loaded.tiledMap;
         this.tiles = loaded.tiles;
-        this.layerTiles = loaded.layerTiles;
         this.depth = loaded.depth;
         this.startingPoint = loaded.startingPoint;
 
@@ -97,11 +95,6 @@ public abstract class Map
     public int getDepth()
     {
         return depth;
-    }
-
-    public Tile[][][] getLayerTiles()
-    {
-        return layerTiles;
     }
 
     public void setVisual(MapVisual visual)
@@ -155,7 +148,7 @@ public abstract class Map
 
     public void setTile(int x, int y, Tile tile)
     {
-        this.tiles[x][y] = tile;
+        this.tiles[y][x] = tile;
     }
 
     public Tile getTile(int x, int y)

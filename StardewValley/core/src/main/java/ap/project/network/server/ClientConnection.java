@@ -19,6 +19,9 @@ public class ClientConnection
     public int characterChoice = 0;
     public int mapChoice = 0;
 
+    public float lastX = 0;
+    public float lastY = 0;
+
     public Lobby lobby = null;
     public GameWrapper wrapper = null;
 

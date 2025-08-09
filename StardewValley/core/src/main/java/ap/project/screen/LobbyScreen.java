@@ -9,6 +9,8 @@ import ap.project.model.enums.MapTypes;
 import ap.project.model.enums.Season;
 import ap.project.model.game.*;
 import ap.project.network.client.GameClient;
+import ap.project.network.shared.DTO.PlayerDTO;
+import ap.project.network.shared.Mapper.Mapper;
 import ap.project.network.shared.messages.*;
 import ap.project.util.MapAssetLoader;
 import ap.project.visual.CharacterRenderer;
@@ -484,14 +486,20 @@ public class LobbyScreen implements Screen
         return lobbyId;
     }
 
-    public boolean addOtherPlayer(int userId, String username, String nickname, int avatarChoice, int mapChoice)
+    public boolean addOtherPlayer(int userId)
     {
         if (isInLobby(userId))
         {
             return false;
         }
 
-        User user = new User(username, nickname, userId, avatarChoice, mapChoice);
+        User user = App.getUserByHashId(userId);
+        if (user == null)
+        {
+            System.err.println("User not found: " + userId);
+            return false;
+        }
+
         Player player = new Player(user, true);
 
         if (otherPlayers.size() < 3)
@@ -570,14 +578,12 @@ public class LobbyScreen implements Screen
     public void createGame(String gameID, int[] userIds)
     {
         ArrayList<Player> players = new ArrayList<>();
-        for (int i = 0; i < userIds.length; i++)
+        for (int id : userIds)
         {
-            int id = userIds[i];
-            Player player = getPlayer(id);
-
-            if (player != null)
+            User user = App.getUserByHashId(id);
+            if (user != null)
             {
-                players.add(new Player(player.getUser()));
+                players.add(new Player(user));
             }
         }
 
@@ -585,6 +591,7 @@ public class LobbyScreen implements Screen
         App.addGame(game);
         App.setCurrentGame(game);
 
+        // Find current player
         for (Player player : players)
         {
             if (player.getUser().getHashId() == localPlayer.getUser().getHashId())
@@ -594,7 +601,27 @@ public class LobbyScreen implements Screen
             }
         }
 
-        Main.getApp().setScreen(new WorldScreen(players));
+        Gdx.graphics.setWindowedMode(1800, 960);
+        Main.getApp().setScreen(new WorldScreen(game.getCurrentPlayer(), true, true));
+    }
+
+    public void createGame(String gameID, Time gameTime)
+    {
+        Game game = App.loadGame(gameID);
+        App.setCurrentGame(game);
+
+        // Find current player
+        for (Player player : game.getPlayers())
+        {
+            if (player.getUser().getHashId() == localPlayer.getUser().getHashId())
+            {
+                game.setCurrentPlayer(player);
+                break;
+            }
+        }
+
+        Gdx.graphics.setWindowedMode(1800, 960);
+        Main.getApp().setScreen(new WorldScreen(game.getCurrentPlayer(), true, false));
     }
 
     public void removeOtherPlayer(int userId)

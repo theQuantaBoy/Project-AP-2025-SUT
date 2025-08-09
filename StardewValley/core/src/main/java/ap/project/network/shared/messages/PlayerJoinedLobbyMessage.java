@@ -5,22 +5,14 @@ import ap.project.network.shared.enums.MessageType;
 public class PlayerJoinedLobbyMessage extends Message
 {
     public int userId;
-    public String username;
     public String lobbyId;
-    public String nickname;
-    public int avatarChoice;
-    public int mapChoice;
 
     public PlayerJoinedLobbyMessage() {}
 
-    public PlayerJoinedLobbyMessage(int userId, String username, String lobbyId, String nickname, int avatarChoice, int mapChoice)
+    public PlayerJoinedLobbyMessage(int userId, String lobbyId)
     {
         this.userId = userId;
-        this.username = username;
         this.lobbyId = lobbyId;
-        this.nickname = nickname;
-        this.avatarChoice = avatarChoice;
-        this.mapChoice = mapChoice;
     }
 
     @Override

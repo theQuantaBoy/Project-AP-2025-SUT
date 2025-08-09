@@ -2,6 +2,8 @@ package ap.project.model.resources;
 
 import ap.project.model.App.App;
 import ap.project.model.game.Map;
+import ap.project.model.game.Player;
+import ap.project.model.game.Point;
 import ap.project.model.game.Tile;
 import ap.project.model.enums.resources_enums.CropType;
 
@@ -9,15 +11,13 @@ import java.util.ArrayList;
 
 public class GiantCrop extends Crop
 {
-    private final Tile rootTile;
-    private final ArrayList<Tile> tiles;
+    private final Point rootPoint;
 
-    public GiantCrop(CropType cropType, Tile rootTile)
+    public GiantCrop(CropType cropType, Point rootPoint, int playerIndex, boolean isGrowFaster)
     {
-        super(cropType, rootTile);
+        super(cropType, rootPoint, playerIndex, isGrowFaster);
         super.setHasStarted();
-        this.rootTile = rootTile;
-        this.tiles = get2x2Tiles(rootTile);
+        this.rootPoint = rootPoint;
     }
 
     @Override
@@ -62,6 +62,17 @@ public class GiantCrop extends Crop
 
     public Tile getRootTile()
     {
-        return rootTile;
+        Player player = App.getCurrentGame().getPlayers().get(this.playerIndex);
+        if (!isInGreenhouse())
+        {
+            return player.getFarm().getTile(rootPoint.getX(), rootPoint.getY());
+        }
+
+        return player.getGreenHouse().getTile(rootPoint.getX(), rootPoint.getY());
+    }
+
+    public Point getRootPoint()
+    {
+        return rootPoint;
     }
 }

@@ -63,6 +63,21 @@ public enum GameAnimationType
         "affects/eating/eating_2.png",
         "affects/eating/eating_3.png",
         "affects/eating/eating_4.png"}, 0.08f),
+
+    PLOUGH(new String[]{"affects/plough/plough_0.png",
+        "affects/plough/plough_1.png",
+        "affects/plough/plough_2.png",
+        "affects/plough/plough_3.png"}, 0.08f),
+
+    FERTILIZE(new String[]{"affects/fertilize/fertilize_0.png",
+        "affects/fertilize/fertilize_1.png",
+        "affects/fertilize/fertilize_2.png",
+        "affects/fertilize/fertilize_3.png"}, 0.08f),
+
+    WATER(new String[]{"affects/water/water_0.png",
+        "affects/water/water_1.png",
+        "affects/water/water_2.png",
+        "affects/water/water_3.png"}, 0.08f)
     ;
 
     private final String[] framePaths;

@@ -311,7 +311,7 @@ public class ProfileController
         return modifiedUsername;
     }
 
-    private String generateStrongRandomPassword()
+    public static String generateStrongRandomPassword()
     {
         String upper = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
         String lower = "abcdefghijklmnopqrstuvwxyz";
