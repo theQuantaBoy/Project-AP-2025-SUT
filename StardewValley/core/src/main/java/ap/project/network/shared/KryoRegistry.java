@@ -157,6 +157,8 @@ public class KryoRegistry
         kryo.register(UserSavedGameResponseMessage.class);
 
         kryo.register(LeaveMessage.class);
+        kryo.register(UpdatePlayerDTOsMessage.class);
+        kryo.register(java.util.concurrent.ConcurrentHashMap.class);
 
         // Register all other message classes ...
     }

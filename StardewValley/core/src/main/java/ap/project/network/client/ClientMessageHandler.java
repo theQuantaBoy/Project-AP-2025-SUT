@@ -103,6 +103,9 @@ public class ClientMessageHandler
             case LOADED_GAME_START:
                 handleLoadedGameStartMessage((LoadedGameStartedMessage) message);
                 break;
+            case PLAYERS_DTO_UPDATE:
+                handleOtherPlayersDTOMessage((UpdatePlayerDTOsMessage) message);
+                break;
             // Add other cases
         }
     }
@@ -172,7 +175,12 @@ public class ClientMessageHandler
         Screen currentScreen = Main.getApp().getScreen();
         if (currentScreen instanceof PreLobbyScreen)
         {
-            ((PreLobbyScreen) currentScreen).setActiveLobbiesText(list);
+            PreLobbyScreen pls = (PreLobbyScreen) currentScreen;
+            if (!pls.getActiveLobbiesText().equals(list))
+            {
+                ((PreLobbyScreen) currentScreen).setActiveLobbiesText(list);
+                pls.refreshActiveLobbiesList();
+            }
         }
     }
 
@@ -183,7 +191,12 @@ public class ClientMessageHandler
         Screen currentScreen = Main.getApp().getScreen();
         if (currentScreen instanceof PreLobbyScreen)
         {
-            ((PreLobbyScreen) currentScreen).setOnlineUsersText(list);
+            PreLobbyScreen pls = (PreLobbyScreen) currentScreen;
+            if (!pls.getOnlineUsersText().equals(list))
+            {
+                ((PreLobbyScreen) currentScreen).setOnlineUsersText(list);
+                pls.refreshOnlineUsersList();
+            }
         }
     }
 
@@ -430,6 +443,15 @@ public class ClientMessageHandler
         {
             LobbyScreen ls = (LobbyScreen) Main.getApp().getScreen();
             ls.createGame(message.gameId, message.gameTime);
+        }
+    }
+
+    private static void handleOtherPlayersDTOMessage(UpdatePlayerDTOsMessage message)
+    {
+        if (Main.getApp().getScreen() instanceof WorldScreen)
+        {
+            WorldScreen ws = (WorldScreen) Main.getApp().getScreen();
+            ws.updatePlayersStateCache(message.playerStateCache);
         }
     }
 }

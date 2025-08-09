@@ -5,16 +5,10 @@ import ap.project.model.game.Game;
 import ap.project.model.game.Player;
 import ap.project.model.game.Time;
 import ap.project.network.shared.DTO.PlayerDTO;
-import ap.project.network.shared.messages.GameShutdownMessage;
-import ap.project.network.shared.messages.GameTimeSyncMessage;
-import ap.project.network.shared.messages.Message;
-import ap.project.network.shared.messages.UpdateGameMinuteMessage;
+import ap.project.network.shared.messages.*;
 import ap.project.util.SQLiteUtil;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class GameWrapper
@@ -82,6 +76,7 @@ public class GameWrapper
         {
             game.getCurrentTime().updateMinute(1);
             broadcastMessage(new UpdateGameMinuteMessage());
+            System.out.println("called update time minute");
             secondAccumulator = 0;
 
             if (game.getCurrentTime().getMinute() == 0)
@@ -95,6 +90,7 @@ public class GameWrapper
         if (saveTimer >= AUTO_SAVE_INTERVAL)
         {
             saveGameState();
+            sendPlayerStates();
             saveTimer = 0;
         }
 
@@ -128,6 +124,7 @@ public class GameWrapper
         if (playerStateCache.size() == game.getPlayers().size())
         {
             saveGameState();
+            sendPlayerStates();
             System.out.println("initial save");
         }
     }
@@ -252,5 +249,28 @@ public class GameWrapper
             }
         }
         return null;
+    }
+
+    private Map<Integer, PlayerDTO> getOtherPlayerStates(int id)
+    {
+        Map<Integer, PlayerDTO> map = new ConcurrentHashMap<>();
+
+        for (Map.Entry<Integer, PlayerDTO> entry : playerStateCache.entrySet())
+        {
+            if (entry.getKey() != id)
+            {
+                map.put(entry.getKey(), entry.getValue());
+            }
+        }
+
+        return map;
+    }
+
+    private void sendPlayerStates()
+    {
+        for (ClientConnection c : clientConnections)
+        {
+            c.send(new UpdatePlayerDTOsMessage(getOtherPlayerStates(c.getUserId())));
+        }
     }
 }

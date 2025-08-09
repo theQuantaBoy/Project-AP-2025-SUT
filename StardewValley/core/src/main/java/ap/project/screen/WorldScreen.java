@@ -18,7 +18,6 @@ import ap.project.model.tools.BackPack;
 import ap.project.model.tools.Tool;
 import ap.project.network.client.GameClient;
 import ap.project.network.shared.DTO.PlayerDTO;
-import ap.project.network.shared.Mapper.Mapper;
 import ap.project.network.shared.messages.*;
 import ap.project.screen.input.WorldScreenInputProcessor;
 import ap.project.util.MapAssetLoader;
@@ -46,6 +45,7 @@ import com.badlogic.gdx.utils.Align;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 
 public final class WorldScreen implements Screen
 {
@@ -127,8 +127,10 @@ public final class WorldScreen implements Screen
     private static final float PERIODIC_NETWORK_INTERVAL = 0.016f; // ~ 60 Hz
     private static final float PERIODIC_PLAYER_DATA_INTERVAL = 5.0f; // 0.2 Hz
 
-    private float offlineSaveTimer = 0;
-    private static final float OFFLINE_SAVE_INTERVAL = 120; // 5 minutes
+    private float saveTimer = 0;
+    private static final float SAVE_INTERVAL = 120; // 2 minutes
+
+    private java.util.Map<Integer, PlayerDTO> playerStateCache = new ConcurrentHashMap<>();
 
     public WorldScreen(Player currentPlayer, boolean onlineMode, boolean newGame)
     {
@@ -196,6 +198,8 @@ public final class WorldScreen implements Screen
         {
             client = GameClient.getInstance();
             client.send(new GameStartedMessage(game.getId(), new PlayerDTO(player)));
+            playerStateCache.put(player.getUser().getHashId(), new PlayerDTO(player));
+            handleLocalSaveForOnlineGame();
         } else
         {
             client = null;
@@ -604,6 +608,7 @@ public final class WorldScreen implements Screen
     public void saveAndExitOnline()
     {
         sendPlayerData();
+        handleLocalSaveForOnlineGame();
         client.send(new SaveAndLeaveMessage(game.getId(), player.getUser().getHashId()));
         Main.getApp().setScreen(new PreLobbyScreen());
     }
@@ -633,6 +638,8 @@ public final class WorldScreen implements Screen
     {
         periodicNetworkUpdate += delta;
         periodicPlayerDataUpdate += delta;
+        saveTimer += delta;
+
         client.processMessages();
 
         updateOtherPlayers(delta);
@@ -647,6 +654,12 @@ public final class WorldScreen implements Screen
         {
             sendPlayerData();
             periodicPlayerDataUpdate = 0;
+        }
+
+        if (saveTimer >= SAVE_INTERVAL)
+        {
+            handleLocalSaveForOnlineGame();
+            saveTimer = 0;
         }
     }
 
@@ -1352,13 +1365,13 @@ public final class WorldScreen implements Screen
 
     private void handleOfflineSaving(float delta)
     {
-        offlineSaveTimer += delta;
+        saveTimer += delta;
 
         // Periodic auto-save
-        if (offlineSaveTimer >= OFFLINE_SAVE_INTERVAL)
+        if (saveTimer >= SAVE_INTERVAL)
         {
             saveOfflineGameState();
-            offlineSaveTimer = 0;
+            saveTimer = 0;
         }
     }
 
@@ -1546,5 +1559,30 @@ public final class WorldScreen implements Screen
             time.setTotalHoursPassed(totalHours);
             time.setTotalDaysPassed(totalDays);
         }
+    }
+
+    private void handleLocalSaveForOnlineGame()
+    {
+        SQLiteUtil.saveGameTime(game.getId(), game.getCurrentTime());
+
+        for (java.util.Map.Entry<Integer, PlayerDTO> entry : playerStateCache.entrySet())
+        {
+            try
+            {
+                SQLiteUtil.savePlayerState(
+                    game.getId(),
+                    String.valueOf(entry.getKey()),
+                    entry.getValue()
+                );
+            } catch (Exception e)
+            {
+                System.err.println("Error saving player state: " + e.getMessage());
+            }
+        }
+    }
+
+    public void updatePlayersStateCache(java.util.Map<Integer, PlayerDTO> playerStateCache)
+    {
+        this.playerStateCache.putAll(playerStateCache);
     }
 }
