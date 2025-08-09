@@ -48,8 +48,8 @@ public class Player {
 
     BackPack currentBackPack = new BackPack();
     private HashMap<Player, FriendshipData> friendships = new HashMap<>();
-//    private ArrayList<Trade> sentTrades = new ArrayList<>();
-//    private ArrayList<Trade> receivedTrades = new ArrayList<>();
+    private ArrayList<Trade> sentTrades = new ArrayList<>();
+    private ArrayList<Trade> receivedTrades = new ArrayList<>();
     private ArrayList<Trade> archiveTrades = new ArrayList<>();
     private List<Skill> skills = new LinkedList<>();
 

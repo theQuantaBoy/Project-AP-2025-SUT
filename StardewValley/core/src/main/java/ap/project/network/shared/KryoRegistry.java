@@ -81,18 +81,87 @@ public class KryoRegistry
         kryo.register(UpdateGameMinuteMessage.class);
         kryo.register(CloseLobbyErrorMessage.class);
 
-        kryo.register(TradeRequestMessage.class);
-        kryo.register(TradeResponseMessage.class);
-        kryo.register(IncomingTradeRequestMessage.class);
-        kryo.register(IncomingTradeResponseMessage.class);
+        kryo.register(PlayerDTOMessage.class);
 
-        kryo.register(MovingItemToTadeMessage.class);
-        kryo.register(MovingItemToInventoryMessage.class);
-        kryo.register(GameObject.class);
-        kryo.register(GameObjectType.class);
+        kryo.register(BackPackDTO.class);
+        kryo.register(FarmDTO.class);
+        kryo.register(GameObjectDTO.class);
+        kryo.register(PlayerDTO.class);
+        kryo.register(SkillDTO.class);
+        kryo.register(TileDTO.class);
+        kryo.register(ToolDTO.class);
+        kryo.register(UserDTO.class);
 
-        kryo.register(TradeConfirmMessage.class);
-        kryo.register(TradeCancelMessage.class);
+        kryo.register(ap.project.model.enums.tool_enums.BackPackLevel.class);
+        kryo.register(ap.project.model.enums.GameObjectType.class);
+        kryo.register(ap.project.model.enums.tool_enums.ToolType.class);
+        kryo.register(ap.project.model.enums.CharacterType.class);
+        kryo.register(ap.project.model.enums.building_enums.CraftingRecipeEnums.class);
+        kryo.register(ap.project.model.game.Point.class);
+        kryo.register(ap.project.model.enums.TileTexture.class);
+        kryo.register(ap.project.model.enums.SkillType.class);
+        kryo.register(ap.project.model.enums.building_enums.KitchenRecipe.class);
+        kryo.register(com.badlogic.gdx.math.Vector2.class);
+        kryo.register(ap.project.model.enums.tool_enums.AxeLevel.class);
+        kryo.register(ap.project.model.enums.tool_enums.FishingPoleLevel.class);
+        kryo.register(ap.project.model.enums.tool_enums.PickaxeLevel.class);
+        kryo.register(ap.project.model.enums.tool_enums.HoeLevel.class);
+        kryo.register(ap.project.model.enums.tool_enums.BackPackLevel.class);
+        kryo.register(ap.project.model.enums.tool_enums.ToolType.class);
+        kryo.register(ap.project.model.enums.tool_enums.TrashCanLevel.class);
+        kryo.register(ap.project.model.enums.tool_enums.WateringCanLevel.class);
+
+        kryo.register(ap.project.network.shared.DTO.TileDTO[][].class);
+        kryo.register(ap.project.network.shared.DTO.TileDTO[].class);
+        kryo.register(ap.project.network.shared.DTO.ForagingTreeDTO.class);
+        kryo.register(ap.project.network.shared.DTO.ForagingSeedDTO.class);
+        kryo.register(ap.project.network.shared.DTO.ForagingMineralDTO.class);
+        kryo.register(ap.project.network.shared.DTO.ForagingCropDTO.class);
+
+        kryo.register(ap.project.model.enums.resources_enums.ForagingTreeType.class);
+        kryo.register(ap.project.model.enums.resources_enums.ForagingCropType.class);
+        kryo.register(ap.project.model.enums.resources_enums.ForagingSeedType.class);
+        kryo.register(ap.project.model.enums.resources_enums.ForagingMineralType.class);
+
+        kryo.register(ap.project.network.shared.DTO.ResourceDTO.class);
+        kryo.register(ap.project.model.enums.resources_enums.ResourceItem.class);
+
+        kryo.register(ap.project.network.shared.DTO.CropDTO.class);
+        kryo.register(ap.project.network.shared.DTO.GiantCropDTO.class);
+        kryo.register(ap.project.network.shared.DTO.PlantDTO.class);
+        kryo.register(ap.project.network.shared.DTO.TreeDTO.class);
+        kryo.register(ap.project.network.shared.DTO.ForagingCropDTO.class);
+        kryo.register(ap.project.network.shared.DTO.ForagingMineralDTO.class);
+        kryo.register(ap.project.network.shared.DTO.ForagingSeedDTO.class);
+        kryo.register(ap.project.network.shared.DTO.ForagingTreeDTO.class);
+        kryo.register(ap.project.network.shared.DTO.CraftingItemDTO.class);
+
+        kryo.register(ap.project.model.enums.Season[].class);
+        kryo.register(ap.project.model.enums.Season.class);
+        kryo.register(ap.project.model.enums.resources_enums.CropType.class);
+        kryo.register(ap.project.model.enums.resources_enums.TreeType.class);
+        kryo.register(ap.project.model.enums.building_enums.CraftingRecipeEnums.class);
+
+        kryo.register(PlayerDataMessage.class);
+        kryo.register(UserSyncRequestMessage.class);
+        kryo.register(UserSyncResponseMessage.class);
+        kryo.register(UserUpdateMessage.class);
+
+        kryo.register(GameShutdownMessage.class);
+        kryo.register(SaveAndLeaveMessage.class);
+
+        kryo.register(LoadedGameStartedMessage.class);
+        kryo.register(LoadGameFailedMessage.class);
+        kryo.register(LoadGameRequestMessage.class);
+        kryo.register(LoadGameSuccessMessage.class);
+        kryo.register(UserSavedGameRequestMessage.class);
+        kryo.register(UserSavedGameResponseMessage.class);
+
+        kryo.register(LeaveMessage.class);
+        kryo.register(UpdatePlayerDTOsMessage.class);
+        kryo.register(java.util.concurrent.ConcurrentHashMap.class);
+
+        kryo.register(JoinActiveGameMessage.class);
 
         // Register all other message classes ...
     }
