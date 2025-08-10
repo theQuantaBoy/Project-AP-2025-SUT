@@ -12,6 +12,7 @@ import ap.project.model.game.Trade;
 import ap.project.model.player_data.FriendshipData;
 import ap.project.model.tools.Tool;
 import ap.project.network.client.GameClient;
+import ap.project.network.shared.messages.NewGiftMessage;
 import ap.project.network.shared.messages.TradeRequestMessage;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
@@ -290,7 +291,6 @@ public class FriendsWindow {
 
         // Amount table: consistent sizes and padding (no crazy tiny numbers)
         Table amountTable = new Table();
-        amountTable.add(new Label("Amount:", skin)).padRight(12);
         amountTable.add(minusButton).pad(4).fillX().expand();
         amountTable.add(amountLabel).width(48).height(28).pad(4);
         amountTable.add(plusButton).pad(4).fillX().expand();
@@ -329,6 +329,8 @@ public class FriendsWindow {
                 errorLabel.setColor(result.isSuccessful() ? Color.GREEN : Color.RED);
 
                 if (result.isSuccessful()) {
+                    client.send(new NewGiftMessage(App.getCurrentGame().getCurrentPlayer().getUser().getHashId(),
+                        selectedFriend.getUser().getHashId(), selectedGiftItem));
                     amountLabel.setText("1"); // reset to default 1
                     selectedGiftItem = null;
                     List<GameObject> updatedItems = getGiftableItems();

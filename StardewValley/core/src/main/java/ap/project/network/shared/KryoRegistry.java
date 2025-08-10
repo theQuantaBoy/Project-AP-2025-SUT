@@ -176,6 +176,7 @@ public class KryoRegistry
         kryo.register(BackPackDTOMessage.class);
 
         kryo.register(NewChatMessage.class);
+        kryo.register(NewGiftMessage.class);
 
 
         // Register all other message classes ...

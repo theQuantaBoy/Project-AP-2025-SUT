@@ -6,6 +6,8 @@ import ap.project.model.App.App;
 import ap.project.model.App.GameAssetsManager;
 import ap.project.model.App.User;
 import ap.project.model.game.Game;
+import ap.project.model.game.GameObject;
+import ap.project.model.game.Gift;
 import ap.project.model.game.Player;
 import ap.project.model.player_data.FriendshipData;
 import ap.project.network.server.ClientConnection;
@@ -147,6 +149,9 @@ public class ClientMessageHandler
                 break;
             case NEW_MESSAGE:
                 handleNewChatMessage((NewChatMessage) message);
+                break;
+            case NEW_GIFT:
+                handleNewGift((NewGiftMessage) message);
                 break;
             // Add other cases
         }
@@ -628,6 +633,30 @@ public class ClientMessageHandler
                         worldScreen.getCommunicationWindow().getChatScreen().loadChatHistory();
                     }
                 }
+            });
+        }
+    }
+
+    private static void handleNewGift(NewGiftMessage message) {
+        if (Main.getApp().getScreen() instanceof WorldScreen) {
+            WorldScreen worldScreen = (WorldScreen) Main.getApp().getScreen();
+
+            Player sender = App.getCurrentGame().getPlayerByUserID(message.senderID);
+            Player receiver = App.getCurrentGame().getPlayerByUserID(message.receiverID);
+            if (sender == null || receiver == null) {
+                System.out.println("Player not found in current game");
+            }
+            // Run on the render thread
+            Gdx.app.postRunnable(() -> {
+                sender.removeAmountFromInventory(message.gift.getObjectType(), message.gift.getNumber());
+
+                Gift newGift = new Gift(message.gift.getObjectType(), sender, receiver, message.gift.getNumber());
+
+                receiver.addToInventory(message.gift);
+
+                receiver.getArchiveGifts().add(newGift);
+                sender.getGivenGifts().add(newGift);
+                UIRenderer.showTextBox("You received a new gift from " + sender.getNickName() + "!");
             });
         }
     }

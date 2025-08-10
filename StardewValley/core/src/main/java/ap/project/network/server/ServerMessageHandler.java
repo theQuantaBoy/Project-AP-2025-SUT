@@ -112,6 +112,9 @@ public class ServerMessageHandler
             case NEW_MESSAGE:
                 handleNewMessage(client, (NewChatMessage) message);
                 break;
+            case NEW_GIFT:
+                handleNewGift(client, (NewGiftMessage) message);
+                break;
         }
     }
 
@@ -736,6 +739,21 @@ public class ServerMessageHandler
         ClientConnection receiverConn = server.findClient(message.receiverID);
         if (receiverConn == null) {
             System.out.println("chat notif failed: Receiver not found");
+            return;
+        }
+        receiverConn.send(message);
+        System.out.println("notif sent");
+    }
+
+    private static void handleNewGift(ClientConnection client, NewGiftMessage message) {
+        GameServer server = GameServer.getInstance();
+
+        User sender = server.getUser(client);
+        if (sender == null) return;
+
+        ClientConnection receiverConn = server.findClient(message.receiverID);
+        if (receiverConn == null) {
+            System.out.println("gift notif failed: Receiver not found");
             return;
         }
         receiverConn.send(message);
