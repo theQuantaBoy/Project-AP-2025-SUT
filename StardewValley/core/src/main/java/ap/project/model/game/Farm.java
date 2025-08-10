@@ -603,4 +603,20 @@ public class Farm extends Map
     {
         return hazardTiles;
     }
+
+    public boolean isNearSea(Point location)
+    {
+        ArrayList<Point> neighbors = getNeighbors(location);
+
+        for (Point p : neighbors)
+        {
+            Tile tile = getTile(p.getX(), p.getY());
+            if (tile.getTexture() == TileTexture.LAKE)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
 }

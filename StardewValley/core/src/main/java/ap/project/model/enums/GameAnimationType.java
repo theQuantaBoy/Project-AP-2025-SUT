@@ -102,7 +102,22 @@ public enum GameAnimationType
     HARVEST(new String[]{"affects/harvest/harvest_0.png",
         "affects/harvest/harvest_1.png",
         "affects/harvest/harvest_2.png",
-        "affects/harvest/harvest_3.png"}, 0.08f)
+        "affects/harvest/harvest_3.png"}, 0.08f),
+
+    GIFT(new String[]{"affects/gift/gift_0.png",
+        "affects/gift/gift_1.png",
+        "affects/gift/gift_2.png",
+        "affects/gift/gift_3.png",
+        "affects/gift/gift_4.png",
+        "affects/gift/gift_5.png",
+        "affects/gift/gift_6.png",
+        "affects/gift/gift_7.png",
+        "affects/gift/gift_8.png"}, 0.06f),
+
+    CELEBRATION(new String[]{"affects/celebration/celebration_0.png",
+        "affects/celebration/celebration_1.png",
+        "affects/celebration/celebration_2.png",
+        "affects/celebration/celebration_3.png"}, 0.06f),
     ;
 
     private final String[] framePaths;

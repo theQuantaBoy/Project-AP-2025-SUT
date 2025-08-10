@@ -107,6 +107,7 @@ public final class WorldScreen implements Screen
     private WorldController worldController;
     private ReactionWindow reactionWindow;
     private ScoreBoardWindow scoreBoardWindow;
+    private NpcWindow npcWindow;
     private TextButton reactButton;
     private InputMultiplexer inputMultiplexer;
     private boolean inputMultiplexerHadSetUp = false;
@@ -198,6 +199,7 @@ public final class WorldScreen implements Screen
         worldController.setCommunicationWindow(communicationWindow);
         reactionWindow = new ReactionWindow(uiStage);
         scoreBoardWindow = new ScoreBoardWindow(uiStage);
+        npcWindow = new NpcWindow(uiStage);
         createReactButton();
         inputMultiplexer = new InputMultiplexer();
         checkGameInfo();
@@ -672,7 +674,8 @@ public final class WorldScreen implements Screen
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         if (!terminalDialog.isVisible() && !isInventoryVisible() && !isCookBookVisible() && !isRefrigeratorVisible()
-        && !greenHouseBuildWindow.isVisible() && !reactionWindow.isVisible() && !scoreBoardWindow.isVisible())
+        && !greenHouseBuildWindow.isVisible() && !reactionWindow.isVisible() && !scoreBoardWindow.isVisible() &&
+            !npcWindow.isVisible() && !npcWindow.getGiftWindow().isVisible())
         {
             update(dt);
             refreshHotbarUI();
@@ -702,7 +705,8 @@ public final class WorldScreen implements Screen
         renderNPCs(batch);
 
         if (!isDialogVisible() && !isInventoryVisible() && !isCookBookVisible() && !isRefrigeratorVisible()
-            && !greenHouseBuildWindow.isVisible() && !reactionWindow.isVisible() && !scoreBoardWindow.isVisible())
+            && !greenHouseBuildWindow.isVisible() && !reactionWindow.isVisible() && !scoreBoardWindow.isVisible() &&
+            !npcWindow.isVisible() && !npcWindow.getGiftWindow().isVisible())
         {
             characterRenderer.renderToolOrObjectAtMouse(batch, character, worldMouseX, worldMouseY);
         }
@@ -929,7 +933,6 @@ public final class WorldScreen implements Screen
         shapeRenderer.dispose();
         cookBookWindow.dispose();
         refrigeratorWindow.dispose();
-//        gameStage.dispose();
         communicationWindow.dispose();
         reactionWindow.dispose();
         scoreBoardWindow.dispose();
@@ -1748,5 +1751,16 @@ public final class WorldScreen implements Screen
     public boolean isReactionWindowVisible()
     {
         return reactionWindow.isVisible();
+    }
+
+    public boolean isNpcWindowVisible()
+    {
+        return npcWindow.isVisible() || npcWindow.getGiftWindow().isVisible();
+    }
+
+    public void toggleNpcWindow(NPC npc)
+    {
+        npcWindow.setNpc(npc);
+        npcWindow.toggleVisibility();
     }
 }

@@ -25,6 +25,10 @@ public class NPC {
     private boolean secondQuestDone = false;
     private boolean thirdQuestDone = false;
 
+    private String firstQuestUser = "";
+    private String secondQuestUser = "";
+    private String thirdQuestUser = "";
+
     private final NPCCharacter character;
 
     public NPC(NpcDetails npcDetails) {
@@ -109,32 +113,32 @@ public class NPC {
     public String getQuestDescription(int index)
     {
         StringBuilder output = new StringBuilder();
-        output.append(name).append("'s Quest: (index ").append(index + 1).append(") \n");
 
         GameObject request = npcDetails.getQuestRequest(index);
-        output.append("\trequest: ").append(request.getObjectType().toString()).append(" x").append(request.getNumber()).append("\n");
+        output.append(" request: ").append(request.getObjectType().toString()).append(" x").append(request.getNumber()).append("\n");
 
         GameObject reward = npcDetails.getQuestReward(index);
-        output.append("\treward: ").append(reward.getObjectType().toString()).append(" x").append(reward.getNumber()).append("\n");
-
-        output.append("--------------------------------");
+        output.append(" reward: ").append(reward.getObjectType().toString()).append(" x").append(reward.getNumber()).append("\n");
 
         return output.toString();
     }
 
-    public void firstQuestDone()
+    public void firstQuestDone(String username)
     {
         firstQuestDone = true;
+        firstQuestUser = username;
     }
 
-    public void secondQuestDone()
+    public void secondQuestDone(String username)
     {
         secondQuestDone = true;
+        secondQuestUser = username;
     }
 
-    public void thirdQuestDone()
+    public void thirdQuestDone(String username)
     {
         thirdQuestDone = true;
+        thirdQuestUser = username;
     }
 
     public NPCCharacter getCharacter()
@@ -146,5 +150,20 @@ public class NPC {
     {
         Vector2 pos = character.getPosition();
         return App.getCurrentGame().getCity().worldToTile(pos.x, pos.y);
+    }
+
+    public String getFirstQuestUser()
+    {
+        return firstQuestUser;
+    }
+
+    public String getSecondQuestUser()
+    {
+        return secondQuestUser;
+    }
+
+    public String getThirdQuestUser()
+    {
+        return thirdQuestUser;
     }
 }

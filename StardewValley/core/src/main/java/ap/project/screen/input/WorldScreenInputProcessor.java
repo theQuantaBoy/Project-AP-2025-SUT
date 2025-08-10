@@ -48,7 +48,7 @@ public class WorldScreenInputProcessor implements InputProcessor
             worldScreen.isCookBookVisible() || worldScreen.isRefrigeratorVisible() ||
             worldScreen.isCraftingWindowVisible() || worldScreen.isChatVisible() ||
         worldScreen.isGreenHouseBuildWindowVisible() || worldScreen.isReactionWindowVisible() ||
-        worldScreen.isScoreBoardVisible())
+        worldScreen.isScoreBoardVisible() || worldScreen.isNpcWindowVisible())
         {
             return false;
         }
@@ -121,7 +121,7 @@ public class WorldScreenInputProcessor implements InputProcessor
             worldScreen.isCookBookVisible() || worldScreen.isRefrigeratorVisible() ||
         worldScreen.isCraftingWindowVisible() || worldScreen.isChatVisible() ||
         worldScreen.isGreenHouseBuildWindowVisible() || worldScreen.isReactionWindowVisible() ||
-        worldScreen.isScoreBoardVisible())
+        worldScreen.isScoreBoardVisible() || worldScreen.isNpcWindowVisible())
         {
             return false;
         }

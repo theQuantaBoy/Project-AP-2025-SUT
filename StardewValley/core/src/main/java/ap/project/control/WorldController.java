@@ -124,6 +124,11 @@ public class WorldController
             {
                 return;
             }
+
+            if (processNpcWindow(tile))
+            {
+                return;
+            }
         }
     }
 
@@ -1192,5 +1197,21 @@ public class WorldController
         }
 
         return false;
+    }
+
+    private static boolean processNpcWindow(Tile tile)
+    {
+        Game game = App.getCurrentGame();
+        Player player = game.getCurrentPlayer();
+
+        NPC npc = game.getNpcFromLocation(tile.getPoint());
+        if (npc == null)
+        {
+            return false;
+        }
+
+        FriendshipWithNpcData friendship = player.getNpcFriendship(npc);
+        WorldScreen.getInstance().toggleNpcWindow(npc);
+        return true;
     }
 }

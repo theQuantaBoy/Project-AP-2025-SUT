@@ -47,7 +47,8 @@ public enum NpcDetails {
             List.of(new GameObject(GameObjectType.GOLD_BAR, 1),
                     new GameObject(GameObjectType.PUMPKIN, 1),
                     new GameObject(GameObjectType.WHEAT, 50)),
-            List.of(new GameObject(GameObjectType.GOLD_COIN, 500),
+            List.of(new GameObject(GameObjectType.GOLD_COIN, 100),
+                    new GameObject(GameObjectType.GOLD_COIN, 500),
                     new GameObject(GameObjectType.Automating_Iridium_WateringCan, 1)),
             createDialogues(Map.of(
                     Season.Spring, Map.of(
@@ -81,7 +82,8 @@ public enum NpcDetails {
                     new GameObject(GameObjectType.SALMON, 1),
                     new GameObject(GameObjectType.WINE, 1)),
             List.of(new GameObject(GameObjectType.GOLD_COIN, 750),
-                    new GameObject(GameObjectType.SALAD, 5)),
+                    new GameObject(GameObjectType.SALAD, 5),
+                    new GameObject(GameObjectType.GOLD_COIN, 100)),
             createDialogues(Map.of(
                     Season.Spring, Map.of(
                             TimeOfDay.MORNING, "Spring is a good time for health checkups.",
@@ -276,5 +278,18 @@ public enum NpcDetails {
     public Point getSpawnPoint()
     {
         return spawnPoint;
+    }
+
+    public String getFavoritesText()
+    {
+        StringBuilder favoritesText = new StringBuilder();
+        favoritesText.append(name).append(" likes:").append("\n\n");
+
+        for (GameObjectType type : favorites)
+        {
+            favoritesText.append("    -").append(type.toString()).append("\n");
+        }
+
+        return favoritesText.toString();
     }
 }
