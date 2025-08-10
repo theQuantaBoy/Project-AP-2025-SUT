@@ -56,7 +56,7 @@ public class MiniGameState {
         // Update progress based on fish position
         if (fishInBar) {
             // Fill progress faster when fish is in bar
-            float catchRate = BASE_CATCH_RATE * fish.getBehavior().difficultyModifier;
+            float catchRate = BASE_CATCH_RATE * fish.getBehavior().difficultyModifier; //TODO: random
             catchProgressValue += catchRate * delta;
 
             // Cap progress at max

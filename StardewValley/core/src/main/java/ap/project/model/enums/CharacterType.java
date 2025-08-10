@@ -3,6 +3,10 @@ package ap.project.model.enums;
 public enum CharacterType
 {
     ABIGAIL("Abigail", "characters/Abigail/Abigail_Sheet.atlas"),
+//    HARVEY(, ),
+//    LIA(, ),
+//    SEBASTIAN(, ),
+//    ROBIN(, )
     ;
 
     private final String name;

@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class NPC {
+    //private NPCCharacter character;
     private final Point location;
     private final NpcDetails npcDetails;
     private final String name;

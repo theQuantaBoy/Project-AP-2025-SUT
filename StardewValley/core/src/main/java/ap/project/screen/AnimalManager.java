@@ -21,6 +21,7 @@ public class AnimalManager implements Disposable {
 
     public void addAnimal(Animal animal) {
         AnimalActor actor = new AnimalActor(animal);
+        //actor.setPosition(x, y);
         animalActors.add(actor);
         animalStage.addActor(actor);
     }
@@ -72,4 +73,6 @@ public class AnimalManager implements Disposable {
     public Array<AnimalActor> getAnimalActors() {
         return animalActors;
     }
+
+
 }

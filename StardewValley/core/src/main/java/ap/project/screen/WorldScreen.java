@@ -31,6 +31,7 @@ import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
@@ -95,6 +96,7 @@ public final class WorldScreen implements Screen
     private WorldController worldController;
     private InputMultiplexer inputMultiplexer;
     private boolean inputMultiplexerHadSetUp = false;
+    private AnimalInteractionScreen animalInteractionScreen;
 
     private boolean cameraFixed = false;
     private final boolean DEBUG_MODE = false;
@@ -104,7 +106,7 @@ public final class WorldScreen implements Screen
     private AnimalManager animalManager;
     private AnimalWindow animalWindow;
 
-//    private FishingMinigameWindow fishingWindow;
+//    private NPCManager npcManager;
 
     public WorldScreen() {
         INSTANCE = this;
@@ -160,6 +162,29 @@ public final class WorldScreen implements Screen
         animalWindow = new AnimalWindow(uiStage);
         animalWindow.setAnimalManager(animalManager);
 
+        animalManager = new AnimalManager(20 * TILE_SIZE, 15 * TILE_SIZE);
+
+        // Add a test animal (e.g., chicken)
+        Animal testAnimal = new Animal("test", FarmAnimalsType.CHICKEN);
+        animalManager.addAnimal(testAnimal);
+        testAnimal.setX(60);
+        testAnimal.setY(20);
+//        float playerX = character.getPosition().x;
+//        float playerY = character.getPosition().y;
+
+        Array<AnimalActor> actors = animalManager.getAnimalActors();
+        if (actors.size > 0) {
+            actors.get(0).setPosition(
+                60,
+                20
+            );
+        }
+
+        animalInteractionScreen = new AnimalInteractionScreen(
+            new ScreenViewport(),
+            GameAssetsManager.getGameAssetsManager().getSkin()
+        );
+
         inventoryWindow = new InventoryWindow(uiStage);
         friendsWindow = new FriendsWindow(uiStage);
         cookBookWindow = new CookBookWindow(uiStage);
@@ -170,6 +195,10 @@ public final class WorldScreen implements Screen
         worldController = new WorldController();
         worldController.setCommunicationWindow(communicationWindow);
         inputMultiplexer = new InputMultiplexer();
+
+//        npcManager = new NPCManager(this);
+        initializeNPCs();
+
         checkGameInfo();
     }
 
@@ -214,6 +243,7 @@ public final class WorldScreen implements Screen
 
         inputMultiplexer.clear();
         inputMultiplexer.addProcessor(uiStage);
+        inputMultiplexer.addProcessor(animalInteractionScreen.getStage());
         inputMultiplexer.addProcessor(gameInputProcessor);
         inputMultiplexer.addProcessor(new InputAdapter() {
             @Override
@@ -276,6 +306,8 @@ public final class WorldScreen implements Screen
                 return false;
             }
         });
+
+
         Gdx.input.setInputProcessor(inputMultiplexer);
         inputMultiplexerHadSetUp = true;
     }
@@ -292,8 +324,15 @@ public final class WorldScreen implements Screen
             cam.update();
         }
 
+        if (animalInteractionScreen.isVisible()) {
+            animalInteractionScreen.update(dt);
+            animalInteractionScreen.render();
+        }
+
         UIRenderer.updateTextBoxes(dt);
+
         map.getMapVisual().render(cam);
+
 
         Batch batch = map.getMapVisual().getRenderer().getBatch();
         batch.setProjectionMatrix(cam.combined);
@@ -328,7 +367,7 @@ public final class WorldScreen implements Screen
         }
 
         batch.end();
-
+        animalManager.render(batch);
 
         map.getMapVisual().renderInFrontOfCharacter(this);
 
@@ -336,10 +375,13 @@ public final class WorldScreen implements Screen
         batch.begin();
         uiRenderer.renderUI(batch, uiCam);
         uiRenderer.renderWeatherOverlay(batch, uiCam);
-        animalManager.render(batch);
+        //npcManager.update(dt);
         batch.end();
 
         uiRenderer.renderDarkOverlay(uiCam);
+
+
+
 
         map.getMapVisual().showAvailableTilesForArtisanEquipment(this);
         map.getMapVisual().drawCraftingProgressBars();
@@ -364,6 +406,7 @@ public final class WorldScreen implements Screen
             shapeRenderer.end();
             Gdx.gl.glDisable(GL20.GL_BLEND);
         }
+
 
         uiStage.act(dt);
         uiStage.draw();
@@ -497,6 +540,7 @@ public final class WorldScreen implements Screen
         if (fishingMinigame != null) {
             fishingMinigame.remove();
         }
+        //npcManager.dispose();
     }
 
     private void checkMapSeason()
@@ -842,4 +886,105 @@ public final class WorldScreen implements Screen
     public boolean isShopWindowVisible() {
         return shopWindow.isVisible();
     }
+
+    public boolean isPurchaseWindowVisible() {
+        return shopWindow != null && shopWindow.isPurchaseWindowVisible();
+    }
+
+    public Season getCurrentSeason() {
+        return time.getSeason();
+    }
+
+    public TimeOfDay getCurrentTimeOfDay() {
+        return time.getTimeOfDay(); // Implement this in Time class
+    }
+
+    public CommunicationWindow getCommunicationWindow() {
+        return communicationWindow;
+    }
+
+    public Skin getSkin() {
+        return skin;
+    }
+
+    public Stage getUiStage() {
+        return uiStage;
+    }
+
+    public PlayerCharacter getCharacter() {
+        return character;
+    }
+
+    private void initializeNPCs() {
+        // Initialize NPCs with their details
+        Vector2 townSquare = new Vector2(150 * TILE_SIZE, 120 * TILE_SIZE);
+
+//        npcManager.addNPC(new NPCCharacter(
+//            CharacterType.SEBASTIAN,
+//            townSquare.cpy().add(5, 0),
+//            "Sebastian",
+//            NpcDetails.Sebastian
+//        ), townSquare.cpy().add(5, 0));
+
+//        npcManager.addNPC(new NPCCharacter(
+//            CharacterType.ABIGAIL,
+//            townSquare.cpy().add(-5, 0),
+//            "Abigail",
+//            NpcDetails.Abigail
+//        ), townSquare.cpy().add(-5, 0));
+
+//        npcManager.addNPC(new NPCCharacter(
+//            CharacterType.HARVEY,
+//            townSquare.cpy().add(0, 5),
+//            "Harvey",
+//            NpcDetails.Harvey
+//        ), townSquare.cpy().add(0, 5));
+//
+//        npcManager.addNPC(new NPCCharacter(
+//            CharacterType.LIA,
+//            townSquare.cpy().add(0, -5),
+//            "Lia",
+//            NpcDetails.Lia
+//        ), townSquare.cpy().add(0, -5));
+//
+//        npcManager.addNPC(new NPCCharacter(
+//            CharacterType.ROBIN,
+//            townSquare.cpy().add(10, 0),
+//            "Robin",
+//            NpcDetails.Robin
+//        ), townSquare.cpy().add(10, 0));
+    }
+
+    public AnimalInteractionScreen getAnimalInteractionScreen() {
+        return animalInteractionScreen;
+    }
+
+    public AnimalManager getAnimalManager() {
+        return animalManager;
+    }
+
+//    public void toggleInventoryWindowForGifting(NPCActor npcActor) {
+//        inventoryWindow.setGiftRecipient(npcActor);
+//        inventoryWindow.toggleVisibility();
+//    }
+//
+//    // Add this method to handle gift giving
+//    public void giveGiftToNPC(NPCActor npcActor, GameObject gift) {
+//        //npcManager.giveGiftToCurrentNPC(gift);
+//        //npcActor.updateFriendshipDisplay();
+//    }
+
+//    public void triggerNPCDialogue(NPCCharacter npc) {
+//        if (npc.hasDialogueAvailable()) {
+//            String dialogue = npc.getDialogue(
+//                getCurrentSeason(),
+//                getCurrentTimeOfDay()
+//            );
+//            communicationWindow.showDialogue(npc.getNickName(), dialogue);
+//        }
+//    }
+
+//    public void onNewDay() {
+//        npcManager.resetAllDialogues();
+//    }
 }

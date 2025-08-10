@@ -2,9 +2,11 @@ package ap.project.screen;
 
 import ap.project.model.App.App;
 import ap.project.model.App.GameAssetsManager;
+import ap.project.model.animal.Animal;
 import ap.project.model.enums.GameObjectType;
 import ap.project.model.enums.animal_enums.FarmAnimalsType;
 import ap.project.model.enums.animal_enums.FarmBuildingType;
+import ap.project.model.game.Farm;
 import ap.project.model.game.GameObject;
 import ap.project.model.game.Player;
 import ap.project.model.shops.ShopProduct;
@@ -24,6 +26,10 @@ public class PurchaseWindow extends Dialog {
     private Label quantityLabel;
     private Label totalPriceLabel;
     private Image icon;
+    private Texture currentTexture;
+    private TextButton buyButton;
+    private TextButton cancelButton;
+    private AnimalManager animalManager;
 
     public PurchaseWindow(Stage stage) {
         super("Purchase", GameAssetsManager.getGameAssetsManager().getSkin());
@@ -34,18 +40,53 @@ public class PurchaseWindow extends Dialog {
         setResizable(true);
         setSize(400, 300);
         hide(); // Start hidden
+
+        buyButton = new TextButton("Buy", getSkin());
+        cancelButton = new TextButton("Cancel", getSkin());
+
+        buyButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                purchase();
+                hide();
+            }
+        });
+
+        cancelButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                hide();
+            }
+        });
     }
 
     public void setProduct(ShopProduct product) {
         this.product = product;
         this.quantity = 1;
+        clearWindow();
         updateWindow();
         show(stage);
         centerWindow();
     }
 
+    private void clearWindow() {
+        if (currentTexture != null) {
+            currentTexture.dispose();
+            currentTexture = null;
+        }
+
+        getContentTable().clear();
+        getButtonTable().clear();
+        clearListeners();
+    }
+
     private void updateWindow() {
         getContentTable().clear();
+        getButtonTable().clear();
+
+        currentTexture = new Texture(Gdx.files.internal(product.getGameObjectType().getPath()));
+        icon = new Image(new TextureRegionDrawable(currentTexture));
+
 
         // Product info
         Table contentTable = new Table(getSkin());
@@ -100,8 +141,6 @@ public class PurchaseWindow extends Dialog {
         getContentTable().add(contentTable).pad(20);
 
         // Buttons
-        TextButton buyButton = new TextButton("Buy", getSkin());
-        TextButton cancelButton = new TextButton("Cancel", getSkin());
 
         buyButton.addListener(new ClickListener() {
             @Override
@@ -162,7 +201,18 @@ public class PurchaseWindow extends Dialog {
     }
 
     private void handleAnimalPurchase(FarmAnimalsType animalType) {
-        // Implementation for animal purchases
+        Player player = App.getCurrentGame().getCurrentPlayer();
+        Farm farm = player.getFarm();
+
+        for (int i = 0; i < quantity; i++) {
+            Animal animal = new Animal("test", animalType);
+
+
+            // Add animal to animal manager for rendering
+            if (animalManager != null) {
+                animalManager.addAnimal(animal);
+            }
+        }
     }
 
     public void centerWindow() {
@@ -170,5 +220,16 @@ public class PurchaseWindow extends Dialog {
             (stage.getViewport().getWorldWidth() - getWidth()) / 2,
             (stage.getViewport().getWorldHeight() - getHeight()) / 2
         );
+    }
+
+    public void dispose() {
+        if (currentTexture != null) {
+            currentTexture.dispose();
+            currentTexture = null;
+        }
+    }
+
+    public void setAnimalManager(AnimalManager animalManager) {
+        this.animalManager = animalManager;
     }
 }

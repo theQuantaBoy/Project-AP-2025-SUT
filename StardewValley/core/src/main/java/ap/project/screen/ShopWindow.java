@@ -178,4 +178,17 @@ public class ShopWindow extends Window {
         float y = (stage.getViewport().getWorldHeight() - getHeight()) / 2;
         setPosition(x, y);
     }
+
+    @Override
+    public boolean remove() {
+        // Clean up purchase window when shop window is removed
+        if (purchaseWindow != null) {
+            purchaseWindow.dispose();
+        }
+        return super.remove();
+    }
+
+    public boolean isPurchaseWindowVisible() {
+        return purchaseWindow != null && purchaseWindow.isVisible();
+    }
 }

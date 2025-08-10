@@ -6,6 +6,7 @@ import ap.project.model.animal.Animal;
 import ap.project.model.game.Farm;
 import ap.project.model.game.Player;
 import ap.project.visual.AnimalActor;
+import ap.project.visual.UIRenderer;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
@@ -100,6 +101,17 @@ public class AnimalWindow {
 
             animalTable.add(animalEntry).pad(5);
 
+            Table buttonTable = new Table();
+            buttonTable.defaults().pad(2).minWidth(120);
+
+            addInteractionButton(buttonTable, "Pet", animal);
+            addInteractionButton(buttonTable, "Feed", animal);
+            addInteractionButton(buttonTable, "Release", animal);
+            addInteractionButton(buttonTable, "Collect", animal);
+            addInteractionButton(buttonTable, "Sell", animal);
+
+            animalEntry.add(buttonTable).padTop(5).row();
+
             if (++col % 4 == 0) { // 4 animals per row
                 animalTable.row();
             }
@@ -152,5 +164,44 @@ public class AnimalWindow {
 
     public void setAnimalManager(AnimalManager animalManager) {
         this.animalManager = animalManager;
+    }
+
+    private void addInteractionButton(Table table, String text, Animal animal) {
+        TextButton button = new TextButton(text, skin);
+        button.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                handleAnimalInteraction(text, animal);
+            }
+        });
+        table.add(button).fillX().padBottom(2).row();
+    }
+
+    private void handleAnimalInteraction(String action, Animal animal) {
+        WorldScreen worldScreen = WorldScreen.getInstance();
+
+        switch (action) {
+            case "Pet":
+                animal.pet();
+                UIRenderer.showTextBox("You just pet your animal");
+                break;
+            case "Feed":
+                animal.feed();
+                break;
+            case "Release":
+                animal.goOut();
+                break;
+            case "Collect":
+                if (animal.hasProduct()) {
+                    // Handle product collection
+                }
+                break;
+            case "Sell":
+                worldScreen.getCurrentPlayer().increaseMoney(animal.getPrice());
+                worldScreen.getCurrentPlayer().getAnimals().remove(animal);
+                break;
+        }
+
+        refresh();
     }
 }

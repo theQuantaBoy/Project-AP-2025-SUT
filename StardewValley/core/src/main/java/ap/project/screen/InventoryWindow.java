@@ -53,6 +53,7 @@ public class InventoryWindow {
     private Drawable tooltipBg;
     private TextButton toolsTab;
     private TextButton mapTab;
+//    private NPCActor giftRecipient;
     public enum TabType { INVENTORY, SKILL, SOCIAL, MAP, TOOLS}
 
     private TabType lastTabOpenedByTabKey = TabType.INVENTORY;
@@ -742,4 +743,8 @@ public class InventoryWindow {
     {
         selectedInventorySlot = -1;
     }
+
+//    public void setGiftRecipient(NPCActor recipient) {
+//        this.giftRecipient = recipient;
+//    }
 }

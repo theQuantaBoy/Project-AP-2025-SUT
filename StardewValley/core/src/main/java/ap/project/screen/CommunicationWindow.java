@@ -29,6 +29,7 @@ public class CommunicationWindow {
     private Label errorField;
     private final ChatScreen chatScreen;
     private final WorldScreen worldScreen;
+    private Dialog dialogueDialog;
 
     public CommunicationWindow(Stage stage, WorldScreen worldScreen) {
         this.stage = stage;
@@ -55,6 +56,7 @@ public class CommunicationWindow {
 
         // Initialize chat screen
         this.chatScreen = new ChatScreen(stage, worldScreen, controller);
+        createDialogueDialog();
     }
 
     public Table buildOptions() {
@@ -320,5 +322,35 @@ public class CommunicationWindow {
     public void dispose() {
         popup.remove();
         chatScreen.dispose();
+    }
+
+    private void createDialogueDialog() {
+        dialogueDialog = new Dialog("", skin) {
+            @Override
+            protected void result(Object object) {
+                hide();
+            }
+        };
+        dialogueDialog.button("OK", true);
+        dialogueDialog.setModal(true);
+        dialogueDialog.setMovable(true);
+        dialogueDialog.setResizable(false);
+        stage.addActor(dialogueDialog);
+        dialogueDialog.setVisible(false);
+    }
+
+    public void showDialogue(String npcName, String message) {
+        dialogueDialog.getTitleLabel().setText(npcName);
+        dialogueDialog.text(new Label(message, skin));
+        dialogueDialog.pack();
+
+        // Center on screen
+        dialogueDialog.setPosition(
+            (stage.getWidth() - dialogueDialog.getWidth()) / 2,
+            (stage.getHeight() - dialogueDialog.getHeight()) / 2
+        );
+
+        dialogueDialog.setVisible(true);
+        dialogueDialog.toFront();
     }
 }

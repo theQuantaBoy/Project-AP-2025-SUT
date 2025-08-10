@@ -143,7 +143,7 @@ public class FishingMinigameManager extends Window {
 
                 if (gameState.isGameOver()) {
                     if (gameState.didPlayerWin()) {
-                        resultMessage = gameState.isPerfectCatch() ? "Perfect catch!" : "Fish caught!";
+                        resultMessage = gameState.isPerfectCatch() ? "Perfect catch!" : "Fish caught!"; //TODO
                     } else {
                         resultMessage = "Fish escaped!";
                     }

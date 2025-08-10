@@ -1,6 +1,7 @@
 package ap.project.control;
 
 import ap.project.model.App.App;
+import ap.project.model.animal.Animal;
 import ap.project.model.building.CraftingItem;
 import ap.project.model.enums.GameObjectType;
 import ap.project.model.enums.ShopType;
@@ -18,8 +19,10 @@ import ap.project.screen.CommunicationWindow;
 import ap.project.screen.PurchaseWindow;
 import ap.project.screen.ShopWindow;
 import ap.project.screen.WorldScreen;
+import ap.project.visual.AnimalActor;
 import ap.project.visual.UIRenderer;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 
 import java.util.ArrayList;
@@ -112,6 +115,16 @@ public class WorldController
             {
                 return;
             }
+        }
+
+        Animal animal = findAnimalAt(tile.getPoint());
+        if (animal != null) {
+            worldScreen.getAnimalInteractionScreen().show(
+                animal,
+                Gdx.input.getX(),
+                Gdx.input.getY()
+            );
+            return;
         }
     }
 
@@ -946,5 +959,17 @@ public class WorldController
             }
         }
         return false;
+    }
+
+    private static Animal findAnimalAt(Point point) {
+        for (AnimalActor actor : WorldScreen.getInstance()
+            .getAnimalManager().getAnimalActors()) {
+
+            Rectangle bounds = actor.getBoundingRectangle();
+            if (bounds.contains(point.getX(), point.getY())) {
+                return actor.getAnimal();
+            }
+        }
+        return null;
     }
 }
