@@ -97,7 +97,12 @@ public enum GameAnimationType
         "affects/exhaustion/exhausted_2.png",
         "affects/exhaustion/exhausted_3.png",
         "affects/exhaustion/exhausted_4.png",
-        "affects/exhaustion/exhausted_5.png"}, 0.04f)
+        "affects/exhaustion/exhausted_5.png"}, 0.04f),
+
+    HARVEST(new String[]{"affects/harvest/harvest_0.png",
+        "affects/harvest/harvest_1.png",
+        "affects/harvest/harvest_2.png",
+        "affects/harvest/harvest_3.png"}, 0.08f)
     ;
 
     private final String[] framePaths;

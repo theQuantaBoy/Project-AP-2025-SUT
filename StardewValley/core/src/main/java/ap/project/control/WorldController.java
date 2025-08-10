@@ -424,6 +424,7 @@ public class WorldController
                 player.addToInventory(fruit);
                 tree.harvest();
                 player.getFarmingSkill().changeUnit(5);
+                MapVisual.playAnimationAt(GameAnimationType.HARVEST, tile);
 
                 UIRenderer.showTextBox("you harvested one " + fruit.getObjectType().toString() + ".");
                 return true;
@@ -449,6 +450,8 @@ public class WorldController
                 {
                     tile.unPlant();
                 }
+
+                MapVisual.playAnimationAt(GameAnimationType.HARVEST, tile);
 
                 UIRenderer.showTextBox("you harvested " + (giant ? "ten " : "one ") + crop.getObjectType().toString() + ".");
                 return true;
