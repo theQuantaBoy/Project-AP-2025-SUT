@@ -124,12 +124,13 @@ public class WorldScreenInputProcessor implements InputProcessor
             return false;
         }
 
+        if (communicationWindow.getChatScreen().isVisible())
         if (keycode == Input.Keys.E ||  keycode == Input.Keys.ESCAPE) {
             boolean nowVisible = !inventoryWindow.isVisible();
             inventoryWindow.toggleVisibility();
 
             if (nowVisible)
-                inventoryWindow.getToolsTab().setChecked(false);
+                inventoryWindow.getInvTab().setChecked(true);
 
             return true;
         }
@@ -138,17 +139,10 @@ public class WorldScreenInputProcessor implements InputProcessor
             inventoryWindow.toggleVisibility();
 
             if (nowVisible) {
-                if (inventoryWindow.getLastTabOpenedByTabKey() == InventoryWindow.TabType.TOOLS) {
-                    inventoryWindow.getToolsTab().toggle();
-                } else {
-                    // Default to Inventory
-                    inventoryWindow.getToolsTab().setChecked(false);
-                }
+                inventoryWindow.getToolsTab().setChecked(true);
+                return true;
             }
-
-            return true;
-        }
-        else if (keycode == Input.Keys.M) {
+        } else if (keycode == Input.Keys.M) {
             inventoryWindow.toggleVisibility();
             inventoryWindow.getMapTab().setChecked(true);
             return true;

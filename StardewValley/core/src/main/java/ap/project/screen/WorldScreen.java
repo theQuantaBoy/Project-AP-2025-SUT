@@ -536,27 +536,16 @@ public final class WorldScreen implements Screen
                 }
 
                 if (keycode == Input.Keys.E || keycode == Input.Keys.ESCAPE) {
-                    boolean nowVisible = !inventoryWindow.isVisible();
-                    inventoryWindow.toggleVisibility();
-
-                    if (nowVisible)
-                        inventoryWindow.getToolsTab().setChecked(false);
-
+                    toggleInventoryWindow();
+                    inventoryWindow.showInventory();
                     return true;
                 } else if (keycode == Input.Keys.TAB) {
-                    boolean nowVisible = !inventoryWindow.isVisible();
-                    inventoryWindow.toggleVisibility();
-
-                    if (nowVisible) {
-                        if (inventoryWindow.getLastTabOpenedByTabKey() == InventoryWindow.TabType.TOOLS) {
-                            inventoryWindow.getToolsTab().toggle();
-                        } else {
-                            inventoryWindow.getToolsTab().setChecked(false);
-                        }
-                    }
+                    toggleInventoryWindow();
+                    inventoryWindow.showTools();
                     return true;
                 } else if (keycode == Input.Keys.M) {
-                    openMapTab();
+                    toggleInventoryWindow();
+                    inventoryWindow.showMap();
                     return true;
                 }
 
@@ -718,7 +707,7 @@ public final class WorldScreen implements Screen
         renderCharacters(batch);
 
         if (!isDialogVisible() && !isInventoryVisible() && !isCookBookVisible() && !isRefrigeratorVisible()
-            && !greenHouseBuildWindow.isVisible())
+            && !greenHouseBuildWindow.isVisible() && !communicationWindow.getChatScreen().isVisible())
         {
             characterRenderer.renderToolOrObjectAtMouse(batch, character, worldMouseX, worldMouseY);
         }
@@ -1644,5 +1633,6 @@ public final class WorldScreen implements Screen
     public CommunicationWindow getCommunicationWindow() {
         return communicationWindow;
     }
+
 }
 

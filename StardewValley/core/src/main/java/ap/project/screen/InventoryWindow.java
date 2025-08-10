@@ -57,10 +57,9 @@ public class InventoryWindow {
     private Drawable tooltipBg;
     private TextButton toolsTab;
     private TextButton mapTab;
+    private TextButton invTab;
     private TextButton settingsTab;
-    public enum TabType { INVENTORY, SKILL, SOCIAL, MAP, TOOLS, SETTINGS}
 
-    private TabType lastTabOpenedByTabKey = TabType.INVENTORY;
     private WorldScreen worldScreen;
 
     private TextButton craftingTab;
@@ -144,7 +143,7 @@ public class InventoryWindow {
         });
 
         // Create tab buttons
-        TextButton invTab = new TextButton("Inventory", skin);
+        invTab = new TextButton("Inventory", skin);
         TextButton skillsTab = new TextButton("Skills", skin);
         TextButton socialTab = new TextButton("Social", skin);
         mapTab = new TextButton("Map", skin);
@@ -205,17 +204,7 @@ public class InventoryWindow {
         invTab.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                refreshInventoryTable();
-                inventoryScrollPane.setVisible(true);
-                skillsTable.setVisible(false);
-                socialTable.setVisible(false);
-                mapTable.setVisible(false);
-                toolsTable.setVisible(false);
-                craftingTable.setVisible(false);
-                settingsTable.setVisible(false);
-                popup.pack();
-                center(stage);
-                lastTabOpenedByTabKey = TabType.INVENTORY;
+                showInventory();
             }
         });
         skillsTab.addListener(new ChangeListener() {
@@ -250,34 +239,13 @@ public class InventoryWindow {
         mapTab.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                inventoryScrollPane.setVisible(false);
-                skillsTable.setVisible(false);
-                socialTable.setVisible(false);
-                mapTable.setVisible(true);
-                toolsTable.setVisible(false);
-                craftingTable.setVisible(false);
-                settingsTable.setVisible(false);
-                refreshMapTable();
-                popup.pack();
-                center(stage);
-                lastTabOpenedByTabKey = TabType.MAP;
+                showMap();
             }
         });
         toolsTab.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                inventoryScrollPane.setVisible(false);
-                skillsTable.setVisible(false);
-                socialTable.setVisible(false);
-                mapTable.setVisible(false);
-                toolsTable.setVisible(true);
-                craftingTable.setVisible(false);
-                settingsTable.setVisible(false);
-                refreshToolTable();
-                popup.pack();
-                center(stage);
-
-                lastTabOpenedByTabKey = TabType.TOOLS;
+                showTools();
             }
         });
 
@@ -308,7 +276,6 @@ public class InventoryWindow {
                 craftingTable.setVisible(false);
                 settingsTable.setVisible(true);
                 popup.pack();
-                lastTabOpenedByTabKey = TabType.SETTINGS;
             }
         });
 
@@ -338,6 +305,45 @@ public class InventoryWindow {
         stage.addActor(popup);
 
         refreshHotbar();
+    }
+
+    public void showTools() {
+        inventoryScrollPane.setVisible(false);
+        skillsTable.setVisible(false);
+        socialTable.setVisible(false);
+        mapTable.setVisible(false);
+        toolsTable.setVisible(true);
+        craftingTable.setVisible(false);
+        settingsTable.setVisible(false);
+        refreshToolTable();
+        popup.pack();
+        center(stage);
+    }
+
+    public void showInventory() {
+        refreshInventoryTable();
+        inventoryScrollPane.setVisible(true);
+        skillsTable.setVisible(false);
+        socialTable.setVisible(false);
+        mapTable.setVisible(false);
+        toolsTable.setVisible(false);
+        craftingTable.setVisible(false);
+        settingsTable.setVisible(false);
+        popup.pack();
+        center(stage);
+    }
+
+    public void showMap() {
+        inventoryScrollPane.setVisible(false);
+        skillsTable.setVisible(false);
+        socialTable.setVisible(false);
+        mapTable.setVisible(true);
+        toolsTable.setVisible(false);
+        craftingTable.setVisible(false);
+        settingsTable.setVisible(false);
+        refreshMapTable();
+        popup.pack();
+        center(stage);
     }
 
     /**
@@ -1151,10 +1157,6 @@ public class InventoryWindow {
         return mapTab;
     }
 
-    public TabType getLastTabOpenedByTabKey() {
-        return lastTabOpenedByTabKey;
-    }
-
     private static class MapContainer extends Group
     {
         private final Texture mapTexture;
@@ -1269,5 +1271,9 @@ public class InventoryWindow {
 
     public Window getPopup() {
         return popup;
+    }
+
+    public TextButton getInvTab() {
+        return invTab;
     }
 }
