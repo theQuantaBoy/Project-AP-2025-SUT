@@ -8,8 +8,6 @@ import ap.project.model.game.GameObject;
 import ap.project.model.game.Gift;
 import ap.project.model.game.Player;
 import ap.project.model.player_data.FriendshipData;
-import ap.project.network.server.ClientConnection;
-import ap.project.network.server.GameServer;
 import ap.project.network.shared.DTO.UserDTO;
 import ap.project.network.shared.Mapper.Mapper;
 import ap.project.network.shared.messages.*;
@@ -159,6 +157,9 @@ public class ClientMessageHandler
                 break;
             case PURPOSE_RESPONSE:
                 handlePurposeResponse((PurposeResponseMessage) message);
+                break;
+            case UPDATING_FRIENDSHIP:
+                handleUpdateFriendship((UpdateFriendshipMessage) message);
                 break;
             // Add other cases
         }
@@ -781,6 +782,23 @@ public class ClientMessageHandler
                     data2.setBouquetBought(false);
                     UIRenderer.showTextBox("go kill yourself");
                 }
+            });
+        }
+    }
+
+    private static void handleUpdateFriendship(UpdateFriendshipMessage message) {
+        if (Main.getApp().getScreen() instanceof WorldScreen) {
+
+            Player updated = App.getCurrentGame().getPlayerByUserID(message.updatedID);
+            Player updating = App.getCurrentGame().getPlayerByUserID(message.updatingID);
+            FriendshipData newData = message.friendshipData;
+            if (updated == null || updating == null) {
+                System.out.println("Player not found in current game");
+            }
+            // Run on the render thread
+            Gdx.app.postRunnable(() -> {
+                updating.getFriendships().put(updated, newData);
+                System.out.println("friendships updated");
             });
         }
     }

@@ -5,6 +5,7 @@ import ap.project.model.enums.*;
 import ap.project.model.game.AbstractCharacter;
 import ap.project.model.game.GameObject;
 import ap.project.model.game.Time;
+import ap.project.model.player_data.FriendshipData;
 import ap.project.network.shared.DTO.*;
 import com.esotericsoftware.kryo.Kryo;
 import ap.project.network.shared.enums.MessageType;
@@ -182,6 +183,8 @@ public class KryoRegistry
         kryo.register(NewMarriageMessage.class);
         kryo.register(PurposeResponseMessage.class);
 
+        kryo.register(UpdateFriendshipMessage.class);
+        kryo.register(FriendshipData.class);
 
         // Register all other message classes ...
     }

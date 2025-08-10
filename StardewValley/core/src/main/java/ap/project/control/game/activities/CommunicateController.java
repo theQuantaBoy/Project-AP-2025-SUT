@@ -11,6 +11,7 @@ import ap.project.model.player_data.FriendshipData;
 import ap.project.model.enums.GameObjectType;
 import ap.project.network.client.GameClient;
 import ap.project.network.shared.messages.PurposeResponseMessage;
+import ap.project.network.shared.messages.UpdateFriendshipMessage;
 import ap.project.screen.FriendsWindow;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
@@ -54,6 +55,8 @@ public class CommunicateController {
         FriendshipData otherLevel = player.getFriendships().get(mainPlayer);
         currentLevel.setLevel(level);
         otherLevel.setLevel(level);
+        GameClient.getInstance().send(new UpdateFriendshipMessage(
+            mainPlayer.getUser().getHashId(), player.getUser().getHashId(), currentLevel));
 
         return new Result(true, "level upgraded cheater");
     }
@@ -67,6 +70,9 @@ public class CommunicateController {
         FriendshipData otherLevel = player.getFriendships().get(mainPlayer);
         currentLevel.setXp(xp);
         otherLevel.setXp(xp);
+
+        GameClient.getInstance().send(new UpdateFriendshipMessage(
+            mainPlayer.getUser().getHashId(), player.getUser().getHashId(), currentLevel));
 
         return new Result(true, "xp upgraded cheater");
     }
@@ -128,6 +134,9 @@ public class CommunicateController {
             player.increaseEnergy(50);
             currentPlayer.increaseEnergy(50);
         }
+
+        GameClient.getInstance().send(new UpdateFriendshipMessage(
+            currentPlayer.getUser().getHashId(), player.getUser().getHashId(), data1));
         return new Result(true, "you talked to " + player.getUser().getNickname());
 //        }
 //        return new Result(false, "you can't talk to someone who's not near you!");
@@ -224,6 +233,8 @@ public class CommunicateController {
             giver.increaseEnergy(50);
             currentPlayer.increaseEnergy(50);
         }
+        GameClient.getInstance().send(new UpdateFriendshipMessage(
+            currentPlayer.getUser().getHashId(), giver.getUser().getHashId(), currentPlayer.getFriendships().get(giver)));
         return new Result(true, "gift rated successfully");
     }
 
@@ -341,6 +352,9 @@ public class CommunicateController {
                     }
                     currentPlayer.getFriendships().get(player).setIntrcatedToday(true);
                     player.getFriendships().get(currentPlayer).setIntrcatedToday(true);
+
+                    GameClient.getInstance().send(new UpdateFriendshipMessage(
+                        currentPlayer.getUser().getHashId(), player.getUser().getHashId(), currentPlayer.getFriendships().get(player)));
                 }
                 if (player.equals(currentPlayer.getZeidy())) {
                     player.increaseEnergy(50);
@@ -379,6 +393,9 @@ public class CommunicateController {
                                 player.getFriendships().get(currentPlayer).setNewLevel(false);
                                 currentPlayer.getFriendships().get(player).setNewLevel(false);
                             }
+
+                            GameClient.getInstance().send(new UpdateFriendshipMessage(
+                                currentPlayer.getUser().getHashId(), player.getUser().getHashId(), currentPlayer.getFriendships().get(player)));
                         }
                         if (player.equals(currentPlayer.getZeidy())) {
                             player.increaseEnergy(50);

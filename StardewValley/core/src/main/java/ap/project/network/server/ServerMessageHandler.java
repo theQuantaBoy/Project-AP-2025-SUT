@@ -125,6 +125,9 @@ public class ServerMessageHandler
             case PURPOSE_RESPONSE:
                 handlePurposeResponse(client, (PurposeResponseMessage) message);
                 break;
+            case UPDATING_FRIENDSHIP:
+                handleUpdateFriendship(client, (UpdateFriendshipMessage) message);
+                break;
         }
     }
 
@@ -828,5 +831,20 @@ public class ServerMessageHandler
         }
         receiverConn.send(message);
         System.out.println("notif sent");
+    }
+
+    private static void handleUpdateFriendship(ClientConnection client, UpdateFriendshipMessage message) {
+        GameServer server = GameServer.getInstance();
+
+        User sender = server.getUser(client);
+        if (sender == null) return;
+
+        ClientConnection receiverConn = server.findClient(message.updatingID);
+        if (receiverConn == null) {
+            System.out.println("update friendship failed: Receiver not found");
+            return;
+        }
+        receiverConn.send(message);
+        System.out.println("update friendship sent");
     }
 }

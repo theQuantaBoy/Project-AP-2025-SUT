@@ -1,6 +1,8 @@
 package ap.project.model.player_data;
 
 import ap.project.model.game.Player;
+import ap.project.network.client.GameClient;
+import ap.project.network.shared.messages.UpdateFriendshipMessage;
 
 import java.util.ArrayList;
 
@@ -12,6 +14,9 @@ public class FriendshipData {
     private boolean bouquetBought = false;
     private boolean isMarried = false;
     private ArrayList<String> messageHistory = new ArrayList<>();
+
+    public FriendshipData() {
+    }
 
     public FriendshipData(int level, int xp, boolean isIntrcatedToday) {
         this.level = level;
@@ -29,6 +34,7 @@ public class FriendshipData {
 
     public void setLevel(int level) {
         this.level = level;
+        //TODO: add network
     }
 
     public int getXp() {
@@ -37,6 +43,7 @@ public class FriendshipData {
 
     public void setXp(int xp) {
         this.xp = xp;
+        //TODO: add network
     }
 
     public boolean isNewLevel() {
@@ -45,6 +52,7 @@ public class FriendshipData {
 
     public void setNewLevel(boolean newLevel) {
         this.newLevel = newLevel;
+        //TODO: add network
     }
 
     public boolean isIntrcatedToday() {
@@ -53,6 +61,7 @@ public class FriendshipData {
 
     public void setIntrcatedToday(boolean intrcatedToday) {
         isIntrcatedToday = intrcatedToday;
+        //TODO: add network
     }
 
     public boolean isBouquetBought() {
@@ -61,6 +70,7 @@ public class FriendshipData {
 
     public void setBouquetBought(boolean bouquetBought) {
         this.bouquetBought = bouquetBought;
+        //TODO: add network
     }
 
     public boolean isMarried() {
@@ -69,6 +79,7 @@ public class FriendshipData {
 
     public void setMarried(boolean married) {
         isMarried = married;
+        //TODO: add network
     }
 
     public ArrayList<String> getMessageHistory() {
@@ -150,23 +161,19 @@ public class FriendshipData {
             if (this.xp < 0) {
                 this.level--;
                 this.xp += threshold;
-                FriendshipData other = friend.getFriendships().get(owner);
-                other.level = this.level;
-                other.xp = this.xp;
                 newLevel = true;
             } else {
                 break;
             }
         }
+        GameClient.getInstance().send(new UpdateFriendshipMessage(owner.getUser().getHashId(), friend.getUser().getHashId(), this));
     }
 
     private void levelUp(int threshold, Player owner, Player friend) {
         this.level++;
         this.xp -= threshold;
-        FriendshipData other = friend.getFriendships().get(owner);
-        other.level = this.level;
-        other.xp = this.xp;
         newLevel = true;
+        GameClient.getInstance().send(new UpdateFriendshipMessage(owner.getUser().getHashId(), friend.getUser().getHashId(), this));
     }
 
     public int getThresholdForLevel(int level) {

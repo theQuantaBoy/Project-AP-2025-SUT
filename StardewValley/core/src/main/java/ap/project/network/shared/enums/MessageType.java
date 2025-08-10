@@ -67,4 +67,5 @@ public enum MessageType
     NEW_FLOWER,
     NEW_PURPOSE,
     PURPOSE_RESPONSE,
+    UPDATING_FRIENDSHIP,
 }
