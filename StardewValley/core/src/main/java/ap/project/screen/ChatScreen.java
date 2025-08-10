@@ -4,6 +4,8 @@ import ap.project.control.game.activities.CommunicateController;
 import ap.project.model.App.GameAssetsManager;
 import ap.project.model.game.Player;
 import ap.project.model.player_data.FriendshipData;
+import ap.project.network.client.GameClient;
+import ap.project.network.shared.messages.NewChatMessage;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
@@ -33,6 +35,7 @@ public class ChatScreen {
     private boolean isVisible = false;
     private final WorldScreen worldScreen;
     private final SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm");
+    private final GameClient client;
 
     public ChatScreen(Stage stage, WorldScreen worldScreen, CommunicateController controller) {
         this.stage = stage;
@@ -68,6 +71,7 @@ public class ChatScreen {
         sendButton = new TextButton("Send", skin);
         closeButton = new TextButton("Close", skin);
         this.controller = controller;
+        this.client = GameClient.getInstance();
 
         setupLayout();
         setupEventHandlers();
@@ -118,7 +122,8 @@ public class ChatScreen {
     private void setupEventHandlers() {
         sendButton.addListener(new ClickListener() {
             @Override public void clicked(InputEvent event, float x, float y) {
-                sendMessage();
+                client.send(new NewChatMessage(currentPlayer.getUser().getHashId(), chatPartner.getUser().getHashId(), messageInput.getText().trim()));
+                sendMessage(messageInput.getText().trim(), currentPlayer, chatPartner);
             }
         });
 
@@ -148,53 +153,46 @@ public class ChatScreen {
         worldScreen.restoreInputFocus();
     }
 
-    private void sendMessage() {
-        String msg = messageInput.getText().trim();
+    public void sendMessage(String msg, Player sender, Player receiver) {
         if (msg.isEmpty()) return;
-        controller.talk(chatPartner);
-        String stamp = timeFormat.format(new Date());
-        String line  = "["+stamp+"] "+currentPlayer.getNickName()+": "+msg;
 
-        FriendshipData meData = currentPlayer.getFriendships().get(chatPartner);
-        FriendshipData themData = chatPartner.getFriendships().get(currentPlayer);
-        if (meData   != null) meData.getMessageHistory().add(line);
-        if (themData != null) themData.getMessageHistory().add(line);
+        controller.talk(receiver);
+        String stamp = timeFormat.format(new Date());
+        String line = "[" + stamp + "] " + sender.getNickName() + ": " + msg;
+
+        // Only update current player's data
+        FriendshipData friendship = sender.getFriendships().get(receiver);
+        if (friendship != null) {
+            friendship.getMessageHistory().add(line);
+        }
 
         messageInput.setText("");
-        loadChatHistory();
-        // scroll to bottom of content
-        Gdx.app.postRunnable(() -> {
-            chatScrollPane.layout();
-            chatScrollPane.setScrollY(chatScrollPane.getMaxY());
-        });
+        loadChatHistory();  // Refresh UI immediately
     }
 
-    private void loadChatHistory() {
-        // get both sides of the friendship
-        FriendshipData meData   = currentPlayer.getFriendships().get(chatPartner);
-        FriendshipData themData = chatPartner.getFriendships().get(currentPlayer);
+    public void loadChatHistory() {
+        // Always use current player's perspective
+        FriendshipData friendshipData = currentPlayer.getFriendships().get(chatPartner);
 
-        // pick whichever has messages (or merge)
         StringBuilder sb = new StringBuilder();
-        if (meData != null && !meData.getMessageHistory().isEmpty()) {
-            for (String m : meData.getMessageHistory()) {
-                sb.append(m).append("\n");
-            }
-        } else if (themData != null && !themData.getMessageHistory().isEmpty()) {
-            for (String m : themData.getMessageHistory()) {
+        if (friendshipData != null && !friendshipData.getMessageHistory().isEmpty()) {
+            for (String m : friendshipData.getMessageHistory()) {
                 sb.append(m).append("\n");
             }
         } else {
             sb.append("No chat history yet. Start a conversation!\n");
         }
 
-        // set the text & relayout
         chatHistoryLabel.setText(sb.toString());
         chatHistoryLabel.setHeight(chatHistoryLabel.getPrefHeight());
         chatContentTable.invalidateHierarchy();
-        chatScrollPane.layout();
-    }
 
+        // Scroll to bottom after layout update
+        Gdx.app.postRunnable(() -> {
+            chatScrollPane.layout();
+            chatScrollPane.setScrollY(chatScrollPane.getMaxY());
+        });
+    }
 
     private void centerWindow() {
         float w = stage.getViewport().getWorldWidth();
@@ -206,7 +204,8 @@ public class ChatScreen {
     public boolean handleKeyDown(int keycode) {
         if (!isVisible) return false;
         if (keycode == Input.Keys.ENTER) {
-            sendMessage();
+            client.send(new NewChatMessage(currentPlayer.getUser().getHashId(), chatPartner.getUser().getHashId(), messageInput.getText().trim()));
+            sendMessage(messageInput.getText().trim(), currentPlayer, chatPartner);
             return true;
         } else if (keycode == Input.Keys.ESCAPE) {
             hideChat();

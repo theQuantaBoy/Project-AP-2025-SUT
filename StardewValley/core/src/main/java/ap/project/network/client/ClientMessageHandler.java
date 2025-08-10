@@ -7,6 +7,7 @@ import ap.project.model.App.GameAssetsManager;
 import ap.project.model.App.User;
 import ap.project.model.game.Game;
 import ap.project.model.game.Player;
+import ap.project.model.player_data.FriendshipData;
 import ap.project.network.server.ClientConnection;
 import ap.project.network.server.GameServer;
 import ap.project.network.server.GameWrapper;
@@ -18,11 +19,14 @@ import ap.project.screen.LobbyScreen;
 import ap.project.screen.PreLobbyScreen;
 import ap.project.screen.TradeWindow;
 import ap.project.screen.WorldScreen;
+import ap.project.visual.UIRenderer;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
 public class ClientMessageHandler
 {
@@ -140,6 +144,9 @@ public class ClientMessageHandler
                 break;
             case BACKPACK_DTO:
                 handleBackPackDTOMessage((BackPackDTOMessage) message);
+                break;
+            case NEW_MESSAGE:
+                handleNewChatMessage((NewChatMessage) message);
                 break;
             // Add other cases
         }
@@ -588,6 +595,40 @@ public class ClientMessageHandler
         {
             PreLobbyScreen ps = (PreLobbyScreen) Main.getApp().getScreen();
             ps.rejoinLoadedGame(message.gameID);
+        }
+    }
+
+    private static void handleNewChatMessage(NewChatMessage message) {
+        if (Main.getApp().getScreen() instanceof WorldScreen) {
+            WorldScreen worldScreen = (WorldScreen) Main.getApp().getScreen();
+            Player sender = App.getCurrentGame().getPlayerByUserID(message.senderID);
+            Player receiver = App.getCurrentGame().getPlayerByUserID(message.receiverID);
+
+            if (sender == null || receiver == null) {
+                System.out.println("Player not found in current game");
+                return;
+            }
+
+            // Update UI on render thread
+            Gdx.app.postRunnable(() -> {
+                // Add notification only if chat isn't open
+                if (!worldScreen.getCommunicationWindow().getChatScreen().isVisible()) {
+                    UIRenderer.showTextBox("New message from " + sender.getNickName() + "!");
+                }
+
+                // Add message to local storage
+                FriendshipData friendship = receiver.getFriendships().get(sender);
+                if (friendship != null) {
+                    String stamp = new SimpleDateFormat("HH:mm").format(new Date());
+                    String line = "[" + stamp + "] " + sender.getNickName() + ": " + message.message;
+                    friendship.getMessageHistory().add(line);
+
+                    // Refresh chat if open
+                    if (worldScreen.getCommunicationWindow().getChatScreen().isVisible()) {
+                        worldScreen.getCommunicationWindow().getChatScreen().loadChatHistory();
+                    }
+                }
+            });
         }
     }
 }

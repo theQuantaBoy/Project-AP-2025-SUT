@@ -109,6 +109,9 @@ public class ServerMessageHandler
             case BACKPACK_DTO:
                 handleBackPack(client, (BackPackDTOMessage) message);
                 break;
+            case NEW_MESSAGE:
+                handleNewMessage(client, (NewChatMessage) message);
+                break;
         }
     }
 
@@ -722,5 +725,20 @@ public class ServerMessageHandler
         if (sender == null) return;
 
         server.broadcast(message);
+    }
+
+    private static void handleNewMessage(ClientConnection client, NewChatMessage message) {
+        GameServer server = GameServer.getInstance();
+
+        User sender = server.getUser(client);
+        if (sender == null) return;
+
+        ClientConnection receiverConn = server.findClient(message.receiverID);
+        if (receiverConn == null) {
+            System.out.println("chat notif failed: Receiver not found");
+            return;
+        }
+        receiverConn.send(message);
+        System.out.println("notif sent");
     }
 }

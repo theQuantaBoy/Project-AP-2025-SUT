@@ -175,6 +175,8 @@ public class KryoRegistry
         kryo.register(MovingItemToInventoryMessage.class);
         kryo.register(BackPackDTOMessage.class);
 
+        kryo.register(NewChatMessage.class);
+
 
         // Register all other message classes ...
     }

@@ -609,7 +609,6 @@ public final class WorldScreen implements Screen
     }
 
     private void sendBackPack() {
-        System.out.println(player.getNickName());
         BackPackDTOMessage msg = new BackPackDTOMessage(player.getUser().getHashId(), new BackPackDTO(player.getCurrentBackPack()));
         client.send(msg);
     }
@@ -1640,6 +1639,10 @@ public final class WorldScreen implements Screen
                 p.setCurrentBackPack(Mapper.fromDTO(msg.backPackDTO));
             }
         }
+    }
+
+    public CommunicationWindow getCommunicationWindow() {
+        return communicationWindow;
     }
 }
 

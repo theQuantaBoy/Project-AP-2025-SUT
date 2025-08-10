@@ -61,5 +61,8 @@ public enum MessageType
     PLAYERS_DTO_UPDATE,
     JOIN_GAME,
     BACKPACK_DTO,
-    TMP,
+    NEW_MESSAGE,
+    NEW_GIFT,
+    NEW_FLOWER,
+    NEW_PURPOSE,
 }
