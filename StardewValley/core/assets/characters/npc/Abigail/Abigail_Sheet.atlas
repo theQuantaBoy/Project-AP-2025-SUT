@@ -1,0 +1,54 @@
+Abigail_Sheet.png
+size: 16, 512
+format: RGBA8888
+filter: Linear, Linear
+repeat: none
+pma: false
+Abigail_0_walk_down
+  bounds: 0, 0, 16, 32
+  index: 0
+Abigail_0_walk_down
+  bounds: 0, 32, 16, 32
+  index: 1
+Abigail_0_walk_down
+  bounds: 0, 64, 16, 32
+  index: 2
+Abigail_0_walk_down
+  bounds: 0, 96, 16, 32
+  index: 3
+Abigail_0_walk_left
+  bounds: 0, 128, 16, 32
+  index: 0
+Abigail_0_walk_left
+  bounds: 0, 160, 16, 32
+  index: 1
+Abigail_0_walk_left
+  bounds: 0, 192, 16, 32
+  index: 2
+Abigail_0_walk_left
+  bounds: 0, 224, 16, 32
+  index: 3
+Abigail_0_walk_right
+  bounds: 0, 256, 16, 32
+  index: 0
+Abigail_0_walk_right
+  bounds: 0, 288, 16, 32
+  index: 1
+Abigail_0_walk_right
+  bounds: 0, 320, 16, 32
+  index: 2
+Abigail_0_walk_right
+  bounds: 0, 352, 16, 32
+  index: 3
+Abigail_0_walk_up
+  bounds: 0, 384, 16, 32
+  index: 0
+Abigail_0_walk_up
+  bounds: 0, 416, 16, 32
+  index: 1
+Abigail_0_walk_up
+  bounds: 0, 448, 16, 32
+  index: 2
+Abigail_0_walk_up
+  bounds: 0, 480, 16, 32
+  index: 3
