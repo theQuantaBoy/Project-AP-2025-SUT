@@ -1441,14 +1441,15 @@ public class Player {
         this.fishes = fishes;
     }
 
-    public void setReaction(ReactionEmoji emoji) {
+    public void setReaction(ReactionEmoji emoji)
+    {
         this.currentEmoji = emoji;
         this.currentReactionText = null;
         this.reactionTimer = 5.0f; // 5 seconds
     }
 
-    public void setReaction(String text) {
-        if (text.length() > 10) text = text.substring(0, 10);
+    public void setReaction(String text)
+    {
         this.currentReactionText = text;
         this.currentEmoji = null;
         this.reactionTimer = 5.0f;

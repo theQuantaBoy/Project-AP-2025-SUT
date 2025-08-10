@@ -29,7 +29,7 @@ public class ReactionWindow
     private static final List<ReactionEmoji> ALL_EMOJIS = Arrays.asList(ReactionEmoji.values());
     private static final List<String> ALL_TEXTS = Arrays.asList(
         "Hi!", "Bye!", "OMG!", "GG", "HOT TO GO!!", "party 4 u", "so confusing", "SO JULIA!","AP Panic!!",
-        "JUST A THEORY"
+        "JUST A THEORY", "Subscribe!"
     );
 
     private final List<ReactionEmoji> defaultEmojis = new ArrayList<>();
@@ -47,7 +47,7 @@ public class ReactionWindow
     private static final int EMOJI_SPACE_DEFAULTS = 8; // space between default emojis
     private static final int SECTION_GAP = 24;         // vertical gap between title/sections
     private static final int MIDDLE_GAP = 24;          // space between text label and button in rows
-    private static final int TEXT_ROW_HEIGHT = 56;        // row height for text+button rows
+    private static final int TEXT_ROW_HEIGHT = 60;        // row height for text+button rows
     private static final int TEXT_LIST_HEIGHT_MAIN = TEXT_ROW_HEIGHT * 3 + 50; // show all 3 rows fully
 
     private static final int GRID_COLS = 10;
@@ -55,7 +55,7 @@ public class ReactionWindow
     private static final int EMOJI_SPACE_MORE = 8;       // space between emoji cells in the grid
     private static final int COLUMN_GAP = 24;            // gap between emoji grid (left) and text pane (right)
     private static final int RIGHT_PANE_WIDTH = 500;     // width for the text list pane
-    private static final int MORE_TEXT_LIST_HEIGHT = TEXT_ROW_HEIGHT * 5 + 30; // show ~5 rows
+    private static final int MORE_TEXT_LIST_HEIGHT = TEXT_ROW_HEIGHT * 5 + 60; // show ~5 rows
 
     public ReactionWindow(Stage stage)
     {

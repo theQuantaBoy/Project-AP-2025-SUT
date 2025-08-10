@@ -133,19 +133,28 @@ public class CharacterRenderer
 
     private void renderReaction(Batch batch, Player player, Vector2 charPos)
     {
-        if (player.getCurrentEmoji() != null) {
+        if (player.getCurrentEmoji() != null)
+        {
             Texture emoji = player.getCurrentEmoji().getTexture();
-            batch.draw(emoji, charPos.x + 20, charPos.y + 60, 24, 24);
-        }
-        else if (player.getCurrentReactionText() != null) {
+            batch.draw(emoji, charPos.x + 20, charPos.y + 16, 12, 12);
+        } else if (player.getCurrentReactionText() != null)
+        {
+            // Save original font scale
+            float originalScaleX = nameBadgeFont.getData().scaleX;
+            float originalScaleY = nameBadgeFont.getData().scaleY;
+
+            // Set smaller scale for reaction text (60% of original)
+            float reactionScale = 0.8f;
+            nameBadgeFont.getData().setScale(reactionScale);
+
             String text = player.getCurrentReactionText();
             GlyphLayout layout = new GlyphLayout(nameBadgeFont, text);
 
             float padding = 5f;
             float badgeWidth = layout.width + 2 * padding;
             float badgeHeight = layout.height + 2 * padding;
-            float badgeX = charPos.x + 15;
-            float badgeY = charPos.y + 60;
+            float badgeX = charPos.x + 20;
+            float badgeY = charPos.y + 16;
 
             // Draw background
             batch.end();
@@ -161,6 +170,10 @@ public class CharacterRenderer
             nameBadgeFont.setColor(Color.BLACK);
             nameBadgeFont.draw(batch, text, badgeX + padding, badgeY + padding + layout.height);
             nameBadgeFont.setColor(Color.WHITE); // Reset to white
+
+            // Restore original font scale and color
+            nameBadgeFont.getData().setScale(originalScaleX, originalScaleY);
+            nameBadgeFont.setColor(Color.WHITE);
         }
     }
 }

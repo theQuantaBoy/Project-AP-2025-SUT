@@ -56,6 +56,7 @@ public class WorldController
         Point location = player.getLocation();
 
         doLightning(tile);
+        crowAttack(tile);
 
         if (!Map.isNearOrOn(location, clicked))
         {
@@ -133,6 +134,27 @@ public class WorldController
                 farm.getLightningTiles().add(tile);
             }
             MapVisual.playAnimationAt(GameAnimationType.NO_CLOUD_LIGHTNING_CHEAT, tile);
+        }
+    }
+
+    private static void crowAttack(Tile tile)
+    {
+        Player player = App.getCurrentGame().getCurrentPlayer();
+
+        if (Gdx.input.isKeyPressed(Input.Keys.C) && player.isInFarm())
+        {
+            Farm farm = player.getFarm();
+
+            if (tile.hasPlants())
+            {
+                Plant plant = (Plant) tile.getObject();
+                if (!tile.isImmuneFromCrows())
+                {
+                    plant.getAttacked();
+                }
+            }
+
+            MapVisual.playAnimationAt(GameAnimationType.CROW_ATTACK, farm.getTile(tile.getX(), tile.getY() - 4));
         }
     }
 

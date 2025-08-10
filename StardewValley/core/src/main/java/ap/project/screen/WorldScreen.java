@@ -658,7 +658,7 @@ public final class WorldScreen implements Screen
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         if (!terminalDialog.isVisible() && !isInventoryVisible() && !isCookBookVisible() && !isRefrigeratorVisible()
-        && !greenHouseBuildWindow.isVisible())
+        && !greenHouseBuildWindow.isVisible() && !reactionWindow.isVisible())
         {
             update(dt);
             refreshHotbarUI();
@@ -687,7 +687,7 @@ public final class WorldScreen implements Screen
         renderCharacters(batch);
 
         if (!isDialogVisible() && !isInventoryVisible() && !isCookBookVisible() && !isRefrigeratorVisible()
-            && !greenHouseBuildWindow.isVisible())
+            && !greenHouseBuildWindow.isVisible() && !reactionWindow.isVisible())
         {
             characterRenderer.renderToolOrObjectAtMouse(batch, character, worldMouseX, worldMouseY);
         }
@@ -1635,5 +1635,10 @@ public final class WorldScreen implements Screen
         {
             client.send(new PlayerReactionMessage(game.getId(), player.getUser().getHashId(), text));
         }
+    }
+
+    public boolean isReactionWindowVisible()
+    {
+        return reactionWindow.isVisible();
     }
 }

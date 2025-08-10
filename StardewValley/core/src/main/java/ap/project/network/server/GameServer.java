@@ -358,7 +358,7 @@ public class GameServer
         kryoServer = new Server(BUFFER_LIMIT, BUFFER_LIMIT);
         kryoServer.start();
         registerClasses(kryoServer.getKryo());
-        kryoServer.bind(54555, 54777);
+        kryoServer.bind(55555, 55777);
 
         kryoServer.addListener(new Listener()
         {

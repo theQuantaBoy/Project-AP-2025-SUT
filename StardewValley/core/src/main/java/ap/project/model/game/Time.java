@@ -104,7 +104,7 @@ public class Time
             }
         }
 
-        friendshipUpdate();
+//        friendshipUpdate();
 
         Game game = App.getCurrentGame();
         game.resetPlayerBuffs();

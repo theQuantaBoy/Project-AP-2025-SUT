@@ -77,7 +77,20 @@ public enum GameAnimationType
     WATER(new String[]{"affects/water/water_0.png",
         "affects/water/water_1.png",
         "affects/water/water_2.png",
-        "affects/water/water_3.png"}, 0.08f)
+        "affects/water/water_3.png"}, 0.08f),
+
+    CROW_ATTACK(new String[]{"affects/crow-attack/crow_0.png",
+        "affects/crow-attack/crow_1.png",
+        "affects/crow-attack/crow_2.png",
+        "affects/crow-attack/crow_3.png",
+        "affects/crow-attack/crow_4.png",
+        "affects/crow-attack/crow_5.png",
+        "affects/crow-attack/crow_6.png",
+        "affects/crow-attack/crow_7.png",
+        "affects/crow-attack/crow_8.png",
+        "affects/crow-attack/crow_9.png",
+        "affects/crow-attack/crow_10.png",
+        "affects/crow-attack/crow_11.png"}, 0.08f)
     ;
 
     private final String[] framePaths;
