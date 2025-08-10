@@ -1,9 +1,11 @@
 package ap.project.model.game;
 
 import ap.project.model.App.App;
+import ap.project.model.enums.CharacterType;
 import ap.project.model.enums.GameObjectType;
 import ap.project.model.enums.NpcDetails;
 import ap.project.model.player_data.FriendshipWithNpcData;
+import com.badlogic.gdx.math.Vector2;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,8 +25,10 @@ public class NPC {
     private boolean secondQuestDone = false;
     private boolean thirdQuestDone = false;
 
-    public NPC(NpcDetails npcDetails, Point location) {
-        this.location = location;
+    private final NPCCharacter character;
+
+    public NPC(NpcDetails npcDetails) {
+        this.location = npcDetails.getSpawnPoint();
         this.npcDetails = npcDetails;
         this.name = npcDetails.getName();
 
@@ -33,6 +37,10 @@ public class NPC {
         this.rewards = npcDetails.getRewards();
         this.openQuests.add(requests.getFirst());
         this.appearance = npcDetails.getAppearance();
+
+        CharacterType characterType = npcDetails.getCharacterType();
+        Vector2 spawnPoint = City.pointToWorld(npcDetails.getSpawnPoint());
+        this.character = new NPCCharacter(characterType, spawnPoint, characterType.getName());
     }
 
     public NpcDetails getNpcDetails() {
@@ -133,5 +141,10 @@ public class NPC {
     public void thirdQuestDone()
     {
         thirdQuestDone = true;
+    }
+
+    public NPCCharacter getCharacter()
+    {
+        return character;
     }
 }

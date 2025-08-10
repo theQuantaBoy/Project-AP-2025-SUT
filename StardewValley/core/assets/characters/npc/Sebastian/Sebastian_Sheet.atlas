@@ -4,51 +4,51 @@ format: RGBA8888
 filter: Linear, Linear
 repeat: none
 pma: false
-Sebastian_0_walk_down
+Sebastian_0_walk_down_0
   bounds: 0, 0, 16, 32
   index: 0
-Sebastian_0_walk_down
+Sebastian_0_walk_down_1
   bounds: 0, 32, 16, 32
   index: 1
-Sebastian_0_walk_down
+Sebastian_0_walk_down_2
   bounds: 0, 64, 16, 32
   index: 2
-Sebastian_0_walk_down
+Sebastian_0_walk_down_3
   bounds: 0, 96, 16, 32
   index: 3
-Sebastian_0_walk_left
+Sebastian_0_walk_left_0
   bounds: 0, 128, 16, 32
   index: 0
-Sebastian_0_walk_left
+Sebastian_0_walk_left_1
   bounds: 0, 160, 16, 32
   index: 1
-Sebastian_0_walk_left
+Sebastian_0_walk_left_2
   bounds: 0, 192, 16, 32
   index: 2
-Sebastian_0_walk_left
+Sebastian_0_walk_left_3
   bounds: 0, 224, 16, 32
   index: 3
-Sebastian_0_walk_right
+Sebastian_0_walk_right_0
   bounds: 0, 256, 16, 32
   index: 0
-Sebastian_0_walk_right
+Sebastian_0_walk_right_1
   bounds: 0, 288, 16, 32
   index: 1
-Sebastian_0_walk_right
+Sebastian_0_walk_right_2
   bounds: 0, 320, 16, 32
   index: 2
-Sebastian_0_walk_right
+Sebastian_0_walk_right_3
   bounds: 0, 352, 16, 32
   index: 3
-Sebastian_0_walk_up
+Sebastian_0_walk_up_0
   bounds: 0, 384, 16, 32
   index: 0
-Sebastian_0_walk_up
+Sebastian_0_walk_up_1
   bounds: 0, 416, 16, 32
   index: 1
-Sebastian_0_walk_up
+Sebastian_0_walk_up_2
   bounds: 0, 448, 16, 32
   index: 2
-Sebastian_0_walk_up
+Sebastian_0_walk_up_3
   bounds: 0, 480, 16, 32
   index: 3

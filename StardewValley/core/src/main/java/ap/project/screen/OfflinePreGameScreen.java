@@ -176,6 +176,7 @@ public class OfflinePreGameScreen implements Screen
                 App.addGame(game);
                 App.setCurrentGame(game);
                 Gdx.graphics.setWindowedMode(1800, 960);
+                App.getCurrentUser().setCurrentGame(game);
                 Main.getApp().setScreen(new WorldScreen(game.getCurrentPlayer(), false, true));
             }
         });
@@ -401,6 +402,7 @@ public class OfflinePreGameScreen implements Screen
                     loadedGame.setCurrentPlayer(currentPlayer);
                     App.setCurrentGame(loadedGame);
                     Gdx.graphics.setWindowedMode(1800, 960);
+                    App.getCurrentUser().setCurrentGame(loadedGame);
                     Main.getApp().setScreen(new WorldScreen(currentPlayer, false, false));
                 }
             });

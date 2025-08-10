@@ -41,6 +41,7 @@ public class Game
     public Game(String id)
     {
         this.id = id;
+        initialize();
     }
 
     public void initialize()
@@ -59,7 +60,7 @@ public class Game
             }
         }
 
-//        setNPCs();
+        setNPCs();
 
         for (NPC npc : NPCs)
         {
@@ -119,7 +120,7 @@ public class Game
             p.spawn();
         }
 
-//        setNPCs();
+        setNPCs();
 
         for (NPC npc : NPCs)
         {
@@ -179,7 +180,7 @@ public class Game
             p.spawn();
         }
 
-//        setNPCs();
+        setNPCs();
 
         for (NPC npc : NPCs)
         {
@@ -223,12 +224,10 @@ public class Game
 
     private void setNPCs()
     {
-        ArrayList<Point> locations = city.getNpcLocations();
         for(int i = 0; i < (NpcDetails.values()).length; i++)
         {
             NpcDetails details = NpcDetails.values()[i];
-            Point location = locations.get(i);
-            NPCs.add(new NPC(details, location));
+            NPCs.add(new NPC(details));
         }
     }
 

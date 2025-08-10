@@ -6,6 +6,7 @@ import ap.project.model.enums.MapTypes;
 import ap.project.model.enums.ShopType;
 import ap.project.model.enums.TileTexture;
 import ap.project.model.shops.*;
+import com.badlogic.gdx.math.Vector2;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -70,6 +71,14 @@ public class City extends Map
                 tile.setInCity();
             }
         }
+    }
+
+    public static Vector2 pointToWorld(Point p)
+    {
+        float worldX = p.getX() * TILE_SIZE;
+        float worldY = 108 * TILE_SIZE - p.getY() * TILE_SIZE;
+
+        return new Vector2(worldX, worldY);
     }
 
     public Point findFreeStartingPoint()

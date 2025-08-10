@@ -699,6 +699,7 @@ public final class WorldScreen implements Screen
         float worldMouseY = mouseWorldPos.y;
 
         renderCharacters(batch);
+        renderNPCs(batch);
 
         if (!isDialogVisible() && !isInventoryVisible() && !isCookBookVisible() && !isRefrigeratorVisible()
             && !greenHouseBuildWindow.isVisible() && !reactionWindow.isVisible() && !scoreBoardWindow.isVisible())
@@ -1464,6 +1465,17 @@ public final class WorldScreen implements Screen
                     }
                 }
             }
+        }
+    }
+
+    private void renderNPCs(Batch batch)
+    {
+        if (player.isInCity())
+        {
+           for (NPC npc : game.getNPCs())
+           {
+               characterRenderer.render(batch, npc.getCharacter(), CHAR_SCALE);
+           }
         }
     }
 

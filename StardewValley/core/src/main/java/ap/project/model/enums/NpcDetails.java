@@ -1,6 +1,7 @@
 package ap.project.model.enums;
 
 import ap.project.model.game.GameObject;
+import ap.project.model.game.Point;
 
 import java.util.List;
 import java.util.Map;
@@ -36,7 +37,8 @@ public enum NpcDetails {
                             TimeOfDay.AFTERNOON, "Time for a hot drink and some reading.",
                             TimeOfDay.EVENING, "I could code all night in this weather."
                     )
-            )), List.of(GameObjectType.COAL, GameObjectType.IRON_BAR, GameObjectType.QUARTZ), 5
+            )), List.of(GameObjectType.COAL, GameObjectType.IRON_BAR, GameObjectType.QUARTZ), 5,
+        CharacterType.SEBASTIAN, new Point(31, 24)
     ),
 
     // 😜
@@ -68,7 +70,8 @@ public enum NpcDetails {
                             TimeOfDay.AFTERNOON, "Snow crunches in such a satisfying way.",
                             TimeOfDay.EVENING, "Let’s curl up and play some games."
                     )
-            )), List.of(GameObjectType.AMETHYST, GameObjectType.QUARTZ, GameObjectType.CAULIFLOWER_SEEDS), 30
+            )), List.of(GameObjectType.AMETHYST, GameObjectType.QUARTZ, GameObjectType.CAULIFLOWER_SEEDS), 30,
+        CharacterType.ABIGAIL, new Point(71, 22)
     ),
 
     // 🙂
@@ -100,7 +103,8 @@ public enum NpcDetails {
                             TimeOfDay.AFTERNOON, "The fireplace at the clinic is cozy.",
                             TimeOfDay.EVENING, "I hope everyone’s staying warm and healthy."
                     )
-            )), List.of(GameObjectType.COFFEE_BEAN, GameObjectType.HONEY, GameObjectType.CARROT), 69
+            )), List.of(GameObjectType.COFFEE_BEAN, GameObjectType.HONEY, GameObjectType.CARROT), 69,
+        CharacterType.HARVEY, new Point(35, 58)
     ),
 
     // 😊
@@ -133,7 +137,8 @@ public enum NpcDetails {
                             TimeOfDay.AFTERNOON, "I made a sculpture from ice!",
                             TimeOfDay.EVENING, "Even winter has its charm."
                     )
-            )), List.of(GameObjectType.SALAD, GameObjectType.GRAPE, GameObjectType.WINE), 78
+            )), List.of(GameObjectType.SALAD, GameObjectType.GRAPE, GameObjectType.WINE), 78,
+        CharacterType.LEAH, new Point(12, 86)
     ),
 
     // 😁
@@ -166,7 +171,8 @@ public enum NpcDetails {
                             TimeOfDay.AFTERNOON, "Watch out for icy scaffolding.",
                             TimeOfDay.EVENING, "Cold days make hot meals extra nice."
                     )
-            )), List.of(GameObjectType.WOOD, GameObjectType.COOKIE, GameObjectType.STONE), 360
+            )), List.of(GameObjectType.WOOD, GameObjectType.COOKIE, GameObjectType.STONE), 360,
+        CharacterType.ROBIN, new Point(108, 93)
     );
 
     private final String name;
@@ -177,10 +183,13 @@ public enum NpcDetails {
     private final Map<Season, Map<TimeOfDay, String>> dialogues;
     private final List<GameObjectType> gifts;
     private final int daysUntilQuestUnlocked;
+    private final CharacterType characterType;
+    private final Point spawnPoint;
 
     NpcDetails(String name, String apperance, List<GameObjectType> favorites, List<GameObject> requests,
                List<GameObject> rewards, Map<Season, Map<TimeOfDay, String>> dialogues, List<GameObjectType> gifts,
-               int daysUntilQuestUnlocked) {
+               int daysUntilQuestUnlocked, CharacterType characterType, Point spawnPoint)
+    {
         this.name = name;
         this.apperance = apperance;
         this.favorites = favorites;
@@ -189,6 +198,8 @@ public enum NpcDetails {
         this.dialogues = dialogues;
         this.gifts = gifts;
         this.daysUntilQuestUnlocked = daysUntilQuestUnlocked;
+        this.characterType = characterType;
+        this.spawnPoint = spawnPoint;
     }
 
     public String getDialogue(Season season, TimeOfDay time) {
@@ -255,5 +266,15 @@ public enum NpcDetails {
     public GameObject getQuestReward(int questId)
     {
         return rewards.get(questId);
+    }
+
+    public CharacterType getCharacterType()
+    {
+        return characterType;
+    }
+
+    public Point getSpawnPoint()
+    {
+        return spawnPoint;
     }
 }
