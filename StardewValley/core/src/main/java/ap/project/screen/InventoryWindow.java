@@ -73,6 +73,8 @@ public class InventoryWindow {
     private static final int CRAFTING_SLOT_WIDTH = 48;
     private static final int CRAFTING_SLOT_HEIGHT = 96;
     private static final int CRAFTING_SLOT_PADDING = 8;
+    private static final int INVENTORY_SCROLL_WIDTH = 600;
+    private static final int INVENTORY_SCROLL_HEIGHT = 600;
 
     private Table hotbarTable;
     private int selectedHotbarSlot = -1;
@@ -330,7 +332,7 @@ public class InventoryWindow {
         popup.add(craftingTab).expandX().fillX();
         popup.add(settingsTab).expandX().fillX();
         popup.row();
-        popup.add(contentStack).colspan(7).expand().fill().center().row();
+        popup.add(contentStack).colspan(7).size(INVENTORY_SCROLL_WIDTH, INVENTORY_SCROLL_HEIGHT).center().row();
         popup.pack();
         center(stage);
         stage.addActor(popup);
@@ -834,7 +836,7 @@ public class InventoryWindow {
         updatePlayer();
         java.util.List<Tool> tools = backpack.getTools();
 
-        for (int i = 0; i < COLS; i++) {
+        for (int i = 0; i < COLS*2; i++) {
             Tool tool = i < tools.size() ? tools.get(i) : null;
             Table slotContainer = new Table();
 
