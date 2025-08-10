@@ -59,5 +59,6 @@ public enum MessageType
     LOADED_GAME_START,
     LEAVE,
     PLAYERS_DTO_UPDATE,
-    JOIN_GAME
+    JOIN_GAME,
+    PLAYER_REACTION
 }

@@ -255,7 +255,7 @@ public final class WorldScreen implements Screen
     private void createReactButton()
     {
         reactButton = new TextButton("React", skin);
-        reactButton.setSize(40, 200);
+        reactButton.setSize(200, 70);
         reactButton.setPosition(20, 20); // Bottom left
 
         reactButton.addListener(new ClickListener()
@@ -1599,5 +1599,41 @@ public final class WorldScreen implements Screen
 
     public Stage getUiStage() {
         return uiStage;
+    }
+
+    public void updateOtherPlayerReaction(PlayerReactionMessage message)
+    {
+        for (Player p : game.getPlayers())
+        {
+            if ((p.getUser().getHashId() == message.playerId) &&
+                (p.getUser().getHashId() != player.getUser().getHashId()))
+            {
+                ReactionEmoji emoji = message.currentEmoji;
+                String text = message.currentReactionText;
+                if (emoji != null)
+                {
+                    p.setReaction(emoji);
+                } else if (!text.isEmpty())
+                {
+                    p.setReaction(text);
+                }
+            }
+        }
+    }
+
+    public void sendReactionMessage(ReactionEmoji reactionEmoji)
+    {
+        if (ONLINE_MODE)
+        {
+            client.send(new PlayerReactionMessage(game.getId(), player.getUser().getHashId(), reactionEmoji));
+        }
+    }
+
+    public void sendReactionMessage(String text)
+    {
+        if (ONLINE_MODE)
+        {
+            client.send(new PlayerReactionMessage(game.getId(), player.getUser().getHashId(), text));
+        }
     }
 }

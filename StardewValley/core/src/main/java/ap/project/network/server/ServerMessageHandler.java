@@ -106,6 +106,9 @@ public class ServerMessageHandler
             case TRADE_CANCELLED:
                 handleTradeCancelled(client, (TradeCancelMessage) message);
                 break;
+            case PLAYER_REACTION:
+                handlePlayerReactionMessage(client, (PlayerReactionMessage) message);
+                break;
         }
     }
 
@@ -710,5 +713,16 @@ public class ServerMessageHandler
         }
         receiverConn.send(message);
         System.out.println("cancelled");
+    }
+
+    private static void handlePlayerReactionMessage(ClientConnection client, PlayerReactionMessage message)
+    {
+        GameServer server = GameServer.getInstance();
+        GameWrapper wrapper = server.findGameWrapper(message.gameId);
+
+        if (wrapper != null)
+        {
+            wrapper.handlePlayerReactionMessage(message);
+        }
     }
 }

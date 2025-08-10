@@ -138,6 +138,9 @@ public class ClientMessageHandler
             case JOIN_GAME:
                 handleJoinActiveGameMessage((JoinActiveGameMessage) message);
                 break;
+            case PLAYER_REACTION:
+                handlePlayerReactionMessage((PlayerReactionMessage) message);
+                break;
             // Add other cases
         }
     }
@@ -579,6 +582,15 @@ public class ClientMessageHandler
         {
             PreLobbyScreen ps = (PreLobbyScreen) Main.getApp().getScreen();
             ps.rejoinLoadedGame(message.gameID);
+        }
+    }
+
+    private static void handlePlayerReactionMessage(PlayerReactionMessage message)
+    {
+        if (Main.getApp().getScreen() instanceof WorldScreen)
+        {
+            WorldScreen ws = (WorldScreen) Main.getApp().getScreen();
+            ws.updateOtherPlayerReaction(message);
         }
     }
 }

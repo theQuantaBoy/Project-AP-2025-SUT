@@ -163,6 +163,9 @@ public class KryoRegistry
 
         kryo.register(JoinActiveGameMessage.class);
 
+        kryo.register(PlayerReactionMessage.class);
+        kryo.register(ReactionEmoji.class);
+
         // Register all other message classes ...
     }
 }
