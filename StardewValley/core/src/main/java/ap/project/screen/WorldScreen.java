@@ -1343,6 +1343,15 @@ public final class WorldScreen implements Screen
             }
         }
 
+        if (player.getEnergy() <= 5)
+        {
+            if (!map.getMapVisual().isExhaustionAnimationPlaying())
+            {
+                Vector2 loc = new Vector2(player.getPosition().x - 9, player.getPosition().y - 4);
+                MapVisual.playAnimationAt(GameAnimationType.EXHAUSTION, loc);
+            }
+        }
+
         if (player.getEnergy() <= 0)
         {
             game.nextTurn();

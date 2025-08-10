@@ -459,7 +459,7 @@ public class WorldController
 
         if (tool instanceof Pickaxe)
         {
-            if (!tile.hasPlants() && tile.getObject()!= null && tile.getObject().getObjectType() == GameObjectType.STONE)
+            if (!tile.hasPlants() && tile.getObject() != null)
             {
                 GameObject object = tile.getObject();
                 if (!player.inventoryHasCapacity())

@@ -90,7 +90,14 @@ public enum GameAnimationType
         "affects/crow-attack/crow_8.png",
         "affects/crow-attack/crow_9.png",
         "affects/crow-attack/crow_10.png",
-        "affects/crow-attack/crow_11.png"}, 0.08f)
+        "affects/crow-attack/crow_11.png"}, 0.08f),
+
+    EXHAUSTION(new String[]{"affects/exhaustion/exhausted_0.png",
+        "affects/exhaustion/exhausted_1.png",
+        "affects/exhaustion/exhausted_2.png",
+        "affects/exhaustion/exhausted_3.png",
+        "affects/exhaustion/exhausted_4.png",
+        "affects/exhaustion/exhausted_5.png"}, 0.04f)
     ;
 
     private final String[] framePaths;
