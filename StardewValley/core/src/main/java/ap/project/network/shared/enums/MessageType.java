@@ -66,4 +66,5 @@ public enum MessageType
     GIFT_RATE,
     NEW_FLOWER,
     NEW_PURPOSE,
+    PURPOSE_RESPONSE,
 }

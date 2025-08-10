@@ -4,7 +4,7 @@ public enum YearRoundStock {
     RICE("Rice", "A basic grain often served under vegetables.", 200, -1),
     WHEAT_FLOUR("Wheat Flour", "A common cooking ingredient made from crushed wheat seeds.", 100, -1),
     BOUQUET("Bouquet", "A gift that shows your romantic interest.", 1000, 2),
-    WEDDING_RING("Wedding Ring", "Used to ask for marriage.", 10000, 2),
+    WEDDING_RING("Wedding ring", "Used to ask for marriage.", 10000, 2),
     DEHYDRATOR_RECIPE("Dehydrator (Recipe)", "A recipe to make Dehydrator.", 10000, 1),
     GRASS_STARTER_RECIPE("Grass Starter (Recipe)", "A recipe to make Grass Starter.", 1000, 1),
     SUGAR("Sugar", "Adds sweetness to pastries and candies.", 100, -1),

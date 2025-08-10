@@ -1,19 +1,15 @@
 package ap.project.network.client;
 
 import ap.project.Main;
-import ap.project.control.game.activities.TradeController;
 import ap.project.model.App.App;
-import ap.project.model.App.GameAssetsManager;
 import ap.project.model.App.User;
-import ap.project.model.game.Game;
+import ap.project.model.enums.GameObjectType;
 import ap.project.model.game.GameObject;
 import ap.project.model.game.Gift;
 import ap.project.model.game.Player;
 import ap.project.model.player_data.FriendshipData;
 import ap.project.network.server.ClientConnection;
 import ap.project.network.server.GameServer;
-import ap.project.network.server.GameWrapper;
-import ap.project.model.App.User;
 import ap.project.network.shared.DTO.UserDTO;
 import ap.project.network.shared.Mapper.Mapper;
 import ap.project.network.shared.messages.*;
@@ -24,7 +20,6 @@ import ap.project.screen.WorldScreen;
 import ap.project.visual.UIRenderer;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -155,6 +150,15 @@ public class ClientMessageHandler
                 break;
             case GIFT_RATE:
                 handleGiftRate((GiftRateMessage) message);
+                break;
+            case NEW_FLOWER:
+                handleBouquet((BouquetMessage) message);
+                break;
+            case NEW_PURPOSE:
+                handlePurpose((NewMarriageMessage) message);
+                break;
+            case PURPOSE_RESPONSE:
+                handlePurposeResponse((PurposeResponseMessage) message);
                 break;
             // Add other cases
         }
@@ -699,5 +703,85 @@ public class ClientMessageHandler
             });
         }
     }
+    private static void handleBouquet(BouquetMessage message) {
+        if (Main.getApp().getScreen() instanceof WorldScreen) {
+            WorldScreen worldScreen = (WorldScreen) Main.getApp().getScreen();
 
+            Player sender = App.getCurrentGame().getPlayerByUserID(message.senderID);
+            Player receiver = App.getCurrentGame().getPlayerByUserID(message.receiverID);
+            if (sender == null || receiver == null) {
+                System.out.println("Player not found in current game");
+            }
+            // Run on the render thread
+            Gdx.app.postRunnable(() -> {
+                sender.removeAmountFromInventory(GameObjectType.BOUQUET, 1);
+                receiver.addToInventory(GameObjectType.BOUQUET, 1);
+
+                UIRenderer.showTextBox("You received a flower from " + sender.getNickName() + "!");
+            });
+        }
+    }
+
+    private static void handlePurpose(NewMarriageMessage message) {
+        if (Main.getApp().getScreen() instanceof WorldScreen) {
+            WorldScreen worldScreen = (WorldScreen) Main.getApp().getScreen();
+
+            Player groom = App.getCurrentGame().getPlayerByUserID(message.groomID);
+            Player bride = App.getCurrentGame().getPlayerByUserID(message.brideID);
+            if (groom == null || bride == null) {
+                System.out.println("Player not found in current game");
+            }
+            // Run on the render thread
+            Gdx.app.postRunnable(() -> {
+                bride.getPurposeList().put(groom, message.ring.getObjectType());
+
+                UIRenderer.showTextBox(groom.getNickName() + " has purposed with " + message.ring.getObjectType().toString() + "!");
+            });
+        }
+    }
+
+    private static void handlePurposeResponse(PurposeResponseMessage message) {
+        if (Main.getApp().getScreen() instanceof WorldScreen) {
+            WorldScreen worldScreen = (WorldScreen) Main.getApp().getScreen();
+
+            Player groom = App.getCurrentGame().getPlayerByUserID(message.groomID);
+            Player bride = App.getCurrentGame().getPlayerByUserID(message.brideID);
+            GameObject ring = message.ring;
+            boolean answer = message.answer;
+
+            if (groom == null || bride == null) {
+                System.out.println("Player not found in current game");
+            }
+            // Run on the render thread
+            Gdx.app.postRunnable(() -> {
+                if (answer) {
+                    bride.addToInventory(ring);
+                    groom.removeAmountFromInventory(ring.getObjectType(), 1);
+                    bride.setZeidy(groom);
+                    groom.setZeidy(bride);
+                    bride.getFriendships().get(groom).setMarried(true);
+                    groom.getFriendships().get(bride).setMarried(true);
+                    bride.getFriendships().get(groom).changeXp(0, bride, groom);
+                    groom.getFriendships().get(bride).changeXp(0, groom, bride);
+                    if (bride.getFriendships().get(groom).isNewLevel()) {
+                        System.out.println("your friendship with " + groom.getNickName() +
+                            " changed to " + groom.getFriendships().get(bride).getLevel());
+                        groom.getFriendships().get(bride).setNewLevel(false);
+                        bride.getFriendships().get(groom).setNewLevel(false);
+                    }
+                    UIRenderer.showTextBox("you are husband and wife now");
+                } else {
+                    FriendshipData data1 = bride.getFriendships().get(groom);
+                    FriendshipData data2 = groom.getFriendships().get(bride);
+                    data1.setLevel(0);
+                    data1.setXp(0);
+                    data1.setBouquetBought(false);
+                    data2.setLevel(0);
+                    data2.setXp(0);
+                    data2.setBouquetBought(false);
+                    UIRenderer.showTextBox("go kill yourself");
+                }
+            });
+        }
+    }
 }

@@ -27,10 +27,8 @@ import static java.lang.Thread.sleep;
 
 public class ServerMessageHandler
 {
-    public static void handle(ClientConnection client, Message message)
-    {
-        switch (message.getType())
-        {
+    public static void handle(ClientConnection client, Message message) {
+        switch (message.getType()) {
             case TEST:
                 handleTestMessage((TestMessage) message);
                 break;
@@ -44,7 +42,7 @@ public class ServerMessageHandler
                 handleUserChoice(client, (UserChoicesMessage) message);
                 break;
             case LOBBY_CREATION_MESSAGE:
-                handleLobbyCreation(client, (LobbyCreationPermissionMessage)  message);
+                handleLobbyCreation(client, (LobbyCreationPermissionMessage) message);
                 break;
             case JOIN_LOBBY_REQUEST:
                 handleJoinLobbyRequestMessage(client, (LobbyJoinRequestMessage) message);
@@ -117,6 +115,15 @@ public class ServerMessageHandler
                 break;
             case GIFT_RATE:
                 handleGiftRate(client, (GiftRateMessage) message);
+                break;
+            case NEW_FLOWER:
+                handleBouquet(client, (BouquetMessage) message);
+                break;
+            case NEW_PURPOSE:
+                handlePurpose(client, (NewMarriageMessage) message);
+                break;
+            case PURPOSE_RESPONSE:
+                handlePurposeResponse(client, (PurposeResponseMessage) message);
                 break;
         }
     }
@@ -772,6 +779,51 @@ public class ServerMessageHandler
         ClientConnection receiverConn = server.findClient(message.respondReceiver);
         if (receiverConn == null) {
             System.out.println("gift rate notif failed: Receiver not found");
+            return;
+        }
+        receiverConn.send(message);
+        System.out.println("notif sent");
+    }
+
+    private static void handleBouquet(ClientConnection client, BouquetMessage message) {
+        GameServer server = GameServer.getInstance();
+
+        User sender = server.getUser(client);
+        if (sender == null) return;
+
+        ClientConnection receiverConn = server.findClient(message.receiverID);
+        if (receiverConn == null) {
+            System.out.println("bouquet notif failed: Receiver not found");
+            return;
+        }
+        receiverConn.send(message);
+        System.out.println("notif sent");
+    }
+
+    private static void handlePurpose(ClientConnection client, NewMarriageMessage message) {
+        GameServer server = GameServer.getInstance();
+
+        User sender = server.getUser(client);
+        if (sender == null) return;
+
+        ClientConnection receiverConn = server.findClient(message.brideID);
+        if (receiverConn == null) {
+            System.out.println("purpose notif failed: Receiver not found");
+            return;
+        }
+        receiverConn.send(message);
+        System.out.println("notif sent");
+    }
+
+    private static void handlePurposeResponse(ClientConnection client, PurposeResponseMessage message) {
+        GameServer server = GameServer.getInstance();
+
+        User sender = server.getUser(client);
+        if (sender == null) return;
+
+        ClientConnection receiverConn = server.findClient(message.groomID);
+        if (receiverConn == null) {
+            System.out.println("purpose response notif failed: Receiver not found");
             return;
         }
         receiverConn.send(message);

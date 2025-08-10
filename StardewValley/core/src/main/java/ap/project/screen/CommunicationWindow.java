@@ -7,6 +7,10 @@ import ap.project.model.App.Result;
 import ap.project.model.enums.GameObjectType;
 import ap.project.model.game.GameObject;
 import ap.project.model.game.Player;
+import ap.project.network.client.GameClient;
+import ap.project.network.shared.messages.BouquetMessage;
+import ap.project.network.shared.messages.NewMarriageMessage;
+import ap.project.visual.UIRenderer;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
@@ -29,12 +33,13 @@ public class CommunicationWindow {
     private Label errorField;
     private final ChatScreen chatScreen;
     private final WorldScreen worldScreen;
+    private final GameClient client;
 
     public CommunicationWindow(Stage stage, WorldScreen worldScreen) {
         this.stage = stage;
         this.worldScreen = worldScreen;
         this.skin = GameAssetsManager.getGameAssetsManager().getSkin();
-
+        client = GameClient.getInstance();
         popup = new Window("Communication", skin);
         popup.setVisible(false);
         popup.setMovable(true);
@@ -85,6 +90,11 @@ public class CommunicationWindow {
             public void changed(ChangeEvent event, com.badlogic.gdx.scenes.scene2d.Actor actor) {
                 if (selectedFriend != null) {
                     Result result = controller.giveHug(selectedFriend);
+                    if (result.isSuccessful()) {
+                        UIRenderer.showTextBox("you are husband and wife now");
+                    } else {
+                        UIRenderer.showTextBox("go kill yourself");
+                    }
                     showResult(result);
                 }
             }
@@ -96,6 +106,10 @@ public class CommunicationWindow {
             public void changed(ChangeEvent event, com.badlogic.gdx.scenes.scene2d.Actor actor) {
                 if (selectedFriend != null) {
                     Result result = controller.giveFlower(selectedFriend);
+                    if (result.isSuccessful()) {
+                        client.send(new BouquetMessage(App.getCurrentGame().getCurrentPlayer().getUser().getHashId(),
+                            selectedFriend.getUser().getHashId()));
+                    }
                     showResult(result);
                 }
             }
@@ -222,7 +236,7 @@ public class CommunicationWindow {
     }
 
     private void showRingSelectionDialog() {
-        Dialog dialog = new Dialog("Select a Ring", skin);
+        Dialog dialog = new Dialog("Select a ring", skin);
         dialog.setSize(500, 400);
 
         // Title
@@ -248,6 +262,8 @@ public class CommunicationWindow {
                         Result result = controller.purposeAsk(selectedFriend, item);
                         showResult(result);
                         if (result.isSuccessful()) {
+                            client.send(new NewMarriageMessage(App.getCurrentGame().getCurrentPlayer().getUser().getHashId(),
+                                selectedFriend.getUser().getHashId(), item));
                             selectedFriend.setNewShohar(true);
                             refreshOptions();
                         }

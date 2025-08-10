@@ -9,6 +9,8 @@ import ap.project.model.game.Player;
 import ap.project.model.enums.Gender;
 import ap.project.model.player_data.FriendshipData;
 import ap.project.model.enums.GameObjectType;
+import ap.project.network.client.GameClient;
+import ap.project.network.shared.messages.PurposeResponseMessage;
 import ap.project.screen.FriendsWindow;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
@@ -469,6 +471,8 @@ public class CommunicateController {
             message = "go kill yourself";
             isSuccessful = false;
         }
+        GameClient.getInstance().send(new PurposeResponseMessage(player.getUser().getHashId()
+            , currentPlayer.getUser().getHashId(), ring, answer));
         currentPlayer.getPurposeList().remove(player);
         return new Result(isSuccessful, message);
     }
