@@ -35,6 +35,7 @@ public class Player {
 
     private final User user;
     private Farm farm;
+    private Stack<Map> mapHistory;
     private final Cabin cabin;
     private GreenHouse greenHouse;
 
@@ -1240,12 +1241,17 @@ public class Player {
         setLocation(shop.getStartingPoint());
         WorldScreen.getInstance().updateGameInfo();
     }
-
     public Point getPreviousLocation() {
         return previousLocation;
     }
 
     public void setPreviousLocation(Point previousLocation) {
         this.previousLocation = previousLocation;
+    }
+
+    public void returnToPreviousMap() {
+        if (!mapHistory.isEmpty()) {
+            currentMap = mapHistory.pop();
+        }
     }
 }

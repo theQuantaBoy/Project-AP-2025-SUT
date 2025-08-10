@@ -4,14 +4,14 @@ import ap.project.model.game.Point;
 
 public enum ShopType
 {
-    BLACK_SMITH("Blacksmith", MapTypes.BLACK_SMITH, new Point(94, 82), "maps/general/shops/blacksmith.tmx", null),
-    JOJA_MART("Joja Mart", MapTypes.JOJA_MART, new Point(95, 51), "maps/general/shops/joja_mart.tmx", null),
+    BLACK_SMITH("Blacksmith", MapTypes.BLACK_SMITH, new Point(94, 82), "maps/general/shops/blacksmith.tmx", new Point(2, 14)),
+    JOJA_MART("Joja Mart", MapTypes.JOJA_MART, new Point(95, 51), "maps/general/shops/joja_mart.tmx", new Point(10, 25)),
     PIERRE_GENERAL_STORE("Pierre's General Store", MapTypes.PIERRE_GENERAL_STORE, new Point(43, 57), "maps/general/shops/pierre_store.tmx",
         new Point(7, 18)),
-    CARPENTER_SHOP("Carpenter's Shop", MapTypes.CARPENTER_SHOP, new Point(57, 64), "maps/general/shops/carpenter_shop.tmx", null),
-    FISH_SHOP("Fish Shop", MapTypes.FISH_SHOP, new Point(10, 86), "maps/general/shops/fish_shop.tmx", null),
-    MARINE_RANCH("Marine's Ranch", MapTypes.MARNIE_RANCH, new Point(58, 86), "maps/general/shops/animal_shop.tmx", null),
-    STARDROP_SALOON("The Stardrop Saloon", MapTypes.SALOON, new Point(45, 71), "maps/general/shops/saloon.tmx", null),
+    CARPENTER_SHOP("Carpenter's Shop", MapTypes.CARPENTER_SHOP, new Point(57, 64), "maps/general/shops/carpenter_shop.tmx", new Point(8, 19)),
+    FISH_SHOP("Fish Shop", MapTypes.FISH_SHOP, new Point(10, 86), "maps/general/shops/fish_shop.tmx", new Point(6, 5)),
+    MARINE_RANCH("Marine's Ranch", MapTypes.MARNIE_RANCH, new Point(58, 86), "maps/general/shops/animal_shop.tmx", new Point(12, 15)),
+    STARDROP_SALOON("The Stardrop Saloon", MapTypes.SALOON, new Point(45, 71), "maps/general/shops/saloon.tmx", new Point(10, 19)),
     ;
 
     private final String name;

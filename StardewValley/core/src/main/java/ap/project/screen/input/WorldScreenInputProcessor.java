@@ -27,6 +27,7 @@ public class WorldScreenInputProcessor implements InputProcessor
     private final InventoryWindow inventoryWindow;
     private final CommunicationWindow communicationWindow;
     private final ShopWindow shopWindow;
+    private BuildingPlacer buildingPlacer;
 
     public WorldScreenInputProcessor(Map map, PlayerCharacter player, CharacterController controller,
                                      OrthographicCamera cam, WorldScreen worldScreen, InventoryWindow inventoryWindow,
@@ -41,6 +42,8 @@ public class WorldScreenInputProcessor implements InputProcessor
         this.inventoryWindow = inventoryWindow;
         this.communicationWindow = communicationWindow;
         this.shopWindow = shopWindow;
+
+        this.buildingPlacer = worldScreen.buildingPlacer;
     }
 
     @Override
@@ -78,6 +81,13 @@ public class WorldScreenInputProcessor implements InputProcessor
             }
 
             WorldController.processClickLeft(worldScreen, tile);
+
+            if (buildingPlacer.isActive() && button == Input.Buttons.LEFT) {
+                Point position = worldScreen.cursorToTile().getPoint();
+                if (buildingPlacer.tryPlaceBuilding(position)) {
+                    return true;
+                }
+            }
         }
 
         if (Gdx.input.isButtonJustPressed(Input.Buttons.RIGHT)) {
@@ -179,7 +189,16 @@ public class WorldScreenInputProcessor implements InputProcessor
     }
 
     @Override public boolean touchDragged(int x, int y, int p)   { return false; }
-    @Override public boolean mouseMoved(int x, int y) { return false; }
+    @Override public boolean mouseMoved(int x, int y) {
+        if (buildingPlacer.isActive()) {
+            Tile tile = worldScreen.cursorToTile();
+            if (tile != null) {
+                buildingPlacer.updateCursorPosition(tile.getPoint());
+            }
+            return true;
+        }
+        return false;
+    }
     @Override public boolean scrolled(float x, float y) { return false; }
 
     private Player findNearbyPlayer(Point center, int radius) {

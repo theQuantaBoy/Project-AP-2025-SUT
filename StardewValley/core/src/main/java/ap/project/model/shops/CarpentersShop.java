@@ -85,8 +85,8 @@ public class CarpentersShop extends Shop {
             products.add(new ShopProduct(
                 building.getName(),
                 building.getPrice(),
-                -1, // Unlimited stock
-                null, // Not a GameObject
+                1, // Unlimited stock
+                GameObjectType.ANIMAL_BUILDING, // Not a GameObject
                 building
             ));
         }

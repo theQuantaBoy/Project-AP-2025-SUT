@@ -54,7 +54,7 @@ public enum FarmBuildingType
     private final List<Integer> size;
     private final int capacity;
     private final int dailyLimit;
-    private final Texture texture;
+    public final Texture texture;
 
     FarmBuildingType(String name, String description, int price, List<GameObject> requirements,
                      List<Integer> size, int capacity, int dailyLimit, Texture texture) {

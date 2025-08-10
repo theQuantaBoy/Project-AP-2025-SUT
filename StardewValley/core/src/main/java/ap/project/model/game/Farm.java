@@ -651,4 +651,30 @@ public class Farm extends Map
 
         return animals;
     }
+
+    public boolean canPlaceBuildingAt(Point position, FarmBuildingType type) {
+        int width = type.getWidth();
+        int height = type.getHeight();
+
+        // Check bounds
+        if (position.getX() < 0 || position.getY() < 0 ||
+            position.getX() + width > getWidth() ||
+            position.getY() + height > getHeight()) {
+            return false;
+        }
+
+        // Check if tiles are free
+        for (int y = position.getY(); y < position.getY() + height; y++) {
+            for (int x = position.getX(); x < position.getX() + width; x++) {
+                Tile tile = getTile(x, y);
+                if (tile == null || !isTileGoodForAnimalBuilding(tile)) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+
+
 }

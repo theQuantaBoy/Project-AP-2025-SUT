@@ -3,6 +3,7 @@ package ap.project.screen;
 import ap.project.model.App.App;
 import ap.project.model.App.GameAssetsManager;
 import ap.project.model.animal.Animal;
+import ap.project.model.animal.AnimalBuilding;
 import ap.project.model.enums.GameObjectType;
 import ap.project.model.enums.animal_enums.FarmAnimalsType;
 import ap.project.model.enums.animal_enums.FarmBuildingType;
@@ -194,10 +195,17 @@ public class PurchaseWindow extends Dialog {
         }
 
         UIRenderer.showTextBox("Purchased " + quantity + " " + product.getName());
+
+        if(product.getOriginalItem() instanceof FarmBuildingType) {
+            System.out.println("salam");
+            handleBuildingPurchase((FarmBuildingType) product.getOriginalItem());
+        }
     }
 
     private void handleBuildingPurchase(FarmBuildingType building) {
-        // Implementation for building purchases
+        WorldScreen worldScreen = WorldScreen.getInstance();
+        worldScreen.startBuilding(building);
+        hide();
     }
 
     private void handleAnimalPurchase(FarmAnimalsType animalType) {

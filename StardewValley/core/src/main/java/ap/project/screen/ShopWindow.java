@@ -150,7 +150,7 @@ public class ShopWindow extends Window {
         }
         // Default icon if no specific type
         return new TextureRegionDrawable(new TextureRegion(
-            new Texture(Gdx.files.internal("game_objects/unknown.png"))
+            new Texture(Gdx.files.internal("game_objects/Rice_Shoot.png"))
         ));
     }
 

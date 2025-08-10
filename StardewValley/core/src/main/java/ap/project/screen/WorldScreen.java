@@ -11,6 +11,7 @@ import ap.project.model.enums.Season;
 import ap.project.model.enums.animal_enums.FarmAnimalsType;
 import ap.project.model.building.CraftingItem;
 import ap.project.model.enums.*;
+import ap.project.model.enums.animal_enums.FarmBuildingType;
 import ap.project.model.game.Game;
 import ap.project.model.shops.ShopMap;
 import ap.project.screen.input.WorldScreenInputProcessor;
@@ -53,7 +54,7 @@ public final class WorldScreen implements Screen
 
     public static final float MAP_SCALE = 1.0f;
     private static final float CHAR_SCALE = 1f;
-    private static final float TILE_SIZE = 24f * MAP_SCALE;
+    static final float TILE_SIZE = 24f * MAP_SCALE;
     private static final float PLAYER_SPEED = 50f * MAP_SCALE;
 
     private final Game game;
@@ -97,6 +98,7 @@ public final class WorldScreen implements Screen
     private InputMultiplexer inputMultiplexer;
     private boolean inputMultiplexerHadSetUp = false;
     private AnimalInteractionScreen animalInteractionScreen;
+    public BuildingPlacer buildingPlacer;
 
     private boolean cameraFixed = false;
     private final boolean DEBUG_MODE = false;
@@ -161,6 +163,7 @@ public final class WorldScreen implements Screen
         animalManager = new AnimalManager(20 * TILE_SIZE, 15 * TILE_SIZE);
         animalWindow = new AnimalWindow(uiStage);
         animalWindow.setAnimalManager(animalManager);
+        buildingPlacer = new BuildingPlacer(this);
 
         animalManager = new AnimalManager(20 * TILE_SIZE, 15 * TILE_SIZE);
 
@@ -915,6 +918,14 @@ public final class WorldScreen implements Screen
         return character;
     }
 
+    public void centerCameraOnFarm() {
+        Map farm = getCurrentPlayer().getFarm();
+        float centerX = farm.getWidth() * TILE_SIZE / 2;
+        float centerY = farm.getHeight() * TILE_SIZE / 2;
+        cam.position.set(centerX, centerY, 0);
+        cam.update();
+    }
+
     private void initializeNPCs() {
         // Initialize NPCs with their details
         Vector2 townSquare = new Vector2(150 * TILE_SIZE, 120 * TILE_SIZE);
@@ -961,6 +972,10 @@ public final class WorldScreen implements Screen
 
     public AnimalManager getAnimalManager() {
         return animalManager;
+    }
+
+    public void startBuilding(FarmBuildingType buildingType) {
+        buildingPlacer.startPlacement(buildingType);
     }
 
 //    public void toggleInventoryWindowForGifting(NPCActor npcActor) {
