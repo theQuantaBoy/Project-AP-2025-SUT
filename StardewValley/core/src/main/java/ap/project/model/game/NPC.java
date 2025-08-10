@@ -47,10 +47,6 @@ public class NPC {
         return npcDetails;
     }
 
-    public Point getLocation() {
-        return location;
-    }
-
     public boolean isNearPlayer(Point playerLocation)
     {
         int dx = Math.abs(location.getX() - playerLocation.getX());
@@ -59,10 +55,8 @@ public class NPC {
         return (dx <= 1 && dy <= 1) && !(dx == 0 && dy == 0);
     }
 
-    public boolean isQuestFinish = false;
-    public boolean isGifted = false; //TODO, should be reset everyday
-
-    public String talk() {
+    public String talk()
+    {
         Time currentTime = App.getCurrentGame().getCurrentTime();
         return this.getNpcDetails().getDialogue(currentTime.getSeason(), currentTime.getTimeOfDay());
     }
@@ -146,5 +140,11 @@ public class NPC {
     public NPCCharacter getCharacter()
     {
         return character;
+    }
+
+    public Point getLocation()
+    {
+        Vector2 pos = character.getPosition();
+        return App.getCurrentGame().getCity().worldToTile(pos.x, pos.y);
     }
 }

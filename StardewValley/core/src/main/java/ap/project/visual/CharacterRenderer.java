@@ -1,9 +1,8 @@
 package ap.project.visual;
 //
-import ap.project.model.game.AbstractCharacter;
-import ap.project.model.game.GameObject;
-import ap.project.model.game.Player;
-import ap.project.model.game.PlayerCharacter;
+import ap.project.model.App.App;
+import ap.project.model.game.*;
+import ap.project.model.player_data.FriendshipWithNpcData;
 import ap.project.model.tools.Tool;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
@@ -42,7 +41,7 @@ public class CharacterRenderer
     {
         Vector2 pos = character.getPosition();
 
-        batch.draw(character.getShadow(), pos.x, pos.y - 3);
+        batch.draw(character.getShadow(), pos.x + 1, pos.y - 3);
 
         TextureRegion frame = character.getCurrentFrame();
         batch.draw(frame, pos.x, pos.y, 0, 0,
@@ -63,6 +62,19 @@ public class CharacterRenderer
             }
 
             renderReaction(batch, player, pos);
+        } else if (character instanceof NPCCharacter)
+        {
+            Player p = App.getCurrentGame().getCurrentPlayer();
+
+            NPCCharacter npcCharacter = (NPCCharacter) character;
+            NPC npc = App.getCurrentGame().getNpcFromCharacter(npcCharacter);
+
+            FriendshipWithNpcData friendship = p.getNpcFriendship(npc);
+
+            if (!friendship.isHasTalked())
+            {
+                batch.draw(character.getDialogBubble(), pos.x + 14, pos.y + 16, 16, 16);
+            }
         }
 
         String name = character.getNickName();

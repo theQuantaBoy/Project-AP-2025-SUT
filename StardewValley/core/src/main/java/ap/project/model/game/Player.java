@@ -1076,7 +1076,6 @@ public class Player {
             case NpcDetails.Harvey -> HarveyFriendship;
             case NpcDetails.Robin -> RobinFriendship;
             case NpcDetails.Sebastian -> SebastianFriendship;
-            default -> null;
         };
     }
 

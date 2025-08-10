@@ -15,6 +15,7 @@ import ap.project.model.enums.resources_enums.CropType;
 import ap.project.model.enums.resources_enums.ResourceItem;
 import ap.project.model.enums.resources_enums.TreeType;
 import ap.project.model.game.*;
+import ap.project.model.player_data.FriendshipWithNpcData;
 import ap.project.model.resources.*;
 import ap.project.model.shops.Shop;
 import ap.project.model.tools.*;
@@ -85,6 +86,11 @@ public class WorldController
         }
 
         if (processObjectUse(tile, location,  clicked))
+        {
+            return;
+        }
+
+        if (processNPCCommunication(tile))
         {
             return;
         }
@@ -1161,5 +1167,30 @@ public class WorldController
             }
         }
         return null;
+    }
+
+    private static boolean processNPCCommunication(Tile tile)
+    {
+        Game game = App.getCurrentGame();
+        Player player = game.getCurrentPlayer();
+
+        NPC npc = game.getNpcFromLocation(tile.getPoint());
+        if (npc == null)
+        {
+            return false;
+        }
+
+        FriendshipWithNpcData friendship = player.getNpcFriendship(npc);
+
+        if (!friendship.isHasTalked())
+        {
+            friendship.talk();
+
+            UIRenderer.showTextBox("You received 20 xp.");
+            UIRenderer.showTextBox(npc.getName() + ": " + npc.talk());
+            return true;
+        }
+
+        return false;
     }
 }
