@@ -531,6 +531,10 @@ public final class WorldScreen implements Screen
                     return true;
                 }
 
+                if (friendsWindow.isVisible()) { //TODO: might be wrong
+                    return true;
+                }
+
                 if (isCraftingWindowVisible()) {
                     return false;
                 }
@@ -1634,5 +1638,8 @@ public final class WorldScreen implements Screen
         return communicationWindow;
     }
 
+    public InputMultiplexer getInputMultiplexer() {
+        return inputMultiplexer;
+    }
 }
 

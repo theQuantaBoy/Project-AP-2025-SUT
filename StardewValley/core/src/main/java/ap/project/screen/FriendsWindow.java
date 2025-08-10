@@ -10,18 +10,27 @@ import ap.project.model.game.Gift;
 import ap.project.model.game.Player;
 import ap.project.model.game.Trade;
 import ap.project.model.player_data.FriendshipData;
+import ap.project.model.tools.Tool;
 import ap.project.network.client.GameClient;
 import ap.project.network.shared.messages.TradeRequestMessage;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
+import com.badlogic.gdx.utils.Scaling;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -84,7 +93,7 @@ public class FriendsWindow {
         contentStack.add(tradeHistoryTable);
         contentStack.add(newGiftTable);
 
-        popup.setSize(1200, 700);
+        popup.setSize(1200, 800);
         popup.add(contentStack).expand().fill();
         popup.row();
 
@@ -114,7 +123,7 @@ public class FriendsWindow {
 
             String tooltipText = friend.getNickName() + " (Level " + data.getLevel() + ")\n"
                 + "XP: " + data.getXp();
-            Label tooltipLabel = new Label(tooltipText, skin, "WhiteText");
+            Label tooltipLabel = new Label(tooltipText, skin);
             Tooltip<Label> tooltip = new Tooltip<>(tooltipLabel, tooltipManager);
             tooltip.getContainer().setBackground(tooltipBg);
             tooltip.getContainer().pad(8);
@@ -224,51 +233,69 @@ public class FriendsWindow {
         Label title = new Label("Send Gift to " + selectedFriend.getNickName(), skin);
         title.setFontScale(1.2f);
 
-        // Back button - fixed with proper UI reset
+        // Back button
         TextButton backButton = new TextButton("Back", skin);
         backButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                // Reset UI state properly
-                inventoryWindow.clearSelection();  // Add this method to InventoryWindow
-                stage.setKeyboardFocus(null);      // Clear keyboard focus
                 newGiftTable.setVisible(false);
                 giftOptionsTable.setVisible(true);
             }
         });
 
-        // Inventory - ensure fresh state
-        inventoryTable = inventoryWindow.buildLimitedInventoryTable();
+        // Inventory grid
+        Table inventoryGrid = new Table();
+        List<GameObject> giftableItems = getGiftableItems();
+        buildGiftGrid(inventoryGrid, giftableItems, 3, 8);
 
-        // Amount input field - fixed with proper input handling
-        final TextField amountField = new TextField("1", skin);
-        amountField.setAlignment(Align.center);
-        amountField.setMaxLength(3);
-        amountField.setTextFieldFilter((textField, c) ->
-            Character.isDigit(c) || c == '\b' || c == 127);
-        amountField.setMessageText("Amount");
-        amountField.setWidth(60);
+        // Amount display (Label - non editable)
+        final Label amountLabel = new Label("1", skin);
+        amountLabel.setAlignment(Align.center);
+        amountLabel.setWidth(48);
+        amountLabel.setHeight(28);
 
-        // Add key listener to handle Enter/ESC
-        amountField.addListener(new InputListener() {
+        // - button
+        TextButton minusButton = new TextButton("-", skin);
+        minusButton.getLabel().setFontScale(1f);
+        minusButton.addListener(new ClickListener() {
             @Override
-            public boolean keyDown(InputEvent event, int keycode) {
-                if (keycode == Input.Keys.ENTER) {
-                    stage.setKeyboardFocus(null);  // Defocus on Enter
-                    return true;
-                } else if (keycode == Input.Keys.ESCAPE) {
-                    backButton.toggle();  // Simulate back button press
-                    return true;
-                }
-                return false;
+            public void clicked(InputEvent event, float x, float y) {
+                try {
+                    int current = Integer.parseInt(amountLabel.getText().toString());
+                    if (current > 1) {
+                        amountLabel.setText(String.valueOf(current - 1));
+                    }
+                } catch (NumberFormatException ignored) {}
             }
         });
 
-        Table amountTable = new Table();
-        amountTable.add(new Label("Amount:", skin)).padRight(10);
-        amountTable.add(amountField);
+        // + button
+        TextButton plusButton = new TextButton("+", skin);
+        plusButton.getLabel().setFontScale(1f);
+        plusButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                try {
+                    int current = Integer.parseInt(amountLabel.getText().toString());
+                    if (selectedGiftItem != null) {
+                        if (current < selectedGiftItem.getNumber()) {
+                            amountLabel.setText(String.valueOf(current + 1));
+                        }
+                    } else {
+                        amountLabel.setText(String.valueOf(current + 1));
+                    }
+                } catch (NumberFormatException ignored) {}
+            }
+        });
 
-        // Initialize error label
+        // Amount table: consistent sizes and padding (no crazy tiny numbers)
+        Table amountTable = new Table();
+        amountTable.add(new Label("Amount:", skin)).padRight(12);
+        amountTable.add(minusButton).pad(4).fillX().expand();
+        amountTable.add(amountLabel).width(48).height(28).pad(4);
+        amountTable.add(plusButton).pad(4).fillX().expand();
+
+        // Error label
         final Label errorLabel = new Label("", skin);
         errorLabel.setColor(Color.RED);
 
@@ -277,8 +304,7 @@ public class FriendsWindow {
         giftButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                GameObject selected = inventoryWindow.getSelectedInventoryObject();
-                if (selected == null) {
+                if (selectedGiftItem == null) {
                     errorLabel.setText("No item selected.");
                     errorLabel.setColor(Color.RED);
                     return;
@@ -286,9 +312,9 @@ public class FriendsWindow {
 
                 int amount;
                 try {
-                    amount = Integer.parseInt(amountField.getText());
-                    if (amount <= 0 || amount > selected.getNumber()) {
-                        errorLabel.setText("Invalid amount (1-" + selected.getNumber() + ")");
+                    amount = Integer.parseInt(amountLabel.getText().toString());
+                    if (amount <= 0 || amount > selectedGiftItem.getNumber()) {
+                        errorLabel.setText("Invalid amount (1-" + selectedGiftItem.getNumber() + ")");
                         errorLabel.setColor(Color.RED);
                         return;
                     }
@@ -298,29 +324,114 @@ public class FriendsWindow {
                     return;
                 }
 
-                Result result = controller.gift(selectedFriend, selected.getObjectType(), amount);
+                Result result = controller.gift(selectedFriend, selectedGiftItem.getObjectType(), amount);
                 errorLabel.setText(result.message());
                 errorLabel.setColor(result.isSuccessful() ? Color.GREEN : Color.RED);
 
-                // Reset UI on success
                 if (result.isSuccessful()) {
-                    amountField.setText("1");
-                    inventoryWindow.clearSelection();
-                    inventoryTable = inventoryWindow.buildLimitedInventoryTable();
-                    @SuppressWarnings("unchecked")
-                    Cell<Table> cell = (Cell<Table>) newGiftTable.getCells().get(1);
-                    cell.setActor(inventoryTable);
+                    amountLabel.setText("1"); // reset to default 1
+                    selectedGiftItem = null;
+                    List<GameObject> updatedItems = getGiftableItems();
+                    buildGiftGrid(inventoryGrid, updatedItems, 3, 8);
                 }
             }
         });
 
         // Layout
         newGiftTable.add(title).padBottom(10).row();
-        newGiftTable.add(inventoryTable).padBottom(10).row();
+        newGiftTable.add(inventoryGrid).padBottom(10).row();
         newGiftTable.add(amountTable).padBottom(10).row();
         newGiftTable.add(giftButton).padBottom(5).row();
         newGiftTable.add(backButton).padTop(5).row();
         newGiftTable.add(errorLabel).padTop(5).row();
+    }
+
+
+
+
+    // Field to track selected gift item
+    private GameObject selectedGiftItem;
+
+    // Get non-tool items for gifting
+    private List<GameObject> getGiftableItems() {
+        Player player = App.getCurrentGame().getCurrentPlayer();
+        List<GameObject> allItems = player.getCurrentBackPack().getNonEmptyItems();
+        List<GameObject> giftableItems = new ArrayList<>();
+
+        for (GameObject item : allItems) {
+            if (!(item instanceof Tool)) {
+                giftableItems.add(item);
+            }
+        }
+        return giftableItems;
+    }
+
+    // Build the gift grid (similar to trade screen)
+    private void buildGiftGrid(Table grid, List<GameObject> items, int rows, int cols) {
+        grid.clear();
+        grid.defaults().size(64).pad(4); // Slot size and padding
+
+        BitmapFont quantityFont = GameAssetsManager.generateFont("fonts/Roboto-Regular.ttf", 16, Color.WHITE);
+
+        // Create slot background
+        Drawable slotBackground = GameAssetsManager.getGameAssetsManager()
+            .createColoredDrawable(64, 64, new Color(0.3f, 0.3f, 0.3f, 0.7f));
+
+        // Create selection border
+        Pixmap borderPixmap = new Pixmap(68, 68, Pixmap.Format.RGBA8888);
+        borderPixmap.setColor(Color.YELLOW);
+        borderPixmap.drawRectangle(0, 0, 67, 67);
+        Drawable selectionBorder = new TextureRegionDrawable(new TextureRegion(new Texture(borderPixmap)));
+        borderPixmap.dispose();
+
+        for (int i = 0; i < rows * cols; i++) {
+            Stack slotStack = new Stack();
+            slotStack.setSize(64, 64);
+
+            // Background
+            slotStack.add(new Image(slotBackground));
+
+            // Item content
+            if (i < items.size()) {
+                GameObject item = items.get(i);
+
+                // Item image
+                Texture texture = item.getObjectType().getTexture();
+                Image itemImage = new Image(new TextureRegionDrawable(new TextureRegion(texture)));
+                itemImage.setScaling(Scaling.fit);
+                slotStack.add(itemImage);
+
+                // Quantity label
+                if (item.getNumber() > 1) {
+                    Label quantityLabel = new Label(String.valueOf(item.getNumber()),
+                        new Label.LabelStyle(quantityFont, Color.WHITE));
+
+                    Table labelTable = new Table();
+                    labelTable.setFillParent(true);
+                    labelTable.bottom().right();
+                    labelTable.add(quantityLabel).pad(0, 0, 4, 4);
+                    slotStack.add(labelTable);
+                }
+
+                // Selection border if selected
+                if (item == selectedGiftItem) {
+                    slotStack.add(new Image(selectionBorder));
+                }
+
+                // Click listener
+                final GameObject finalItem = item;
+                slotStack.addListener(new ClickListener() {
+                    @Override
+                    public void clicked(InputEvent event, float x, float y) {
+                        selectedGiftItem = finalItem;
+                        buildGiftGrid(grid, items, rows, cols); // Rebuild to show selection
+                    }
+                });
+            }
+
+            grid.add(slotStack);
+            if ((i + 1) % cols == 0) grid.row();
+        }
     }
 
     private void showGiftHistoryUI(Player friend) {
@@ -545,4 +656,5 @@ public class FriendsWindow {
     public TradeWindow getTradeWindow() {
         return tradeWindow;
     }
+
 }

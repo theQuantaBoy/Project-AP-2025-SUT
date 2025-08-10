@@ -822,6 +822,101 @@ public class InventoryWindow {
         return mainTable;
     }
 
+    public Table buildGiftInventoryTable() {
+        // Create main container table (vertical layout)
+        Table mainTable = new Table(skin);
+        mainTable.defaults().pad(2);
+        mainTable.center();
+
+        // Create inventory grid
+        Table inventoryGrid = new Table(skin);
+        inventoryGrid.defaults().size(SLOTS_SIZE).pad(2);
+        inventoryGrid.center();
+
+        updatePlayer();
+        java.util.List<GameObject> slots = backpack.getNonEmptyItems();
+        int capacity = backpack.getCapacity();
+        int counter = 0;
+
+        for (int slot = 0; slot < capacity; slot++) {
+            final int slotIndex = slot;
+            GameObject obj = slot < backpack.getItemCount() ? slots.get(counter++) : null;
+
+            Table slotContainer = new Table();
+            slotContainer.setBackground(slotIndex == selectedInventorySlot ? slotHighlight : slotBackground);
+            slotContainer.setSize(SLOTS_SIZE, SLOTS_SIZE);
+
+            if (obj != null && !(obj instanceof Tool)) {
+                Drawable icon = getSafeIcon(obj);
+                Stack itemStack = new Stack();
+                itemStack.add(new Image(icon));
+
+                if (obj.getNumber() > 1) {
+                    Label countLabel = new Label(String.valueOf(obj.getNumber()), skin);
+
+                    // Create container for padding
+                    Table countContainer = new Table();
+                    itemStack.setFillParent(true);
+                    countContainer.bottom().right();
+                    countContainer.add(countLabel);// Bottom and right padding
+
+                    slotContainer.add(itemStack).expand().fill();
+                    slotContainer.add(countContainer);
+                } else {
+                    slotContainer.add(itemStack).expand().fill();
+                }
+
+                String tooltipText;
+                if (obj.getNumber() < 2) tooltipText = obj.getObjectType().toString();
+                else tooltipText = obj.getObjectType().toString() + " x" +  obj.getNumber();
+                Label tooltipLabel = new Label(tooltipText, skin);
+                Tooltip<Label> tooltip = new Tooltip<>(tooltipLabel, tooltipManager);
+                tooltip.getContainer().setBackground(tooltipBg);
+                tooltip.getContainer().pad(8);
+                slotContainer.addListener(tooltip);
+                //stage.addActor(tooltip.getContainer());
+            }
+
+            slotContainer.addListener(new ClickListener() {
+                @Override
+                public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+                    GameObject clickedObject = slotIndex < slots.size() ? slots.get(slotIndex) : null;
+                    // Left-click handling
+                    if (player.getCurrentObject() != null && player.getCurrentObject().equals(clickedObject)) {
+                        player.setCurrentObject(null);
+                        selectedInventorySlot = -1; // Deselect if same object clicked
+                    } else {
+//                            if (clickedObject != null && clickedObject instanceof Tool)
+//                            {
+//                                player.setCurrentTool(null);
+//                            } else if (clickedObject != null)
+//                            {
+//                                player.setCurrentObject(clickedObject);
+//                            }
+                        selectedInventorySlot = clickedObject != null ? slotIndex : -1;
+                    }
+
+                    // Clear hotbar selection
+                    refreshInventoryTable();
+
+
+                    return true;
+                }
+            });
+
+            inventoryGrid.add(slotContainer).size(SLOTS_SIZE, SLOTS_SIZE).pad(2);
+
+            if ((slot + 1) % COLS == 0) {
+                inventoryGrid.row();
+            }
+        }
+
+        // Add inventory grid to main container
+        mainTable.add(inventoryGrid).colspan(COLS).row();
+
+        return mainTable;
+    }
+
     public GameObject getSelectedInventoryObject() {
         int index = selectedInventorySlot;
         if (index >= 0 && index < backpack.getSlots().size()) {
