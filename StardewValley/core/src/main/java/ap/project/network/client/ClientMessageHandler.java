@@ -7,6 +7,7 @@ import ap.project.model.App.GameAssetsManager;
 import ap.project.model.App.User;
 import ap.project.model.game.Game;
 import ap.project.model.game.Player;
+import ap.project.model.player_data.Skill;
 import ap.project.network.server.ClientConnection;
 import ap.project.network.server.GameServer;
 import ap.project.network.server.GameWrapper;
@@ -23,6 +24,7 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 public class ClientMessageHandler
 {
@@ -141,7 +143,9 @@ public class ClientMessageHandler
             case PLAYER_REACTION:
                 handlePlayerReactionMessage((PlayerReactionMessage) message);
                 break;
-            // Add other cases
+            case SCORE_BOARD_DATA:
+                handlePlayerScoreBoardDataMessage((ScoreBoardDataMessage) message);
+                break;
         }
     }
     private static void handleTestMessage(TestMessage msg) {
@@ -212,7 +216,12 @@ public class ClientMessageHandler
         Screen currentScreen = Main.getApp().getScreen();
         if (currentScreen instanceof PreLobbyScreen)
         {
-            ((PreLobbyScreen) currentScreen).setOnlineUsersText(list);
+            PreLobbyScreen pls = (PreLobbyScreen) currentScreen;
+            if (!pls.getOnlineUsersText().equals(list))
+            {
+                ((PreLobbyScreen) currentScreen).setOnlineUsersText(list);
+                pls.refreshOnlineUsersList();
+            }
         }
     }
 
@@ -591,6 +600,30 @@ public class ClientMessageHandler
         {
             WorldScreen ws = (WorldScreen) Main.getApp().getScreen();
             ws.updateOtherPlayerReaction(message);
+        }
+    }
+
+    private static void handlePlayerScoreBoardDataMessage(ScoreBoardDataMessage message)
+    {
+        String gameID = message.gameId;
+        int userID = message.userId;
+
+        double money = message.money;
+        int completedQuests = message.completedQuests;
+
+        Skill farming = Mapper.fromDTO(message.farmingSkillDTO);
+        Skill mining = Mapper.fromDTO(message.miningSkillDTO);
+        Skill foraging = Mapper.fromDTO(message.foragingSkillDTO);
+        Skill fishing = Mapper.fromDTO(message.fishingSkillDTO);
+
+        if (Main.getApp().getScreen() instanceof WorldScreen)
+        {
+            WorldScreen ws = (WorldScreen) Main.getApp().getScreen();
+
+            if (App.getCurrentGame().getId().equals(gameID))
+            {
+                ws.updatePlayerScoreBoardData(userID, money, completedQuests, farming, mining, foraging, fishing);
+            }
         }
     }
 }

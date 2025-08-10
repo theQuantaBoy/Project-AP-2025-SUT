@@ -5,8 +5,10 @@ import ap.project.model.enums.SkillType;
 import ap.project.model.enums.building_enums.CraftingRecipeEnums;
 import ap.project.model.enums.building_enums.KitchenRecipe;
 import ap.project.view.HomeMenu;
+import com.badlogic.gdx.scenes.scene2d.ui.ProgressBar;
 
 import java.util.HashMap;
+import java.util.Objects;
 
 public class Skill {
 
@@ -19,7 +21,13 @@ public class Skill {
         this.type = type;
         this.level = 0;
         this.unit = 0;
+    }
 
+    public Skill(SkillType type, int level, int unit)
+    {
+        this.type = type;
+        this.level = level;
+        this.unit = unit;
     }
 
     public SkillType getType() {
@@ -117,6 +125,12 @@ public class Skill {
         this.unit -= threshold;
     }
 
+    public float getPercentage()
+    {
+        int max = getThresholdForLevel(getLevel());
+        return ((float) getUnit()) / ((float) max);
+    }
+
     public int getThresholdForLevel(int level) {
         return switch (level) {
             case 0 -> 50;
@@ -172,5 +186,12 @@ public class Skill {
     public void setLevel(int level)
     {
         this.level = level;
+    }
+
+    @Override
+    public boolean equals(Object o)
+    {
+        if (!(o instanceof Skill skill)) return false;
+        return level == skill.level && unit == skill.unit && type == skill.type;
     }
 }

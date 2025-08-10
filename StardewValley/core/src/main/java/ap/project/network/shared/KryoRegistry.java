@@ -166,6 +166,6 @@ public class KryoRegistry
         kryo.register(PlayerReactionMessage.class);
         kryo.register(ReactionEmoji.class);
 
-        // Register all other message classes ...
+        kryo.register(ap.project.network.shared.messages.ScoreBoardDataMessage.class);
     }
 }

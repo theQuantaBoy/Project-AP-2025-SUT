@@ -8,17 +8,17 @@ import ap.project.control.WorldController;
 import ap.project.control.game.activities.TradeController;
 import ap.project.model.App.App;
 import ap.project.model.App.GameAssetsManager;
-import ap.project.model.App.User;
-import ap.project.model.enums.Gender;
 import ap.project.model.enums.Season;
 import ap.project.model.building.CraftingItem;
 import ap.project.model.enums.*;
 import ap.project.model.game.Game;
+import ap.project.model.player_data.Skill;
 import ap.project.model.shops.Shop;
 import ap.project.model.tools.BackPack;
 import ap.project.model.tools.Tool;
 import ap.project.network.client.GameClient;
 import ap.project.network.shared.DTO.PlayerDTO;
+import ap.project.network.shared.DTO.SkillDTO;
 import ap.project.network.shared.messages.*;
 import ap.project.screen.input.WorldScreenInputProcessor;
 import ap.project.util.MapAssetLoader;
@@ -44,8 +44,6 @@ import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 public final class WorldScreen implements Screen
@@ -108,6 +106,7 @@ public final class WorldScreen implements Screen
     private CommunicationWindow communicationWindow;
     private WorldController worldController;
     private ReactionWindow reactionWindow;
+    private ScoreBoardWindow scoreBoardWindow;
     private TextButton reactButton;
     private InputMultiplexer inputMultiplexer;
     private boolean inputMultiplexerHadSetUp = false;
@@ -198,6 +197,7 @@ public final class WorldScreen implements Screen
         worldController = new WorldController();
         worldController.setCommunicationWindow(communicationWindow);
         reactionWindow = new ReactionWindow(uiStage);
+        scoreBoardWindow = new ScoreBoardWindow(uiStage);
         createReactButton();
         inputMultiplexer = new InputMultiplexer();
         checkGameInfo();
@@ -263,11 +263,7 @@ public final class WorldScreen implements Screen
             @Override
             public void clicked(InputEvent event, float x, float y)
             {
-                // TODO: change this
-//                if (ONLINE_MODE)
-//                {
-                    reactionWindow.toggleVisibility();
-//                }
+                reactionWindow.toggleVisibility();
             }
         });
 
@@ -578,6 +574,23 @@ public final class WorldScreen implements Screen
         client.send(msg);
     }
 
+    private void sendPlayerScoreBoardDataMessage()
+    {
+        String gameID = game.getId();
+        int userID = player.getUser().getHashId();
+        double money = player.getMoney();
+        int completedQuests = player.getCompletedQuests();
+
+        SkillDTO farming = new SkillDTO(player.getFarmingSkill());
+        SkillDTO mining = new SkillDTO(player.getMiningSkill());
+        SkillDTO foraging = new SkillDTO(player.getForagingSkill());
+        SkillDTO fishing = new SkillDTO(player.getFishingSkill());
+
+        ScoreBoardDataMessage message = new ScoreBoardDataMessage(gameID, userID, money, completedQuests,
+            farming, mining, foraging, fishing);
+        client.send(message);
+    }
+
     private void sendPlayerData()
     {
         PlayerDTO playerDTO = new PlayerDTO(player);
@@ -626,6 +639,7 @@ public final class WorldScreen implements Screen
         if (periodicNetworkUpdate >= PERIODIC_NETWORK_INTERVAL)
         {
             sendPlayerPresenceMessage();
+            sendPlayerScoreBoardDataMessage();
             periodicNetworkUpdate = 0;
         }
 
@@ -658,7 +672,7 @@ public final class WorldScreen implements Screen
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         if (!terminalDialog.isVisible() && !isInventoryVisible() && !isCookBookVisible() && !isRefrigeratorVisible()
-        && !greenHouseBuildWindow.isVisible() && !reactionWindow.isVisible())
+        && !greenHouseBuildWindow.isVisible() && !reactionWindow.isVisible() && !scoreBoardWindow.isVisible())
         {
             update(dt);
             refreshHotbarUI();
@@ -687,7 +701,7 @@ public final class WorldScreen implements Screen
         renderCharacters(batch);
 
         if (!isDialogVisible() && !isInventoryVisible() && !isCookBookVisible() && !isRefrigeratorVisible()
-            && !greenHouseBuildWindow.isVisible() && !reactionWindow.isVisible())
+            && !greenHouseBuildWindow.isVisible() && !reactionWindow.isVisible() && !scoreBoardWindow.isVisible())
         {
             characterRenderer.renderToolOrObjectAtMouse(batch, character, worldMouseX, worldMouseY);
         }
@@ -887,6 +901,12 @@ public final class WorldScreen implements Screen
                 (uiStage.getHeight() - communicationWindow.getPopup().getHeight()) / 2
             );
         }
+        if (scoreBoardWindow != null && scoreBoardWindow.isVisible()) {
+            scoreBoardWindow.getWindow().setPosition(
+                (uiStage.getWidth() - scoreBoardWindow.getWindow().getWidth()) / 2,
+                (uiStage.getHeight() - scoreBoardWindow.getWindow().getHeight()) / 2
+            );
+        }
     }
 
     @Override
@@ -911,6 +931,7 @@ public final class WorldScreen implements Screen
 //        gameStage.dispose();
         communicationWindow.dispose();
         reactionWindow.dispose();
+        scoreBoardWindow.dispose();
     }
 
     private void handleHotbarSelection(int keycode) {
@@ -1468,6 +1489,62 @@ public final class WorldScreen implements Screen
         }
     }
 
+    public void updatePlayerScoreBoardData(int userId, double money, int completedQuests, Skill farming, Skill mining,
+                                           Skill foraging, Skill fishing)
+    {
+        boolean changed = false;
+
+        for (Player p : game.getPlayers())
+        {
+            if (p.getUser().getHashId() != player.getUser().getHashId())
+            {
+                if (p.getUser().getHashId() == userId)
+                {
+                    if (p.getMoney() != money)
+                    {
+                        p.setMoney(money);
+                        changed = true;
+                    }
+
+                    if (p.getCompletedQuests() != completedQuests)
+                    {
+                        p.setCompletedQuests(completedQuests);
+                        changed = true;
+                    }
+
+                    if (!p.getFarmingSkill().equals(farming))
+                    {
+                        p.setFarmingSkill(farming);
+                        changed = true;
+                    }
+
+                    if (!p.getMiningSkill().equals(mining))
+                    {
+                        p.setMiningSkill(mining);
+                        changed = true;
+                    }
+
+                    if (!p.getForagingSkill().equals(foraging))
+                    {
+                        p.setForagingSkill(foraging);
+                        changed = true;
+                    }
+
+                    if (!p.getFishingSkill().equals(fishing))
+                    {
+                        p.setFishingSkill(fishing);
+                        changed = true;
+                    }
+                }
+            }
+        }
+
+        if (changed)
+        {
+            scoreBoardWindow.refresh();
+        }
+    }
+
     public void updatePlayerPosition(int userID, float x, float y, byte direction, boolean isMoving, boolean isInFarm,
                                      boolean isInCity, boolean isInGreenHouse, boolean isInHome, boolean isInZeidiesFarm,
                                      boolean isInZeidiesHome, boolean isInShop, String currentShop)
@@ -1644,6 +1721,16 @@ public final class WorldScreen implements Screen
         {
             client.send(new PlayerReactionMessage(game.getId(), player.getUser().getHashId(), text));
         }
+    }
+
+    public void toggleScoreBoardWindow()
+    {
+        scoreBoardWindow.toggleVisibility();
+    }
+
+    public boolean isScoreBoardVisible()
+    {
+        return scoreBoardWindow.isVisible();
     }
 
     public boolean isReactionWindowVisible()

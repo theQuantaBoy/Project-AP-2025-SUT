@@ -60,5 +60,6 @@ public enum MessageType
     LEAVE,
     PLAYERS_DTO_UPDATE,
     JOIN_GAME,
-    PLAYER_REACTION
+    PLAYER_REACTION,
+    SCORE_BOARD_DATA
 }

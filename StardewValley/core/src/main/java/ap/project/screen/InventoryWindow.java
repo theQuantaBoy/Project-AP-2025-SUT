@@ -1099,6 +1099,24 @@ public class InventoryWindow {
             }
         });
 
+        TextButton scoreBoardButton = new TextButton("Score Board", skin);
+        scoreBoardButton.getLabel().setFontScale(1.2f); // Larger text
+        scoreBoardButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y)
+            {
+                if (worldScreen.getInstance().ONLINE_MODE)
+                {
+                    toggleVisibility();
+                    worldScreen.toggleScoreBoardWindow();
+                } else
+                {
+                    UIRenderer.showTextBox("this is an online feature");
+                }
+            }
+        });
+
+        table.add(scoreBoardButton).row();
         table.add(exitButton).row();
         table.add(removeButton);
 

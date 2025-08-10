@@ -110,6 +110,8 @@ public class Player {
     private String currentReactionText;
     private float reactionTimer;
 
+    private int completedQuests;
+
     public void setMapType(MapTypes mapType)
     {
         this.mapType = mapType;
@@ -1481,5 +1483,28 @@ public class Player {
     public String getCurrentReactionText()
     {
         return currentReactionText;
+    }
+
+    public int getCompletedQuests()
+    {
+        return completedQuests;
+    }
+
+    public void setCompletedQuests(int completedQuests)
+    {
+        this.completedQuests = completedQuests;
+    }
+
+    public float getSkillScore()
+    {
+        float score = 0;
+
+        for (Skill skill : skills)
+        {
+            score += skill.getPercentage();
+        }
+
+        score /= (skills.size());
+        return score;
     }
 }
