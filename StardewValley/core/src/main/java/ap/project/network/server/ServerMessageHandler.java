@@ -106,6 +106,9 @@ public class ServerMessageHandler
             case TRADE_CANCELLED:
                 handleTradeCancelled(client, (TradeCancelMessage) message);
                 break;
+            case BACKPACK_DTO:
+                handleBackPack(client, (BackPackDTOMessage) message);
+                break;
         }
     }
 
@@ -710,5 +713,14 @@ public class ServerMessageHandler
         }
         receiverConn.send(message);
         System.out.println("cancelled");
+    }
+
+    private static void handleBackPack(ClientConnection client, BackPackDTOMessage message) {
+        GameServer server = GameServer.getInstance();
+
+        User sender = server.getUser(client);
+        if (sender == null) return;
+
+        server.broadcast(message);
     }
 }

@@ -9,7 +9,6 @@ import ap.project.model.animal.Fish;
 import ap.project.model.enums.*;
 import ap.project.model.shops.Shop;
 import ap.project.model.tools.*;
-import ap.project.model.enums.building_enums.ArtisanGoodsType;
 import ap.project.model.enums.building_enums.CraftingRecipeEnums;
 import ap.project.model.enums.building_enums.KitchenRecipe;
 import ap.project.model.enums.tool_enums.ToolType;
@@ -139,6 +138,7 @@ public class Player {
         addTool(seythe); addToInventory(seythe);
         addToInventory(GameObjectType.MILK, 2);
 
+
         this.zeidy = null;
         this.newMessage = false;
         this.apperance = appearences.get(number);
@@ -205,6 +205,7 @@ public class Player {
         addTool(wateringCan); addToInventory(wateringCan);
         addTool(seythe); addToInventory(seythe);
         addToInventory(GameObjectType.MILK, 2);
+        addToInventory(GameObjectType.STONE, 1);
 
         this.zeidy = null;
         this.newMessage = false;

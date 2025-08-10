@@ -163,6 +163,19 @@ public class KryoRegistry
 
         kryo.register(JoinActiveGameMessage.class);
 
+        kryo.register(TradeRequestMessage.class);
+        kryo.register(TradeResponseMessage.class);
+        kryo.register(IncomingTradeRequestMessage.class);
+        kryo.register(IncomingTradeResponseMessage.class);
+        kryo.register(TradeConfirmMessage.class);
+        kryo.register(TradeCancelMessage.class);
+        kryo.register(GameObject.class);
+        kryo.register(GameObjectType.class);
+        kryo.register(MovingItemToTadeMessage.class);
+        kryo.register(MovingItemToInventoryMessage.class);
+        kryo.register(BackPackDTOMessage.class);
+
+
         // Register all other message classes ...
     }
 }

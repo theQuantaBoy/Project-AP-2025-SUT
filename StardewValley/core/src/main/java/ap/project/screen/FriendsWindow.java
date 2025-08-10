@@ -130,6 +130,7 @@ public class FriendsWindow {
                 public void clicked(InputEvent event, float x, float y) {
                     // 1) Inject dependencies:
                     tradeWindow.setDependencies(
+                        selectedFriend,
                         inventoryWindow,               // your InventoryWindow instance
                         new TradeController()
                     );

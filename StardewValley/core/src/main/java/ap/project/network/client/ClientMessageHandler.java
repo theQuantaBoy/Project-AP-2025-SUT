@@ -138,9 +138,13 @@ public class ClientMessageHandler
             case JOIN_GAME:
                 handleJoinActiveGameMessage((JoinActiveGameMessage) message);
                 break;
+            case BACKPACK_DTO:
+                handleBackPackDTOMessage((BackPackDTOMessage) message);
+                break;
             // Add other cases
         }
     }
+
     private static void handleTestMessage(TestMessage msg) {
         System.out.println("Test Received: " + msg.getText());
     }
@@ -433,7 +437,6 @@ public class ClientMessageHandler
 
             int senderId = message.senderId;
             Player senderPlayer = App.getCurrentGame().getPlayerByUserID(senderId);
-            tw.setDependencies(worldScreen.getInventoryWindow(), new TradeController()); // if not already set
 
             // Run on the render thread
             Gdx.app.postRunnable(() -> {
@@ -452,7 +455,6 @@ public class ClientMessageHandler
 
             int receiver = message.getReceiverID();
             Player player = App.getCurrentGame().getPlayerByUserID(receiver);
-            tw.setDependencies(worldScreen.getInventoryWindow(), new TradeController()); // if not already set
 
             // Run on the render thread
             Gdx.app.postRunnable(() -> {
@@ -470,7 +472,6 @@ public class ClientMessageHandler
 
             int receiver = message.receiverID;
             Player player = App.getCurrentGame().getPlayerByUserID(receiver);
-            tw.setDependencies(worldScreen.getInventoryWindow(), new TradeController()); // if not already set
 
             // Run on the render thread
             Gdx.app.postRunnable(() -> {
@@ -570,6 +571,14 @@ public class ClientMessageHandler
         {
             WorldScreen ws = (WorldScreen) Main.getApp().getScreen();
             ws.updatePlayersStateCache(message.playerStateCache);
+        }
+    }
+
+    private static void handleBackPackDTOMessage(BackPackDTOMessage message) {
+        if (Main.getApp().getScreen() instanceof WorldScreen)
+        {
+            WorldScreen ws = (WorldScreen) Main.getApp().getScreen();
+            ws.updateOtherBackPack(message);
         }
     }
 

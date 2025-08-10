@@ -18,7 +18,9 @@ import ap.project.model.shops.Shop;
 import ap.project.model.tools.BackPack;
 import ap.project.model.tools.Tool;
 import ap.project.network.client.GameClient;
+import ap.project.network.shared.DTO.BackPackDTO;
 import ap.project.network.shared.DTO.PlayerDTO;
+import ap.project.network.shared.Mapper.Mapper;
 import ap.project.network.shared.messages.*;
 import ap.project.screen.input.WorldScreenInputProcessor;
 import ap.project.util.MapAssetLoader;
@@ -190,7 +192,6 @@ public final class WorldScreen implements Screen
         craftingItemWindow = new CraftingItemWindow(uiStage);
         communicationWindow = new CommunicationWindow(uiStage, this);
         tradeWindow = friendsWindow.getTradeWindow();
-        tradeWindow.setDependencies(inventoryWindow, new TradeController());
         greenHouseBuildWindow = new GreenHouseBuildWindow(uiStage);
         createTerminalDialog();
         worldController = new WorldController();
@@ -566,10 +567,8 @@ public final class WorldScreen implements Screen
         inputMultiplexerHadSetUp = true;
         centerVisibleWindows();
 
-        if (tradeWindow == null) {
-            tradeWindow = new TradeWindow(uiStage, skin);
-            tradeWindow.setDependencies(inventoryWindow, tradeWindow.getController());
-        }
+        tradeWindow = friendsWindow.getTradeWindow();
+
     }
 
     private void sendPositionUpdate()
@@ -606,6 +605,12 @@ public final class WorldScreen implements Screen
 
         GamePresenceMessage msg = new GamePresenceMessage(gameID, userID, x, y, direction, isMoving, isInFarm,
             isInCity, isInGreenHouse, isInHome, isInZeidiesFarm, isInZeidiesHome, isInShop, currentShop);
+        client.send(msg);
+    }
+
+    private void sendBackPack() {
+        System.out.println(player.getNickName());
+        BackPackDTOMessage msg = new BackPackDTOMessage(player.getUser().getHashId(), new BackPackDTO(player.getCurrentBackPack()));
         client.send(msg);
     }
 
@@ -657,6 +662,7 @@ public final class WorldScreen implements Screen
         if (periodicNetworkUpdate >= PERIODIC_NETWORK_INTERVAL)
         {
             sendPlayerPresenceMessage();
+            sendBackPack();
             periodicNetworkUpdate = 0;
         }
 
@@ -1605,11 +1611,9 @@ public final class WorldScreen implements Screen
     }
 
     public TradeWindow getTradeWindow() {
-        if (tradeWindow == null) {
-            tradeWindow = new TradeWindow(uiStage, skin);
-            tradeWindow.setDependencies(inventoryWindow, new TradeController());
-        }
-        return tradeWindow;
+
+        return friendsWindow.getTradeWindow();
+
     }
 
     public void setTradeWindow(TradeWindow tradeWindow) {
@@ -1623,4 +1627,27 @@ public final class WorldScreen implements Screen
     public Stage getUiStage() {
         return uiStage;
     }
+
+    public void updateOtherBackPack(BackPackDTOMessage msg) {
+        System.out.println("check12 - Received backpack update for userID: " + msg.userID);
+        System.out.println("Current player ID: " + player.getUser().getHashId());
+
+        for (Player p : game.getPlayers()) {
+            System.out.println("Checking player: " + p.getNickName() + " ID: " + p.getUser().getHashId());
+
+            // Only update if it's another player (not the current player)
+            // AND it matches the message's userID
+            if (p.getUser().getHashId() == msg.userID &&
+                p.getUser().getHashId() != player.getUser().getHashId()) {
+
+                System.out.println("Updating backpack for: " + p.getNickName());
+                p.setCurrentBackPack(Mapper.fromDTO(msg.backPackDTO));
+
+                // Debug print after update
+                System.out.println("Updated inventory: " + p.getInventory());
+                System.out.println("Non-empty items: " + p.getCurrentBackPack().getNonEmptyItems());
+            }
+        }
+    }
 }
+
