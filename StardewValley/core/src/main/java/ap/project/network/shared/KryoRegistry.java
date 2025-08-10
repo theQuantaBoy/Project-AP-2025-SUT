@@ -177,6 +177,7 @@ public class KryoRegistry
 
         kryo.register(NewChatMessage.class);
         kryo.register(NewGiftMessage.class);
+        kryo.register(GiftRateMessage.class);
 
 
         // Register all other message classes ...

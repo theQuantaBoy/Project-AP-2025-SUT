@@ -12,6 +12,7 @@ import ap.project.model.game.Trade;
 import ap.project.model.player_data.FriendshipData;
 import ap.project.model.tools.Tool;
 import ap.project.network.client.GameClient;
+import ap.project.network.shared.messages.GiftRateMessage;
 import ap.project.network.shared.messages.NewGiftMessage;
 import ap.project.network.shared.messages.TradeRequestMessage;
 import com.badlogic.gdx.Gdx;
@@ -436,7 +437,7 @@ public class FriendsWindow {
         }
     }
 
-    private void showGiftHistoryUI(Player friend) {
+    public void showGiftHistoryUI(Player friend) {
         giftHistoryTable.clear();
         giftHistoryTable.setVisible(true);
         giftOptionsTable.setVisible(false);
@@ -609,6 +610,8 @@ public class FriendsWindow {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 int rating = ratingSelect.getSelected();
+                client.send(new GiftRateMessage(App.getCurrentGame().getCurrentPlayer().getUser().getHashId(),
+                    selectedFriend.getUser().getHashId(), gift.getId(), rating));
                 controller.giftRate(gift, rating);
                 dialog.hide();
                 showGiftHistoryUI(selectedFriend); // Refresh to show updated rating

@@ -1638,8 +1638,8 @@ public final class WorldScreen implements Screen
         return communicationWindow;
     }
 
-    public InputMultiplexer getInputMultiplexer() {
-        return inputMultiplexer;
+    public FriendsWindow getFriendsWindow() {
+        return friendsWindow;
     }
 }
 

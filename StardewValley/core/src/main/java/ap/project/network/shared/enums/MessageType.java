@@ -63,6 +63,7 @@ public enum MessageType
     BACKPACK_DTO,
     NEW_MESSAGE,
     NEW_GIFT,
+    GIFT_RATE,
     NEW_FLOWER,
     NEW_PURPOSE,
 }

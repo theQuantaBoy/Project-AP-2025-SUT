@@ -153,10 +153,12 @@ public class ClientMessageHandler
             case NEW_GIFT:
                 handleNewGift((NewGiftMessage) message);
                 break;
+            case GIFT_RATE:
+                handleGiftRate((GiftRateMessage) message);
+                break;
             // Add other cases
         }
     }
-
     private static void handleTestMessage(TestMessage msg) {
         System.out.println("Test Received: " + msg.getText());
     }
@@ -660,4 +662,42 @@ public class ClientMessageHandler
             });
         }
     }
+
+    private static void handleGiftRate(GiftRateMessage message) {
+        if (Main.getApp().getScreen() instanceof WorldScreen) {
+            WorldScreen worldScreen = (WorldScreen) Main.getApp().getScreen();
+
+            Player sender = App.getCurrentGame().getPlayerByUserID(message.respondSender);
+            Player receiver = App.getCurrentGame().getPlayerByUserID(message.respondReceiver);
+            Gift targetGift = sender.getGiftById(message.giftID);
+            int rate = message.rate;
+
+            if (sender == null || receiver == null) {
+                System.out.println("Player not found in current game");
+            }
+            // Run on the render thread
+            Gdx.app.postRunnable(() -> {
+                targetGift.setRate(rate);
+                Player giver = targetGift.getGiver();
+                if (!sender.getFriendships().get(giver).isIntrcatedToday()) {
+                    int friendship = ((rate - 3) * 30) + 15;
+                    giver.getFriendships().get(sender).changeXp(friendship, sender, giver);
+                    sender.getFriendships().get(giver).changeXp(friendship, sender, giver);
+                    if (giver.getFriendships().get(sender).isNewLevel()) {
+                        System.out.println("your friendship with " + giver.getNickName() +
+                            " changed to " + giver.getFriendships().get(sender).getLevel());
+                        giver.getFriendships().get(sender).setNewLevel(false);
+                        sender.getFriendships().get(giver).setNewLevel(false);
+                    }
+                }
+                if (giver.equals(sender.getZeidy())) {
+                    giver.increaseEnergy(50);
+                    sender.increaseEnergy(50);
+                }
+                //worldScreen.getFriendsWindow().showGiftHistoryUI();
+                UIRenderer.showTextBox(sender.getNickName() + " has rated your gift!");
+            });
+        }
+    }
+
 }

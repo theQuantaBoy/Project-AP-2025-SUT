@@ -115,6 +115,9 @@ public class ServerMessageHandler
             case NEW_GIFT:
                 handleNewGift(client, (NewGiftMessage) message);
                 break;
+            case GIFT_RATE:
+                handleGiftRate(client, (GiftRateMessage) message);
+                break;
         }
     }
 
@@ -754,6 +757,21 @@ public class ServerMessageHandler
         ClientConnection receiverConn = server.findClient(message.receiverID);
         if (receiverConn == null) {
             System.out.println("gift notif failed: Receiver not found");
+            return;
+        }
+        receiverConn.send(message);
+        System.out.println("notif sent");
+    }
+
+    private static void handleGiftRate(ClientConnection client, GiftRateMessage message) {
+        GameServer server = GameServer.getInstance();
+
+        User sender = server.getUser(client);
+        if (sender == null) return;
+
+        ClientConnection receiverConn = server.findClient(message.respondReceiver);
+        if (receiverConn == null) {
+            System.out.println("gift rate notif failed: Receiver not found");
             return;
         }
         receiverConn.send(message);
