@@ -8,6 +8,7 @@ import ap.project.model.App.Result;
 import ap.project.model.game.GameObject;
 import ap.project.model.game.Gift;
 import ap.project.model.game.Player;
+import ap.project.model.game.Trade;
 import ap.project.model.player_data.FriendshipData;
 import ap.project.network.client.GameClient;
 import ap.project.network.shared.messages.TradeRequestMessage;
@@ -32,6 +33,7 @@ public class FriendsWindow {
     private final Table giftOptionsTable;
     private final Table newGiftTable;
     private final Table giftHistoryTable;
+    private final Table tradeHistoryTable;
     private final Stack contentStack;
     private final Skin skin;
     private boolean isVisible = false;
@@ -62,10 +64,12 @@ public class FriendsWindow {
         friendsTable = new Table();
         giftOptionsTable = new Table();
         giftHistoryTable = new Table();
+        tradeHistoryTable = new Table();
         newGiftTable = new Table();
 
         giftOptionsTable.setVisible(false);
         giftHistoryTable.setVisible(false);
+        tradeHistoryTable.setVisible(false);
         newGiftTable.setVisible(false);
 
         ScrollPane scrollPane = new ScrollPane(friendsTable, skin);
@@ -77,6 +81,7 @@ public class FriendsWindow {
         contentStack.add(scrollPane);
         contentStack.add(giftOptionsTable);
         contentStack.add(giftHistoryTable);
+        contentStack.add(tradeHistoryTable);
         contentStack.add(newGiftTable);
 
         popup.setSize(1200, 700);
@@ -108,7 +113,7 @@ public class FriendsWindow {
             bar.setValue(data.getXp());
 
             String tooltipText = friend.getNickName() + " (Level " + data.getLevel() + ")\n"
-                    + "XP: " + data.getXp();
+                + "XP: " + data.getXp();
             Label tooltipLabel = new Label(tooltipText, skin, "WhiteText");
             Tooltip<Label> tooltip = new Tooltip<>(tooltipLabel, tooltipManager);
             tooltip.getContainer().setBackground(tooltipBg);
@@ -130,7 +135,6 @@ public class FriendsWindow {
                 public void clicked(InputEvent event, float x, float y) {
                     // 1) Inject dependencies:
                     tradeWindow.setDependencies(
-                        selectedFriend,
                         inventoryWindow,               // your InventoryWindow instance
                         new TradeController()
                     );
@@ -143,12 +147,21 @@ public class FriendsWindow {
                 }
             });
 
+            TextButton tradeHistoryButton = new TextButton("Trade History", skin);
+            tradeHistoryButton.addListener(new ClickListener() {
+                @Override
+                public void clicked(InputEvent event, float x, float y) {
+                    showTradeHistoryUI(friend);
+                }
+            });
+
             //stage.addActor(tooltip.getContainer());
 
             friendsTable.add(nameLabel).left().pad(15);
             friendsTable.add(bar).pad(15);
             friendsTable.add(giftButton).pad(15);
             friendsTable.add(tradeButton).pad(15);
+            friendsTable.add(tradeHistoryButton).pad(15);
             friendsTable.row();
         }
 
@@ -161,6 +174,7 @@ public class FriendsWindow {
         giftOptionsTable.setVisible(true);
         friendsTable.setVisible(false);
         giftHistoryTable.setVisible(false);
+        tradeHistoryTable.setVisible(false);
         newGiftTable.setVisible(false);
 
         Label title = new Label("Gift Options for " + friend.getNickName(), skin);
@@ -309,11 +323,6 @@ public class FriendsWindow {
         newGiftTable.add(errorLabel).padTop(5).row();
     }
 
-
-
-
-
-
     private void showGiftHistoryUI(Player friend) {
         giftHistoryTable.clear();
         giftHistoryTable.setVisible(true);
@@ -358,11 +367,121 @@ public class FriendsWindow {
             }
         });
 
-
         giftHistoryTable.add(historyContent).pad(5).row();
         giftHistoryTable.add(backButton).padTop(5);
     }
 
+    private void showTradeHistoryUI(Player friend) {
+        this.selectedFriend = friend;
+        tradeHistoryTable.clear();
+        tradeHistoryTable.setVisible(true);
+        friendsTable.setVisible(false);
+        giftOptionsTable.setVisible(false);
+        giftHistoryTable.setVisible(false);
+        newGiftTable.setVisible(false);
+
+        Label title = new Label("Trade History with: " + friend.getNickName(), skin, "Impact");
+        title.setFontScale(1.2f);
+
+        Player currentPlayer = App.getCurrentGame().getCurrentPlayer();
+        List<Trade> tradeList = currentPlayer.getArchiveTrades();
+
+        // Filter trades that involve the selected friend
+        Table historyContent = new Table();
+        boolean hasTradesWithFriend = false;
+
+        for (Trade trade : tradeList) {
+            // Check if this trade involves the selected friend
+            if (trade.getRequest().equals(friend) || trade.getResponse().equals(friend)) {
+                hasTradesWithFriend = true;
+
+                // Determine if current player was requester or responder
+                boolean isRequester = trade.getRequest().equals(currentPlayer);
+                Player otherPlayer = isRequester ? trade.getResponse() : trade.getRequest();
+
+                // Create trade entry
+                Table tradeEntry = new Table();
+                tradeEntry.defaults().pad(5);
+
+                // Trade ID
+                Label tradeIdLabel = new Label("Trade #" + trade.getTradeID(), skin);
+                tradeIdLabel.setFontScale(1.1f);
+                tradeEntry.add(tradeIdLabel).colspan(2).left().row();
+
+                // Your items section
+                Label yourItemsLabel = new Label("Your Items:", skin);
+                yourItemsLabel.setColor(Color.CYAN);
+                tradeEntry.add(yourItemsLabel).left().padTop(5);
+
+                Table yourItemsTable = new Table();
+                List<GameObject> yourItems = isRequester ? trade.getRequestedItems() : trade.getOfferedItems();
+                if (yourItems.isEmpty()) {
+                    yourItemsTable.add(new Label("None", skin, "Impact")).left();
+                } else {
+                    for (GameObject item : yourItems) {
+                        if (item != null) {
+                            Label itemLabel = new Label("• " + item.getObjectType() + " x" + item.getNumber(), skin);
+                            yourItemsTable.add(itemLabel).left().row();
+                        }
+                    }
+                }
+                tradeEntry.add(yourItemsTable).left().row();
+
+                // Friend's items section
+                Label friendItemsLabel = new Label(friend.getNickName() + "'s Items:", skin);
+                friendItemsLabel.setColor(Color.ORANGE);
+                tradeEntry.add(friendItemsLabel).left().padTop(5);
+
+                Table friendItemsTable = new Table();
+                List<GameObject> friendItems = isRequester ? trade.getOfferedItems() : trade.getRequestedItems();
+                if (friendItems.isEmpty()) {
+                    friendItemsTable.add(new Label("None", skin, "Impact")).left();
+                } else {
+                    for (GameObject item : friendItems) {
+                        if (item != null) {
+                            Label itemLabel = new Label("• " + item.getObjectType() + " x" + item.getNumber(), skin);
+                            friendItemsTable.add(itemLabel).left().row();
+                        }
+                    }
+                }
+                tradeEntry.add(friendItemsTable).left().row();
+
+                // Add separator
+                Label separator = new Label("─────────────────────────────", skin);
+                separator.setColor(Color.GRAY);
+                tradeEntry.add(separator).colspan(2).padTop(10).padBottom(5).row();
+
+                historyContent.add(tradeEntry).fillX().row();
+            }
+        }
+
+        if (!hasTradesWithFriend) {
+            Label noTradesLabel = new Label("No trades completed with " + friend.getNickName(), skin, "Impact");
+            noTradesLabel.setColor(Color.GRAY);
+            historyContent.add(noTradesLabel).pad(20);
+        }
+
+        // Back button
+        TextButton backButton = new TextButton("Back", skin);
+        backButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                tradeHistoryTable.setVisible(false);
+                friendsTable.setVisible(true);
+                refreshFriendsTable();
+            }
+        });
+
+        // Create scrollable content for trade history
+        ScrollPane historyScrollPane = new ScrollPane(historyContent, skin);
+        historyScrollPane.setFadeScrollBars(false);
+        historyScrollPane.setScrollingDisabled(true, false);
+
+        // Layout
+        tradeHistoryTable.add(title).padBottom(10).row();
+        tradeHistoryTable.add(historyScrollPane).expand().fill().padBottom(10).row();
+        tradeHistoryTable.add(backButton).padTop(5);
+    }
 
     public void showRatingDialog(Gift gift) {
         Dialog dialog = new Dialog("Rate Gift", skin);
@@ -405,6 +524,7 @@ public class FriendsWindow {
             friendsTable.setVisible(true);
             giftOptionsTable.setVisible(false);
             giftHistoryTable.setVisible(false);
+            tradeHistoryTable.setVisible(false);
             newGiftTable.setVisible(false);
             refreshFriendsTable();
         }

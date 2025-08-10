@@ -1629,23 +1629,15 @@ public final class WorldScreen implements Screen
     }
 
     public void updateOtherBackPack(BackPackDTOMessage msg) {
-        System.out.println("check12 - Received backpack update for userID: " + msg.userID);
-        System.out.println("Current player ID: " + player.getUser().getHashId());
 
         for (Player p : game.getPlayers()) {
-            System.out.println("Checking player: " + p.getNickName() + " ID: " + p.getUser().getHashId());
 
             // Only update if it's another player (not the current player)
             // AND it matches the message's userID
             if (p.getUser().getHashId() == msg.userID &&
                 p.getUser().getHashId() != player.getUser().getHashId()) {
 
-                System.out.println("Updating backpack for: " + p.getNickName());
                 p.setCurrentBackPack(Mapper.fromDTO(msg.backPackDTO));
-
-                // Debug print after update
-                System.out.println("Updated inventory: " + p.getInventory());
-                System.out.println("Non-empty items: " + p.getCurrentBackPack().getNonEmptyItems());
             }
         }
     }
