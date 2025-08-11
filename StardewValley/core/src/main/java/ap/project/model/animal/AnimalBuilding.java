@@ -1,9 +1,7 @@
 package ap.project.model.animal;
 
 import ap.project.model.App.App;
-import ap.project.model.game.GameObject;
-import ap.project.model.game.Point;
-import ap.project.model.game.Tile;
+import ap.project.model.game.*;
 import ap.project.model.enums.GameObjectType;
 import ap.project.model.enums.animal_enums.FarmBuildingType;
 
@@ -21,6 +19,7 @@ public class AnimalBuilding extends GameObject
     private final ArrayList<Animal> animals = new ArrayList<>();
     private final int height;
     private final int width;
+    private final AnimalBuildingMap animalBuildingMap;
 
     public AnimalBuilding(Tile startTile, FarmBuildingType farmBuilding)
     {
@@ -31,6 +30,8 @@ public class AnimalBuilding extends GameObject
         super.ObjectType = GameObjectType.ANIMAL_BUILDING;
         this.height = farmBuilding.getHeight();
         this.width = farmBuilding.getWidth();
+        this.animalBuildingMap = new AnimalBuildingMap(farmBuilding);
+        this.ObjectType = farmBuilding.getType();
     }
 
     public FarmBuildingType getFarmBuildingType() {

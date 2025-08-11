@@ -30,6 +30,14 @@ public enum MapTypes
     SALOON("saloon", "", "", MapKind.SHOP),
 
     LOBBY("lobby", "", "", MapKind.LOBBY),
+
+    BARN("Barn", "", "", MapKind.ANIMAL_BUILDING),
+    BIG_BARN("Barn2", "", "", MapKind.ANIMAL_BUILDING),
+    DELUXE_BARN("Barn3", "", "", MapKind.ANIMAL_BUILDING),
+
+    COOP("Coop", "", "", MapKind.ANIMAL_BUILDING),
+    BIG_COOP("Coop2", "", "", MapKind.ANIMAL_BUILDING),
+    DELUXE_COOP("Coop3", "", "", MapKind.ANIMAL_BUILDING),
     ;
 
     private final String name;

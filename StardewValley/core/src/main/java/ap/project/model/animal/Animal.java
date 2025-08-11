@@ -1,11 +1,13 @@
 package ap.project.model.animal;
 
 import ap.project.model.enums.animal_enums.Direction;
+import ap.project.model.game.AnimalCharacter;
 import ap.project.model.game.GameObject;
 import ap.project.model.game.Tile;
 import ap.project.model.enums.animal_enums.FarmAnimalsType;
 import ap.project.view.GameMenu;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.math.Vector2;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -29,13 +31,15 @@ public class Animal extends GameObject {
     private State currentState = State.IDLE;
     private Direction direction = Direction.DOWN;
 
+    private final AnimalCharacter character;
+
     public enum State {
         IDLE, WALKING
     }
 
     private double quality = 0;
 
-    public Animal(String name, FarmAnimalsType animalType)
+    public Animal(String name, FarmAnimalsType animalType, Vector2 position)
     {
         this.ObjectType = animalType.getType();
         this.name = name;
@@ -45,6 +49,7 @@ public class Animal extends GameObject {
         this.isIn = true;
         this.isPet = false;
         this.products = (ArrayList<GameObject>) animalType.getProducts();
+        this.character = new AnimalCharacter(animalType, position,name);
     }
 
     public void feed()

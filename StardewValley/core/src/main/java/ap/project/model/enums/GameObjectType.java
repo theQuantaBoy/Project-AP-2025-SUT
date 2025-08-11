@@ -446,6 +446,14 @@ public enum GameObjectType
     DELUXE_PACK("Deluxe Pack", ""),
 
     SONAR_BOBBER("Sonar Bobber", "game_objects/Sonar_Bobber.png"),
+
+    BARN("Barn", "animal_buildings/Barn.png"),
+    BIG_BARN("Big Barn", "animal_buildings/BigBarn.png"),
+    DELUXE_BARN("Deluxe Barn", "animal_buildings/DeluxeBarn.png"),
+
+    COOP("Coop", "animal_buildings/Coop.png"),
+    BIG_COOP("Big Coop", "animal_buildings/BigCoop.png"),
+    DELUXE_COOP("Deluxe Coop", "animal_buildings/DeluxeCoop.png")
     ;
 
     private final String name;

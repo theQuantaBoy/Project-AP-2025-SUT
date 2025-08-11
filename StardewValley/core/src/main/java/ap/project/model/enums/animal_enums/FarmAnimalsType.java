@@ -23,7 +23,7 @@ public enum FarmAnimalsType {
             new GameObject(GameObjectType.LARGE_EGG, 95)
         ),
         AnimalType.COOP, List.of(FarmBuildingType.COOP, FarmBuildingType.BIG_COOP, FarmBuildingType.DELUXE_COOP),
-        "animals/chicken_spritesheet.png", 4, 7),
+        "animals/chicken_spritesheet.png", 4, 7, "animal_sheets/chicken/Chicken_Sheet.atlas"),
 
     // --- PLACEHOLDER ENTRIES ---
     // The following animals use placeholder paths. You must replace them with your own spritesheet files.
@@ -33,7 +33,7 @@ public enum FarmAnimalsType {
             new GameObject(GameObjectType.DUCK_FEATHER, 250)
         ),
         AnimalType.COOP, List.of(FarmBuildingType.BIG_COOP, FarmBuildingType.DELUXE_COOP),
-        "animals/duck_spritesheet.png", 4, 7),
+        "animals/duck_spritesheet.png", 4, 7, "animal_sheets/duck/Duck_Sheet.atlas"),
 
     RABBIT(GameObjectType.RABBIT, "Rabbit", 8000,
         List.of(
@@ -41,14 +41,14 @@ public enum FarmAnimalsType {
             new GameObject(GameObjectType.RABBITS_FOOT, 565)
         ),
         AnimalType.COOP, List.of(FarmBuildingType.DELUXE_COOP),
-        "animals/rabbit_spritesheet.png", 4, 7),
+        "animals/rabbit_spritesheet.png", 4, 7, "animal_sheets/rabbit/Rabbit_Sheet.atlas"),
 
     DINOSAUR(GameObjectType.DINOSAUR, "Dinosaur", 14000,
         List.of(
             new GameObject(GameObjectType.DINOSAUR_EGG, 350)
         ),
         AnimalType.COOP, List.of(FarmBuildingType.BIG_COOP),
-        "animals/dinosaur_spritesheet.png", 4, 7),
+        "animals/dinosaur_spritesheet.png", 4, 7, "animal_sheets/dinosaur/Dinosaur_Sheet.atlas"),
 
     COW(GameObjectType.COW, "Cow", 1500,
         List.of(
@@ -56,7 +56,7 @@ public enum FarmAnimalsType {
             new GameObject(GameObjectType.LARGE_MILK, 190)
         ),
         AnimalType.BARN, List.of(FarmBuildingType.BARN, FarmBuildingType.BIG_BARN, FarmBuildingType.DELUXE_BARN),
-        "animals/cow_spritesheet.png", 4, 7),
+        "animals/cow_spritesheet.png", 4, 7, "animal_sheets/cow/Cow_Sheet.atlas"),
 
     GOAT(GameObjectType.GOAT, "Goat", 4000,
         List.of(
@@ -64,21 +64,21 @@ public enum FarmAnimalsType {
             new GameObject(GameObjectType.LARGE_GOAT_MILK, 345)
         ),
         AnimalType.BARN, List.of(FarmBuildingType.BIG_BARN, FarmBuildingType.DELUXE_BARN),
-        "animals/goat_spritesheet.png", 4, 7),
+        "animals/goat_spritesheet.png", 4, 7, "animal_sheets/goat/Goat_Sheet.atlas"),
 
     SHEEP(GameObjectType.SHEEP, "Sheep", 8000,
         List.of(
             new GameObject(GameObjectType.WOOL, 340)
         ),
         AnimalType.BARN, List.of(FarmBuildingType.DELUXE_BARN),
-        "animals/sheep_spritesheet.png", 4, 7),
+        "animals/sheep_spritesheet.png", 4, 7, "animal_sheets/sheep/Sheep_Sheet.atlas"),
 
     PIG(GameObjectType.PIG, "Pig", 16000,
         List.of(
             new GameObject(GameObjectType.TRUFFLE, 625)
         ),
         AnimalType.BARN, List.of(FarmBuildingType.DELUXE_BARN),
-        "animals/pig_spritesheet.png", 4, 7);
+        "animals/pig_spritesheet.png", 4, 7, "animal_sheets/pig/Pig_Sheet.atlas");
 
     // --- Fields ---
     private final GameObjectType type;
@@ -89,10 +89,11 @@ public enum FarmAnimalsType {
     private final List<FarmBuildingType> buildings;
     private final EnumMap<Direction, Animation<TextureRegion>> walkAnimations;
     private final Animation<TextureRegion> idleAnimation;
+    private final String atlasPath;
 
     FarmAnimalsType(GameObjectType type, String name, int purchaseCost, List<GameObject> products,
                     AnimalType animalType, List<FarmBuildingType> buildings,
-                    String sheetPath, int cols, int rows) {
+                    String sheetPath, int cols, int rows, String atlasPath) {
         this.type = type;
         this.name = name;
         this.purchaseCost = purchaseCost;
@@ -116,6 +117,7 @@ public enum FarmAnimalsType {
         this.walkAnimations.put(Direction.LEFT, AnimationUtil.createAnimationFromRow(sheet, 2, cols, rows, frameDuration));
         this.walkAnimations.put(Direction.UP, AnimationUtil.createAnimationFromRow(sheet, 3, cols, rows, frameDuration));
         this.idleAnimation = AnimationUtil.createAnimationFromRow(sheet, 4, cols, rows, 0.4f);
+        this.atlasPath = atlasPath;
     }
 
     // --- Getters ---
@@ -170,8 +172,9 @@ public enum FarmAnimalsType {
     public GameObjectType getType() {
         return type;
     }
-}
 
-// NOTE: You will need to have these enums defined elsewhere in your project
-// enum AnimalType { COOP, BARN }
-// enum FarmBuildingType { COOP, BIG_COOP, DELUXE_COOP, BARN, BIG_BARN, DELUXE_BARN }
+    public String getAtlasPath()
+    {
+        return atlasPath;
+    }
+}

@@ -3,12 +3,14 @@ package ap.project.control;
 import ap.project.model.App.App;
 import ap.project.model.App.Result;
 import ap.project.model.animal.Animal;
+import ap.project.model.animal.AnimalBuilding;
 import ap.project.model.building.CraftingItem;
 import ap.project.model.enums.GameAnimationType;
 import ap.project.model.enums.GameObjectType;
 import ap.project.model.enums.TileTexture;
 import ap.project.model.enums.Weather;
 import ap.project.model.enums.animal_enums.FarmAnimalsType;
+import ap.project.model.enums.animal_enums.FarmBuildingType;
 import ap.project.model.enums.building_enums.CraftingRecipeEnums;
 import ap.project.model.enums.building_enums.KitchenRecipe;
 import ap.project.model.enums.resources_enums.CropType;
@@ -748,6 +750,11 @@ public class WorldController
             return true;
         }
 
+        if (processAnimalBuildingPlacement(tile))
+        {
+            return true;
+        }
+
         if (processCraftingPlacement(tile))
         {
             return true;
@@ -830,13 +837,13 @@ public class WorldController
         if (tile.getObject() != null)
         {
             UIRenderer.showTextBox("this tile is not empty");
-            return true;
+            return false;
         }
 
         if (tile.getTexture() != TileTexture.LAND && tile.getTexture() != TileTexture.GRASS)
         {
             UIRenderer.showTextBox("you can't put a crafting item on this type of tile");
-            return true;
+            return false;
         }
 
         CraftingItem newCraftedItem = new CraftingItem(craftingItem.getCraftingType(), tile.getPoint());
@@ -906,6 +913,55 @@ public class WorldController
         }
 
         UIRenderer.showTextBox("successfully put " + object.getObjectType() + " on tile!");
+        return true;
+    }
+
+    private static boolean processAnimalBuildingPlacement(Tile tile)
+    {
+        Game game = App.getCurrentGame();
+        Player player = game.getCurrentPlayer();
+        Map map = player.getCurrentMap();
+
+        if (!player.isInFarm())
+        {
+            return false;
+        }
+
+        GameObject object = player.getCurrentObject();
+        if (object == null)
+        {
+            return false;
+        }
+
+        FarmBuildingType farmBuildingType = FarmBuildingType.isAnimalBuilding(object);
+        if (farmBuildingType == null)
+        {
+            return false;
+        }
+
+        if (tile.getObject() != null)
+        {
+            UIRenderer.showTextBox("this tile is not empty");
+            return false;
+        }
+
+        if (tile.getTexture() != TileTexture.LAND && tile.getTexture() != TileTexture.GRASS)
+        {
+            UIRenderer.showTextBox("you can't build a building on this type of tile");
+            return false;
+        }
+
+        AnimalBuilding animalBuilding = new AnimalBuilding(tile, farmBuildingType);
+        tile.setObject(animalBuilding);
+
+        if (object.getNumber() == 1)
+        {
+            player.setCurrentObject(null);
+        }
+        player.removeAmountFromInventory(object.getObjectType(), 1);
+
+        Farm farm = player.getFarm();
+        farm.addAnimalBuildingTile(tile);
         return true;
     }
 
