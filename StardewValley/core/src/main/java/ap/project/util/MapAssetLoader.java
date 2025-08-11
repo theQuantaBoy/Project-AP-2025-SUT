@@ -33,6 +33,7 @@ public final class MapAssetLoader
             case GREEN_HOUSE -> fileName = "maps/general/greenhouse/green_house.tmx";
             case SHOP -> fileName = String.format("maps/general/shops/%s.tmx", baseMapName);
             case LOBBY -> fileName = "maps/general/lobby/Club.tmx";
+            case ANIMAL_BUILDING -> fileName = String.format("maps/general/animal_building/%s.tmx", baseMapName);
         }
 
         return new LoadedMap(fileName, mapKind);

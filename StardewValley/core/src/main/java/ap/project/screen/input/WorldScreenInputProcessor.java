@@ -48,7 +48,7 @@ public class WorldScreenInputProcessor implements InputProcessor
             worldScreen.isCookBookVisible() || worldScreen.isRefrigeratorVisible() ||
             worldScreen.isCraftingWindowVisible() || worldScreen.isChatVisible() ||
         worldScreen.isGreenHouseBuildWindowVisible() || worldScreen.isReactionWindowVisible() ||
-        worldScreen.isScoreBoardVisible() || worldScreen.isNpcWindowVisible())
+        worldScreen.isScoreBoardVisible() || worldScreen.isNpcWindowVisible() || worldScreen.isFishWindowVisible())
         {
             return false;
         }
@@ -89,18 +89,18 @@ public class WorldScreenInputProcessor implements InputProcessor
                 WorldController.processClickRight(worldScreen, tile);
             }
 
-//            if (clicked != null)
-//            {
-//                Vector2 playerPos = player.getPosition();
-//                Point playerTile = map.worldToTile(playerPos.x, playerPos.y);
-//
-//                ArrayList<Point> path = map.findShortestPath(playerTile, clicked);
-//
-//                if (path != null)
-//                {
-//                    characterController.moveToPath(path);
-//                }
-//            }
+            if (clicked != null)
+            {
+                Vector2 playerPos = player.getPosition();
+                Point playerTile = map.worldToTile(playerPos.x, playerPos.y);
+
+                ArrayList<Point> path = map.findShortestPath(playerTile, clicked);
+
+                if (path != null)
+                {
+                    characterController.moveToPath(path);
+                }
+            }
         }
 
         return true;
@@ -121,7 +121,7 @@ public class WorldScreenInputProcessor implements InputProcessor
             worldScreen.isCookBookVisible() || worldScreen.isRefrigeratorVisible() ||
         worldScreen.isCraftingWindowVisible() || worldScreen.isChatVisible() ||
         worldScreen.isGreenHouseBuildWindowVisible() || worldScreen.isReactionWindowVisible() ||
-        worldScreen.isScoreBoardVisible() || worldScreen.isNpcWindowVisible())
+        worldScreen.isScoreBoardVisible() || worldScreen.isNpcWindowVisible() || worldScreen.isFishWindowVisible())
         {
             return false;
         }

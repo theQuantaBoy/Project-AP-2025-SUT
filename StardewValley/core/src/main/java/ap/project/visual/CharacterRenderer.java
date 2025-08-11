@@ -113,6 +113,54 @@ public class CharacterRenderer
         nameBadgeFont.draw(batch, name, textX, textY);
     }
 
+    public void render(Batch batch, AnimalCharacter character, float scale)
+    {
+        Vector2 pos = character.getPosition();
+
+
+        TextureRegion frame = character.getCurrentFrame();
+        batch.draw(frame, pos.x, pos.y, 0, 0,
+            frame.getRegionWidth(), frame.getRegionHeight(),
+            scale, scale, 0);
+
+        boolean lowEnergy = false;
+
+        String name = character.getNickName();
+        if (name == null || name.isEmpty()) return;
+
+        float fontScale = 1f;
+        nameBadgeFont.getData().setScale(fontScale);
+
+        float charWidth = 8f * fontScale;
+        float textWidth = name.length() * charWidth;
+        float textHeight = nameBadgeFont.getCapHeight() * fontScale;
+
+        float maxWidth = 12;
+        float maxHeight = 36;
+
+        float padding = 2f;
+
+        float badgeWidth = textWidth +  2 * padding;
+        float badgeHeight = textHeight + 2 * padding;
+
+        float badgeX = pos.x + ((maxWidth - badgeWidth) / 2);
+        float badgeY = pos.y + maxHeight + (lowEnergy ? 5f : 0f);
+
+        batch.end();
+        Gdx.gl.glEnable(GL20.GL_BLEND);
+        shapeRenderer.setProjectionMatrix(batch.getProjectionMatrix());
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        shapeRenderer.setColor(0f, 0f, 0f, 0.6f);
+        shapeRenderer.rect(badgeX, badgeY, badgeWidth, badgeHeight);
+        shapeRenderer.end();
+        batch.begin();
+
+        float textX = badgeX + ((badgeWidth - textWidth) / 2) + padding;
+        float textY = badgeY + textHeight + padding;
+
+        nameBadgeFont.draw(batch, name, textX, textY);
+    }
+
     public void dispose()
     {
         nameBadgeFont.dispose();

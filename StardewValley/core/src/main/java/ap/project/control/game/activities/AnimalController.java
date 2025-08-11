@@ -57,10 +57,10 @@ public class AnimalController
         int width = farmBuilding.getWidth();
         int height = farmBuilding.getHeight();
 
-//        if (!farm.isGoodForAnimalBuilding(targetTile, width, height))
-//        {
-//            return new Result(false, "you can't build this building here");
-//        }
+        if (!farm.isGoodForAnimalBuilding(targetTile, width, height))
+        {
+            return new Result(false, "you can't build this building here");
+        }
 
         int price = farmBuilding.getPrice();
         int wood = farmBuilding.getWoodNumber();
@@ -139,12 +139,12 @@ public class AnimalController
         int price = animalType.getPurchaseCost();
         if (player.getMoney() < price)
         {
-            return new Result(false, "capitalism says that you don''t have enough 'money' to 'buy' "
+            return new Result(false, "capitalism says that you don't have enough 'money' to 'buy' "
                     + name + " :(");
         }
 
         player.increaseMoney(-1 * price);
-        animalBuilding.putAnimalInBuilding(new Animal(name, animalType));
+//        animalBuilding.putAnimalInBuilding(new Animal(name, animalType));
 
         return new Result(true, "Ahhhhhh! " + name + " is now in a new home. Isn't that lovely?!");
     }

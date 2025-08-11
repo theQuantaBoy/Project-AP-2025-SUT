@@ -41,7 +41,7 @@ public class ReactionWindow
     private static final int EMOJI_SIZE = 48;          // 9×9 textures drawn as 48×48, like SLOT_SIZE in CookBookWindow
     private static final int BUTTON_WIDTH = 200;
     private static final int BUTTON_HEIGHT = 70;
-    private static final float FONT_SCALE = 1.0f;
+    public static final float FONT_SCALE = 1.0f;
 
     // New tuneable gaps
     private static final int EMOJI_SPACE_DEFAULTS = 8; // space between default emojis

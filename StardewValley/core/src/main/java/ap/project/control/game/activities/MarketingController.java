@@ -27,7 +27,8 @@ import ap.project.view.GameMenu;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 
-public class MarketingController {
+public class MarketingController
+{
     public Result showAllProducts() {
         ShopType targetType = null;
         for(ShopType type : ShopType.values()){

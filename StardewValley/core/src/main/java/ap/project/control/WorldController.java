@@ -1,14 +1,14 @@
 package ap.project.control;
 
 import ap.project.model.App.App;
+import ap.project.model.App.GameAssetsManager;
 import ap.project.model.App.Result;
 import ap.project.model.animal.Animal;
+import ap.project.model.animal.AnimalBuilding;
 import ap.project.model.building.CraftingItem;
-import ap.project.model.enums.GameAnimationType;
-import ap.project.model.enums.GameObjectType;
-import ap.project.model.enums.TileTexture;
-import ap.project.model.enums.Weather;
+import ap.project.model.enums.*;
 import ap.project.model.enums.animal_enums.FarmAnimalsType;
+import ap.project.model.enums.animal_enums.FarmBuildingType;
 import ap.project.model.enums.building_enums.CraftingRecipeEnums;
 import ap.project.model.enums.building_enums.KitchenRecipe;
 import ap.project.model.enums.resources_enums.CropType;
@@ -16,7 +16,9 @@ import ap.project.model.enums.resources_enums.ResourceItem;
 import ap.project.model.enums.resources_enums.TreeType;
 import ap.project.model.game.*;
 import ap.project.model.player_data.FriendshipWithNpcData;
+import ap.project.model.player_data.Skill;
 import ap.project.model.resources.*;
+import ap.project.model.resources.Tree;
 import ap.project.model.shops.Shop;
 import ap.project.model.tools.*;
 import ap.project.screen.CommunicationWindow;
@@ -27,9 +29,19 @@ import ap.project.visual.UIRenderer;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.*;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.utils.Align;
 
 import java.util.ArrayList;
 import java.util.Vector;
+import java.util.function.Consumer;
+
+import static ap.project.model.game.Map.TILE_SIZE;
+import static ap.project.screen.ReactionWindow.FONT_SCALE;
+import static ap.project.screen.WorldScreen.PLAYER_SPEED;
 
 public class WorldController
 {
@@ -64,7 +76,6 @@ public class WorldController
             return;
         }
 
-        // redundant code ?
 //        if (processPickingUpForagingItem(tile))
 //        {
 //            return;
@@ -85,12 +96,22 @@ public class WorldController
             return;
         }
 
+        if (processAnimalPlacementTile(tile))
+        {
+            return;
+        }
+
         if (processObjectUse(tile, location,  clicked))
         {
             return;
         }
 
         if (processNPCCommunication(tile))
+        {
+            return;
+        }
+
+        if (processFishing(tile))
         {
             return;
         }
@@ -146,6 +167,27 @@ public class WorldController
             }
             MapVisual.playAnimationAt(GameAnimationType.NO_CLOUD_LIGHTNING_CHEAT, tile);
         }
+    }
+
+    private static boolean processFishing(Tile tile)
+    {
+        Player player = App.getCurrentGame().getCurrentPlayer();
+
+        if (player.isInFarm())
+        {
+            ArrayList<Point> neighbors = player.getFarm().getSquareNeighbors(tile.getPoint(), 2);
+            for (Point p : neighbors)
+            {
+                Tile t = player.getFarm().getTile(p.getX(), p.getY());
+                if (t != null && t.getTexture() == TileTexture.LAKE)
+                {
+                    WorldScreen.getInstance().toggleFishMiniGame();
+                    break;
+                }
+            }
+        }
+
+        return false;
     }
 
     private static void crowAttack(Tile tile)
@@ -723,6 +765,11 @@ public class WorldController
             return true;
         }
 
+        if (processAnimalBuildingPlacement(tile))
+        {
+            return true;
+        }
+
         if (processCraftingPlacement(tile))
         {
             return true;
@@ -805,13 +852,13 @@ public class WorldController
         if (tile.getObject() != null)
         {
             UIRenderer.showTextBox("this tile is not empty");
-            return true;
+            return false;
         }
 
         if (tile.getTexture() != TileTexture.LAND && tile.getTexture() != TileTexture.GRASS)
         {
             UIRenderer.showTextBox("you can't put a crafting item on this type of tile");
-            return true;
+            return false;
         }
 
         CraftingItem newCraftedItem = new CraftingItem(craftingItem.getCraftingType(), tile.getPoint());
@@ -881,6 +928,55 @@ public class WorldController
         }
 
         UIRenderer.showTextBox("successfully put " + object.getObjectType() + " on tile!");
+        return true;
+    }
+
+    private static boolean processAnimalBuildingPlacement(Tile tile)
+    {
+        Game game = App.getCurrentGame();
+        Player player = game.getCurrentPlayer();
+        Map map = player.getCurrentMap();
+
+        if (!player.isInFarm())
+        {
+            return false;
+        }
+
+        GameObject object = player.getCurrentObject();
+        if (object == null)
+        {
+            return false;
+        }
+
+        FarmBuildingType farmBuildingType = FarmBuildingType.isAnimalBuilding(object);
+        if (farmBuildingType == null)
+        {
+            return false;
+        }
+
+        if (tile.getObject() != null)
+        {
+            UIRenderer.showTextBox("this tile is not empty");
+            return false;
+        }
+
+        if (tile.getTexture() != TileTexture.LAND && tile.getTexture() != TileTexture.GRASS)
+        {
+            UIRenderer.showTextBox("you can't build a building on this type of tile");
+            return false;
+        }
+
+        AnimalBuilding animalBuilding = new AnimalBuilding(tile, farmBuildingType);
+        tile.setObject(animalBuilding);
+
+        if (object.getNumber() == 1)
+        {
+            player.setCurrentObject(null);
+        }
+        player.removeAmountFromInventory(object.getObjectType(), 1);
+
+        Farm farm = player.getFarm();
+        farm.addAnimalBuildingTile(tile);
         return true;
     }
 
@@ -1213,5 +1309,101 @@ public class WorldController
         FriendshipWithNpcData friendship = player.getNpcFriendship(npc);
         WorldScreen.getInstance().toggleNpcWindow(npc);
         return true;
+    }
+
+    private static boolean processAnimalPlacementTile(Tile tile)
+    {
+        Game game = App.getCurrentGame();
+        Player player = game.getCurrentPlayer();
+        Map map = player.getCurrentMap();
+
+        if (map.getMapType().getMapKind() != MapKind.FARM)
+        {
+            return false;
+        }
+
+        Farm farm = player.getFarm();
+        GameObject object = player.getCurrentObject();
+
+        if (object == null)
+        {
+            return false;
+        }
+
+        GameObjectType type = object.getObjectType();
+        FarmAnimalsType animalsType = FarmAnimalsType.getAnimalType(type);
+
+        if (animalsType == null)
+        {
+            return false;
+        }
+
+        if (tile.getTexture() != TileTexture.LAND && tile.getTexture() != TileTexture.GRASS)
+        {
+            UIRenderer.showTextBox("You can't put an animal on this tile");
+            return false;
+        }
+
+        showAnimalNameTextDialog(name -> {
+            // This callback runs AFTER user confirms name
+            Vector2 loc = player.getCurrentMap().tileToWorld(tile);
+            Animal pet = new Animal(name, animalsType, loc);
+            AnimalCharacterController controller = new AnimalCharacterController(pet.getCharacter(), map, PLAYER_SPEED, TILE_SIZE);
+            player.getAnimalsList().add(pet);
+            player.getAnimalCharacterControllers().add(controller);
+            UIRenderer.showTextBox("You placed " + name + " on this tile");
+        });
+
+        return true;
+    }
+
+    private static void showAnimalNameTextDialog(Consumer<String> onConfirm)
+    {
+        Skin skin = GameAssetsManager.getGameAssetsManager().getSkin();
+        Dialog dialog = new Dialog("Animal Name", skin);
+        dialog.getTitleLabel().setFontScale(FONT_SCALE);
+        dialog.getTitleLabel().setAlignment(Align.center);
+
+        final TextField textField = new TextField("", skin);
+        textField.setMessageText("choose your pet's name");
+        textField.setAlignment(Align.center);
+        textField.getStyle().font.getData().setScale(FONT_SCALE); // Larger font
+
+        Table contentTable = new Table();
+        contentTable.add(textField).width(400).height(60).pad(20); // Larger field
+        dialog.getContentTable().add(contentTable);
+
+        // Create buttons with result objects
+        Table buttonTable = new Table();
+        buttonTable.defaults().pad(10).minWidth(150).height(60);
+
+        TextButton confirmButton = new TextButton("Confirm", skin);
+        confirmButton.getLabel().setFontScale(FONT_SCALE);
+
+        buttonTable.add(confirmButton).padRight(20);
+
+        dialog.getButtonTable().add(buttonTable).padBottom(20);
+
+        // Handle button clicks
+        confirmButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                String text = textField.getText().trim();
+                if (!text.isEmpty()) {
+                    dialog.hide();
+                    onConfirm.accept(text); // Pass name to callback
+                } else {
+                    UIRenderer.showTextBox("Name cannot be empty");
+                }
+            }
+        });
+
+        Stage stage = WorldScreen.getInstance().getUiStage();
+
+        dialog.show(stage);
+        dialog.setPosition(
+            (stage.getWidth() - dialog.getWidth()) / 2,
+            (stage.getHeight() - dialog.getHeight()) / 2
+        );
     }
 }

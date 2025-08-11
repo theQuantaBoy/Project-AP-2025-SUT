@@ -1,0 +1,54 @@
+Dinosaur_Sheet.png
+size: 256, 16
+format: RGBA8888
+filter: Linear, Linear
+repeat: none
+pma: false
+Dinosaur_walk_down_0
+  bounds: 0, 0, 16, 16
+  index: 0
+Dinosaur_walk_down_1
+  bounds: 16, 0, 16, 16
+  index: 1
+Dinosaur_walk_down_2
+  bounds: 32, 0, 16, 16
+  index: 2
+Dinosaur_walk_down_3
+  bounds: 48, 0, 16, 16
+  index: 3
+Dinosaur_walk_left_0
+  bounds: 64, 0, 16, 16
+  index: 0
+Dinosaur_walk_left_1
+  bounds: 80, 0, 16, 16
+  index: 1
+Dinosaur_walk_left_2
+  bounds: 96, 0, 16, 16
+  index: 2
+Dinosaur_walk_left_3
+  bounds: 112, 0, 16, 16
+  index: 3
+Dinosaur_walk_right_0
+  bounds: 128, 0, 16, 16
+  index: 0
+Dinosaur_walk_right_1
+  bounds: 144, 0, 16, 16
+  index: 1
+Dinosaur_walk_right_2
+  bounds: 160, 0, 16, 16
+  index: 2
+Dinosaur_walk_right_3
+  bounds: 176, 0, 16, 16
+  index: 3
+Dinosaur_walk_up_0
+  bounds: 192, 0, 16, 16
+  index: 0
+Dinosaur_walk_up_1
+  bounds: 208, 0, 16, 16
+  index: 1
+Dinosaur_walk_up_2
+  bounds: 224, 0, 16, 16
+  index: 2
+Dinosaur_walk_up_3
+  bounds: 240, 0, 16, 16
+  index: 3

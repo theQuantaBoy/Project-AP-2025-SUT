@@ -22,6 +22,8 @@ import ap.project.util.StringToNumber;
 import ap.project.view.GameMenu;
 import ap.project.view.HomeMenu;
 import ap.project.visual.UIRenderer;
+import com.badlogic.gdx.Application;
+import com.badlogic.gdx.Gdx;
 
 import java.net.Socket;
 import java.util.*;
@@ -226,8 +228,11 @@ public class Game
     {
         for(int i = 0; i < (NpcDetails.values()).length; i++)
         {
-            NpcDetails details = NpcDetails.values()[i];
-            NPCs.add(new NPC(details));
+            if (Gdx.app.getType() != Application.ApplicationType.HeadlessDesktop)
+            {
+                NpcDetails details = NpcDetails.values()[i];
+                NPCs.add(new NPC(details));
+            }
         }
     }
 

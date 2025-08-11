@@ -1,16 +1,15 @@
 package ap.project.screen;
 
 import ap.project.Main;
-import ap.project.control.CharacterController;
-import ap.project.control.OnlineWorldController;
-import ap.project.control.PreGameController;
-import ap.project.control.WorldController;
+import ap.project.control.*;
 import ap.project.control.game.activities.TradeController;
 import ap.project.model.App.App;
 import ap.project.model.App.GameAssetsManager;
+import ap.project.model.animal.Animal;
 import ap.project.model.enums.Season;
 import ap.project.model.building.CraftingItem;
 import ap.project.model.enums.*;
+import ap.project.model.enums.animal_enums.FishType;
 import ap.project.model.game.Game;
 import ap.project.model.player_data.Skill;
 import ap.project.model.shops.Shop;
@@ -46,18 +45,12 @@ import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
 
+import java.util.ArrayList;
+import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 
 public final class WorldScreen implements Screen
 {
-
-//    private final com.badlogic.gdx.Game miniGame;
-
-//    private final Stage gameStage;
-//    private final Array<AnimalActor> animalActors;
-//    private final AnimalInteractionScreen animalInteractionScreen;
-//    private float animalMoveTimer = 0f;
-
     private static WorldScreen INSTANCE;
 
     private final GameClient client;
@@ -65,7 +58,7 @@ public final class WorldScreen implements Screen
     public static final float MAP_SCALE = 1.0f;
     private static final float CHAR_SCALE = 1f;
     private static final float TILE_SIZE = 24f * MAP_SCALE;
-    private static final float PLAYER_SPEED = 50f * MAP_SCALE;
+    public static final float PLAYER_SPEED = 50f * MAP_SCALE;
 
     private Game game;
 
@@ -110,6 +103,8 @@ public final class WorldScreen implements Screen
     private ReactionWindow reactionWindow;
     private ScoreBoardWindow scoreBoardWindow;
     private NpcWindow npcWindow;
+    private FishingMinigameManager fishingMinigameManager;
+    private BackPack backPack;
     private TextButton reactButton;
     private InputMultiplexer inputMultiplexer;
     private boolean inputMultiplexerHadSetUp = false;
@@ -202,6 +197,7 @@ public final class WorldScreen implements Screen
         reactionWindow = new ReactionWindow(uiStage);
         scoreBoardWindow = new ScoreBoardWindow(uiStage);
         npcWindow = new NpcWindow(uiStage);
+        fishingMinigameManager = new FishingMinigameManager(uiStage);
         createReactButton();
         inputMultiplexer = new InputMultiplexer();
         checkGameInfo();
@@ -274,7 +270,8 @@ public final class WorldScreen implements Screen
         uiStage.addActor(reactButton);
     }
 
-    private void initializeHotbar() {
+    private void initializeHotbar()
+    {
         // Create hotbar slot backgrounds
         hotbarSlotBackground = GameAssetsManager.getGameAssetsManager()
             .createColoredDrawable(HOTBAR_SLOT_SIZE, HOTBAR_SLOT_SIZE, new Color(0.2f, 0.2f, 0.2f, 0.8f));
@@ -296,10 +293,12 @@ public final class WorldScreen implements Screen
         refreshHotbarUI();
     }
 
-    public void refreshHotbarUI() {
+    public void refreshHotbarUI()
+    {
         hotbarUI.clear();
 
-        if (player == null || player.getCurrentBackPack() == null) {
+        if (player == null || player.getCurrentBackPack() == null)
+        {
             return;
         }
 
@@ -315,8 +314,10 @@ public final class WorldScreen implements Screen
             slotContainer.setBackground(slotIndex == selectedHotbarSlot ? hotbarSlotHighlight : hotbarSlotBackground);
             slotContainer.setSize(HOTBAR_SLOT_SIZE, HOTBAR_SLOT_SIZE);
 
-            if (obj != null) {
-                try {
+            if (obj != null)
+            {
+                try
+                {
                     // Create item icon
                     Drawable icon = inventoryWindow.getSafeIcon(obj);
                     Stack itemStack = new Stack();
@@ -324,7 +325,8 @@ public final class WorldScreen implements Screen
                     itemStack.add(iconImage);
 
                     // Add quantity label if more than 1
-                    if (obj.getNumber() > 1) {
+                    if (obj.getNumber() > 1)
+                    {
                         Label countLabel = new Label(String.valueOf(obj.getNumber()), skin);
                         countLabel.setFontScale(0.7f); // Smaller font for hotbar
                         countLabel.setAlignment(Align.bottomRight);
@@ -339,7 +341,8 @@ public final class WorldScreen implements Screen
 
                         slotContainer.add(itemStack).expand().fill();
                         slotContainer.add(countContainer);
-                    } else {
+                    } else
+                    {
                         slotContainer.add(itemStack).expand().fill();
                     }
 
@@ -403,12 +406,15 @@ public final class WorldScreen implements Screen
         );
     }
 
-    private Drawable getIconForGameObject(GameObject obj) {
-        try {
+    private Drawable getIconForGameObject(GameObject obj)
+    {
+        try
+        {
             String path = obj.getObjectType().getPath();
             Texture texture = new Texture(Gdx.files.internal(path));
             return new TextureRegionDrawable(new TextureRegion(texture));
-        } catch (Exception e) {
+        } catch (Exception e)
+        {
             // Return a default texture or create a colored rectangle
             String path = GameObjectType.COOKIE.getPath();
             Texture texture = new Texture(Gdx.files.internal(path));
@@ -425,7 +431,8 @@ public final class WorldScreen implements Screen
         }
     }
 
-    public void updateGameInfo() {
+    public void updateGameInfo()
+    {
         this.player = App.getCurrentGame().getCurrentPlayer();
         this.character = player.getCharacter();
         this.map = player.getCurrentMap();
@@ -437,7 +444,8 @@ public final class WorldScreen implements Screen
         gameInputProcessor = new WorldScreenInputProcessor(map, character, characterController, cam, this,
             inventoryWindow, communicationWindow);
 
-        if (inputMultiplexer != null && inputMultiplexerHadSetUp) {
+        if (inputMultiplexer != null && inputMultiplexerHadSetUp)
+        {
             inputMultiplexer.removeProcessor(1);
             inputMultiplexer.addProcessor(1, gameInputProcessor);
         }
@@ -456,13 +464,16 @@ public final class WorldScreen implements Screen
         uiStage.addActor(friends);
 
         // Add it to the stage if not already added
-        if (friends.getStage() == null) {
+        if (friends.getStage() == null)
+        {
             uiStage.addActor(friends);
         }
 
-        friends.addListener(new ClickListener() {
+        friends.addListener(new ClickListener()
+        {
             @Override
-            public void clicked(InputEvent event, float x, float y) {
+            public void clicked(InputEvent event, float x, float y)
+            {
                 toggleFriendsWindow();
             }
         });
@@ -472,12 +483,15 @@ public final class WorldScreen implements Screen
         inputMultiplexer.clear();
         inputMultiplexer.addProcessor(uiStage);
         inputMultiplexer.addProcessor(gameInputProcessor);
-        inputMultiplexer.addProcessor(new InputAdapter() {
+        inputMultiplexer.addProcessor(new InputAdapter()
+        {
             @Override
-            public boolean keyDown(int keycode) {
+            public boolean keyDown(int keycode)
+            {
                 // Handle chat input first
                 if (inventoryWindow.isVisible() &&
-                    keycode >= Input.Keys.NUM_1 && keycode <= Input.Keys.NUM_8) {
+                    keycode >= Input.Keys.NUM_1 && keycode <= Input.Keys.NUM_8)
+                {
                     inventoryWindow.handleHotbarAssignment(keycode);
                     // Refresh the main screen hotbar after assignment
                     refreshHotbarUI();
@@ -486,30 +500,36 @@ public final class WorldScreen implements Screen
 
                 // Handle hotbar selection (when inventory is closed)
                 if (!inventoryWindow.isVisible() &&
-                    keycode >= Input.Keys.NUM_1 && keycode <= Input.Keys.NUM_8) {
+                    keycode >= Input.Keys.NUM_1 && keycode <= Input.Keys.NUM_8)
+                {
                     handleHotbarSelection(keycode);
                     return true;
                 }
 
                 // Handle chat input first
-                if (communicationWindow.getChatScreen().handleKeyDown(keycode)) {
+                if (communicationWindow.getChatScreen().handleKeyDown(keycode))
+                {
                     return true;
                 }
 
 
-                if (isCraftingWindowVisible()) {
+                if (isCraftingWindowVisible())
+                {
                     return false;
                 }
 
-                if (keycode == Input.Keys.E || keycode == Input.Keys.ESCAPE) {
+                if (keycode == Input.Keys.E || keycode == Input.Keys.ESCAPE)
+                {
                     toggleInventoryWindow();
                     inventoryWindow.showInventory();
                     return true;
-                } else if (keycode == Input.Keys.TAB) {
+                } else if (keycode == Input.Keys.TAB)
+                {
                     toggleInventoryWindow();
                     inventoryWindow.showTools();
                     return true;
-                } else if (keycode == Input.Keys.M) {
+                } else if (keycode == Input.Keys.M)
+                {
                     toggleInventoryWindow();
                     inventoryWindow.showMap();
                     return true;
@@ -563,7 +583,8 @@ public final class WorldScreen implements Screen
         client.send(msg);
     }
 
-    private void sendBackPack() {
+    private void sendBackPack()
+    {
         BackPackDTOMessage msg = new BackPackDTOMessage(player.getUser().getHashId(), new BackPackDTO(player.getCurrentBackPack()));
         client.send(msg);
     }
@@ -667,8 +688,8 @@ public final class WorldScreen implements Screen
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         if (!terminalDialog.isVisible() && !isInventoryVisible() && !isCookBookVisible() && !isRefrigeratorVisible()
-        && !greenHouseBuildWindow.isVisible() && !reactionWindow.isVisible() && !scoreBoardWindow.isVisible() &&
-            !npcWindow.isVisible() && !npcWindow.getGiftWindow().isVisible())
+            && !greenHouseBuildWindow.isVisible() && !reactionWindow.isVisible() && !scoreBoardWindow.isVisible() &&
+            !npcWindow.isVisible() && !npcWindow.getGiftWindow().isVisible() && !fishingMinigameManager.isActive())
         {
             update(dt);
             refreshHotbarUI();
@@ -696,11 +717,12 @@ public final class WorldScreen implements Screen
 
         renderCharacters(batch);
         renderNPCs(batch);
+        renderAnimals(batch);
 
         if (!isDialogVisible() && !isInventoryVisible() && !isCookBookVisible() && !isRefrigeratorVisible()
             && !greenHouseBuildWindow.isVisible() && !reactionWindow.isVisible() && !scoreBoardWindow.isVisible() &&
             !npcWindow.isVisible() && !npcWindow.getGiftWindow().isVisible()
-            && !communicationWindow.getChatScreen().isVisible())
+            && !communicationWindow.getChatScreen().isVisible() && !fishingMinigameManager.isActive())
         {
             characterRenderer.renderToolOrObjectAtMouse(batch, character, worldMouseX, worldMouseY);
         }
@@ -723,7 +745,8 @@ public final class WorldScreen implements Screen
         map.getMapVisual().showAvailableTilesForArtisanEquipment(this);
         map.getMapVisual().drawCraftingProgressBars();
 
-        if (hoveredTile != null) {
+        if (hoveredTile != null)
+        {
             Gdx.gl.glEnable(GL20.GL_BLEND);
             Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
 
@@ -744,6 +767,11 @@ public final class WorldScreen implements Screen
             Gdx.gl.glDisable(GL20.GL_BLEND);
         }
 
+        if (fishingMinigameManager.isActive())
+        {
+            fishingMinigameManager.update(dt);
+        }
+
         uiStage.act(dt);
         uiStage.draw();
 
@@ -760,11 +788,18 @@ public final class WorldScreen implements Screen
         map.getMapVisual().update(dt);
 
         if (map.getMapType() == MapTypes.GREEN_HOUSE || map.getMapType() == MapTypes.CARPENTER_SHOP ||
-            map.getMapType() == MapTypes.MARNIE_RANCH) {
+            map.getMapType() == MapTypes.MARNIE_RANCH)
+        {
             cameraFixed = false;
         }
 
-        if (!cameraFixed) {
+        for (AnimalCharacterController controller : player.getAnimalCharacterControllers())
+        {
+            controller.update(dt);
+        }
+
+        if (!cameraFixed)
+        {
             float playerX = character.getPosition().x + TILE_SIZE / 2;
             float playerY = character.getPosition().y + TILE_SIZE / 2;
 
@@ -785,7 +820,7 @@ public final class WorldScreen implements Screen
                 camX = rightEdgeSize;
             }
 
-            if (playerY <  halfViewportH)
+            if (playerY < halfViewportH)
             {
                 camY = halfViewportH;
             } else if (playerY >= upEdgeSize)
@@ -819,15 +854,18 @@ public final class WorldScreen implements Screen
     }
 
     @Override
-    public void resize(int w, int h) {
+    public void resize(int w, int h)
+    {
         float targetRatio = 4f / 3f;
         float currentRatio = (float) w / h;
 
-        if (currentRatio > targetRatio) {
+        if (currentRatio > targetRatio)
+        {
             cam.viewportHeight = 15 * TILE_SIZE;
-            cam.viewportWidth  = cam.viewportHeight * currentRatio;
-        } else {
-            cam.viewportWidth  = 20 * TILE_SIZE;
+            cam.viewportWidth = cam.viewportHeight * currentRatio;
+        } else
+        {
+            cam.viewportWidth = 20 * TILE_SIZE;
             cam.viewportHeight = cam.viewportWidth / currentRatio;
         }
 
@@ -836,7 +874,8 @@ public final class WorldScreen implements Screen
         uiStage.getViewport().update(w, h, true);
 
         // Reposition hotbar after resize
-        if (hotbarUI != null) {
+        if (hotbarUI != null)
+        {
             refreshHotbarUI();  // Ensure hotbar contents are updated
             hotbarUI.setPosition(
                 (uiStage.getWidth() - hotbarUI.getWidth()) / 2f,
@@ -864,56 +903,66 @@ public final class WorldScreen implements Screen
     }
 
     // Helper method to center all visible windows
-    private void centerVisibleWindows() {
-        if (terminalDialog != null && terminalDialog.isVisible()) {
+    private void centerVisibleWindows()
+    {
+        if (terminalDialog != null && terminalDialog.isVisible())
+        {
             terminalDialog.setPosition(
                 (uiStage.getWidth() - terminalDialog.getWidth()) / 2,
                 (uiStage.getHeight() - terminalDialog.getHeight()) / 2
             );
         }
-        if (inventoryWindow != null && inventoryWindow.isVisible()) {
+        if (inventoryWindow != null && inventoryWindow.isVisible())
+        {
             inventoryWindow.getPopup().setPosition(
                 (uiStage.getWidth() - inventoryWindow.getPopup().getWidth()) / 2,
                 (uiStage.getHeight() - inventoryWindow.getPopup().getHeight()) / 2
             );
         }
-        if (cookBookWindow != null && cookBookWindow.isVisible()) {
+        if (cookBookWindow != null && cookBookWindow.isVisible())
+        {
             cookBookWindow.getWindow().setPosition(
                 (uiStage.getWidth() - cookBookWindow.getWindow().getWidth()) / 2,
                 (uiStage.getHeight() - cookBookWindow.getWindow().getHeight()) / 2
             );
         }
-        if (refrigeratorWindow != null && refrigeratorWindow.isVisible()) {
+        if (refrigeratorWindow != null && refrigeratorWindow.isVisible())
+        {
             refrigeratorWindow.getWindow().setPosition(
                 (uiStage.getWidth() - refrigeratorWindow.getWindow().getWidth()) / 2,
                 (uiStage.getHeight() - refrigeratorWindow.getWindow().getHeight()) / 2
             );
         }
-        if (craftingItemWindow != null && craftingItemWindow.isVisible()) {
+        if (craftingItemWindow != null && craftingItemWindow.isVisible())
+        {
             craftingItemWindow.getWindow().setPosition(
                 (uiStage.getWidth() - craftingItemWindow.getWindow().getWidth()) / 2,
                 (uiStage.getHeight() - craftingItemWindow.getWindow().getHeight()) / 2
             );
         }
-        if (friendsWindow != null && friendsWindow.isVisible()) {
+        if (friendsWindow != null && friendsWindow.isVisible())
+        {
             friendsWindow.getPopup().setPosition(
                 (uiStage.getWidth() - friendsWindow.getPopup().getWidth()) / 2,
                 (uiStage.getHeight() - friendsWindow.getPopup().getHeight()) / 2
             );
         }
-        if (greenHouseBuildWindow != null && greenHouseBuildWindow.isVisible()) {
+        if (greenHouseBuildWindow != null && greenHouseBuildWindow.isVisible())
+        {
             greenHouseBuildWindow.getWindow().setPosition(
                 (uiStage.getWidth() - greenHouseBuildWindow.getWindow().getWidth()) / 2,
                 (uiStage.getHeight() - greenHouseBuildWindow.getWindow().getHeight()) / 2
             );
         }
-        if (communicationWindow != null && communicationWindow.isVisible()) {
+        if (communicationWindow != null && communicationWindow.isVisible())
+        {
             communicationWindow.getPopup().setPosition(
                 (uiStage.getWidth() - communicationWindow.getPopup().getWidth()) / 2,
                 (uiStage.getHeight() - communicationWindow.getPopup().getHeight()) / 2
             );
         }
-        if (scoreBoardWindow != null && scoreBoardWindow.isVisible()) {
+        if (scoreBoardWindow != null && scoreBoardWindow.isVisible())
+        {
             scoreBoardWindow.getWindow().setPosition(
                 (uiStage.getWidth() - scoreBoardWindow.getWindow().getWidth()) / 2,
                 (uiStage.getHeight() - scoreBoardWindow.getWindow().getHeight()) / 2
@@ -922,19 +971,23 @@ public final class WorldScreen implements Screen
     }
 
     @Override
-    public void pause() {
+    public void pause()
+    {
     }
 
     @Override
-    public void resume() {
+    public void resume()
+    {
     }
 
     @Override
-    public void hide() {
+    public void hide()
+    {
     }
 
     @Override
-    public void dispose() {
+    public void dispose()
+    {
         map.getMapVisual().dispose();
         uiRenderer.dispose();
         shapeRenderer.dispose();
@@ -945,33 +998,55 @@ public final class WorldScreen implements Screen
         scoreBoardWindow.dispose();
     }
 
-    private void handleHotbarSelection(int keycode) {
-        if (player == null || player.getCurrentBackPack() == null) {
+    private void handleHotbarSelection(int keycode)
+    {
+        if (player == null || player.getCurrentBackPack() == null)
+        {
             return;
         }
 
         int hotbarSlot = -1;
 
         // Map keycodes to hotbar slots (1-8 keys map to slots 0-7)
-        switch (keycode) {
-            case Input.Keys.NUM_1: hotbarSlot = 0; break;
-            case Input.Keys.NUM_2: hotbarSlot = 1; break;
-            case Input.Keys.NUM_3: hotbarSlot = 2; break;
-            case Input.Keys.NUM_4: hotbarSlot = 3; break;
-            case Input.Keys.NUM_5: hotbarSlot = 4; break;
-            case Input.Keys.NUM_6: hotbarSlot = 5; break;
-            case Input.Keys.NUM_7: hotbarSlot = 6; break;
-            case Input.Keys.NUM_8: hotbarSlot = 7; break;
-            default: return;
+        switch (keycode)
+        {
+            case Input.Keys.NUM_1:
+                hotbarSlot = 0;
+                break;
+            case Input.Keys.NUM_2:
+                hotbarSlot = 1;
+                break;
+            case Input.Keys.NUM_3:
+                hotbarSlot = 2;
+                break;
+            case Input.Keys.NUM_4:
+                hotbarSlot = 3;
+                break;
+            case Input.Keys.NUM_5:
+                hotbarSlot = 4;
+                break;
+            case Input.Keys.NUM_6:
+                hotbarSlot = 5;
+                break;
+            case Input.Keys.NUM_7:
+                hotbarSlot = 6;
+                break;
+            case Input.Keys.NUM_8:
+                hotbarSlot = 7;
+                break;
+            default:
+                return;
         }
 
         java.util.List<GameObject> hotbarSlots = player.getCurrentBackPack().getHotbarSlots();
 
-        if (hotbarSlot < hotbarSlots.size()) {
+        if (hotbarSlot < hotbarSlots.size())
+        {
             GameObject selectedItem = hotbarSlots.get(hotbarSlot);
 
             // Toggle selection - if same slot is pressed again, deselect
-            if (selectedHotbarSlot == hotbarSlot) {
+            if (selectedHotbarSlot == hotbarSlot)
+            {
                 selectedHotbarSlot = -1;
                 player.setCurrentObject(null);
             } else if (selectedItem != null)
@@ -994,7 +1069,6 @@ public final class WorldScreen implements Screen
             refreshHotbarUI();
         }
     }
-
 
 
     private void checkMapSeason()
@@ -1043,8 +1117,10 @@ public final class WorldScreen implements Screen
         return tile;
     }
 
-    private void createTerminalDialog() {
-        terminalDialog = new Dialog("Game Console", skin) {
+    private void createTerminalDialog()
+    {
+        terminalDialog = new Dialog("Game Console", skin)
+        {
             @Override
             protected void result(Object object)
             {
@@ -1087,17 +1163,21 @@ public final class WorldScreen implements Screen
         submitButton.pad(3, 8, 3, 8);
         closeButton.pad(3, 8, 3, 8);
 
-        submitButton.addListener(new ClickListener() {
+        submitButton.addListener(new ClickListener()
+        {
             @Override
-            public void clicked(InputEvent event, float x, float y) {
+            public void clicked(InputEvent event, float x, float y)
+            {
                 processUserInput();
                 userInputField.setText("");
             }
         });
 
-        closeButton.addListener(new ClickListener() {
+        closeButton.addListener(new ClickListener()
+        {
             @Override
-            public void clicked(InputEvent event, float x, float y) {
+            public void clicked(InputEvent event, float x, float y)
+            {
                 closeDialog();
             }
         });
@@ -1108,10 +1188,13 @@ public final class WorldScreen implements Screen
         contentTable.row();
         contentTable.add(buttonTable).padTop(10).right();
 
-        userInputField.addListener(new InputListener() {
+        userInputField.addListener(new InputListener()
+        {
             @Override
-            public boolean keyDown(InputEvent event, int keycode) {
-                if (keycode == Input.Keys.ENTER) {
+            public boolean keyDown(InputEvent event, int keycode)
+            {
+                if (keycode == Input.Keys.ENTER)
+                {
                     processUserInput();
                     userInputField.setText("");
                     return true;
@@ -1129,16 +1212,19 @@ public final class WorldScreen implements Screen
         terminalDialog.setVisible(false);
     }
 
-    private void processUserInput() {
+    private void processUserInput()
+    {
         String input = userInputField.getText().trim();
 
-        if (!input.isEmpty()) {
+        if (!input.isEmpty())
+        {
             appendToDialog("> " + input);
             App.getCurrentMenu().check(input);
         }
     }
 
-    public void toggleTerminalDialog() {
+    public void toggleTerminalDialog()
+    {
         if (terminalDialog.isVisible()) return;
 
         userInputField.setText("");
@@ -1162,18 +1248,22 @@ public final class WorldScreen implements Screen
         updateDialogDisplay();
     }
 
-    private static void updateDialogDisplay() {
-        if (dialogContentLabel != null) {
+    private static void updateDialogDisplay()
+    {
+        if (dialogContentLabel != null)
+        {
             dialogContentLabel.setText(dialogTextBuffer.toString());
 
             ScrollPane scrollPane = (ScrollPane) dialogContentLabel.getParent();
-            if (scrollPane != null) {
+            if (scrollPane != null)
+            {
                 scrollPane.setScrollY(Float.MAX_VALUE);
             }
         }
     }
 
-    public void closeDialog() {
+    public void closeDialog()
+    {
         terminalDialog.hide();
         terminalDialog.setVisible(false);
 
@@ -1184,11 +1274,13 @@ public final class WorldScreen implements Screen
         Gdx.input.setInputProcessor(inputMultiplexer);
     }
 
-    public boolean isDialogVisible() {
+    public boolean isDialogVisible()
+    {
         return terminalDialog.isVisible();
     }
 
-    public boolean isInventoryVisible() {
+    public boolean isInventoryVisible()
+    {
         return inventoryWindow.isVisible();
     }
 
@@ -1217,7 +1309,8 @@ public final class WorldScreen implements Screen
 //        }
 //    }
 
-    public void toggleFriendsWindow() {
+    public void toggleFriendsWindow()
+    {
         friendsWindow.toggleVisibility();
     }
 
@@ -1232,7 +1325,7 @@ public final class WorldScreen implements Screen
 
         if (cameraFixed)
         {
-            cam.position.set(character.getPosition().x + TILE_SIZE/2, character.getPosition().y + TILE_SIZE/2, 0);
+            cam.position.set(character.getPosition().x + TILE_SIZE / 2, character.getPosition().y + TILE_SIZE / 2, 0);
             cam.update();
         }
     }
@@ -1242,26 +1335,34 @@ public final class WorldScreen implements Screen
         // Implement season update logic if needed
     }
 
-    public Player getCurrentPlayer() {
+    public Player getCurrentPlayer()
+    {
         return this.player;
     }
-    public void toggleCookBookWindow() {
+
+    public void toggleCookBookWindow()
+    {
         cookBookWindow.toggleVisibility();
     }
 
-    public boolean isCookBookVisible() {
+    public boolean isCookBookVisible()
+    {
         return cookBookWindow.isVisible();
     }
 
-    public void restoreInputFocus() {
+    public void restoreInputFocus()
+    {
         // Restore input focus to the world screen
         Gdx.input.setInputProcessor(inputMultiplexer);
     }
 
-    public boolean isChatVisible() {
+    public boolean isChatVisible()
+    {
         return communicationWindow.getChatScreen().isVisible();
     }
-    public void toggleRefrigeratorWindow() {
+
+    public void toggleRefrigeratorWindow()
+    {
         refrigeratorWindow.toggleVisibility();
     }
 
@@ -1482,10 +1583,21 @@ public final class WorldScreen implements Screen
     {
         if (player.isInCity())
         {
-           for (NPC npc : game.getNPCs())
-           {
-               characterRenderer.render(batch, npc.getCharacter(), CHAR_SCALE);
-           }
+            for (NPC npc : game.getNPCs())
+            {
+                characterRenderer.render(batch, npc.getCharacter(), CHAR_SCALE);
+            }
+        }
+    }
+
+    private void renderAnimals(Batch batch)
+    {
+        if (player.isInFarm())
+        {
+            for (Animal animal : player.getAnimalsList())
+            {
+                characterRenderer.render(batch, animal.getCharacter(), CHAR_SCALE);
+            }
         }
     }
 
@@ -1689,43 +1801,52 @@ public final class WorldScreen implements Screen
         this.playerStateCache.putAll(playerStateCache);
     }
 
-    public TradeWindow getTradeWindow() {
+    public TradeWindow getTradeWindow()
+    {
 
         return friendsWindow.getTradeWindow();
 
     }
 
-    public void setTradeWindow(TradeWindow tradeWindow) {
+    public void setTradeWindow(TradeWindow tradeWindow)
+    {
         this.tradeWindow = tradeWindow;
     }
 
-    public InventoryWindow getInventoryWindow() {
+    public InventoryWindow getInventoryWindow()
+    {
         return inventoryWindow;
     }
 
-    public Stage getUiStage() {
+    public Stage getUiStage()
+    {
         return uiStage;
     }
 
-    public void updateOtherBackPack(BackPackDTOMessage msg) {
+    public void updateOtherBackPack(BackPackDTOMessage msg)
+    {
 
-        for (Player p : game.getPlayers()) {
+        for (Player p : game.getPlayers())
+        {
 
             // Only update if it's another player (not the current player)
             // AND it matches the message's userID
             if (p.getUser().getHashId() == msg.userID &&
-                p.getUser().getHashId() != player.getUser().getHashId()) {
+                p.getUser().getHashId() != player.getUser().getHashId())
+            {
 
                 p.setCurrentBackPack(Mapper.fromDTO(msg.backPackDTO));
             }
         }
     }
 
-    public CommunicationWindow getCommunicationWindow() {
+    public CommunicationWindow getCommunicationWindow()
+    {
         return communicationWindow;
     }
 
-    public FriendsWindow getFriendsWindow() {
+    public FriendsWindow getFriendsWindow()
+    {
         return friendsWindow;
     }
 
@@ -1789,6 +1910,29 @@ public final class WorldScreen implements Screen
     {
         npcWindow.setNpc(npc);
         npcWindow.toggleVisibility();
+    }
+
+    public boolean isFishWindowVisible()
+    {
+        return fishingMinigameManager.isActive();
+    }
+
+    public void toggleFishMiniGame()
+    {
+        if (fishingMinigameManager.isActive())
+        {
+            fishingMinigameManager.hideMinigame();
+        } else
+        {
+            FishType type = getRandFish();
+            fishingMinigameManager.showMinigame(type);
+        }
+    }
+
+    public FishType getRandFish()
+    {
+        Random rand = new Random();
+        return FishType.values()[rand.nextInt(FishType.values().length)];
     }
 }
 

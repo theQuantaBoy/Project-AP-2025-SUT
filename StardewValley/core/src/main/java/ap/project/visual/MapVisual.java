@@ -1,6 +1,7 @@
 package ap.project.visual;
 
 import ap.project.model.App.App;
+import ap.project.model.animal.AnimalBuilding;
 import ap.project.model.building.CraftingItem;
 import ap.project.model.enums.*;
 import ap.project.model.enums.building_enums.CraftingRecipeEnums;
@@ -91,6 +92,7 @@ public class MapVisual
         drawPlants();
         drawForagingTrees();
         drawTilesWithCraftingItems(worldScreen.getCamera());
+        drawTilesWithAnimalBuildings(worldScreen.getCamera());
 
         batch.end();
 
@@ -598,6 +600,19 @@ public class MapVisual
         }
     }
 
+    public void drawTilesWithAnimalBuildings(OrthographicCamera cam)
+    {
+        if (map instanceof Farm)
+        {
+            Farm farm = (Farm) map;
+
+            for (Tile tile : farm.getAnimalBuildingTiles())
+            {
+                drawTileAnimalBuilding(tile, cam);
+            }
+        }
+    }
+
     public void showAvailableTilesForArtisanEquipment(WorldScreen worldScreen)
     {
         if (map instanceof Farm || map instanceof GreenHouse)
@@ -646,6 +661,30 @@ public class MapVisual
             } else
             {
                 renderer.getBatch().draw(tile.getObject().getObjectType().getTexture(), location.x, location.y - (16 * MAP_SCALE), (16 * MAP_SCALE), (16 * MAP_SCALE));
+            }
+        }
+    }
+
+    public void drawTileAnimalBuilding(Tile tile, OrthographicCamera cam)
+    {
+        Vector2 location = map.tileToWorld(tile);
+        if (tile.getObject() != null && tile.getObject() instanceof AnimalBuilding)
+        {
+            AnimalBuilding animalBuilding = (AnimalBuilding) tile.getObject();
+            switch (animalBuilding.getFarmBuildingType())
+            {
+                case BARN:
+                case BIG_BARN:
+                case DELUXE_BARN:
+                    renderer.getBatch().draw(tile.getObject().getObjectType().getTexture(),
+                        location.x, location.y - (32 * MAP_SCALE), (7 * 16 * MAP_SCALE), (8 * 16 * MAP_SCALE));
+                    break;
+                case COOP:
+                case BIG_COOP:
+                case DELUXE_COOP:
+                    renderer.getBatch().draw(tile.getObject().getObjectType().getTexture(),
+                        location.x, location.y - (32 * MAP_SCALE), (6 * 16 * MAP_SCALE), (8 * 16 * MAP_SCALE));
+                    break;
             }
         }
     }

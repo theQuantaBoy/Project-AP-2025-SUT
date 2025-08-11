@@ -37,6 +37,7 @@ public class Farm extends Map
     private ArrayList<Tile> tilesWithCraftingItems = new ArrayList<>();
     private ArrayList<Tile> lightningTiles = new ArrayList<>();
     private ArrayList<Tile> hazardTiles = new ArrayList<>();
+    private ArrayList<Tile> animalBuildingTiles = new ArrayList<>();
 
     private final int MARGIN = 10;
 
@@ -131,6 +132,12 @@ public class Farm extends Map
     {
         plantingTiles.add(tile);
         plantingTiles.sort(Comparator.comparingInt(Tile::getY));
+    }
+
+    public void addAnimalBuildingTile(Tile tile)
+    {
+        animalBuildingTiles.add(tile);
+        animalBuildingTiles.sort(Comparator.comparingInt(Tile::getY));
     }
 
     public void removePlantingTile(Tile tile)
@@ -618,5 +625,10 @@ public class Farm extends Map
         }
 
         return false;
+    }
+
+    public ArrayList<Tile> getAnimalBuildingTiles()
+    {
+        return animalBuildingTiles;
     }
 }
