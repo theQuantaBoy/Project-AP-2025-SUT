@@ -317,6 +317,10 @@ public class NpcWindow
         }
 
         UIRenderer.showTextBox("You completed a quest!");
+        player.setCompletedQuests(player.getCompletedQuests() + 1);
+        player.addToJournal("completed 1 quest for: " + currentNpc.getName() + ":\n");
+        player.addToJournal("  gave " + request.getNumber() + " " + request.getObjectType() + "\n");
+        player.addToJournal("  received " + reward.getNumber() + " " + reward.getObjectType() + "\n\n");
         return true;
     }
 

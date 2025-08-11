@@ -1,14 +1,18 @@
 package ap.project.screen;
 
+import ap.project.control.game.activities.TradeController;
 import ap.project.model.App.App;
 import ap.project.model.enums.*;
 import ap.project.model.enums.building_enums.CraftingRecipeEnums;
 import ap.project.model.enums.building_enums.KitchenRecipe;
 import ap.project.model.building.CraftingItem;
 import ap.project.model.game.*;
+import ap.project.model.player_data.FriendshipData;
+import ap.project.model.player_data.FriendshipWithNpcData;
 import ap.project.model.player_data.Skill;
 import ap.project.model.shops.Shop;
 import ap.project.model.tools.Tool;
+import ap.project.network.shared.messages.TradeRequestMessage;
 import ap.project.visual.UIRenderer;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
@@ -975,13 +979,194 @@ public class InventoryWindow {
 
     private Table buildSocialTable() {
         Table table = new Table(skin);
-        table.defaults().pad(4);
-        for (int i = 1; i <= 10; i++) {
-            table.add(new Label("Item #" + i, skin));
-            table.add(new Label("x" + (int) (Math.random() * 50), skin));
-            table.row();
-        }
+        table.defaults().pad(20).width(250).height(80); // Bigger buttons
+
+        TextButton journalButton = new TextButton("Journal", skin);
+        journalButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y)
+            {
+                showJournalDialog();
+            }
+        });
+
+        TextButton socialButton = new TextButton("Socials", skin);
+        socialButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y)
+            {
+                showSocialDialog();
+            }
+        });
+
+        TextButton questsButton = new TextButton("Available Quests", skin);
+        questsButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y)
+            {
+               showQuestsDialog();
+            }
+        });
+
+        table.add(questsButton).row();
+        table.add(journalButton).row();
+        table.add(socialButton);
+
         return table;
+    }
+
+    private void showJournalDialog()
+    {
+        Dialog journalDialog = new Dialog(player.getUser().getNickname() + "'s journal", skin);
+        journalDialog.setModal(true);
+        journalDialog.setMovable(true);
+        journalDialog.setResizable(true);
+
+        String text = player.getJournalText();
+        ScrollPane scrollPane = new ScrollPane(new Label(text, skin));
+        scrollPane.setFadeScrollBars(false);
+        journalDialog.getContentTable().add(scrollPane).width(500).height(350).pad(20);
+
+        TextButton closeButton = new TextButton("Close", skin);
+        closeButton.addListener(new ClickListener()
+        {
+            @Override
+            public void clicked(InputEvent event, float x, float y)
+            {
+                journalDialog.hide();
+            }
+        });
+        journalDialog.getButtonTable().add(closeButton);
+
+        journalDialog.show(stage);
+        journalDialog.setSize(800, 600);
+        journalDialog.setPosition(
+            (stage.getWidth() - journalDialog.getWidth()) / 2,
+            (stage.getHeight() - journalDialog.getHeight()) / 2
+        );
+    }
+
+    private void showSocialDialog()
+    {
+        Dialog socialDialog = new Dialog(player.getUser().getNickname() + "'s friends", skin);
+        socialDialog.setModal(true);
+        socialDialog.setMovable(true);
+        socialDialog.setResizable(true);
+
+        String friends = getFriends();
+        ScrollPane scrollPane = new ScrollPane(new Label(friends, skin));
+        scrollPane.setFadeScrollBars(false);
+        socialDialog.getContentTable().add(scrollPane).width(500).height(350).pad(20);
+
+        TextButton closeButton = new TextButton("Close", skin);
+        closeButton.addListener(new ClickListener()
+        {
+            @Override
+            public void clicked(InputEvent event, float x, float y)
+            {
+                socialDialog.hide();
+            }
+        });
+        socialDialog.getButtonTable().add(closeButton);
+
+        socialDialog.show(stage);
+        socialDialog.setSize(800, 500);
+        socialDialog.setPosition(
+            (stage.getWidth() - socialDialog.getWidth()) / 2,
+            (stage.getHeight() - socialDialog.getHeight()) / 2
+        );
+    }
+
+    private String getFriends()
+    {
+        StringBuilder sb = new StringBuilder();
+
+        HashMap<Player, FriendshipData> friendships = player.getFriendships();
+
+        for (java.util.Map.Entry<Player, FriendshipData> entry : friendships.entrySet())
+        {
+            Player friend = entry.getKey();
+            FriendshipData data = entry.getValue();
+
+            sb.append(friend.getUser().getNickname()).append(": \n");
+            sb.append("  xp: " + data.getXp()).append("\n");
+            sb.append("  level: " + data.getLevel()).append("\n");
+
+            sb.append("----------------\n");
+        }
+
+        for (NPC npc : App.getCurrentGame().getNPCs())
+        {
+            FriendshipWithNpcData friendship = player.getNpcFriendship(npc);
+
+            sb.append(npc.getName()).append(": \n");
+            sb.append("  xp: ").append(friendship.getXp()).append("\n");
+            sb.append("  level: ").append(friendship.getLevel()).append("\n");
+
+            sb.append("----------------\n");
+        }
+
+        return sb.toString();
+    }
+
+    private void showQuestsDialog()
+    {
+        Dialog questsDialog = new Dialog(player.getUser().getNickname() + "'s quests", skin);
+        questsDialog.setModal(true);
+        questsDialog.setMovable(true);
+        questsDialog.setResizable(true);
+
+        String text = getQuests();
+        ScrollPane scrollPane = new ScrollPane(new Label(text, skin));
+        scrollPane.setFadeScrollBars(false);
+        questsDialog.getContentTable().add(scrollPane).width(500).height(350).pad(20);
+
+        TextButton closeButton = new TextButton("Close", skin);
+        closeButton.addListener(new ClickListener()
+        {
+            @Override
+            public void clicked(InputEvent event, float x, float y)
+            {
+                questsDialog.hide();
+            }
+        });
+        questsDialog.getButtonTable().add(closeButton);
+
+        questsDialog.show(stage);
+        questsDialog.setSize(800, 500);
+        questsDialog.setPosition(
+            (stage.getWidth() - questsDialog.getWidth()) / 2,
+            (stage.getHeight() - questsDialog.getHeight()) / 2
+        );
+    }
+
+    private String getQuests()
+    {
+        StringBuilder sb = new StringBuilder();
+
+        for (NPC npc : App.getCurrentGame().getNPCs())
+        {
+            sb.append(npc.getName()).append(": \n");
+
+            if (npc.isFirstQuestAvailable())
+            {
+                sb.append(npc.getQuestDescription(0));
+            }
+
+            if (npc.isSecondQuestAvailable())
+            {
+                sb.append(npc.getQuestDescription(1));
+            }
+
+            if (npc.isThirdQuestAvailable())
+            {
+                sb.append(npc.getQuestDescription(2));
+            }
+
+            sb.append("----------------\n");
+        }
+
+        return sb.toString();
     }
 
     // Helper method to get map display name
@@ -1072,7 +1257,7 @@ public class InventoryWindow {
     private Table buildSettingsTable()
     {
         Table table = new Table(skin);
-        table.defaults().pad(20).width(350).height(120); // Bigger buttons
+        table.defaults().pad(20).width(200).height(80); // Bigger buttons
 
         TextButton exitButton = new TextButton("Exit Game", skin);
         exitButton.getLabel().setFontScale(1.2f); // Larger text

@@ -43,7 +43,7 @@ public class UIRenderer
 
     private final Texture weatherOverlay;
     private static final Array<TextBox> activeTextBoxes = new Array<>();
-    
+
 
     public UIRenderer(Time time) {
         this.time = time;
@@ -97,21 +97,7 @@ public class UIRenderer
         renderClock(batch, screenW, screenH);
         renderEnergyBar(uiCam, screenW, screenH);
         renderTextBoxes(batch);
-        //renderFriendsButton(batch, screenW, screenH);
-        // In the future:
-        // renderEnergyBar(batch, screenW, screenH);
-        // renderInventoryBar(batch, screenW, screenH);
     }
-
-//    private void renderFriendsButton(Batch batch, int screenW, int screenH) {
-//        float buttonX = screenW - 250f;
-//        float buttonY = screenH - 320f;
-//
-//        friends.setPosition(buttonX, buttonY);
-//        friends.setSize(220f, 60f);
-//        friends.draw(batch, 1f);
-//    }
-
 
     /** Draw the entire clock UI section */
     private void renderClock(Batch batch, int screenW, int screenH) {
@@ -126,9 +112,13 @@ public class UIRenderer
         drawPlayerBuff(batch, clockX, clockY);
     }
 
-    private void drawClockBackground(Batch batch, int x, int y) {
+    private void drawClockBackground(Batch batch, int x, int y)
+    {
         batch.draw(clockTexture, x - 20, y);
-//        batch.draw(journalAlert, x, y - 55);
+        if (!player.getJournalText().isEmpty())
+        {
+            batch.draw(journalAlert, x, y - 55);
+        }
     }
 
     private void drawClockHandles(Batch batch, int x, int y)

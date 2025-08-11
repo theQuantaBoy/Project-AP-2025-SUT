@@ -24,7 +24,6 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector2;
 import java.util.*;
 
-
 public class Player {
     private PlayerCharacter character;
 
@@ -111,6 +110,7 @@ public class Player {
     private float reactionTimer;
 
     private int completedQuests;
+    private StringBuilder journalText = new StringBuilder();
 
     public void setMapType(MapTypes mapType)
     {
@@ -1505,5 +1505,15 @@ public class Player {
 
         score /= (skills.size());
         return score;
+    }
+
+    public String getJournalText()
+    {
+        return journalText.toString();
+    }
+
+    public void addToJournal(String text)
+    {
+        journalText.append(text);
     }
 }

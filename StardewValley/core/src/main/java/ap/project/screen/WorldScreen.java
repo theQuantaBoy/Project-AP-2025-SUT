@@ -111,6 +111,7 @@ public final class WorldScreen implements Screen
     private TextButton reactButton;
     private InputMultiplexer inputMultiplexer;
     private boolean inputMultiplexerHadSetUp = false;
+    private TextButton friends;
 
     private Table hotbarUI = new Table();
     private static final int HOTBAR_SLOTS = 8;
@@ -450,13 +451,8 @@ public final class WorldScreen implements Screen
         int w = Gdx.graphics.getWidth(), h = Gdx.graphics.getHeight();
         resize(w, h);
 
-        TextButton friends = uiRenderer.getFriends();
+        friends = uiRenderer.getFriends();
         uiStage.addActor(friends);
-        friends.setPosition(
-            uiStage.getWidth() - 250f,
-            uiStage.getHeight() - 320f
-        );
-        friends.setSize(220f, 60f);
 
         // Add it to the stage if not already added
         if (friends.getStage() == null) {
@@ -469,6 +465,8 @@ public final class WorldScreen implements Screen
                 toggleFriendsWindow();
             }
         });
+
+        updateButtonPosition();
 
         inputMultiplexer.clear();
         inputMultiplexer.addProcessor(uiStage);
@@ -854,6 +852,19 @@ public final class WorldScreen implements Screen
         centerVisibleWindows();
 
         reactButton.setPosition(20, 20);
+        updateButtonPosition();
+    }
+
+    private void updateButtonPosition()
+    {
+        if (friends != null)
+        {
+            friends.setPosition(
+                uiStage.getWidth() - 220f,
+                uiStage.getHeight() - 370f
+            );
+            friends.setSize(180f, 70f);
+        }
     }
 
     // Helper method to center all visible windows
