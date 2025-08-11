@@ -728,6 +728,8 @@ public class TradeWindow {
     private void checkAndCompleteTrade() {
         if (playerConfirmed && friendConfirmed) {
             completeTrade();
+            playerConfirmed = false;
+            friendConfirmed = false;
         }
     }
 

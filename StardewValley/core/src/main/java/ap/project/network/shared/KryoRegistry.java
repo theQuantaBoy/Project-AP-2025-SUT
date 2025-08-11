@@ -186,6 +186,10 @@ public class KryoRegistry
         kryo.register(UpdateFriendshipMessage.class);
         kryo.register(FriendshipData.class);
 
+        kryo.register(NewPublicChatMessage.class);
+        kryo.register(PlayerTaggedNotification.class);
+
+
         kryo.register(PlayerReactionMessage.class);
         kryo.register(ReactionEmoji.class);
 
