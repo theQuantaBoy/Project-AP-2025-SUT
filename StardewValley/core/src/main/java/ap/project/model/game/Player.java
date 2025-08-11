@@ -1,5 +1,6 @@
 package ap.project.model.game;
 
+import ap.project.control.AnimalCharacterController;
 import ap.project.model.App.App;
 import ap.project.model.App.Result;
 import ap.project.model.App.User;
@@ -100,6 +101,7 @@ public class Player {
 
     private ArrayList<Fish> fishes = new ArrayList<>();
     private ArrayList<Animal> animals = new ArrayList<>();
+    private ArrayList<AnimalCharacterController> animalCharacterControllers = new ArrayList<>();
 
     private MapTypes mapType;
 
@@ -1171,6 +1173,11 @@ public class Player {
     public ArrayList<Animal> getAnimalsList()
     {
         return animals;
+    }
+
+    public ArrayList<AnimalCharacterController> getAnimalCharacterControllers()
+    {
+        return animalCharacterControllers;
     }
 
     public ArrayList<Animal> getAnimals()

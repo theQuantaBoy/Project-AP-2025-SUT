@@ -39,7 +39,9 @@ import java.util.ArrayList;
 import java.util.Vector;
 import java.util.function.Consumer;
 
+import static ap.project.model.game.Map.TILE_SIZE;
 import static ap.project.screen.ReactionWindow.FONT_SCALE;
+import static ap.project.screen.WorldScreen.PLAYER_SPEED;
 
 public class WorldController
 {
@@ -1346,7 +1348,9 @@ public class WorldController
             // This callback runs AFTER user confirms name
             Vector2 loc = player.getCurrentMap().tileToWorld(tile);
             Animal pet = new Animal(name, animalsType, loc);
+            AnimalCharacterController controller = new AnimalCharacterController(pet.getCharacter(), map, PLAYER_SPEED, TILE_SIZE);
             player.getAnimalsList().add(pet);
+            player.getAnimalCharacterControllers().add(controller);
             UIRenderer.showTextBox("You placed " + name + " on this tile");
         });
 

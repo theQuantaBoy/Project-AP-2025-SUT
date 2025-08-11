@@ -1,10 +1,7 @@
 package ap.project.screen;
 
 import ap.project.Main;
-import ap.project.control.CharacterController;
-import ap.project.control.OnlineWorldController;
-import ap.project.control.PreGameController;
-import ap.project.control.WorldController;
+import ap.project.control.*;
 import ap.project.control.game.activities.TradeController;
 import ap.project.model.App.App;
 import ap.project.model.App.GameAssetsManager;
@@ -61,7 +58,7 @@ public final class WorldScreen implements Screen
     public static final float MAP_SCALE = 1.0f;
     private static final float CHAR_SCALE = 1f;
     private static final float TILE_SIZE = 24f * MAP_SCALE;
-    private static final float PLAYER_SPEED = 50f * MAP_SCALE;
+    public static final float PLAYER_SPEED = 50f * MAP_SCALE;
 
     private Game game;
 
@@ -794,6 +791,11 @@ public final class WorldScreen implements Screen
             map.getMapType() == MapTypes.MARNIE_RANCH)
         {
             cameraFixed = false;
+        }
+
+        for (AnimalCharacterController controller : player.getAnimalCharacterControllers())
+        {
+            controller.update(dt);
         }
 
         if (!cameraFixed)
