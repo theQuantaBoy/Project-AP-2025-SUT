@@ -1,20 +1,19 @@
 package ap.project.screen;
 
+import ap.project.Main;
 import ap.project.control.game.activities.CommunicateController;
 import ap.project.control.game.activities.TradeController;
 import ap.project.model.App.App;
 import ap.project.model.App.GameAssetsManager;
 import ap.project.model.App.Result;
-import ap.project.model.game.GameObject;
-import ap.project.model.game.Gift;
-import ap.project.model.game.Player;
-import ap.project.model.game.Trade;
+import ap.project.model.game.*;
 import ap.project.model.player_data.FriendshipData;
 import ap.project.model.tools.Tool;
 import ap.project.network.client.GameClient;
 import ap.project.network.shared.messages.GiftRateMessage;
 import ap.project.network.shared.messages.NewGiftMessage;
 import ap.project.network.shared.messages.TradeRequestMessage;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
@@ -56,6 +55,15 @@ public class FriendsWindow {
     private GameClient client;
     private PublicChatScreen publicChatScreen;
 
+    private Table musicControlsTable;
+    private SelectBox<String> trackSelectBox;
+    private RadioPlayer radioPlayer;
+    private TextButton playPauseButton;
+    private TextButton nextButton;
+    private TextButton prevButton;
+    private TextButton shuffleButton;
+    private TextButton repeatButton;
+
 
     public FriendsWindow(Stage stage, WorldScreen worldScreen) {
         this.stage = stage;
@@ -85,6 +93,9 @@ public class FriendsWindow {
         scrollPane.setFadeScrollBars(false);
         scrollPane.setScrollingDisabled(true, false);
 
+        radioPlayer = Main.getApp().getRadio();
+        setupMusicControls();
+
         contentStack = new Stack();
         contentStack.setFillParent(true);
         contentStack.add(scrollPane);
@@ -92,6 +103,7 @@ public class FriendsWindow {
         contentStack.add(giftHistoryTable);
         contentStack.add(tradeHistoryTable);
         contentStack.add(newGiftTable);
+        contentStack.add(musicControlsTable);
 
         popup.setSize(1200, 800);
         popup.add(contentStack).expand().fill();
@@ -105,6 +117,104 @@ public class FriendsWindow {
         tradeWindow = new TradeWindow(stage, skin);
         client = GameClient.getInstance();
         publicChatScreen = new PublicChatScreen(stage, worldScreen);
+
+
+
+    }
+
+    private void setupMusicControls() {
+        musicControlsTable = new Table();
+        musicControlsTable.defaults().pad(1);
+
+        // Track selection dropdown
+        trackSelectBox = new SelectBox<>(skin);
+        trackSelectBox.setAlignment(Align.center);
+        updateTrackList();
+
+        // Buttons
+        playPauseButton = new TextButton("Play", skin);
+        prevButton = new TextButton("<<", skin);
+        nextButton = new TextButton(">>", skin);
+        shuffleButton = new TextButton("Shuffle", skin);
+        repeatButton = new TextButton("Repeat", skin);
+
+        // Button listeners
+        playPauseButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                int selectedIndex = trackSelectBox.getSelectedIndex();
+
+                // If nothing is playing, start the selected track
+                if (radioPlayer.getCurrentTrackName() == null && selectedIndex >= 0) {
+                    radioPlayer.playTrack(selectedIndex);
+                    playPauseButton.setText("Pause");
+                }
+                // If music is playing, pause it
+                else if (radioPlayer.isPlaying()) {
+                    radioPlayer.pause();
+                    playPauseButton.setText("Play");
+                }
+                // If music is paused, resume it
+                else if (radioPlayer.getCurrentTrackName() != null) {
+                    radioPlayer.resume();
+                    playPauseButton.setText("Pause");
+                }
+                // If no track is selected, do nothing
+                else {
+                    Gdx.app.log("RadioPlayer", "No track selected to play");
+                }
+            }
+        });
+
+        nextButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                radioPlayer.playNext();
+                updateTrackSelection();
+            }
+        });
+
+        prevButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                radioPlayer.playPrevious();
+                updateTrackSelection();
+            }
+        });
+
+        shuffleButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                radioPlayer.toggleShuffle();
+                shuffleButton.setChecked(radioPlayer.isShuffleOn());
+            }
+        });
+
+        repeatButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                radioPlayer.toggleRepeatOne();
+                repeatButton.setChecked(radioPlayer.isRepeatOn());
+            }
+        });
+
+
+
+        // Layout
+        musicControlsTable.add(trackSelectBox).width(180).center().row();
+        Table navTable = new Table();
+        navTable.defaults().width(150).pad(10); // Smaller buttons with minimal padding
+        navTable.add(prevButton);
+        navTable.add(playPauseButton);
+        navTable.add(nextButton);
+        musicControlsTable.add(navTable).padTop(5).row(); // Small top padding
+
+        // Bottom row: mode buttons
+        Table modeTable = new Table();
+        modeTable.defaults().width(150).pad(10); // Wider buttons for text
+        modeTable.add(shuffleButton);
+        modeTable.add(repeatButton);
+        musicControlsTable.add(modeTable).padTop(5); // Minimal top padding
     }
 
     private void refreshFriendsTable() {
@@ -183,10 +293,29 @@ public class FriendsWindow {
             }
         });
 
+        TextButton musicButton = new TextButton("Radio", skin);
+        musicButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                showMusic();
+            }
+        });
+
         friendsTable.add(tradeHistoryButton).pad(15);
         friendsTable.add(publicChat).pad(15);
+        friendsTable.add(musicButton).pad(15);
 
         center(stage);
+    }
+
+    private void showMusic() {
+        giftOptionsTable.clear();
+        giftOptionsTable.setVisible(false);
+        friendsTable.setVisible(false);
+        giftHistoryTable.setVisible(false);
+        tradeHistoryTable.setVisible(false);
+        newGiftTable.setVisible(false);
+        musicControlsTable.setVisible(true);
     }
 
     private void showGiftOptions(Player friend) {
@@ -197,6 +326,7 @@ public class FriendsWindow {
         giftHistoryTable.setVisible(false);
         tradeHistoryTable.setVisible(false);
         newGiftTable.setVisible(false);
+        musicControlsTable.setVisible(false);
 
         Label title = new Label("Gift Options for " + friend.getNickName(), skin);
 
@@ -502,6 +632,7 @@ public class FriendsWindow {
         giftOptionsTable.setVisible(false);
         giftHistoryTable.setVisible(false);
         newGiftTable.setVisible(false);
+        musicControlsTable.setVisible(false);
 
         Label title = new Label("Trade History", skin, "Impact");
         title.setFontScale(1.2f);
@@ -613,6 +744,7 @@ public class FriendsWindow {
             giftHistoryTable.setVisible(false);
             tradeHistoryTable.setVisible(false);
             newGiftTable.setVisible(false);
+            musicControlsTable.setVisible(false);
             refreshFriendsTable();
         }
     }
@@ -635,5 +767,25 @@ public class FriendsWindow {
 
     public PublicChatScreen getPublicChatScreen() {
         return publicChatScreen;
+    }
+
+    private void updateTrackList() {
+        if (radioPlayer.getPlaylist().isEmpty()) {
+            trackSelectBox.setItems("No tracks found");
+        } else {
+            trackSelectBox.setItems(radioPlayer.getPlaylist().toArray(new String[0]));
+            // Select first track by default
+            trackSelectBox.setSelectedIndex(0);
+        }
+    }
+
+    private void updateTrackSelection() {
+        if (radioPlayer.getCurrentTrackName() != null) {
+            int index = radioPlayer.getPlaylist().indexOf(radioPlayer.getCurrentTrackName());
+            if (index >= 0) {
+                trackSelectBox.setSelectedIndex(index);
+            }
+            playPauseButton.setText("Pause");
+        }
     }
 }

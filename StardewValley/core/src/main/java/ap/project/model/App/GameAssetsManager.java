@@ -1,6 +1,8 @@
 package ap.project.model.App;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
@@ -16,9 +18,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 
-import java.util.HashSet;
-import java.util.Random;
-import java.util.Set;
+import java.util.*;
 
 public class GameAssetsManager {
     private static GameAssetsManager gameAssetsManager;
@@ -31,6 +31,7 @@ public class GameAssetsManager {
     private Sprite sprite;
     private Skin skin;
     private Array<AvatarOptions> avatars;
+    HashMap<String, Music> musicMap = new HashMap<>();
 
     public GameAssetsManager() {
         skin = new Skin(Gdx.files.internal("skin/NzSkin.json"));
@@ -51,6 +52,7 @@ public class GameAssetsManager {
         this.sprite = new Sprite(new Texture(Gdx.files.internal("menu/Title Screen.png")));
         // Create different font styles
         createFonts();
+        loadAllMusic();
 
         // Load skin with better error handling
 
@@ -58,6 +60,17 @@ public class GameAssetsManager {
             throw new GdxRuntimeException("Skin failed to load");
         }
         Gdx.app.log("GameAssetsManager", "Skin loaded successfully");
+    }
+
+    private void loadAllMusic() {
+        FileHandle dir = Gdx.files.internal("music/my_music");
+        for (FileHandle file : dir.list()) {
+            if (file.extension().equalsIgnoreCase("ogg")) {
+                Music music = Gdx.audio.newMusic(file);
+                music.setLooping(false);
+                musicMap.put(file.nameWithoutExtension(), music);
+            }
+        }
     }
 
 

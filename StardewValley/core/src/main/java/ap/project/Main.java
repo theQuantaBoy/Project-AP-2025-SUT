@@ -5,11 +5,13 @@ import ap.project.control.RegisterController;
 import ap.project.model.App.App;
 import ap.project.model.App.User;
 import ap.project.model.enums.Gender;
+import ap.project.model.game.RadioPlayer;
 import ap.project.screen.*;
 import ap.project.util.GameObjectAssetLoader;
 import ap.project.view.AppView;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -21,6 +23,7 @@ public class Main extends com.badlogic.gdx.Game
 {
     private static Main app;
     private SpriteBatch batch;
+    private RadioPlayer radio;
 
     @Override
     public void create()
@@ -38,6 +41,11 @@ public class Main extends com.badlogic.gdx.Game
         int hotspotY = 0;
         Gdx.graphics.setCursor(Gdx.graphics.newCursor(cursorPixmap, hotspotX, hotspotY));
         cursorPixmap.dispose();
+         // Path inside assets
+        radio = getRadio();
+//        if (!radio.getPlaylist().isEmpty()) {
+//            radio.playTrack(0);
+//        }
 
 //        System.out.println("enter name: ");
 //        Scanner scanner = new Scanner(System.in);
@@ -55,6 +63,18 @@ public class Main extends com.badlogic.gdx.Game
     public void render()
     {
         super.render();
+//        if (Gdx.input.isKeyJustPressed(Input.Keys.N)) {
+//            radio.playNext();
+//        }
+//        if (Gdx.input.isKeyJustPressed(Input.Keys.P)) {
+//            radio.playPrevious();
+//        }
+//        if (Gdx.input.isKeyJustPressed(Input.Keys.S)) {
+//            radio.toggleShuffle();
+//        }
+//        if (Gdx.input.isKeyJustPressed(Input.Keys.R)) {
+//            radio.toggleRepeatOne();
+//        }
     }
 
     @Override
@@ -62,6 +82,7 @@ public class Main extends com.badlogic.gdx.Game
     {
        super.dispose();
        GameObjectAssetLoader.dispose();
+       radio.dispose();
     }
 
     public static Main getApp()
@@ -71,5 +92,12 @@ public class Main extends com.badlogic.gdx.Game
 
     public SpriteBatch getBatch() {
         return batch;
+    }
+
+    public RadioPlayer getRadio() {
+        if (radio == null) {
+            return radio = new RadioPlayer("C:/Users/arash/OneDrive/Desktop/uni/AP/kakasiahMazrae/advanced-programming-phase-1-group-26/StardewValley/core/assets/music/");
+        }
+        return radio;
     }
 }
