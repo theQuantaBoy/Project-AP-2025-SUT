@@ -68,4 +68,6 @@ public enum MessageType
     NEW_PURPOSE,
     PURPOSE_RESPONSE,
     UPDATING_FRIENDSHIP,
+    NEW_PUBLIC_MESSAGE,
+
 }

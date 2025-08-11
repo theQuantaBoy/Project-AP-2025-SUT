@@ -186,6 +186,8 @@ public class KryoRegistry
         kryo.register(UpdateFriendshipMessage.class);
         kryo.register(FriendshipData.class);
 
+        kryo.register(NewPublicChatMessage.class);
+
         // Register all other message classes ...
     }
 }

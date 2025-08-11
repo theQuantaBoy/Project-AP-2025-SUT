@@ -128,6 +128,9 @@ public class ServerMessageHandler
             case UPDATING_FRIENDSHIP:
                 handleUpdateFriendship(client, (UpdateFriendshipMessage) message);
                 break;
+            case NEW_PUBLIC_MESSAGE:
+                handleNewPublicMessage(client, (NewPublicChatMessage) message);
+                break;
         }
     }
 
@@ -846,5 +849,14 @@ public class ServerMessageHandler
         }
         receiverConn.send(message);
         System.out.println("update friendship sent");
+    }
+
+    private static void handleNewPublicMessage(ClientConnection client, NewPublicChatMessage message) {
+        GameServer server = GameServer.getInstance();
+
+        User sender = server.getUser(client);
+        if (sender == null) return;
+
+        server.broadcast(message);
     }
 }

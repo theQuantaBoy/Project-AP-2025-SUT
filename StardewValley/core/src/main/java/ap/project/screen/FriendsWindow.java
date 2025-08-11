@@ -15,15 +15,12 @@ import ap.project.network.client.GameClient;
 import ap.project.network.shared.messages.GiftRateMessage;
 import ap.project.network.shared.messages.NewGiftMessage;
 import ap.project.network.shared.messages.TradeRequestMessage;
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
@@ -57,6 +54,7 @@ public class FriendsWindow {
     private WorldScreen  worldScreen;
     private TradeWindow tradeWindow;
     private GameClient client;
+    private PublicChatScreen publicChatScreen;
 
 
     public FriendsWindow(Stage stage, WorldScreen worldScreen) {
@@ -106,6 +104,7 @@ public class FriendsWindow {
         controller.setFriendsWindow(this);
         tradeWindow = new TradeWindow(stage, skin);
         client = GameClient.getInstance();
+        publicChatScreen = new PublicChatScreen(stage, worldScreen);
     }
 
     private void refreshFriendsTable() {
@@ -175,7 +174,17 @@ public class FriendsWindow {
             }
         });
 
+        TextButton publicChat = new TextButton("PublicChat", skin);
+        publicChat.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                publicChatScreen.showChat(App.getCurrentGame().getCurrentPlayer());
+                toggleVisibility();
+            }
+        });
+
         friendsTable.add(tradeHistoryButton).pad(15);
+        friendsTable.add(publicChat).pad(15);
 
         center(stage);
     }
@@ -624,4 +633,7 @@ public class FriendsWindow {
         return tradeWindow;
     }
 
+    public PublicChatScreen getPublicChatScreen() {
+        return publicChatScreen;
+    }
 }

@@ -8,13 +8,11 @@ import ap.project.model.game.GameObject;
 import ap.project.model.game.Gift;
 import ap.project.model.game.Player;
 import ap.project.model.player_data.FriendshipData;
+import ap.project.network.server.GameServer;
 import ap.project.network.shared.DTO.UserDTO;
 import ap.project.network.shared.Mapper.Mapper;
 import ap.project.network.shared.messages.*;
-import ap.project.screen.LobbyScreen;
-import ap.project.screen.PreLobbyScreen;
-import ap.project.screen.TradeWindow;
-import ap.project.screen.WorldScreen;
+import ap.project.screen.*;
 import ap.project.visual.UIRenderer;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
@@ -160,6 +158,9 @@ public class ClientMessageHandler
                 break;
             case UPDATING_FRIENDSHIP:
                 handleUpdateFriendship((UpdateFriendshipMessage) message);
+                break;
+            case NEW_PUBLIC_MESSAGE:
+                handlePublicChatMessage((NewPublicChatMessage) message);
                 break;
             // Add other cases
         }
@@ -800,6 +801,31 @@ public class ClientMessageHandler
                 updating.getFriendships().put(updated, newData);
                 System.out.println("friendships updated");
             });
+        }
+    }
+
+    private static void handlePublicChatMessage(NewPublicChatMessage message) {
+        if (Main.getApp().getScreen() instanceof WorldScreen) {
+            WorldScreen worldScreen = (WorldScreen) Main.getApp().getScreen();
+            Player sender = App.getCurrentGame().getPlayerByUserID(message.senderHashId);
+
+            if (sender != null) {
+                // Format message with timestamp
+                String stamp = new SimpleDateFormat("HH:mm").format(new Date());
+                String formattedMessage = "[" + stamp + "] " + sender.getNickName() + ": " + message.message;
+
+                // Update UI on render thread
+                Gdx.app.postRunnable(() -> {
+                    if (App.getCurrentGame().getCurrentPlayer() == sender) return;
+
+                    FriendsWindow friendsWindow = worldScreen.getFriendsWindow();
+                    if (friendsWindow != null && friendsWindow.getPublicChatScreen() != null) {
+                        friendsWindow.getPublicChatScreen().addMessage(formattedMessage);
+                    }
+                });
+            } else {
+                System.out.println("Player not found in current game");
+            }
         }
     }
 }
