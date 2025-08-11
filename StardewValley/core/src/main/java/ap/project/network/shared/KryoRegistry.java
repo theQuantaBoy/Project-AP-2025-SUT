@@ -198,5 +198,7 @@ public class KryoRegistry
         kryo.register(ap.project.network.shared.DTO.NPCFriendshipDTO.class);
         kryo.register(NpcDTO.class);
         kryo.register(ap.project.model.enums.NpcDetails.class);
+
+        kryo.register(NpcServerDetailsMessage.class);
     }
 }

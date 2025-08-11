@@ -650,6 +650,7 @@ public final class WorldScreen implements Screen
         client.processMessages();
 
         updateOtherPlayers(delta);
+        updateNPCsOnline(delta);
 
         if (periodicNetworkUpdate >= PERIODIC_NETWORK_INTERVAL)
         {
@@ -1637,6 +1638,25 @@ public final class WorldScreen implements Screen
         }
     }
 
+    private void updateNPCsOnline(float delta)
+    {
+        long currentTime = System.currentTimeMillis();
+
+        for (NPC npc : game.getNPCs())
+        {
+            NPCCharacter c = npc.getCharacter();
+            if (currentTime - c.getLastUpdateTime() > 50) continue;
+
+            if (c.isMoving())
+            {
+                c.updateAnimation(delta);
+            } else
+            {
+                c.resetAnimation();
+            }
+        }
+    }
+
     public void updatePlayerScoreBoardData(int userId, double money, int completedQuests, Skill farming, Skill mining,
                                            Skill foraging, Skill fishing)
     {
@@ -1693,6 +1713,25 @@ public final class WorldScreen implements Screen
         }
     }
 
+    public void updateNpcPosition(String name, float x, float y, byte direction, boolean isMoving)
+    {
+        for (NPC npc : game.getNPCs())
+        {
+            if (npc.getNpcDetails().getName().equals(name))
+            {
+                NPCCharacter c = npc.getCharacter();
+
+                c.setPosition(new Vector2(x, y));
+                c.setDirection(AbstractCharacter.Direction.values()[direction]);
+                c.setMoving(isMoving);
+
+                c.setLastUpdateTime(System.currentTimeMillis());
+
+                break;
+            }
+        }
+    }
+
     public void updatePlayerPosition(int userID, float x, float y, byte direction, boolean isMoving, boolean isInFarm,
                                      boolean isInCity, boolean isInGreenHouse, boolean isInHome, boolean isInZeidiesFarm,
                                      boolean isInZeidiesHome, boolean isInShop, String currentShop)
@@ -1735,6 +1774,7 @@ public final class WorldScreen implements Screen
                     }
 
                     pc.setLastUpdateTime(System.currentTimeMillis());
+                    break;
                 }
             }
         }

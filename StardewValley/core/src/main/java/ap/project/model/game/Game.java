@@ -1,6 +1,7 @@
 package ap.project.model.game;
 
 import ap.project.control.NPCController;
+import ap.project.control.NPCControllerServer;
 import ap.project.control.game.activities.MarketingController;
 import ap.project.model.App.App;
 import ap.project.model.App.User;
@@ -42,6 +43,7 @@ public class Game
     private ArrayList<NPC> NPCs = new ArrayList<>();
     private ArrayList<NPCController> npcControllers = new ArrayList<>();
     private ArrayList<Player> players = new ArrayList<>();
+    private ArrayList<NPCControllerServer> npcControllersServer = new ArrayList<>();
     private Player currentPlayer;
     private Player oppenheimer; // I actually wanted to call this "opener", but thought it would be funnier this way
     private City city = new City();
@@ -244,8 +246,8 @@ public class Game
             } else
             {
                 Vector2 loc = City.pointToWorld(details.getSpawnPoint());
-                NPCCharacter character = new NPCCharacter(details.getCharacterType(), loc, details.getCharacterType().getName());
-                npcControllers.add(new NPCController(character, city, (PLAYER_SPEED * 0.8f), TILE_SIZE, details));
+                NPCControllerServer controller = new NPCControllerServer(city, (PLAYER_SPEED * 0.8f), TILE_SIZE, details);
+                npcControllersServer.add(controller);
             }
         }
     }
@@ -912,5 +914,10 @@ public class Game
             }
         }
         return null;
+    }
+
+    public ArrayList<NPCControllerServer> getNpcControllersServer()
+    {
+        return npcControllersServer;
     }
 }

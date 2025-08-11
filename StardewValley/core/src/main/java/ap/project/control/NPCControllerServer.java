@@ -8,9 +8,12 @@ import com.badlogic.gdx.math.Vector2;
 import java.util.ArrayList;
 import java.util.Random;
 
-public class NPCController
+public class NPCControllerServer
 {
-    private final NPCCharacter npc;
+    private Vector2 position;
+    private boolean isMoving;
+    private AbstractCharacter.Direction direction = AbstractCharacter.Direction.DOWN;
+
     private final Map map;
     private final float speed;
     private final float tileSize;
@@ -31,16 +34,15 @@ public class NPCController
         AFTER_WORK
     }
 
-    public NPCController(NPCCharacter npc, Map map, float speed, float tileSize, NpcDetails details)
+    public NPCControllerServer(Map map, float speed, float tileSize, NpcDetails details)
     {
-        this.npc = npc;
         this.map = map;
         this.speed = speed;
         this.tileSize = tileSize;
         this.details = details;
 
         // Initialize NPC at home
-        npc.setPosition(map.tileToWorld(map.getTile(details.getHomePoint().getX(), details.getHomePoint().getY())));
+        position = (map.tileToWorld(map.getTile(details.getHomePoint().getX(), details.getHomePoint().getY())));
     }
 
     public void update(float delta)
@@ -74,7 +76,7 @@ public class NPCController
             moveAlongPath(delta);
         } else
         {
-            npc.setMoving(false);
+            isMoving = false;
         }
     }
 
@@ -127,14 +129,14 @@ public class NPCController
 
     private void setTarget(Point target)
     {
-        Point currentTile = map.worldToTile(npc.getPosition().x, npc.getPosition().y);
+        Point currentTile = map.worldToTile(position.x, position.y);
         this.path = map.findShortestPath(currentTile, target);
         this.pathIndex = 1;
     }
 
     private void generateRandomWanderPoint()
     {
-        Point currentTile = map.worldToTile(npc.getPosition().x, npc.getPosition().y);
+        Point currentTile = map.worldToTile(position.x, position.y);
 
         // Generate random point within 10 tile radius
         int randX = currentTile.getX() + random.nextInt(21) - 10;
@@ -149,10 +151,10 @@ public class NPCController
 
     private void moveAlongPath(float delta)
     {
-        npc.setMoving(true);
+        isMoving = true;
         Point targetTile = path.get(pathIndex);
         Vector2 targetWorld = map.tileToWorld(map.getTile(targetTile.getX(), targetTile.getY()));
-        Vector2 pos = npc.getPosition();
+        Vector2 pos = position;
 
         float dx = targetWorld.x - pos.x;
         float dy = targetWorld.y - pos.y;
@@ -164,7 +166,7 @@ public class NPCController
             if (pathIndex >= path.size())
             {
                 path = null;
-                npc.setMoving(false);
+                isMoving = false;
                 return;
             }
         }
@@ -172,22 +174,41 @@ public class NPCController
         // Update direction
         if (Math.abs(dx) > Math.abs(dy))
         {
-            npc.setDirection(dx > 0 ?
+            direction = (dx > 0 ?
                 AbstractCharacter.Direction.RIGHT :
                 AbstractCharacter.Direction.LEFT);
         } else
         {
-            npc.setDirection(dy > 0 ?
+            direction = (dy > 0 ?
                 AbstractCharacter.Direction.UP :
                 AbstractCharacter.Direction.DOWN);
         }
 
-        npc.updateAnimation(delta);
 
         // Move towards target
         float nx = dx / dist;
         float ny = dy / dist;
         pos.x += nx * speed * delta;
         pos.y += ny * speed * delta;
+    }
+
+    public Vector2 getPosition()
+    {
+        return position;
+    }
+
+    public boolean isMoving()
+    {
+        return isMoving;
+    }
+
+    public AbstractCharacter.Direction getDirection()
+    {
+        return direction;
+    }
+
+    public NpcDetails getDetails()
+    {
+        return details;
     }
 }

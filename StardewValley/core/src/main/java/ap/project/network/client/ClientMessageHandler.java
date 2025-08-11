@@ -176,7 +176,9 @@ public class ClientMessageHandler
             case PLAYER_TAGGED:
                 handlePlayerTagged((PlayerTaggedNotification) message);
                 break;
-            // Add other cases
+            case NPC_SERVER_DETAILS:
+                handleNpcServerUpdateMessage((NpcServerDetailsMessage) message);
+                break;
         }
     }
     private static void handleTestMessage(TestMessage msg) {
@@ -894,6 +896,22 @@ public class ClientMessageHandler
             Gdx.app.postRunnable(() -> {
                 UIRenderer.showTextBox(sender.getNickName() + " tagged you!");
             });
+        }
+    }
+
+    private static void handleNpcServerUpdateMessage(NpcServerDetailsMessage message)
+    {
+        if (Main.getApp().getScreen() instanceof WorldScreen)
+        {
+            WorldScreen worldScreen = (WorldScreen) Main.getApp().getScreen();
+
+            String name = message.npcName;
+            float x = message.x;
+            float y = message.y;
+            byte direction = message.direction;
+            boolean isMoving = message.isMoving;
+
+            worldScreen.updateNpcPosition(name, x, y, direction, isMoving);
         }
     }
 }

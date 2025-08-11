@@ -72,4 +72,5 @@ public enum MessageType
     SCORE_BOARD_DATA,
     NEW_PUBLIC_MESSAGE,
     PLAYER_TAGGED,
+    NPC_SERVER_DETAILS
 }
