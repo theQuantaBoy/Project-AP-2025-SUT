@@ -131,6 +131,9 @@ public class ServerMessageHandler
             case NEW_PUBLIC_MESSAGE:
                 handleNewPublicMessage(client, (NewPublicChatMessage) message);
                 break;
+            case PLAYER_TAGGED:
+                handlePlayerTagged(client, (PlayerTaggedNotification) message);
+                break;
         }
     }
 
@@ -858,5 +861,20 @@ public class ServerMessageHandler
         if (sender == null) return;
 
         server.broadcast(message);
+    }
+
+    private static void handlePlayerTagged(ClientConnection client, PlayerTaggedNotification message) {
+        GameServer server = GameServer.getInstance();
+
+        User sender = server.getUser(client);
+        if (sender == null) return;
+
+        ClientConnection receiverConn = server.findClient(message.taggedId);
+        if (receiverConn == null) {
+            System.out.println("update friendship failed: Receiver not found");
+            return;
+        }
+        receiverConn.send(message);
+        System.out.println("update friendship sent");
     }
 }

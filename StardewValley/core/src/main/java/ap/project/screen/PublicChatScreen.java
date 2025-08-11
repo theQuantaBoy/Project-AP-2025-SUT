@@ -1,9 +1,11 @@
 package ap.project.screen;
 
+import ap.project.model.App.App;
 import ap.project.model.App.GameAssetsManager;
 import ap.project.model.game.Player;
 import ap.project.network.client.GameClient;
 import ap.project.network.shared.messages.NewPublicChatMessage;
+import ap.project.network.shared.messages.PlayerTaggedNotification;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
@@ -150,20 +152,19 @@ public class PublicChatScreen {
     public void sendMessage(String msg) {
         if (msg.isEmpty()) return;
 
+        detectAndNotifyTags(msg); // <-- NEW
+
         String stamp = timeFormat.format(new Date());
         String line = "[" + stamp + "] " + currentPlayer.getNickName() + ": " + msg;
 
-        // Add to local history
         chatHistory.add(line);
-
-        // Update UI
         appendToChat(line);
 
-        // Broadcast to all players
         client.send(new NewPublicChatMessage(currentPlayer.getUser().getHashId(), msg));
 
         messageInput.setText("");
     }
+
 
     public void loadChatHistory() {
         StringBuilder sb = new StringBuilder();
@@ -203,6 +204,23 @@ public class PublicChatScreen {
             chatScrollPane.setScrollY(chatScrollPane.getMaxY());
         });
     }
+
+    private void detectAndNotifyTags(String msg) {
+        // Simple regex to detect tags like @Name
+        java.util.regex.Pattern pattern = java.util.regex.Pattern.compile("@(\\w+)");
+        java.util.regex.Matcher matcher = pattern.matcher(msg);
+
+        while (matcher.find()) {
+            String taggedNick = matcher.group(1);
+            Player taggedPlayer = App.getCurrentGame().getPlayerByNickname(taggedNick);
+            if (taggedPlayer == null || taggedPlayer.equals(currentPlayer)) {
+                System.out.println("tagged player not found: " + taggedNick);
+                return;
+            }
+            client.send(new PlayerTaggedNotification(currentPlayer.getUser().getHashId(), taggedPlayer.getUser().getHashId()));
+        }
+    }
+
 
     private void centerWindow() {
         float w = stage.getViewport().getWorldWidth();

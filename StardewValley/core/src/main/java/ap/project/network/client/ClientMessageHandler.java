@@ -8,6 +8,7 @@ import ap.project.model.game.GameObject;
 import ap.project.model.game.Gift;
 import ap.project.model.game.Player;
 import ap.project.model.player_data.FriendshipData;
+import ap.project.network.server.ClientConnection;
 import ap.project.network.server.GameServer;
 import ap.project.network.shared.DTO.UserDTO;
 import ap.project.network.shared.Mapper.Mapper;
@@ -161,6 +162,9 @@ public class ClientMessageHandler
                 break;
             case NEW_PUBLIC_MESSAGE:
                 handlePublicChatMessage((NewPublicChatMessage) message);
+                break;
+            case PLAYER_TAGGED:
+                handlePlayerTagged((PlayerTaggedNotification) message);
                 break;
             // Add other cases
         }
@@ -826,6 +830,22 @@ public class ClientMessageHandler
             } else {
                 System.out.println("Player not found in current game");
             }
+        }
+    }
+
+    private static void handlePlayerTagged(PlayerTaggedNotification message) {
+        if (Main.getApp().getScreen() instanceof WorldScreen) {
+            WorldScreen worldScreen = (WorldScreen) Main.getApp().getScreen();
+
+            Player sender = App.getCurrentGame().getPlayerByUserID(message.senderId);
+            Player tagged = App.getCurrentGame().getPlayerByUserID(message.taggedId);
+            if (sender == null || tagged == null) {
+                System.out.println("Player not found in current game");
+            }
+            // Run on the render thread
+            Gdx.app.postRunnable(() -> {
+                UIRenderer.showTextBox(sender.getNickName() + " tagged you!");
+            });
         }
     }
 }

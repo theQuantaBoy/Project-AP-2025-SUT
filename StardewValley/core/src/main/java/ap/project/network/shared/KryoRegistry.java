@@ -187,6 +187,7 @@ public class KryoRegistry
         kryo.register(FriendshipData.class);
 
         kryo.register(NewPublicChatMessage.class);
+        kryo.register(PlayerTaggedNotification.class);
 
         // Register all other message classes ...
     }

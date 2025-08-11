@@ -69,5 +69,5 @@ public enum MessageType
     PURPOSE_RESPONSE,
     UPDATING_FRIENDSHIP,
     NEW_PUBLIC_MESSAGE,
-
+    PLAYER_TAGGED,
 }
