@@ -23,7 +23,7 @@ public class DialogueIndicator extends Actor {
             public void clicked(InputEvent event, float x, float y) {
                 NPC npc = character.getNPC();
                 if (npc != null) {
-                    WorldScreen.getInstance().triggerNPCDialogue(npc);
+                    //WorldScreen.getInstance().triggerNPCDialogue(npc);
 
                 }
             }

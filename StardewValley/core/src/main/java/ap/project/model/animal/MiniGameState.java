@@ -1,5 +1,6 @@
 package ap.project.model.animal;
 
+import ap.project.model.enums.animal_enums.FishBehavior;
 import com.badlogic.gdx.math.Rectangle;
 
 public class MiniGameState {
@@ -21,16 +22,6 @@ public class MiniGameState {
     private boolean playerWon;
     private boolean perfectCatch;
     private boolean trapBobberEquipped;
-
-    public enum FishBehavior {
-        SMOOTH(1.0f), SINKER(0.8f), FLOATER(0.8f), DART(1.2f), MIXED(1.1f);
-
-        public final float difficultyModifier;
-
-        FishBehavior(float difficultyModifier) {
-            this.difficultyModifier = difficultyModifier;
-        }
-    }
 
     public MiniGameState(FishBehavior behavior, boolean trapBobberEquipped) {
         this.fish = new FishModel(behavior);
@@ -56,7 +47,7 @@ public class MiniGameState {
         // Update progress based on fish position
         if (fishInBar) {
             // Fill progress faster when fish is in bar
-            float catchRate = BASE_CATCH_RATE * fish.getBehavior().difficultyModifier; //TODO: random
+            float catchRate = BASE_CATCH_RATE * fish.getBehavior().getDifficultyModifier(); //TODO: random
             catchProgressValue += catchRate * delta;
 
             // Cap progress at max

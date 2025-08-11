@@ -676,5 +676,22 @@ public class Farm extends Map
     }
 
 
+    public boolean isNearSea(Point location)
+    {
+        for (int y = -1; y <= 1; y++) {
+            for (int x = -1; x <= 1; x++) {
+                int checkX = location.getX() + x;
+                int checkY = location.getY() + y;
+
+                if (isInBounds(checkX, checkY)) {
+                    Tile tile = getTile(checkX, checkY);
+                    if (tile.getTexture() == TileTexture.LAKE) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
 
 }

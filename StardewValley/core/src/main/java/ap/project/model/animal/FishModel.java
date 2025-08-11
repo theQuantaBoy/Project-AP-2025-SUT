@@ -1,92 +1,134 @@
+// FishModel.java
 package ap.project.model.animal;
 
-import com.badlogic.gdx.math.MathUtils;
+import ap.project.model.enums.animal_enums.FishBehavior;
 import com.badlogic.gdx.math.Rectangle;
+import java.util.Random;
 
 public class FishModel {
-    private float y;
-    private final MiniGameState.FishBehavior behavior;
-    private float sineWaveCounter = 0;
-    private float targetY;
-    private float dartTimer = 0;
+    private float x, y;
+    private float velocityY;
+    private FishBehavior behavior;
+    private Random random;
+    private float movementTimer;
+    private int currentDirection; // 0: up, 1: down, 2: stay
+    private float consecutiveDirectionTime;
+    private final float baseMovementRange = 5f;
 
-    public FishModel(MiniGameState.FishBehavior behavior) {
+    public FishModel(FishBehavior behavior) {
         this.behavior = behavior;
+        this.random = new Random();
         reset();
     }
 
     public void reset() {
-        y = MiniGameState.TRACK_HEIGHT / 3f;
-        targetY = y;
-        sineWaveCounter = 0;
-        dartTimer = 0;
+        // Start at a random vertical position
+        x = (MiniGameState.TRACK_WIDTH - MiniGameState.FISH_SIZE) / 2;
+        y = random.nextFloat() * (MiniGameState.TRACK_HEIGHT - MiniGameState.FISH_SIZE);
+        velocityY = 0;
+        movementTimer = 0;
+        consecutiveDirectionTime = 0;
+        currentDirection = random.nextInt(3); // Start with random direction
     }
 
     public void update(float delta) {
+        movementTimer += delta;
+        consecutiveDirectionTime += delta;
+
+        // Handle behavior-specific movement logic
         switch (behavior) {
-            case SMOOTH: updateSmooth(delta); break;
-            case SINKER: updateSinker(delta); break;
-            case FLOATER: updateFloater(delta); break;
-            case DART: updateDart(delta); break;
-            case MIXED: updateMixed(delta); break;
+            case MIXED:
+                // Change direction randomly every 0.5 seconds
+                if (movementTimer >= 0.5f) {
+                    currentDirection = random.nextInt(3);
+                    movementTimer = 0;
+                }
+                break;
+
+            case SMOOTH:
+                // 70% chance to keep the same direction, 30% to change
+                if (movementTimer >= 0.5f) {
+                    if (random.nextFloat() > 0.7f) {
+                        currentDirection = random.nextInt(3);
+                    }
+                    movementTimer = 0;
+                }
+                break;
+
+            case SINKER:
+                // Accelerate downward movement when consistently moving down
+                if (movementTimer >= 0.5f) {
+                    if (random.nextFloat() > 0.7f) {
+                        currentDirection = random.nextInt(3);
+                    }
+                    movementTimer = 0;
+                }
+                // Apply downward acceleration
+                if (currentDirection == 1) { // Down
+                    velocityY = -baseMovementRange * (1 + consecutiveDirectionTime * 0.5f);
+                }
+                break;
+
+            case FLOATER:
+                // Accelerate upward movement when consistently moving up
+                if (movementTimer >= 0.5f) {
+                    if (random.nextFloat() > 0.7f) {
+                        currentDirection = random.nextInt(3);
+                    }
+                    movementTimer = 0;
+                }
+                // Apply upward acceleration
+                if (currentDirection == 0) { // Up
+                    velocityY = baseMovementRange * (1 + consecutiveDirectionTime * 0.5f);
+                }
+                break;
+
+            case DART:
+                // More frequent direction changes with larger movement range
+                if (movementTimer >= 0.3f) {
+                    currentDirection = random.nextInt(3);
+                    movementTimer = 0;
+                }
+                break;
         }
-        y = MathUtils.clamp(y, 0, MiniGameState.TRACK_HEIGHT - MiniGameState.FISH_SIZE);
-    }
 
-    private void updateSmooth(float delta) {
-        sineWaveCounter += delta * 2.0f;
-        float wave = MathUtils.sin(sineWaveCounter);
-        y = (MiniGameState.TRACK_HEIGHT * 0.5f) + (wave * (MiniGameState.TRACK_HEIGHT * 0.35f));
-    }
+        // Set velocity based on direction
 
-    private void updateSinker(float delta) {
-        targetY += (MathUtils.random() - 0.55f) * 20f;
-        moveTowardsTarget(delta * 50f);
-        if (y > MiniGameState.TRACK_HEIGHT * 0.8f) targetY -= 20f;
-    }
-
-    private void updateFloater(float delta) {
-        targetY += (MathUtils.random() - 0.45f) * 20f;
-        moveTowardsTarget(delta * 50f);
-        if (y < MiniGameState.TRACK_HEIGHT * 0.2f) targetY += 20f;
-    }
-
-    private void updateDart(float delta) {
-        dartTimer -= delta;
-        if (dartTimer <= 0) {
-            targetY = MathUtils.random(0, MiniGameState.TRACK_HEIGHT - MiniGameState.FISH_SIZE);
-            dartTimer = MathUtils.random(0.5f, 1.0f);
+        if (behavior != FishBehavior.SINKER && behavior != FishBehavior.FLOATER) {
+            switch (currentDirection) {
+                case 0: velocityY = baseMovementRange; break; // Up
+                case 1: velocityY = -baseMovementRange; break; // Down
+                case 2: velocityY = 0; break; // Stay
+            }
         }
-        moveTowardsTarget(delta * 150f);
-    }
 
-    private void updateMixed(float delta) {
-        if (MathUtils.randomBoolean(0.7f)) {
-            updateSmooth(delta);
-        } else {
-            updateDart(delta);
+        // Apply larger movement range for DART behavior
+        if (behavior == FishBehavior.DART) {
+            velocityY *= 1.8f; // 9/5 ≈ 1.8
         }
-    }
 
-    private void moveTowardsTarget(float speed) {
-        if (y < targetY) {
-            y = Math.min(y + speed, targetY);
-        } else if (y > targetY) {
-            y = Math.max(y - speed, targetY);
+        // Update position
+        y += velocityY * delta;
+
+        // Reset consecutive time if direction changes
+        if (consecutiveDirectionTime > 0 &&
+            random.nextInt(10) == 0 &&
+            currentDirection != random.nextInt(3)) {
+            consecutiveDirectionTime = 0;
+        }
+
+        // Keep fish within track bounds
+        if (y < 0) y = 0;
+        if (y > MiniGameState.TRACK_HEIGHT - MiniGameState.FISH_SIZE) {
+            y = MiniGameState.TRACK_HEIGHT - MiniGameState.FISH_SIZE;
         }
     }
 
     public Rectangle getBounds() {
-        // Center fish horizontally
-        float x = (MiniGameState.TRACK_WIDTH - MiniGameState.FISH_SIZE) / 2f;
         return new Rectangle(x, y, MiniGameState.FISH_SIZE, MiniGameState.FISH_SIZE);
     }
 
-    public float getY() {
-        return y;
-    }
-
-    public MiniGameState.FishBehavior getBehavior() {
+    public FishBehavior getBehavior() {
         return behavior;
     }
 }

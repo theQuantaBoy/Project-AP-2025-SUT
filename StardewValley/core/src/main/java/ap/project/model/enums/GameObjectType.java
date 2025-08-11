@@ -444,6 +444,8 @@ public enum GameObjectType
     BASE_PACK("Base Pack", ""),
     LARGE_PACK("Large Pack", ""),
     DELUXE_PACK("Deluxe Pack", ""),
+
+    SONAR_BOBBER("Sonar Bobber", "game_objects/crafting/Cherry_Bomb.png"),
     ;
 
     private final String name;

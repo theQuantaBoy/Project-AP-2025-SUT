@@ -12,8 +12,11 @@ import ap.project.model.enums.animal_enums.FarmAnimalsType;
 import ap.project.model.building.CraftingItem;
 import ap.project.model.enums.*;
 import ap.project.model.enums.animal_enums.FarmBuildingType;
+import ap.project.model.enums.animal_enums.FishType;
+import ap.project.model.enums.tool_enums.FishingPoleLevel;
 import ap.project.model.game.Game;
 import ap.project.model.shops.ShopMap;
+import ap.project.model.tools.FishingPole;
 import ap.project.screen.input.WorldScreenInputProcessor;
 import ap.project.util.MapAssetLoader;
 import ap.project.view.GameMenu;
@@ -44,6 +47,7 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public final class WorldScreen implements Screen
 {
@@ -493,10 +497,16 @@ public final class WorldScreen implements Screen
             if (fishingMinigame.isActive()) {
                 fishingMinigame.hideMinigame();
             } else {
-                fishingMinigame.showMinigame();
+                FishType type = getRandFish();
+                fishingMinigame.showMinigame(type);
             }
         }
 
+    }
+
+    public FishType getRandFish() {
+        Random rand = new Random();
+        return FishType.values()[rand.nextInt(FishType.values().length)];
     }
 
     @Override
