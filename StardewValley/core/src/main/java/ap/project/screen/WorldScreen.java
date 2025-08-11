@@ -699,8 +699,8 @@ public final class WorldScreen implements Screen
 
         if (!isDialogVisible() && !isInventoryVisible() && !isCookBookVisible() && !isRefrigeratorVisible()
             && !greenHouseBuildWindow.isVisible() && !reactionWindow.isVisible() && !scoreBoardWindow.isVisible() &&
-            !npcWindow.isVisible() && !npcWindow.getGiftWindow().isVisible())
-            && !greenHouseBuildWindow.isVisible() && !communicationWindow.getChatScreen().isVisible())
+            !npcWindow.isVisible() && !npcWindow.getGiftWindow().isVisible()
+            && !communicationWindow.getChatScreen().isVisible())
         {
             characterRenderer.renderToolOrObjectAtMouse(batch, character, worldMouseX, worldMouseY);
         }
