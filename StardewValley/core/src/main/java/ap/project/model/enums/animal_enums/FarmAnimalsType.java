@@ -177,4 +177,17 @@ public enum FarmAnimalsType {
     {
         return atlasPath;
     }
+
+    public static FarmAnimalsType getAnimalType(GameObjectType type)
+    {
+        for (FarmAnimalsType animalType : FarmAnimalsType.values())
+        {
+            if (animalType.getType() == type)
+            {
+                return animalType;
+            }
+        }
+
+        return null;
+    }
 }

@@ -99,6 +99,7 @@ public class Player {
     private ArrayList<NPC> npcGiftsNPC = new ArrayList<>();
 
     private ArrayList<Fish> fishes = new ArrayList<>();
+    private ArrayList<Animal> animals = new ArrayList<>();
 
     private MapTypes mapType;
 
@@ -110,6 +111,8 @@ public class Player {
 
     private int completedQuests;
     private StringBuilder journalText = new StringBuilder();
+
+    private String currentPetName = "";
 
     public void setMapType(MapTypes mapType)
     {
@@ -1165,6 +1168,11 @@ public class Player {
         return "null";
     }
 
+    public ArrayList<Animal> getAnimalsList()
+    {
+        return animals;
+    }
+
     public ArrayList<Animal> getAnimals()
     {
         ArrayList<Animal> animals = new ArrayList<>();
@@ -1516,5 +1524,15 @@ public class Player {
     public void addToJournal(String text)
     {
         journalText.append(text);
+    }
+
+    public void setCurrentPetName(String currentPetName)
+    {
+        this.currentPetName = currentPetName;
+    }
+
+    public String getCurrentPetName()
+    {
+        return currentPetName;
     }
 }

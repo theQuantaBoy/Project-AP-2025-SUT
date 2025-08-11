@@ -139,7 +139,7 @@ public class AnimalController
         int price = animalType.getPurchaseCost();
         if (player.getMoney() < price)
         {
-            return new Result(false, "capitalism says that you don''t have enough 'money' to 'buy' "
+            return new Result(false, "capitalism says that you don't have enough 'money' to 'buy' "
                     + name + " :(");
         }
 

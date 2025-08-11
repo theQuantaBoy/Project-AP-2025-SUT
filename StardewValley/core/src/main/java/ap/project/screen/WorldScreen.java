@@ -8,6 +8,7 @@ import ap.project.control.WorldController;
 import ap.project.control.game.activities.TradeController;
 import ap.project.model.App.App;
 import ap.project.model.App.GameAssetsManager;
+import ap.project.model.animal.Animal;
 import ap.project.model.enums.Season;
 import ap.project.model.building.CraftingItem;
 import ap.project.model.enums.*;
@@ -719,6 +720,7 @@ public final class WorldScreen implements Screen
 
         renderCharacters(batch);
         renderNPCs(batch);
+        renderAnimals(batch);
 
         if (!isDialogVisible() && !isInventoryVisible() && !isCookBookVisible() && !isRefrigeratorVisible()
             && !greenHouseBuildWindow.isVisible() && !reactionWindow.isVisible() && !scoreBoardWindow.isVisible() &&
@@ -1582,6 +1584,17 @@ public final class WorldScreen implements Screen
             for (NPC npc : game.getNPCs())
             {
                 characterRenderer.render(batch, npc.getCharacter(), CHAR_SCALE);
+            }
+        }
+    }
+
+    private void renderAnimals(Batch batch)
+    {
+        if (player.isInFarm())
+        {
+            for (Animal animal : player.getAnimalsList())
+            {
+                characterRenderer.render(batch, animal.getCharacter(), CHAR_SCALE);
             }
         }
     }

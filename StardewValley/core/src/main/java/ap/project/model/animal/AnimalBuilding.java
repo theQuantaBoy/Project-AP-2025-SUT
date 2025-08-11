@@ -19,7 +19,7 @@ public class AnimalBuilding extends GameObject
     private final ArrayList<Animal> animals = new ArrayList<>();
     private final int height;
     private final int width;
-    private final AnimalBuildingMap animalBuildingMap;
+//    private final AnimalBuildingMap animalBuildingMap;
 
     public AnimalBuilding(Tile startTile, FarmBuildingType farmBuilding)
     {
@@ -30,7 +30,7 @@ public class AnimalBuilding extends GameObject
         super.ObjectType = GameObjectType.ANIMAL_BUILDING;
         this.height = farmBuilding.getHeight();
         this.width = farmBuilding.getWidth();
-        this.animalBuildingMap = new AnimalBuildingMap(farmBuilding);
+//        this.animalBuildingMap = new AnimalBuildingMap(farmBuilding);
         this.ObjectType = farmBuilding.getType();
     }
 

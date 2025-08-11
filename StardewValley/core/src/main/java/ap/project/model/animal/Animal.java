@@ -49,7 +49,7 @@ public class Animal extends GameObject {
         this.isIn = true;
         this.isPet = false;
         this.products = (ArrayList<GameObject>) animalType.getProducts();
-        this.character = new AnimalCharacter(animalType, position,name);
+        this.character = new AnimalCharacter(animalType, position, name);
     }
 
     public void feed()
@@ -277,5 +277,10 @@ public class Animal extends GameObject {
 
     public void setQuality(double quality) {
         this.quality = quality;
+    }
+
+    public AnimalCharacter getCharacter()
+    {
+        return character;
     }
 }
