@@ -10,19 +10,18 @@ import ap.project.model.game.*;
 import ap.project.model.player_data.FriendshipData;
 import ap.project.model.tools.Tool;
 import ap.project.network.client.GameClient;
-import ap.project.network.shared.messages.GiftRateMessage;
-import ap.project.network.shared.messages.NewGiftMessage;
-import ap.project.network.shared.messages.RadioRequestMessage;
-import ap.project.network.shared.messages.TradeRequestMessage;
+import ap.project.network.shared.messages.*;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
@@ -64,6 +63,7 @@ public class FriendsWindow {
     private TextButton prevButton;
     private TextButton shuffleButton;
     private TextButton repeatButton;
+    private TextButton backButton;
 
 
     public FriendsWindow(Stage stage, WorldScreen worldScreen) {
@@ -138,6 +138,8 @@ public class FriendsWindow {
         nextButton = new TextButton(">>", skin);
         shuffleButton = new TextButton("Shuffle", skin);
         repeatButton = new TextButton("Repeat", skin);
+        backButton = new TextButton("Back", skin);
+
 
         // Button listeners
         playPauseButton.addListener(new ClickListener() {
@@ -153,11 +155,13 @@ public class FriendsWindow {
                 // If music is playing, pause it
                 else if (radioPlayer.isPlaying()) {
                     radioPlayer.pause();
+                    client.send(new RadioPlayMessage(App.getCurrentGame().getCurrentPlayer().getUser().getHashId(), true));
                     playPauseButton.setText("Play");
                 }
                 // If music is paused, resume it
                 else if (radioPlayer.getCurrentTrackName() != null) {
                     radioPlayer.resume();
+                    client.send(new RadioPlayMessage(App.getCurrentGame().getCurrentPlayer().getUser().getHashId(), false));
                     playPauseButton.setText("Pause");
                 }
                 // If no track is selected, do nothing
@@ -172,6 +176,7 @@ public class FriendsWindow {
             public void clicked(InputEvent event, float x, float y) {
                 radioPlayer.playNext();
                 updateTrackSelection();
+                client.send(new RadioChangedMessage(App.getCurrentGame().getCurrentPlayer().getUser().getHashId(), radioPlayer.getCurrentTrackName()));
             }
         });
 
@@ -180,6 +185,7 @@ public class FriendsWindow {
             public void clicked(InputEvent event, float x, float y) {
                 radioPlayer.playPrevious();
                 updateTrackSelection();
+                client.send(new RadioChangedMessage(App.getCurrentGame().getCurrentPlayer().getUser().getHashId(), radioPlayer.getCurrentTrackName()));
             }
         });
 
@@ -199,10 +205,37 @@ public class FriendsWindow {
             }
         });
 
+        // Replace your current click listener with this:
+        trackSelectBox.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                String selectedTrack = trackSelectBox.getSelected();
+                if (selectedTrack != null && !selectedTrack.isEmpty()) {
+                    radioPlayer.playTrackByName(selectedTrack);
+                    playPauseButton.setText("Pause");
+                    if (client != null) {
+                        client.send(new RadioChangedMessage(
+                            App.getCurrentGame().getCurrentPlayer().getUser().getHashId(),
+                            selectedTrack
+                        ));
+                    }
+                }
+            }
+        });
+
+        backButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                musicControlsTable.setVisible(false);
+                friendsTable.setVisible(true);
+                refreshFriendsTable();
+            }
+        });
+
 
 
         // Layout
-        musicControlsTable.add(trackSelectBox).width(180).center().row();
+        musicControlsTable.add(trackSelectBox).width(350).center().row();
         Table navTable = new Table();
         navTable.defaults().width(150).pad(10); // Smaller buttons with minimal padding
         navTable.add(prevButton);
@@ -216,6 +249,11 @@ public class FriendsWindow {
         modeTable.add(shuffleButton);
         modeTable.add(repeatButton);
         musicControlsTable.add(modeTable).padTop(5); // Minimal top padding
+
+        Table backTable = new Table();
+        backTable.defaults().width(150).pad(10);
+        backTable.add(backButton);
+        musicControlsTable.add(backTable).padTop(5);
     }
 
     private void refreshFriendsTable() {
@@ -272,7 +310,19 @@ public class FriendsWindow {
             radio.addListener(new ClickListener() {
                 @Override
                 public void clicked(InputEvent event, float x, float y) {
-                   client.send(new RadioRequestMessage(player.getUser().getHashId(), friend.getUser().getHashId()));
+                    if (player.getCurrentListeningTo() != null && player.getCurrentListeningTo().equals(friend)) {
+                        // If already listening to this friend, stop
+                        radioPlayer.stop();
+                        player.setCurrentListeningTo(null);
+                        radio.setText("Radio");
+                    } else {
+                        // If not listening, start listening
+                        client.send(new RadioRequestMessage(
+                            player.getUser().getHashId(),
+                            friend.getUser().getHashId()
+                        ));
+                        radio.setText("Stop");
+                    }
                 }
             });
 
@@ -311,9 +361,13 @@ public class FriendsWindow {
             }
         });
 
-        friendsTable.add(tradeHistoryButton).pad(15);
-        friendsTable.add(publicChat).pad(15);
-        friendsTable.add(musicButton).pad(15);
+        Table generalTable = new Table();
+        generalTable.defaults().width(150).pad(10);
+        generalTable.add(tradeHistoryButton);
+        generalTable.add(publicChat);
+        generalTable.add(musicButton);
+        friendsTable.add(generalTable);
+
 
         center(stage);
     }

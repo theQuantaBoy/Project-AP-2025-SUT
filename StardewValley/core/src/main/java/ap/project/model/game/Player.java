@@ -116,6 +116,8 @@ public class Player {
 
     private String currentPetName = "";
 
+    private Player currentListeningTo = null;
+
     public void setMapType(MapTypes mapType)
     {
         this.mapType = mapType;
@@ -1541,5 +1543,13 @@ public class Player {
     public String getCurrentPetName()
     {
         return currentPetName;
+    }
+
+    public Player getCurrentListeningTo() {
+        return currentListeningTo;
+    }
+
+    public void setCurrentListeningTo(Player currentListeningTo) {
+        this.currentListeningTo = currentListeningTo;
     }
 }

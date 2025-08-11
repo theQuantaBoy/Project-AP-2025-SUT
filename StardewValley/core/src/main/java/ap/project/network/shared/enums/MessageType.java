@@ -74,4 +74,6 @@ public enum MessageType
     PLAYER_TAGGED,
     RADIO_REQUEST,
     RADIO_RESPONSE,
+    RADIO_PLAY,
+    RADIO_CHANGED,
 }

@@ -1,5 +1,8 @@
 package ap.project.model.game;
 
+import ap.project.model.App.App;
+import ap.project.network.client.GameClient;
+import ap.project.network.shared.messages.RadioPlayMessage;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.files.FileHandle;
@@ -17,6 +20,7 @@ public class RadioPlayer {
     private boolean shuffleMode = false;
     private boolean repeatOne = false;
     private final Random random = new Random();
+    private GameClient client = GameClient.getInstance();
 
     public RadioPlayer(String musicFolderPath) {
         loadPlaylist(musicFolderPath);
@@ -151,6 +155,7 @@ public class RadioPlayer {
     public void resume() {
         if (currentMusic != null) {
             currentMusic.play();
+            client.send(new RadioPlayMessage(App.getCurrentGame().getCurrentPlayer().getUser().getHashId(), true));
         }
     }
 
@@ -171,5 +176,40 @@ public class RadioPlayer {
             Gdx.app.log("RadioPlayer", "Track not found: " + trackName);
         }
     }
+
+    public void playTrackFrom(String trackName, float startSeconds) {
+        if (playlist.isEmpty()) return;
+
+        int index = playlist.indexOf(trackName);
+        if (index == -1) {
+            Gdx.app.log("RadioPlayer", "Track not found: " + trackName);
+            return;
+        }
+
+        if (currentMusic != null) {
+            currentMusic.stop();
+            currentMusic.dispose();
+        }
+
+        FileHandle file = Gdx.files.internal("music/" + playlist.get(index) + ".ogg");
+        currentMusic = Gdx.audio.newMusic(file);
+        currentMusic.setLooping(false);
+        currentMusic.setOnCompletionListener(music -> playNext());
+
+        currentMusic.play();
+        currentMusic.setPosition(startSeconds); // jump to the timestamp
+        currentIndex = index;
+
+        Gdx.app.log("RadioPlayer", "Playing from " + startSeconds + "s: " + trackName);
+    }
+
+    public float getCurrentTime() {
+        if (currentMusic != null) {
+            return currentMusic.getPosition(); // returns seconds into the track
+        }
+        return 0f;
+    }
+
+
 
 }

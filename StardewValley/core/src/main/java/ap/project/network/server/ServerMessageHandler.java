@@ -146,6 +146,12 @@ public class ServerMessageHandler
             case RADIO_RESPONSE:
                 handleRadioResponseMessage(client, (RadioResponseMessage) message);
                 break;
+            case RADIO_PLAY:
+                handleRadioPlayMessage(client, (RadioPlayMessage) message);
+                break;
+            case RADIO_CHANGED:
+                handleRadioChanged(client, (RadioChangedMessage) message);
+                break;
         }
     }
 
@@ -948,6 +954,24 @@ public class ServerMessageHandler
         }
         receiverConn.send(message);
         System.out.println("radio response sent");
+    }
+
+    private static void handleRadioPlayMessage(ClientConnection client, RadioPlayMessage message) {
+        GameServer server = GameServer.getInstance();
+
+        User sender = server.getUser(client);
+        if (sender == null) return;
+
+        server.broadcast(message);
+    }
+
+    private static void handleRadioChanged(ClientConnection client, RadioChangedMessage message) {
+        GameServer server = GameServer.getInstance();
+
+        User sender = server.getUser(client);
+        if (sender == null) return;
+
+        server.broadcast(message);
     }
 
 }

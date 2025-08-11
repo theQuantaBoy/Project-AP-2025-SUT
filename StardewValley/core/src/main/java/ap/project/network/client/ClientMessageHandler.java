@@ -11,9 +11,6 @@ import ap.project.model.game.Player;
 import ap.project.model.player_data.FriendshipData;
 import ap.project.model.player_data.Skill;
 import ap.project.network.server.ClientConnection;
-import ap.project.network.server.GameServer;
-import ap.project.network.server.GameWrapper;
-import ap.project.model.App.User;
 import ap.project.network.shared.DTO.UserDTO;
 import ap.project.network.shared.Mapper.Mapper;
 import ap.project.network.shared.messages.*;
@@ -25,7 +22,6 @@ import com.badlogic.gdx.Screen;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Map;
 
 public class ClientMessageHandler
 {
@@ -182,6 +178,12 @@ public class ClientMessageHandler
                 break;
             case RADIO_RESPONSE:
                 handleRadioResponseMessage((RadioResponseMessage) message);
+                break;
+            case RADIO_PLAY:
+                handleRadioPlayMessage((RadioPlayMessage) message);
+                break;
+            case RADIO_CHANGED:
+                handleRadioChanged((RadioChangedMessage) message);
                 break;
             // Add other cases
         }
@@ -921,7 +923,7 @@ public class ClientMessageHandler
                 if (isPlaying) trackName = Main.getApp().getRadio().getCurrentTrackName();
                 else trackName = "noise";
                 GameClient.getInstance().send(new RadioResponseMessage(
-                    requested.getUser().getHashId(), host.getUser().getHashId(), isPlaying, trackName));
+                    requested.getUser().getHashId(), host.getUser().getHashId(), isPlaying, trackName, Main.getApp().getRadio().getCurrentTime()));
 
                 UIRenderer.showTextBox(requested.getNickName() + " requested to listen to your radio!");
             });
@@ -939,10 +941,52 @@ public class ClientMessageHandler
             }
             // Run on the render thread
             Gdx.app.postRunnable(() -> {
-                if (message.isPLaying) Main.getApp().getRadio().playTrackByName(message.trackName);
+                if (message.isPLaying) {
+                    Main.getApp().getRadio().playTrackFrom(message.trackName, message.timestamp);
+                    requested.setCurrentListeningTo(host);
+                }
                 else GameAssetsManager.getGameAssetsManager().getRadioNoise().play();
 
                 UIRenderer.showTextBox("you connected to the radio now!");
+            });
+        }
+    }
+
+    private static void handleRadioPlayMessage(RadioPlayMessage message) {
+        if (Main.getApp().getScreen() instanceof WorldScreen) {
+            WorldScreen worldScreen = (WorldScreen) Main.getApp().getScreen();
+
+            Player requested = App.getCurrentGame().getPlayerByUserID(message.requestedID);
+            if (requested == null) {
+                System.out.println("Player not found in current game");
+            }
+            // Run on the render thread
+            Gdx.app.postRunnable(() -> {
+                if (App.getCurrentGame().getCurrentPlayer().equals(requested)) return;
+                if (App.getCurrentGame().getCurrentPlayer().getCurrentListeningTo() != null &&
+                    App.getCurrentGame().getCurrentPlayer().getCurrentListeningTo().equals(requested)) {
+                    if (message.isPaused) Main.getApp().getRadio().pause();
+                    else Main.getApp().getRadio().resume();
+                }
+            });
+        }
+    }
+
+    private static void handleRadioChanged(RadioChangedMessage message) {
+        if (Main.getApp().getScreen() instanceof WorldScreen) {
+            WorldScreen worldScreen = (WorldScreen) Main.getApp().getScreen();
+
+            Player host = App.getCurrentGame().getPlayerByUserID(message.hostID);
+            if (host == null) {
+                System.out.println("Player not found in current game");
+            }
+            // Run on the render thread
+            Gdx.app.postRunnable(() -> {
+                if (App.getCurrentGame().getCurrentPlayer().equals(host)) return;
+                if (App.getCurrentGame().getCurrentPlayer().getCurrentListeningTo() != null &&
+                    App.getCurrentGame().getCurrentPlayer().getCurrentListeningTo().equals(host)) {
+                    Main.getApp().getRadio().playTrackByName(message.trackName);
+                }
             });
         }
     }
