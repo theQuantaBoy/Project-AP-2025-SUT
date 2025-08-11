@@ -7,17 +7,15 @@ import ap.project.view.GameMenu;
 public class FriendshipWithNpcData
 {
     private final NPC npc;
-    private final Player player;
 
-    private int xp = 0; // TODO: ask Moshtagh about base
+    private int xp = 0;
 
     private boolean hasTalked = false;
     private boolean hasGifted = false;
 
-    public FriendshipWithNpcData(NPC npc, Player player)
+    public FriendshipWithNpcData(NPC npc)
     {
         this.npc = npc;
-        this.player = player;
     }
 
     public int getXp()
@@ -71,6 +69,16 @@ public class FriendshipWithNpcData
     {
         hasTalked = false;
         hasGifted = false;
+    }
+
+    public boolean isHasTalked()
+    {
+        return hasTalked;
+    }
+
+    public boolean isHasGifted()
+    {
+        return hasGifted;
     }
 
     public void doLevelThing()

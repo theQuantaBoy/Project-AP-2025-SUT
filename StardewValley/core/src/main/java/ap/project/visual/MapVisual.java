@@ -909,5 +909,16 @@ public class MapVisual
         shapeRenderer.end();
     }
 
+    public boolean isExhaustionAnimationPlaying()
+    {
+        for (GameAnimation anim : generalAnimations)
+        {
+            if (anim.getType() == GameAnimationType.EXHAUSTION)
+            {
+                return true;
+            }
+        }
 
+        return false;
+    }
 }

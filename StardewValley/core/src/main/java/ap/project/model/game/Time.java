@@ -104,7 +104,7 @@ public class Time
             }
         }
 
-        friendshipUpdate();
+//        friendshipUpdate();
 
         Game game = App.getCurrentGame();
         game.resetPlayerBuffs();
@@ -152,7 +152,9 @@ public class Time
         this.tomorrowWeather = tomorrowWeather;
     }
 
-    public TimeOfDay getTimeOfDay() {
+    public TimeOfDay getTimeOfDay()
+    {
+        updateTimeOfDay();
         return timeOfDay;
     }
 

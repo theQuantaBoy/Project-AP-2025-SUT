@@ -102,7 +102,7 @@ public class GameClient
                 }
 
                 // Establish new connection
-                kryoClient.connect(5000, ip, 54555, 54777);
+                kryoClient.connect(5000, ip, 55555, 55777);
                 connected = true;
                 System.out.println("Connected to server!");
             } catch (Exception e) {

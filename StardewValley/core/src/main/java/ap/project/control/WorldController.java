@@ -15,6 +15,7 @@ import ap.project.model.enums.resources_enums.CropType;
 import ap.project.model.enums.resources_enums.ResourceItem;
 import ap.project.model.enums.resources_enums.TreeType;
 import ap.project.model.game.*;
+import ap.project.model.player_data.FriendshipWithNpcData;
 import ap.project.model.resources.*;
 import ap.project.model.shops.Shop;
 import ap.project.model.tools.*;
@@ -56,6 +57,7 @@ public class WorldController
         Point location = player.getLocation();
 
         doLightning(tile);
+        crowAttack(tile);
 
         if (!Map.isNearOrOn(location, clicked))
         {
@@ -84,6 +86,11 @@ public class WorldController
         }
 
         if (processObjectUse(tile, location,  clicked))
+        {
+            return;
+        }
+
+        if (processNPCCommunication(tile))
         {
             return;
         }
@@ -117,6 +124,11 @@ public class WorldController
             {
                 return;
             }
+
+            if (processNpcWindow(tile))
+            {
+                return;
+            }
         }
     }
 
@@ -133,6 +145,27 @@ public class WorldController
                 farm.getLightningTiles().add(tile);
             }
             MapVisual.playAnimationAt(GameAnimationType.NO_CLOUD_LIGHTNING_CHEAT, tile);
+        }
+    }
+
+    private static void crowAttack(Tile tile)
+    {
+        Player player = App.getCurrentGame().getCurrentPlayer();
+
+        if (Gdx.input.isKeyPressed(Input.Keys.C) && player.isInFarm())
+        {
+            Farm farm = player.getFarm();
+
+            if (tile.hasPlants())
+            {
+                Plant plant = (Plant) tile.getObject();
+                if (!tile.isImmuneFromCrows())
+                {
+                    plant.getAttacked();
+                }
+            }
+
+            MapVisual.playAnimationAt(GameAnimationType.CROW_ATTACK, farm.getTile(tile.getX(), tile.getY() - 4));
         }
     }
 
@@ -402,6 +435,7 @@ public class WorldController
                 player.addToInventory(fruit);
                 tree.harvest();
                 player.getFarmingSkill().changeUnit(5);
+                MapVisual.playAnimationAt(GameAnimationType.HARVEST, tile);
 
                 UIRenderer.showTextBox("you harvested one " + fruit.getObjectType().toString() + ".");
                 return true;
@@ -428,6 +462,8 @@ public class WorldController
                     tile.unPlant();
                 }
 
+                MapVisual.playAnimationAt(GameAnimationType.HARVEST, tile);
+
                 UIRenderer.showTextBox("you harvested " + (giant ? "ten " : "one ") + crop.getObjectType().toString() + ".");
                 return true;
             }
@@ -437,7 +473,7 @@ public class WorldController
 
         if (tool instanceof Pickaxe)
         {
-            if (!tile.hasPlants() && tile.getObject()!= null && tile.getObject().getObjectType() == GameObjectType.STONE)
+            if (!tile.hasPlants() && tile.getObject() != null)
             {
                 GameObject object = tile.getObject();
                 if (!player.inventoryHasCapacity())
@@ -1136,5 +1172,46 @@ public class WorldController
             }
         }
         return null;
+    }
+
+    private static boolean processNPCCommunication(Tile tile)
+    {
+        Game game = App.getCurrentGame();
+        Player player = game.getCurrentPlayer();
+
+        NPC npc = game.getNpcFromLocation(tile.getPoint());
+        if (npc == null)
+        {
+            return false;
+        }
+
+        FriendshipWithNpcData friendship = player.getNpcFriendship(npc);
+
+        if (!friendship.isHasTalked())
+        {
+            friendship.talk();
+
+            UIRenderer.showTextBox("You received 20 xp.");
+            UIRenderer.showTextBox(npc.getName() + ": " + npc.talk());
+            return true;
+        }
+
+        return false;
+    }
+
+    private static boolean processNpcWindow(Tile tile)
+    {
+        Game game = App.getCurrentGame();
+        Player player = game.getCurrentPlayer();
+
+        NPC npc = game.getNpcFromLocation(tile.getPoint());
+        if (npc == null)
+        {
+            return false;
+        }
+
+        FriendshipWithNpcData friendship = player.getNpcFriendship(npc);
+        WorldScreen.getInstance().toggleNpcWindow(npc);
+        return true;
     }
 }

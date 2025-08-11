@@ -23,7 +23,6 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector2;
 import java.util.*;
 
-
 public class Player {
     private PlayerCharacter character;
 
@@ -104,6 +103,13 @@ public class Player {
     private MapTypes mapType;
 
     private Buff buff = null;
+
+    private ReactionEmoji currentEmoji;
+    private String currentReactionText;
+    private float reactionTimer;
+
+    private int completedQuests;
+    private StringBuilder journalText = new StringBuilder();
 
     public void setMapType(MapTypes mapType)
     {
@@ -1071,7 +1077,6 @@ public class Player {
             case NpcDetails.Harvey -> HarveyFriendship;
             case NpcDetails.Robin -> RobinFriendship;
             case NpcDetails.Sebastian -> SebastianFriendship;
-            default -> null;
         };
     }
 
@@ -1436,5 +1441,80 @@ public class Player {
     public void setFishes(ArrayList<Fish> fishes)
     {
         this.fishes = fishes;
+    }
+
+    public void setReaction(ReactionEmoji emoji)
+    {
+        this.currentEmoji = emoji;
+        this.currentReactionText = null;
+        this.reactionTimer = 5.0f; // 5 seconds
+    }
+
+    public void setReaction(String text)
+    {
+        this.currentReactionText = text;
+        this.currentEmoji = null;
+        this.reactionTimer = 5.0f;
+    }
+
+    public void updateReactionTimer(float delta)
+    {
+        if (reactionTimer > 0)
+        {
+            reactionTimer -= delta;
+            if (reactionTimer <= 0)
+            {
+                clearReaction();
+            }
+        }
+    }
+
+    public void clearReaction() {
+        currentEmoji = null;
+        currentReactionText = null;
+        reactionTimer = 0;
+    }
+
+    public ReactionEmoji getCurrentEmoji()
+    {
+        return currentEmoji;
+    }
+
+    public String getCurrentReactionText()
+    {
+        return currentReactionText;
+    }
+
+    public int getCompletedQuests()
+    {
+        return completedQuests;
+    }
+
+    public void setCompletedQuests(int completedQuests)
+    {
+        this.completedQuests = completedQuests;
+    }
+
+    public float getSkillScore()
+    {
+        float score = 0;
+
+        for (Skill skill : skills)
+        {
+            score += skill.getPercentage();
+        }
+
+        score /= (skills.size());
+        return score;
+    }
+
+    public String getJournalText()
+    {
+        return journalText.toString();
+    }
+
+    public void addToJournal(String text)
+    {
+        journalText.append(text);
     }
 }

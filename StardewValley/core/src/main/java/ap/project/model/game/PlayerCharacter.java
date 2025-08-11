@@ -10,7 +10,7 @@ public class PlayerCharacter extends AbstractCharacter
 
     public PlayerCharacter(CharacterType type, Vector2 spawnPoint, String nickName, Player player)
     {
-        super(type, spawnPoint,  nickName);
+        super(type, spawnPoint, nickName);
         this.player = player;
     }
 

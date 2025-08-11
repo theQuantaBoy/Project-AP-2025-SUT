@@ -487,16 +487,18 @@ public class MarketingController {
         player.removeAmountFromInventory(request.getObjectType(), request.getNumber());
         player.addToInventory(reward);
 
+        String username = player.getUser().getNickname();
+
         switch (index)
         {
             case 0:
-                npc.firstQuestDone();
+                npc.firstQuestDone(username);
                 break;
             case 1:
-                npc.secondQuestDone();
+                npc.secondQuestDone(username);
                 break;
             case 2:
-                npc.thirdQuestDone();
+                npc.thirdQuestDone(username);
                 break;
         }
 

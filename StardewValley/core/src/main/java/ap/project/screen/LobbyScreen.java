@@ -602,6 +602,7 @@ public class LobbyScreen implements Screen
         }
 
         Gdx.graphics.setWindowedMode(1800, 960);
+        App.getCurrentUser().setCurrentGame(game);
         Main.getApp().setScreen(new WorldScreen(game.getCurrentPlayer(), true, true));
     }
 
@@ -621,6 +622,7 @@ public class LobbyScreen implements Screen
         }
 
         Gdx.graphics.setWindowedMode(1800, 960);
+        App.getCurrentUser().setCurrentGame(game);
         Main.getApp().setScreen(new WorldScreen(game.getCurrentPlayer(), true, false));
     }
 

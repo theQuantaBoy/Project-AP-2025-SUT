@@ -1,9 +1,8 @@
 package ap.project.visual;
 //
-import ap.project.model.game.AbstractCharacter;
-import ap.project.model.game.GameObject;
-import ap.project.model.game.Player;
-import ap.project.model.game.PlayerCharacter;
+import ap.project.model.App.App;
+import ap.project.model.game.*;
+import ap.project.model.player_data.FriendshipWithNpcData;
 import ap.project.model.tools.Tool;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
@@ -42,7 +41,7 @@ public class CharacterRenderer
     {
         Vector2 pos = character.getPosition();
 
-        batch.draw(character.getShadow(), pos.x, pos.y - 3);
+        batch.draw(character.getShadow(), pos.x + 1, pos.y - 3);
 
         TextureRegion frame = character.getCurrentFrame();
         batch.draw(frame, pos.x, pos.y, 0, 0,
@@ -60,6 +59,21 @@ public class CharacterRenderer
             {
                 batch.draw(playerCharacter.getLowEnergy(), pos.x, pos.y + 26);
                 lowEnergy = true;
+            }
+
+            renderReaction(batch, player, pos);
+        } else if (character instanceof NPCCharacter)
+        {
+            Player p = App.getCurrentGame().getCurrentPlayer();
+
+            NPCCharacter npcCharacter = (NPCCharacter) character;
+            NPC npc = App.getCurrentGame().getNpcFromCharacter(npcCharacter);
+
+            FriendshipWithNpcData friendship = p.getNpcFriendship(npc);
+
+            if (!friendship.isHasTalked())
+            {
+                batch.draw(character.getDialogBubble(), pos.x + 14, pos.y + 16, 16, 16);
             }
         }
 
@@ -126,6 +140,52 @@ public class CharacterRenderer
 
             // Draw at the mouse position
             batch.draw(texture, mouseX, mouseY + 5, width, height);
+        }
+    }
+
+    private void renderReaction(Batch batch, Player player, Vector2 charPos)
+    {
+        if (player.getCurrentEmoji() != null)
+        {
+            Texture emoji = player.getCurrentEmoji().getTexture();
+            batch.draw(emoji, charPos.x + 20, charPos.y + 16, 12, 12);
+        } else if (player.getCurrentReactionText() != null)
+        {
+            // Save original font scale
+            float originalScaleX = nameBadgeFont.getData().scaleX;
+            float originalScaleY = nameBadgeFont.getData().scaleY;
+
+            // Set smaller scale for reaction text (60% of original)
+            float reactionScale = 0.8f;
+            nameBadgeFont.getData().setScale(reactionScale);
+
+            String text = player.getCurrentReactionText();
+            GlyphLayout layout = new GlyphLayout(nameBadgeFont, text);
+
+            float padding = 5f;
+            float badgeWidth = layout.width + 2 * padding;
+            float badgeHeight = layout.height + 2 * padding;
+            float badgeX = charPos.x + 20;
+            float badgeY = charPos.y + 16;
+
+            // Draw background
+            batch.end();
+            Gdx.gl.glEnable(GL20.GL_BLEND);
+            shapeRenderer.setProjectionMatrix(batch.getProjectionMatrix());
+            shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+            shapeRenderer.setColor(Color.WHITE);
+            shapeRenderer.rect(badgeX, badgeY, badgeWidth, badgeHeight);
+            shapeRenderer.end();
+            batch.begin();
+
+            // Draw text
+            nameBadgeFont.setColor(Color.BLACK);
+            nameBadgeFont.draw(batch, text, badgeX + padding, badgeY + padding + layout.height);
+            nameBadgeFont.setColor(Color.WHITE); // Reset to white
+
+            // Restore original font scale and color
+            nameBadgeFont.getData().setScale(originalScaleX, originalScaleY);
+            nameBadgeFont.setColor(Color.WHITE);
         }
     }
 }

@@ -77,7 +77,47 @@ public enum GameAnimationType
     WATER(new String[]{"affects/water/water_0.png",
         "affects/water/water_1.png",
         "affects/water/water_2.png",
-        "affects/water/water_3.png"}, 0.08f)
+        "affects/water/water_3.png"}, 0.08f),
+
+    CROW_ATTACK(new String[]{"affects/crow-attack/crow_0.png",
+        "affects/crow-attack/crow_1.png",
+        "affects/crow-attack/crow_2.png",
+        "affects/crow-attack/crow_3.png",
+        "affects/crow-attack/crow_4.png",
+        "affects/crow-attack/crow_5.png",
+        "affects/crow-attack/crow_6.png",
+        "affects/crow-attack/crow_7.png",
+        "affects/crow-attack/crow_8.png",
+        "affects/crow-attack/crow_9.png",
+        "affects/crow-attack/crow_10.png",
+        "affects/crow-attack/crow_11.png"}, 0.08f),
+
+    EXHAUSTION(new String[]{"affects/exhaustion/exhausted_0.png",
+        "affects/exhaustion/exhausted_1.png",
+        "affects/exhaustion/exhausted_2.png",
+        "affects/exhaustion/exhausted_3.png",
+        "affects/exhaustion/exhausted_4.png",
+        "affects/exhaustion/exhausted_5.png"}, 0.04f),
+
+    HARVEST(new String[]{"affects/harvest/harvest_0.png",
+        "affects/harvest/harvest_1.png",
+        "affects/harvest/harvest_2.png",
+        "affects/harvest/harvest_3.png"}, 0.08f),
+
+    GIFT(new String[]{"affects/gift/gift_0.png",
+        "affects/gift/gift_1.png",
+        "affects/gift/gift_2.png",
+        "affects/gift/gift_3.png",
+        "affects/gift/gift_4.png",
+        "affects/gift/gift_5.png",
+        "affects/gift/gift_6.png",
+        "affects/gift/gift_7.png",
+        "affects/gift/gift_8.png"}, 0.06f),
+
+    CELEBRATION(new String[]{"affects/celebration/celebration_0.png",
+        "affects/celebration/celebration_1.png",
+        "affects/celebration/celebration_2.png",
+        "affects/celebration/celebration_3.png"}, 0.06f),
     ;
 
     private final String[] framePaths;

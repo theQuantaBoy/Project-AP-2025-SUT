@@ -8,12 +8,11 @@ import ap.project.control.WorldController;
 import ap.project.control.game.activities.TradeController;
 import ap.project.model.App.App;
 import ap.project.model.App.GameAssetsManager;
-import ap.project.model.App.User;
-import ap.project.model.enums.Gender;
 import ap.project.model.enums.Season;
 import ap.project.model.building.CraftingItem;
 import ap.project.model.enums.*;
 import ap.project.model.game.Game;
+import ap.project.model.player_data.Skill;
 import ap.project.model.shops.Shop;
 import ap.project.model.tools.BackPack;
 import ap.project.model.tools.Tool;
@@ -21,6 +20,7 @@ import ap.project.network.client.GameClient;
 import ap.project.network.shared.DTO.BackPackDTO;
 import ap.project.network.shared.DTO.PlayerDTO;
 import ap.project.network.shared.Mapper.Mapper;
+import ap.project.network.shared.DTO.SkillDTO;
 import ap.project.network.shared.messages.*;
 import ap.project.screen.input.WorldScreenInputProcessor;
 import ap.project.util.MapAssetLoader;
@@ -46,8 +46,6 @@ import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 public final class WorldScreen implements Screen
@@ -109,8 +107,13 @@ public final class WorldScreen implements Screen
     private GreenHouseBuildWindow greenHouseBuildWindow;
     private CommunicationWindow communicationWindow;
     private WorldController worldController;
+    private ReactionWindow reactionWindow;
+    private ScoreBoardWindow scoreBoardWindow;
+    private NpcWindow npcWindow;
+    private TextButton reactButton;
     private InputMultiplexer inputMultiplexer;
     private boolean inputMultiplexerHadSetUp = false;
+    private TextButton friends;
 
     private Table hotbarUI = new Table();
     private static final int HOTBAR_SLOTS = 8;
@@ -196,6 +199,10 @@ public final class WorldScreen implements Screen
         createTerminalDialog();
         worldController = new WorldController();
         worldController.setCommunicationWindow(communicationWindow);
+        reactionWindow = new ReactionWindow(uiStage);
+        scoreBoardWindow = new ScoreBoardWindow(uiStage);
+        npcWindow = new NpcWindow(uiStage);
+        createReactButton();
         inputMultiplexer = new InputMultiplexer();
         checkGameInfo();
         initializeHotbar();
@@ -210,63 +217,6 @@ public final class WorldScreen implements Screen
         {
             client = null;
         }
-    }
-
-    public WorldScreen()
-    {
-        INSTANCE = this;
-        ONLINE_MODE = false;
-        client = null;
-
-        this.shapeRenderer = new ShapeRenderer();
-//        this.miniGame = new FishingGame();
-        cam = new OrthographicCamera(20 * TILE_SIZE, 15 * TILE_SIZE);
-        cam.setToOrtho(false);
-
-        this.game = new Game(new ArrayList<>(List.of(
-            new Player(new User("mohsen","","mohsen","", Gender.MALE, "", ""), MapTypes.MINING, 0),
-            new Player(new User("arash","","arash","", Gender.FEMALE, "", ""), MapTypes.FISHING, 0),
-            new Player(new User("moshtagh","","moshtagh","", Gender.FEMALE, "", ""), MapTypes.FORAGING, 0),
-            new Player(new User("ottie","","ottie","", Gender.FEMALE, "", ""), MapTypes.COMBAT, 0)
-        )));
-
-        App.setCurrentGame(game);
-        App.setCurrentMenu(Menu.HomeMenu);
-        App.setCurrentUser(game.getPlayers().get(0).getUser());
-        game.setCurrentPlayer(game.getPlayers().get(0));
-
-        for (Player p : game.getPlayers()) {
-            Farm f = new Farm(p.getMapType());
-            p.setFarm(f);
-            p.setCurrentMap(f);
-        }
-
-        for (Player p : game.getPlayers()) {
-            p.spawn();
-        }
-
-        this.map = game.getCurrentPlayer().getCabin();
-        time = game.getCurrentTime();
-        currentSeason = time.getSeason();
-
-        this.characterRenderer = new CharacterRenderer(shapeRenderer);
-
-        ShaderProgram.pedantic = false;
-        uiRenderer = new UIRenderer(time);
-
-        inventoryWindow = new InventoryWindow(uiStage, this);
-        friendsWindow = new FriendsWindow(uiStage, this);
-        cookBookWindow = new CookBookWindow(uiStage);
-        refrigeratorWindow = new RefrigeratorWindow(uiStage);
-        craftingItemWindow = new CraftingItemWindow(uiStage);
-        communicationWindow = new CommunicationWindow(uiStage, this);
-        greenHouseBuildWindow = new GreenHouseBuildWindow(uiStage);
-        createTerminalDialog();
-        worldController = new WorldController();
-        worldController.setCommunicationWindow(communicationWindow);
-        inputMultiplexer = new InputMultiplexer();
-        checkGameInfo();
-        initializeHotbar();
     }
 
     private void restorePlayerState(Player player)
@@ -304,6 +254,24 @@ public final class WorldScreen implements Screen
                 }
             }
         }
+    }
+
+    private void createReactButton()
+    {
+        reactButton = new TextButton("React", skin);
+        reactButton.setSize(200, 70);
+        reactButton.setPosition(20, 20); // Bottom left
+
+        reactButton.addListener(new ClickListener()
+        {
+            @Override
+            public void clicked(InputEvent event, float x, float y)
+            {
+                reactionWindow.toggleVisibility();
+            }
+        });
+
+        uiStage.addActor(reactButton);
     }
 
     private void initializeHotbar() {
@@ -484,13 +452,8 @@ public final class WorldScreen implements Screen
         int w = Gdx.graphics.getWidth(), h = Gdx.graphics.getHeight();
         resize(w, h);
 
-        TextButton friends = uiRenderer.getFriends();
+        friends = uiRenderer.getFriends();
         uiStage.addActor(friends);
-        friends.setPosition(
-            uiStage.getWidth() - 250f,
-            uiStage.getHeight() - 320f
-        );
-        friends.setSize(220f, 60f);
 
         // Add it to the stage if not already added
         if (friends.getStage() == null) {
@@ -503,6 +466,8 @@ public final class WorldScreen implements Screen
                 toggleFriendsWindow();
             }
         });
+
+        updateButtonPosition();
 
         inputMultiplexer.clear();
         inputMultiplexer.addProcessor(uiStage);
@@ -603,6 +568,23 @@ public final class WorldScreen implements Screen
         client.send(msg);
     }
 
+    private void sendPlayerScoreBoardDataMessage()
+    {
+        String gameID = game.getId();
+        int userID = player.getUser().getHashId();
+        double money = player.getMoney();
+        int completedQuests = player.getCompletedQuests();
+
+        SkillDTO farming = new SkillDTO(player.getFarmingSkill());
+        SkillDTO mining = new SkillDTO(player.getMiningSkill());
+        SkillDTO foraging = new SkillDTO(player.getForagingSkill());
+        SkillDTO fishing = new SkillDTO(player.getFishingSkill());
+
+        ScoreBoardDataMessage message = new ScoreBoardDataMessage(gameID, userID, money, completedQuests,
+            farming, mining, foraging, fishing);
+        client.send(message);
+    }
+
     private void sendPlayerData()
     {
         PlayerDTO playerDTO = new PlayerDTO(player);
@@ -652,6 +634,7 @@ public final class WorldScreen implements Screen
         {
             sendPlayerPresenceMessage();
             sendBackPack();
+            sendPlayerScoreBoardDataMessage();
             periodicNetworkUpdate = 0;
         }
 
@@ -684,12 +667,18 @@ public final class WorldScreen implements Screen
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         if (!terminalDialog.isVisible() && !isInventoryVisible() && !isCookBookVisible() && !isRefrigeratorVisible()
-        && !greenHouseBuildWindow.isVisible())
+        && !greenHouseBuildWindow.isVisible() && !reactionWindow.isVisible() && !scoreBoardWindow.isVisible() &&
+            !npcWindow.isVisible() && !npcWindow.getGiftWindow().isVisible())
         {
             update(dt);
             refreshHotbarUI();
             character.updateAnimation(dt);
             cam.update();
+        }
+
+        for (Player p : game.getPlayers())
+        {
+            p.updateReactionTimer(dt);
         }
 
         UIRenderer.updateTextBoxes(dt);
@@ -706,8 +695,11 @@ public final class WorldScreen implements Screen
         float worldMouseY = mouseWorldPos.y;
 
         renderCharacters(batch);
+        renderNPCs(batch);
 
         if (!isDialogVisible() && !isInventoryVisible() && !isCookBookVisible() && !isRefrigeratorVisible()
+            && !greenHouseBuildWindow.isVisible() && !reactionWindow.isVisible() && !scoreBoardWindow.isVisible() &&
+            !npcWindow.isVisible() && !npcWindow.getGiftWindow().isVisible())
             && !greenHouseBuildWindow.isVisible() && !communicationWindow.getChatScreen().isVisible())
         {
             characterRenderer.renderToolOrObjectAtMouse(batch, character, worldMouseX, worldMouseY);
@@ -854,6 +846,21 @@ public final class WorldScreen implements Screen
 
         // Center all visible windows after resize
         centerVisibleWindows();
+
+        reactButton.setPosition(20, 20);
+        updateButtonPosition();
+    }
+
+    private void updateButtonPosition()
+    {
+        if (friends != null)
+        {
+            friends.setPosition(
+                uiStage.getWidth() - 220f,
+                uiStage.getHeight() - 370f
+            );
+            friends.setSize(180f, 70f);
+        }
     }
 
     // Helper method to center all visible windows
@@ -906,6 +913,12 @@ public final class WorldScreen implements Screen
                 (uiStage.getHeight() - communicationWindow.getPopup().getHeight()) / 2
             );
         }
+        if (scoreBoardWindow != null && scoreBoardWindow.isVisible()) {
+            scoreBoardWindow.getWindow().setPosition(
+                (uiStage.getWidth() - scoreBoardWindow.getWindow().getWidth()) / 2,
+                (uiStage.getHeight() - scoreBoardWindow.getWindow().getHeight()) / 2
+            );
+        }
     }
 
     @Override
@@ -927,8 +940,9 @@ public final class WorldScreen implements Screen
         shapeRenderer.dispose();
         cookBookWindow.dispose();
         refrigeratorWindow.dispose();
-//        gameStage.dispose();
         communicationWindow.dispose();
+        reactionWindow.dispose();
+        scoreBoardWindow.dispose();
     }
 
     private void handleHotbarSelection(int keycode) {
@@ -1361,6 +1375,15 @@ public final class WorldScreen implements Screen
             }
         }
 
+        if (player.getEnergy() <= 5)
+        {
+            if (!map.getMapVisual().isExhaustionAnimationPlaying())
+            {
+                Vector2 loc = new Vector2(player.getPosition().x - 9, player.getPosition().y - 4);
+                MapVisual.playAnimationAt(GameAnimationType.EXHAUSTION, loc);
+            }
+        }
+
         if (player.getEnergy() <= 0)
         {
             game.nextTurn();
@@ -1455,6 +1478,17 @@ public final class WorldScreen implements Screen
         }
     }
 
+    private void renderNPCs(Batch batch)
+    {
+        if (player.isInCity())
+        {
+           for (NPC npc : game.getNPCs())
+           {
+               characterRenderer.render(batch, npc.getCharacter(), CHAR_SCALE);
+           }
+        }
+    }
+
     private void updateOtherPlayers(float delta)
     {
         long currentTime = System.currentTimeMillis();
@@ -1474,6 +1508,62 @@ public final class WorldScreen implements Screen
                     pc.resetAnimation();
                 }
             }
+        }
+    }
+
+    public void updatePlayerScoreBoardData(int userId, double money, int completedQuests, Skill farming, Skill mining,
+                                           Skill foraging, Skill fishing)
+    {
+        boolean changed = false;
+
+        for (Player p : game.getPlayers())
+        {
+            if (p.getUser().getHashId() != player.getUser().getHashId())
+            {
+                if (p.getUser().getHashId() == userId)
+                {
+                    if (p.getMoney() != money)
+                    {
+                        p.setMoney(money);
+                        changed = true;
+                    }
+
+                    if (p.getCompletedQuests() != completedQuests)
+                    {
+                        p.setCompletedQuests(completedQuests);
+                        changed = true;
+                    }
+
+                    if (!p.getFarmingSkill().equals(farming))
+                    {
+                        p.setFarmingSkill(farming);
+                        changed = true;
+                    }
+
+                    if (!p.getMiningSkill().equals(mining))
+                    {
+                        p.setMiningSkill(mining);
+                        changed = true;
+                    }
+
+                    if (!p.getForagingSkill().equals(foraging))
+                    {
+                        p.setForagingSkill(foraging);
+                        changed = true;
+                    }
+
+                    if (!p.getFishingSkill().equals(fishing))
+                    {
+                        p.setFishingSkill(fishing);
+                        changed = true;
+                    }
+                }
+            }
+        }
+
+        if (changed)
+        {
+            scoreBoardWindow.refresh();
         }
     }
 
@@ -1637,6 +1727,68 @@ public final class WorldScreen implements Screen
 
     public FriendsWindow getFriendsWindow() {
         return friendsWindow;
+    }
+
+    public void updateOtherPlayerReaction(PlayerReactionMessage message)
+    {
+        for (Player p : game.getPlayers())
+        {
+            if ((p.getUser().getHashId() == message.playerId) &&
+                (p.getUser().getHashId() != player.getUser().getHashId()))
+            {
+                ReactionEmoji emoji = message.currentEmoji;
+                String text = message.currentReactionText;
+                if (emoji != null)
+                {
+                    p.setReaction(emoji);
+                } else if (!text.isEmpty())
+                {
+                    p.setReaction(text);
+                }
+            }
+        }
+    }
+
+    public void sendReactionMessage(ReactionEmoji reactionEmoji)
+    {
+        if (ONLINE_MODE)
+        {
+            client.send(new PlayerReactionMessage(game.getId(), player.getUser().getHashId(), reactionEmoji));
+        }
+    }
+
+    public void sendReactionMessage(String text)
+    {
+        if (ONLINE_MODE)
+        {
+            client.send(new PlayerReactionMessage(game.getId(), player.getUser().getHashId(), text));
+        }
+    }
+
+    public void toggleScoreBoardWindow()
+    {
+        scoreBoardWindow.toggleVisibility();
+    }
+
+    public boolean isScoreBoardVisible()
+    {
+        return scoreBoardWindow.isVisible();
+    }
+
+    public boolean isReactionWindowVisible()
+    {
+        return reactionWindow.isVisible();
+    }
+
+    public boolean isNpcWindowVisible()
+    {
+        return npcWindow.isVisible() || npcWindow.getGiftWindow().isVisible();
+    }
+
+    public void toggleNpcWindow(NPC npc)
+    {
+        npcWindow.setNpc(npc);
+        npcWindow.toggleVisibility();
     }
 }
 

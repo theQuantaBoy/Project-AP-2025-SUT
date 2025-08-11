@@ -1,9 +1,11 @@
 package ap.project.model.game;
 
 import ap.project.model.App.App;
+import ap.project.model.enums.CharacterType;
 import ap.project.model.enums.GameObjectType;
 import ap.project.model.enums.NpcDetails;
 import ap.project.model.player_data.FriendshipWithNpcData;
+import com.badlogic.gdx.math.Vector2;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,8 +25,14 @@ public class NPC {
     private boolean secondQuestDone = false;
     private boolean thirdQuestDone = false;
 
-    public NPC(NpcDetails npcDetails, Point location) {
-        this.location = location;
+    private String firstQuestUser = "";
+    private String secondQuestUser = "";
+    private String thirdQuestUser = "";
+
+    private final NPCCharacter character;
+
+    public NPC(NpcDetails npcDetails) {
+        this.location = npcDetails.getSpawnPoint();
         this.npcDetails = npcDetails;
         this.name = npcDetails.getName();
 
@@ -33,14 +41,14 @@ public class NPC {
         this.rewards = npcDetails.getRewards();
         this.openQuests.add(requests.getFirst());
         this.appearance = npcDetails.getAppearance();
+
+        CharacterType characterType = npcDetails.getCharacterType();
+        Vector2 spawnPoint = City.pointToWorld(npcDetails.getSpawnPoint());
+        this.character = new NPCCharacter(characterType, spawnPoint, characterType.getName());
     }
 
     public NpcDetails getNpcDetails() {
         return npcDetails;
-    }
-
-    public Point getLocation() {
-        return location;
     }
 
     public boolean isNearPlayer(Point playerLocation)
@@ -51,10 +59,8 @@ public class NPC {
         return (dx <= 1 && dy <= 1) && !(dx == 0 && dy == 0);
     }
 
-    public boolean isQuestFinish = false;
-    public boolean isGifted = false; //TODO, should be reset everyday
-
-    public String talk() {
+    public String talk()
+    {
         Time currentTime = App.getCurrentGame().getCurrentTime();
         return this.getNpcDetails().getDialogue(currentTime.getSeason(), currentTime.getTimeOfDay());
     }
@@ -107,31 +113,57 @@ public class NPC {
     public String getQuestDescription(int index)
     {
         StringBuilder output = new StringBuilder();
-        output.append(name).append("'s Quest: (index ").append(index + 1).append(") \n");
 
         GameObject request = npcDetails.getQuestRequest(index);
-        output.append("\trequest: ").append(request.getObjectType().toString()).append(" x").append(request.getNumber()).append("\n");
+        output.append(" request: ").append(request.getObjectType().toString()).append(" x").append(request.getNumber()).append("\n");
 
         GameObject reward = npcDetails.getQuestReward(index);
-        output.append("\treward: ").append(reward.getObjectType().toString()).append(" x").append(reward.getNumber()).append("\n");
-
-        output.append("--------------------------------");
+        output.append(" reward: ").append(reward.getObjectType().toString()).append(" x").append(reward.getNumber()).append("\n");
 
         return output.toString();
     }
 
-    public void firstQuestDone()
+    public void firstQuestDone(String username)
     {
         firstQuestDone = true;
+        firstQuestUser = username;
     }
 
-    public void secondQuestDone()
+    public void secondQuestDone(String username)
     {
         secondQuestDone = true;
+        secondQuestUser = username;
     }
 
-    public void thirdQuestDone()
+    public void thirdQuestDone(String username)
     {
         thirdQuestDone = true;
+        thirdQuestUser = username;
+    }
+
+    public NPCCharacter getCharacter()
+    {
+        return character;
+    }
+
+    public Point getLocation()
+    {
+        Vector2 pos = character.getPosition();
+        return App.getCurrentGame().getCity().worldToTile(pos.x, pos.y);
+    }
+
+    public String getFirstQuestUser()
+    {
+        return firstQuestUser;
+    }
+
+    public String getSecondQuestUser()
+    {
+        return secondQuestUser;
+    }
+
+    public String getThirdQuestUser()
+    {
+        return thirdQuestUser;
     }
 }

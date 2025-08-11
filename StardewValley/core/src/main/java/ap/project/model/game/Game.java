@@ -41,6 +41,7 @@ public class Game
     public Game(String id)
     {
         this.id = id;
+        initialize();
     }
 
     public void initialize()
@@ -59,7 +60,7 @@ public class Game
             }
         }
 
-//        setNPCs();
+        setNPCs();
 
         for (NPC npc : NPCs)
         {
@@ -68,19 +69,19 @@ public class Game
                 switch (npc.getName().toLowerCase())
                 {
                     case "robin":
-                        player.setRobinFriendship(new FriendshipWithNpcData(npc, player));
+                        player.setRobinFriendship(new FriendshipWithNpcData(npc));
                         break;
                     case "abigail":
-                        player.setAbigailFriendship(new FriendshipWithNpcData(npc, player));
+                        player.setAbigailFriendship(new FriendshipWithNpcData(npc));
                         break;
                     case "sebastian":
-                        player.setSebastianFriendship(new FriendshipWithNpcData(npc, player));
+                        player.setSebastianFriendship(new FriendshipWithNpcData(npc));
                         break;
                     case "harvey":
-                        player.setHarveyFriendship(new FriendshipWithNpcData(npc, player));
+                        player.setHarveyFriendship(new FriendshipWithNpcData(npc));
                         break;
                     case "lia":
-                        player.setLiaFriendship(new FriendshipWithNpcData(npc, player));
+                        player.setLiaFriendship(new FriendshipWithNpcData(npc));
                         break;
                 }
             }
@@ -119,7 +120,7 @@ public class Game
             p.spawn();
         }
 
-//        setNPCs();
+        setNPCs();
 
         for (NPC npc : NPCs)
         {
@@ -128,19 +129,19 @@ public class Game
                 switch (npc.getName().toLowerCase())
                 {
                     case "robin":
-                        player.setRobinFriendship(new FriendshipWithNpcData(npc, player));
+                        player.setRobinFriendship(new FriendshipWithNpcData(npc));
                         break;
                     case "abigail":
-                        player.setAbigailFriendship(new FriendshipWithNpcData(npc, player));
+                        player.setAbigailFriendship(new FriendshipWithNpcData(npc));
                         break;
                     case "sebastian":
-                        player.setSebastianFriendship(new FriendshipWithNpcData(npc, player));
+                        player.setSebastianFriendship(new FriendshipWithNpcData(npc));
                         break;
                     case "harvey":
-                        player.setHarveyFriendship(new FriendshipWithNpcData(npc, player));
+                        player.setHarveyFriendship(new FriendshipWithNpcData(npc));
                         break;
                     case "lia":
-                        player.setLiaFriendship(new FriendshipWithNpcData(npc, player));
+                        player.setLiaFriendship(new FriendshipWithNpcData(npc));
                         break;
                 }
             }
@@ -179,7 +180,7 @@ public class Game
             p.spawn();
         }
 
-//        setNPCs();
+        setNPCs();
 
         for (NPC npc : NPCs)
         {
@@ -188,19 +189,19 @@ public class Game
                 switch (npc.getName().toLowerCase())
                 {
                     case "robin":
-                        player.setRobinFriendship(new FriendshipWithNpcData(npc, player));
+                        player.setRobinFriendship(new FriendshipWithNpcData(npc));
                         break;
                     case "abigail":
-                        player.setAbigailFriendship(new FriendshipWithNpcData(npc, player));
+                        player.setAbigailFriendship(new FriendshipWithNpcData(npc));
                         break;
                     case "sebastian":
-                        player.setSebastianFriendship(new FriendshipWithNpcData(npc, player));
+                        player.setSebastianFriendship(new FriendshipWithNpcData(npc));
                         break;
                     case "harvey":
-                        player.setHarveyFriendship(new FriendshipWithNpcData(npc, player));
+                        player.setHarveyFriendship(new FriendshipWithNpcData(npc));
                         break;
                     case "lia":
-                        player.setLiaFriendship(new FriendshipWithNpcData(npc, player));
+                        player.setLiaFriendship(new FriendshipWithNpcData(npc));
                         break;
                 }
             }
@@ -223,12 +224,10 @@ public class Game
 
     private void setNPCs()
     {
-        ArrayList<Point> locations = city.getNpcLocations();
         for(int i = 0; i < (NpcDetails.values()).length; i++)
         {
             NpcDetails details = NpcDetails.values()[i];
-            Point location = locations.get(i);
-            NPCs.add(new NPC(details, location));
+            NPCs.add(new NPC(details));
         }
     }
 
@@ -275,7 +274,7 @@ public class Game
         killPlants();
 
         takePlayerHome();
-        // resetNPCs();
+         resetNPCs();
         // npcGiveGift();
 
         // distributeFish();
@@ -871,5 +870,29 @@ public class Game
         }
 
         return playerIDs;
+    }
+
+    public NPC getNpcFromCharacter(NPCCharacter character)
+    {
+        for (NPC npc : NPCs)
+        {
+            if (npc.getNpcDetails().getCharacterType() == character.getType())
+            {
+                return npc;
+            }
+        }
+        return null;
+    }
+
+    public NPC getNpcFromLocation(Point location)
+    {
+        for (NPC npc : NPCs)
+        {
+            if (Map.isNearOrOn(location, npc.getLocation()))
+            {
+                return npc;
+            }
+        }
+        return null;
     }
 }

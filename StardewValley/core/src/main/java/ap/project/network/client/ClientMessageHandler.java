@@ -8,6 +8,11 @@ import ap.project.model.game.GameObject;
 import ap.project.model.game.Gift;
 import ap.project.model.game.Player;
 import ap.project.model.player_data.FriendshipData;
+import ap.project.model.player_data.Skill;
+import ap.project.network.server.ClientConnection;
+import ap.project.network.server.GameServer;
+import ap.project.network.server.GameWrapper;
+import ap.project.model.App.User;
 import ap.project.network.shared.DTO.UserDTO;
 import ap.project.network.shared.Mapper.Mapper;
 import ap.project.network.shared.messages.*;
@@ -22,6 +27,7 @@ import com.badlogic.gdx.Screen;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Map;
 
 public class ClientMessageHandler
 {
@@ -137,6 +143,12 @@ public class ClientMessageHandler
             case JOIN_GAME:
                 handleJoinActiveGameMessage((JoinActiveGameMessage) message);
                 break;
+            case PLAYER_REACTION:
+                handlePlayerReactionMessage((PlayerReactionMessage) message);
+                break;
+            case SCORE_BOARD_DATA:
+                handlePlayerScoreBoardDataMessage((ScoreBoardDataMessage) message);
+                break;
             case BACKPACK_DTO:
                 handleBackPackDTOMessage((BackPackDTOMessage) message);
                 break;
@@ -232,7 +244,12 @@ public class ClientMessageHandler
         Screen currentScreen = Main.getApp().getScreen();
         if (currentScreen instanceof PreLobbyScreen)
         {
-            ((PreLobbyScreen) currentScreen).setOnlineUsersText(list);
+            PreLobbyScreen pls = (PreLobbyScreen) currentScreen;
+            if (!pls.getOnlineUsersText().equals(list))
+            {
+                ((PreLobbyScreen) currentScreen).setOnlineUsersText(list);
+                pls.refreshOnlineUsersList();
+            }
         }
     }
 
@@ -607,6 +624,39 @@ public class ClientMessageHandler
         {
             PreLobbyScreen ps = (PreLobbyScreen) Main.getApp().getScreen();
             ps.rejoinLoadedGame(message.gameID);
+        }
+    }
+
+    private static void handlePlayerReactionMessage(PlayerReactionMessage message)
+    {
+        if (Main.getApp().getScreen() instanceof WorldScreen)
+        {
+            WorldScreen ws = (WorldScreen) Main.getApp().getScreen();
+            ws.updateOtherPlayerReaction(message);
+        }
+    }
+
+    private static void handlePlayerScoreBoardDataMessage(ScoreBoardDataMessage message)
+    {
+        String gameID = message.gameId;
+        int userID = message.userId;
+
+        double money = message.money;
+        int completedQuests = message.completedQuests;
+
+        Skill farming = Mapper.fromDTO(message.farmingSkillDTO);
+        Skill mining = Mapper.fromDTO(message.miningSkillDTO);
+        Skill foraging = Mapper.fromDTO(message.foragingSkillDTO);
+        Skill fishing = Mapper.fromDTO(message.fishingSkillDTO);
+
+        if (Main.getApp().getScreen() instanceof WorldScreen)
+        {
+            WorldScreen ws = (WorldScreen) Main.getApp().getScreen();
+
+            if (App.getCurrentGame().getId().equals(gameID))
+            {
+                ws.updatePlayerScoreBoardData(userID, money, completedQuests, farming, mining, foraging, fishing);
+            }
         }
     }
 

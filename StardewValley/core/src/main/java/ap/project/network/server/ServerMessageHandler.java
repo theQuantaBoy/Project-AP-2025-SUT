@@ -128,6 +128,12 @@ public class ServerMessageHandler
             case UPDATING_FRIENDSHIP:
                 handleUpdateFriendship(client, (UpdateFriendshipMessage) message);
                 break;
+            case PLAYER_REACTION:
+                handlePlayerReactionMessage(client, (PlayerReactionMessage) message);
+                break;
+            case SCORE_BOARD_DATA:
+                handlePlayerScoreBoardDateMessage(client, (ScoreBoardDataMessage) message);
+                break;
         }
     }
 
@@ -846,5 +852,35 @@ public class ServerMessageHandler
         }
         receiverConn.send(message);
         System.out.println("update friendship sent");
+    }
+
+    private static void handlePlayerReactionMessage(ClientConnection client, PlayerReactionMessage message)
+    {
+        GameServer server = GameServer.getInstance();
+        GameWrapper wrapper = server.findGameWrapper(message.gameId);
+
+        if (wrapper != null)
+        {
+            wrapper.handlePlayerReactionMessage(message);
+        }
+    }
+
+    private static void handlePlayerScoreBoardDateMessage(ClientConnection client, ScoreBoardDataMessage message)
+    {
+        GameServer server = GameServer.getInstance();
+
+        String gameID = message.gameId;
+        GameWrapper wrapper = server.findGameWrapper(gameID);
+
+        if (wrapper != null)
+        {
+            for (ClientConnection c : wrapper.getClientConnections())
+            {
+                if (c.getUserId() != client.getUserId())
+                {
+                    c.send(message);
+                }
+            }
+        }
     }
 }

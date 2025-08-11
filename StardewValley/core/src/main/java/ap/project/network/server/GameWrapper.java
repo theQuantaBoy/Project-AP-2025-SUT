@@ -238,6 +238,11 @@ public class GameWrapper
         pause();
     }
 
+    public void handlePlayerReactionMessage(PlayerReactionMessage msg)
+    {
+        broadcastMessage(msg);
+    }
+
     private Player findPlayerById(int playerId)
     {
         for (Player player : game.getPlayers())

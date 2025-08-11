@@ -186,6 +186,9 @@ public class KryoRegistry
         kryo.register(UpdateFriendshipMessage.class);
         kryo.register(FriendshipData.class);
 
-        // Register all other message classes ...
+        kryo.register(PlayerReactionMessage.class);
+        kryo.register(ReactionEmoji.class);
+
+        kryo.register(ap.project.network.shared.messages.ScoreBoardDataMessage.class);
     }
 }
