@@ -64,7 +64,6 @@ public class WorldController
             return;
         }
 
-        // redundant code ?
 //        if (processPickingUpForagingItem(tile))
 //        {
 //            return;
@@ -91,6 +90,11 @@ public class WorldController
         }
 
         if (processNPCCommunication(tile))
+        {
+            return;
+        }
+
+        if (processFishing(tile))
         {
             return;
         }
@@ -146,6 +150,27 @@ public class WorldController
             }
             MapVisual.playAnimationAt(GameAnimationType.NO_CLOUD_LIGHTNING_CHEAT, tile);
         }
+    }
+
+    private static boolean processFishing(Tile tile)
+    {
+        Player player = App.getCurrentGame().getCurrentPlayer();
+
+        if (player.isInFarm())
+        {
+            ArrayList<Point> neighbors = player.getFarm().getSquareNeighbors(tile.getPoint(), 2);
+            for (Point p : neighbors)
+            {
+                Tile t = player.getFarm().getTile(p.getX(), p.getY());
+                if (t != null && t.getTexture() == TileTexture.LAKE)
+                {
+                    WorldScreen.getInstance().toggleFishMiniGame();
+                    break;
+                }
+            }
+        }
+
+        return false;
     }
 
     private static void crowAttack(Tile tile)

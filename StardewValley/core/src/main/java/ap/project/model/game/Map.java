@@ -313,7 +313,7 @@ public abstract class Map
     public ArrayList<Point> getSquareNeighbors(Point p, int radius) {
         ArrayList<Point> neighbors = new ArrayList<>();
 
-        if (radius < 1 || radius > 2) {
+        if (radius < 1) {
             return neighbors; // Only support radius 1 or 2
         }
 

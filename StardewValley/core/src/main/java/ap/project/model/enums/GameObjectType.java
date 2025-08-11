@@ -444,6 +444,8 @@ public enum GameObjectType
     BASE_PACK("Base Pack", ""),
     LARGE_PACK("Large Pack", ""),
     DELUXE_PACK("Deluxe Pack", ""),
+
+    SONAR_BOBBER("Sonar Bobber", "game_objects/Sonar_Bobber.png"),
     ;
 
     private final String name;
@@ -479,15 +481,18 @@ public enum GameObjectType
         return null;
     }
 
-    public void setTexture(Texture texture) {
+    public void setTexture(Texture texture)
+    {
         this.texture = texture;
     }
 
-    public Texture getTexture() {
+    public Texture getTexture()
+    {
         return texture;
     }
 
-    public static List<GameObjectType> getRings() {
+    public static List<GameObjectType> getRings()
+    {
         List<GameObjectType> list = new LinkedList<>();
         Collections.addAll(list,
             AMETHYST_RING,

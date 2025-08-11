@@ -1,6 +1,7 @@
 package ap.project.model.animal;
 
 import ap.project.model.App.App;
+import ap.project.model.enums.animal_enums.FishQuality;
 import ap.project.model.game.GameObject;
 import ap.project.model.enums.Weather;
 import ap.project.model.enums.animal_enums.FishType;
@@ -12,11 +13,31 @@ public class Fish extends GameObject
 {
     private FishType type;
     private double quality = 0.0;
+    private FishQuality fishQuality;
 
     public Fish(FishType type)
     {
         super.ObjectType = type.getType();
         this.type = type;
+
+        if (Math.random() < 0.5)
+        {
+            this.fishQuality = FishQuality.SILVER;
+        } else
+        {
+            this.fishQuality = FishQuality.GOLD;
+        }
+    }
+
+    public void increaseQuality()
+    {
+        if (fishQuality == FishQuality.SILVER)
+        {
+            fishQuality = FishQuality.GOLD;
+        } else if (fishQuality == FishQuality.GOLD)
+        {
+            fishQuality = FishQuality.IRIDIUM;
+        }
     }
 
     public double getQuality()

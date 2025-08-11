@@ -145,6 +145,10 @@ public class Skill {
         this.unit = unit;
     }
 
+    public void setUnit(float unit) {
+        this.unit = (int) unit;
+    }
+
     private void addCraftingRecipe()
     {
         HashMap<CraftingRecipeEnums, Integer> map = type.getCraftingRecipes();
