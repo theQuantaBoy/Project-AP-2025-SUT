@@ -8,7 +8,7 @@ public class Trade {
     private final List<GameObject> requestedItems;
     private final List<GameObject> offeredItems;
     private final int tradeID;
-    int lastAssignedTradeID = 0;
+    private static int lastAssignedTradeID = 0;
 
     public Trade(Player request, Player response,  List<GameObject> requestedItems, List<GameObject> offeredItems) {
         this.request = request;

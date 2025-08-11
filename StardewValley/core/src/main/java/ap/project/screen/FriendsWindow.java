@@ -158,23 +158,24 @@ public class FriendsWindow {
                 }
             });
 
-            TextButton tradeHistoryButton = new TextButton("Trade History", skin);
-            tradeHistoryButton.addListener(new ClickListener() {
-                @Override
-                public void clicked(InputEvent event, float x, float y) {
-                    showTradeHistoryUI(friend);
-                }
-            });
-
             //stage.addActor(tooltip.getContainer());
 
             friendsTable.add(nameLabel).left().pad(15);
             friendsTable.add(bar).pad(15);
             friendsTable.add(giftButton).pad(15);
             friendsTable.add(tradeButton).pad(15);
-            friendsTable.add(tradeHistoryButton).pad(15);
             friendsTable.row();
         }
+
+        TextButton tradeHistoryButton = new TextButton("Trade History", skin);
+        tradeHistoryButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                showTradeHistoryUI();
+            }
+        });
+
+        friendsTable.add(tradeHistoryButton).pad(15);
 
         center(stage);
     }
@@ -485,8 +486,7 @@ public class FriendsWindow {
         giftHistoryTable.add(backButton).padTop(5);
     }
 
-    private void showTradeHistoryUI(Player friend) {
-        this.selectedFriend = friend;
+    private void showTradeHistoryUI() {
         tradeHistoryTable.clear();
         tradeHistoryTable.setVisible(true);
         friendsTable.setVisible(false);
@@ -494,7 +494,7 @@ public class FriendsWindow {
         giftHistoryTable.setVisible(false);
         newGiftTable.setVisible(false);
 
-        Label title = new Label("Trade History with: " + friend.getNickName(), skin, "Impact");
+        Label title = new Label("Trade History", skin, "Impact");
         title.setFontScale(1.2f);
 
         Player currentPlayer = App.getCurrentGame().getCurrentPlayer();
@@ -506,71 +506,33 @@ public class FriendsWindow {
 
         for (Trade trade : tradeList) {
             // Check if this trade involves the selected friend
-            if (trade.getRequest().equals(friend) || trade.getResponse().equals(friend)) {
-                hasTradesWithFriend = true;
+            hasTradesWithFriend = true;
 
-                // Determine if current player was requester or responder
-                boolean isRequester = trade.getRequest().equals(currentPlayer);
-                Player otherPlayer = isRequester ? trade.getResponse() : trade.getRequest();
+            // Determine if current player was requester or responder
+            boolean isRequester = trade.getRequest().equals(currentPlayer);
+            Player otherPlayer = isRequester ? trade.getResponse() : trade.getRequest();
 
-                // Create trade entry
-                Table tradeEntry = new Table();
-                tradeEntry.defaults().pad(5);
+            // Create trade entry
+            Table tradeEntry = new Table();
+            tradeEntry.defaults().pad(5);
 
-                // Trade ID
-                Label tradeIdLabel = new Label("Trade #" + trade.getTradeID(), skin);
-                tradeIdLabel.setFontScale(1.1f);
-                tradeEntry.add(tradeIdLabel).colspan(2).left().row();
+            // Trade ID
+            Label tradeIdLabel = new Label("Trade #" + trade.getTradeID() + " -> " + currentPlayer.getNickName() + " & " + otherPlayer.getNickName(), skin);
+            tradeIdLabel.setFontScale(1.1f);
+            tradeEntry.add(tradeIdLabel).colspan(2).left().row();
 
-                // Your items section
-                Label yourItemsLabel = new Label("Your Items:", skin);
-                yourItemsLabel.setColor(Color.CYAN);
-                tradeEntry.add(yourItemsLabel).left().padTop(5);
 
-                Table yourItemsTable = new Table();
-                List<GameObject> yourItems = isRequester ? trade.getRequestedItems() : trade.getOfferedItems();
-                if (yourItems.isEmpty()) {
-                    yourItemsTable.add(new Label("None", skin, "Impact")).left();
-                } else {
-                    for (GameObject item : yourItems) {
-                        if (item != null) {
-                            Label itemLabel = new Label("• " + item.getObjectType() + " x" + item.getNumber(), skin);
-                            yourItemsTable.add(itemLabel).left().row();
-                        }
-                    }
-                }
-                tradeEntry.add(yourItemsTable).left().row();
+            // Add separator
+            Label separator = new Label("─────────────────────────────", skin);
+            separator.setColor(Color.GRAY);
+            tradeEntry.add(separator).colspan(2).padTop(10).padBottom(5).row();
 
-                // Friend's items section
-                Label friendItemsLabel = new Label(friend.getNickName() + "'s Items:", skin);
-                friendItemsLabel.setColor(Color.ORANGE);
-                tradeEntry.add(friendItemsLabel).left().padTop(5);
+            historyContent.add(tradeEntry).fillX().row();
 
-                Table friendItemsTable = new Table();
-                List<GameObject> friendItems = isRequester ? trade.getOfferedItems() : trade.getRequestedItems();
-                if (friendItems.isEmpty()) {
-                    friendItemsTable.add(new Label("None", skin, "Impact")).left();
-                } else {
-                    for (GameObject item : friendItems) {
-                        if (item != null) {
-                            Label itemLabel = new Label("• " + item.getObjectType() + " x" + item.getNumber(), skin);
-                            friendItemsTable.add(itemLabel).left().row();
-                        }
-                    }
-                }
-                tradeEntry.add(friendItemsTable).left().row();
-
-                // Add separator
-                Label separator = new Label("─────────────────────────────", skin);
-                separator.setColor(Color.GRAY);
-                tradeEntry.add(separator).colspan(2).padTop(10).padBottom(5).row();
-
-                historyContent.add(tradeEntry).fillX().row();
-            }
         }
 
         if (!hasTradesWithFriend) {
-            Label noTradesLabel = new Label("No trades completed with " + friend.getNickName(), skin, "Impact");
+            Label noTradesLabel = new Label("No trades completed", skin, "Impact");
             noTradesLabel.setColor(Color.GRAY);
             historyContent.add(noTradesLabel).pad(20);
         }
