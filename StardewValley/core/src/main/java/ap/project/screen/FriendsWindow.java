@@ -12,6 +12,7 @@ import ap.project.model.tools.Tool;
 import ap.project.network.client.GameClient;
 import ap.project.network.shared.messages.GiftRateMessage;
 import ap.project.network.shared.messages.NewGiftMessage;
+import ap.project.network.shared.messages.RadioRequestMessage;
 import ap.project.network.shared.messages.TradeRequestMessage;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
@@ -267,12 +268,21 @@ public class FriendsWindow {
                 }
             });
 
+            TextButton radio = new TextButton("Radio", skin);
+            radio.addListener(new ClickListener() {
+                @Override
+                public void clicked(InputEvent event, float x, float y) {
+                   client.send(new RadioRequestMessage(player.getUser().getHashId(), friend.getUser().getHashId()));
+                }
+            });
+
             //stage.addActor(tooltip.getContainer());
 
             friendsTable.add(nameLabel).left().pad(15);
             friendsTable.add(bar).pad(15);
             friendsTable.add(giftButton).pad(15);
             friendsTable.add(tradeButton).pad(15);
+            friendsTable.add(radio).pad(15);
             friendsTable.row();
         }
 
@@ -293,7 +303,7 @@ public class FriendsWindow {
             }
         });
 
-        TextButton musicButton = new TextButton("Radio", skin);
+        TextButton musicButton = new TextButton("My Radio", skin);
         musicButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {

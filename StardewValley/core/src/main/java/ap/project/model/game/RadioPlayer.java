@@ -160,4 +160,16 @@ public class RadioPlayer {
         }
         return null;
     }
+
+    public void playTrackByName(String trackName) {
+        if (playlist.isEmpty()) return;
+
+        int index = playlist.indexOf(trackName);
+        if (index != -1) {
+            playTrack(index);
+        } else {
+            Gdx.app.log("RadioPlayer", "Track not found: " + trackName);
+        }
+    }
+
 }

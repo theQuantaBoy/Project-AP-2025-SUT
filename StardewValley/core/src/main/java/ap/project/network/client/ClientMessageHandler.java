@@ -2,6 +2,7 @@ package ap.project.network.client;
 
 import ap.project.Main;
 import ap.project.model.App.App;
+import ap.project.model.App.GameAssetsManager;
 import ap.project.model.App.User;
 import ap.project.model.enums.GameObjectType;
 import ap.project.model.game.GameObject;
@@ -176,9 +177,16 @@ public class ClientMessageHandler
             case PLAYER_TAGGED:
                 handlePlayerTagged((PlayerTaggedNotification) message);
                 break;
+            case RADIO_REQUEST:
+                handleRadioRequestMessage((RadioRequestMessage) message);
+                break;
+            case RADIO_RESPONSE:
+                handleRadioResponseMessage((RadioResponseMessage) message);
+                break;
             // Add other cases
         }
     }
+
     private static void handleTestMessage(TestMessage msg) {
         System.out.println("Test Received: " + msg.getText());
     }
@@ -893,6 +901,48 @@ public class ClientMessageHandler
             // Run on the render thread
             Gdx.app.postRunnable(() -> {
                 UIRenderer.showTextBox(sender.getNickName() + " tagged you!");
+            });
+        }
+    }
+
+    private static void handleRadioRequestMessage(RadioRequestMessage message) {
+        if (Main.getApp().getScreen() instanceof WorldScreen) {
+            WorldScreen worldScreen = (WorldScreen) Main.getApp().getScreen();
+
+            Player requested = App.getCurrentGame().getPlayerByUserID(message.requestID);
+            Player host = App.getCurrentGame().getPlayerByUserID(message.hostID);
+            if (requested == null || host == null) {
+                System.out.println("Player not found in current game");
+            }
+            // Run on the render thread
+            Gdx.app.postRunnable(() -> {
+                boolean isPlaying = Main.getApp().getRadio().isPlaying();
+                String trackName;
+                if (isPlaying) trackName = Main.getApp().getRadio().getCurrentTrackName();
+                else trackName = "noise";
+                GameClient.getInstance().send(new RadioResponseMessage(
+                    requested.getUser().getHashId(), host.getUser().getHashId(), isPlaying, trackName));
+
+                UIRenderer.showTextBox(requested.getNickName() + " requested to listen to your radio!");
+            });
+        }
+    }
+
+    private static void handleRadioResponseMessage(RadioResponseMessage message) {
+        if (Main.getApp().getScreen() instanceof WorldScreen) {
+            WorldScreen worldScreen = (WorldScreen) Main.getApp().getScreen();
+
+            Player requested = App.getCurrentGame().getPlayerByUserID(message.requestedID);
+            Player host = App.getCurrentGame().getPlayerByUserID(message.hostID);
+            if (requested == null || host == null) {
+                System.out.println("Player not found in current game");
+            }
+            // Run on the render thread
+            Gdx.app.postRunnable(() -> {
+                if (message.isPLaying) Main.getApp().getRadio().playTrackByName(message.trackName);
+                else GameAssetsManager.getGameAssetsManager().getRadioNoise().play();
+
+                UIRenderer.showTextBox("you connected to the radio now!");
             });
         }
     }

@@ -140,6 +140,12 @@ public class ServerMessageHandler
             case PLAYER_TAGGED:
                 handlePlayerTagged(client, (PlayerTaggedNotification) message);
                 break;
+            case RADIO_REQUEST:
+                handleRadioRequestMessage(client, (RadioRequestMessage) message);
+                break;
+            case RADIO_RESPONSE:
+                handleRadioResponseMessage(client, (RadioResponseMessage) message);
+                break;
         }
     }
 
@@ -913,4 +919,35 @@ public class ServerMessageHandler
         receiverConn.send(message);
         System.out.println("update friendship sent");
     }
+
+    private static void handleRadioRequestMessage(ClientConnection client, RadioRequestMessage message) {
+        GameServer server = GameServer.getInstance();
+
+        User sender = server.getUser(client);
+        if (sender == null) return;
+
+        ClientConnection receiverConn = server.findClient(message.hostID);
+        if (receiverConn == null) {
+            System.out.println("radio request failed: Receiver not found");
+            return;
+        }
+        receiverConn.send(message);
+        System.out.println("radio request sent");
+    }
+
+    private static void handleRadioResponseMessage(ClientConnection client, RadioResponseMessage message) {
+        GameServer server = GameServer.getInstance();
+
+        User sender = server.getUser(client);
+        if (sender == null) return;
+
+        ClientConnection receiverConn = server.findClient(message.requestedID);
+        if (receiverConn == null) {
+            System.out.println("radio response failed: Receiver not found");
+            return;
+        }
+        receiverConn.send(message);
+        System.out.println("radio response sent");
+    }
+
 }

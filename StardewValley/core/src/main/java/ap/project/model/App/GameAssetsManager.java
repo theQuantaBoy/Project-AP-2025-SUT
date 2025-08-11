@@ -2,6 +2,7 @@ package ap.project.model.App;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
@@ -32,6 +33,7 @@ public class GameAssetsManager {
     private Skin skin;
     private Array<AvatarOptions> avatars;
     HashMap<String, Music> musicMap = new HashMap<>();
+    private Sound radioNoise;
 
     public GameAssetsManager() {
         skin = new Skin(Gdx.files.internal("skin/NzSkin.json"));
@@ -53,6 +55,7 @@ public class GameAssetsManager {
         // Create different font styles
         createFonts();
         loadAllMusic();
+        radioNoise = Gdx.audio.newSound(Gdx.files.internal("White_noise.ogg"));
 
         // Load skin with better error handling
 
@@ -174,5 +177,9 @@ public class GameAssetsManager {
         BitmapFont font = generator.generateFont(param);
         generator.dispose();
         return font;
+    }
+
+    public Sound getRadioNoise() {
+        return radioNoise;
     }
 }

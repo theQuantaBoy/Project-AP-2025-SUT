@@ -72,4 +72,6 @@ public enum MessageType
     SCORE_BOARD_DATA,
     NEW_PUBLIC_MESSAGE,
     PLAYER_TAGGED,
+    RADIO_REQUEST,
+    RADIO_RESPONSE,
 }
