@@ -193,13 +193,7 @@ public abstract class Map
         GameObject object = tile.getObject();
         if (object != null)
         {
-            if (object instanceof Tree || object instanceof ForagingTree ||
-                    object instanceof ForagingCrop || object instanceof Resource)
-            {
-                return false;
-            }
-
-            return true;
+            return false;
         }
 
         switch (tile.getTexture())
@@ -219,6 +213,7 @@ public abstract class Map
             case FLOOR:
             case BED_TILE:
             case EMPTY:
+            case PATH:
                 return true;
 
             case LAKE:
@@ -250,6 +245,7 @@ public abstract class Map
             case NPC_MARNIE:
             case SHOP_SALOON:
             case NPC_SALOON:
+            case UNPASSABLE:
                 return false;
         }
 
@@ -409,14 +405,12 @@ public abstract class Map
 
     public ArrayList<Point> findShortestPath(Point from, Point to)
     {
-        if (!isInBounds(from.getX(), from.getY()) || !isInBounds(to.getX(), to.getY()))
+        if (!isInBounds(from.getX(), from.getY()) ||
+            !isInBounds(to.getX(), to.getY()) ||
+            !isWalkable(getTile(from.getX(), from.getY())) ||
+            !isWalkable(getTile(to.getX(), to.getY()))) {
             return null;
-
-        Tile startTile = getTile(from.getX(), from.getY());
-        Tile endTile = getTile(to.getX(), to.getY());
-
-        if (!isWalkable(startTile) || !isWalkable(endTile))
-            return null;
+        }
 
         Queue<Point> queue = new LinkedList<>();
         Set<Point> visited = new HashSet<>();
@@ -429,11 +423,28 @@ public abstract class Map
         {
             Point current = queue.poll();
 
+            // Path found
             if (current.equals(to))
+            {
                 break;
+            }
 
+            // Get all possible neighbors (adjacent tiles)
             for (Point neighbor : getNeighbors(current))
             {
+                // Skip if out of bounds
+                if (!isInBounds(neighbor.getX(), neighbor.getY())) {
+                    continue;
+                }
+
+                // Skip if not walkable
+                Tile neighborTile = getTile(neighbor.getX(), neighbor.getY());
+                if (!isWalkable(neighborTile))
+                {
+                    continue;
+                }
+
+                // Process new valid neighbor
                 if (!visited.contains(neighbor))
                 {
                     visited.add(neighbor);
@@ -443,20 +454,19 @@ public abstract class Map
             }
         }
 
-        // Reconstruct path
-        if (!parentMap.containsKey(to))
-            return null;
+        // Reconstruct path if destination was reached
+        if (!parentMap.containsKey(to)) {
+            return null; // No path found
+        }
 
         ArrayList<Point> path = new ArrayList<>();
-        for (Point at = to; at != null; at = parentMap.get(at))
-        {
+        for (Point at = to; at != null; at = parentMap.get(at)) {
             path.add(at);
         }
 
         Collections.reverse(path);
         return path;
     }
-
 
     public int calculateEnergy(Point from, Point to)
     {

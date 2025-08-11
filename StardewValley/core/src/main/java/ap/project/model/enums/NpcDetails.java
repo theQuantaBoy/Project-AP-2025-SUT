@@ -38,7 +38,7 @@ public enum NpcDetails {
                             TimeOfDay.EVENING, "I could code all night in this weather."
                     )
             )), List.of(GameObjectType.COAL, GameObjectType.IRON_BAR, GameObjectType.QUARTZ), 5,
-        CharacterType.SEBASTIAN, new Point(31, 24)
+        CharacterType.SEBASTIAN, new Point(31, 24), new Point(71, 70), 10, 20
     ),
 
     // 😜
@@ -72,7 +72,7 @@ public enum NpcDetails {
                             TimeOfDay.EVENING, "Let’s curl up and play some games."
                     )
             )), List.of(GameObjectType.AMETHYST, GameObjectType.QUARTZ, GameObjectType.CAULIFLOWER_SEEDS), 30,
-        CharacterType.ABIGAIL, new Point(71, 22)
+        CharacterType.ABIGAIL, new Point(55, 22), new Point(21, 90), 12, 17
     ),
 
     // 🙂
@@ -106,7 +106,7 @@ public enum NpcDetails {
                             TimeOfDay.EVENING, "I hope everyone’s staying warm and healthy."
                     )
             )), List.of(GameObjectType.COFFEE_BEAN, GameObjectType.HONEY, GameObjectType.CARROT), 69,
-        CharacterType.HARVEY, new Point(35, 58)
+        CharacterType.HARVEY, new Point(35, 58), new Point(57, 88), 14, 19
     ),
 
     // 😊
@@ -140,7 +140,7 @@ public enum NpcDetails {
                             TimeOfDay.EVENING, "Even winter has its charm."
                     )
             )), List.of(GameObjectType.SALAD, GameObjectType.GRAPE, GameObjectType.WINE), 78,
-        CharacterType.LEAH, new Point(12, 86)
+        CharacterType.LEAH, new Point(12, 87), new Point(60, 65), 13, 18
     ),
 
     // 😁
@@ -174,7 +174,7 @@ public enum NpcDetails {
                             TimeOfDay.EVENING, "Cold days make hot meals extra nice."
                     )
             )), List.of(GameObjectType.WOOD, GameObjectType.COOKIE, GameObjectType.STONE), 360,
-        CharacterType.ROBIN, new Point(108, 93)
+        CharacterType.ROBIN, new Point(108, 93), new Point(53, 22), 11, 16
     );
 
     private final String name;
@@ -187,10 +187,14 @@ public enum NpcDetails {
     private final int daysUntilQuestUnlocked;
     private final CharacterType characterType;
     private final Point spawnPoint;
+    private final Point homePoint;
+    private final int workStartHour;
+    private final int workEndHour;
 
     NpcDetails(String name, String apperance, List<GameObjectType> favorites, List<GameObject> requests,
                List<GameObject> rewards, Map<Season, Map<TimeOfDay, String>> dialogues, List<GameObjectType> gifts,
-               int daysUntilQuestUnlocked, CharacterType characterType, Point spawnPoint)
+               int daysUntilQuestUnlocked, CharacterType characterType, Point spawnPoint,
+               Point homePoint, int workStartHour, int workEndHour)
     {
         this.name = name;
         this.apperance = apperance;
@@ -202,6 +206,9 @@ public enum NpcDetails {
         this.daysUntilQuestUnlocked = daysUntilQuestUnlocked;
         this.characterType = characterType;
         this.spawnPoint = spawnPoint;
+        this.homePoint = homePoint;
+        this.workStartHour = workStartHour;
+        this.workEndHour = workEndHour;
     }
 
     public String getDialogue(Season season, TimeOfDay time) {
@@ -291,5 +298,22 @@ public enum NpcDetails {
         }
 
         return favoritesText.toString();
+    }
+
+    public Point getHomePoint() {
+        return homePoint;
+    }
+
+    public int getWorkStartHour() {
+        return workStartHour;
+    }
+
+    public int getWorkEndHour() {
+        return workEndHour;
+    }
+
+    public Point getWorkPoint()
+    {
+        return spawnPoint;
     }
 }

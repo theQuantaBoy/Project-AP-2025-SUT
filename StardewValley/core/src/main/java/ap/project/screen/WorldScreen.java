@@ -1490,6 +1490,16 @@ public final class WorldScreen implements Screen
             game.nextTurn();
             saveOfflineGameState();
         }
+
+        updateNPCs(dt);
+    }
+
+    private void updateNPCs(float dt)
+    {
+        for (NPCController controller : game.getNpcControllers())
+        {
+            controller.update(dt);
+        }
     }
 
     private void handleOfflineSaving(float delta)
@@ -1585,6 +1595,10 @@ public final class WorldScreen implements Screen
         {
             for (NPC npc : game.getNPCs())
             {
+//                if (npc.getNpcDetails() == NpcDetails.Sebastian)
+//                {
+//                    System.out.println(npc.getName() + " at " + npc.getLocation().getX() + ", " + npc.getLocation().getY());
+//                }
                 characterRenderer.render(batch, npc.getCharacter(), CHAR_SCALE);
             }
         }
