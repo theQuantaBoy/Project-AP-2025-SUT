@@ -62,7 +62,6 @@ public class FriendshipWithNpcData
     public void addXp(int amount)
     {
         this.xp += amount;
-        doLevelThing();
     }
 
     public void reset()
@@ -81,8 +80,23 @@ public class FriendshipWithNpcData
         return hasGifted;
     }
 
-    public void doLevelThing()
+    public NPC getNpc()
     {
-        // TODO : addddddddddddd
+        return npc;
+    }
+
+    public void setXp(int xp)
+    {
+        this.xp = xp;
+    }
+
+    public void setHasTalked(boolean hasTalked)
+    {
+        this.hasTalked = hasTalked;
+    }
+
+    public void setHasGifted(boolean hasGifted)
+    {
+        this.hasGifted = hasGifted;
     }
 }

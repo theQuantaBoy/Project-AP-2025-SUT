@@ -9,6 +9,7 @@ import ap.project.model.enums.resources_enums.ForagingCropType;
 import ap.project.model.enums.resources_enums.TreeType;
 import ap.project.model.enums.tool_enums.FishingPoleLevel;
 import ap.project.model.game.*;
+import ap.project.model.player_data.FriendshipWithNpcData;
 import ap.project.model.player_data.Skill;
 import ap.project.model.resources.*;
 import ap.project.model.tools.*;
@@ -511,6 +512,12 @@ public class Mapper
 
         player.setNewMessage(playerDTO.newMessage);
 
+        player.setSebastianFriendship(fromDTO(playerDTO.SebastianFriendship));
+        player.setHarveyFriendship(fromDTO(playerDTO.HarveyFriendship));
+        player.setLiaFriendship(fromDTO(playerDTO.LiaFriendship));
+        player.setRobinFriendship(fromDTO(playerDTO.RobinFriendship));
+        player.setAbigailFriendship(fromDTO(playerDTO.AbigailFriendship));
+
         player.setCurrentTool(fromDTO(playerDTO.currentToolDTO));
         player.setCurrentObject(fromDTO(playerDTO.currentObject));
         player.setMoney(playerDTO.money);
@@ -536,5 +543,35 @@ public class Mapper
 
         return player;
     }
+
+    public static NPC fromDTO(NpcDTO npcDTO)
+    {
+        NPC npc = new NPC(npcDTO.npcDetails);
+        npc.setLocation(npcDTO.location);
+
+        npc.setFirstQuestDone(npcDTO.firstQuestDone);
+        npc.setSecondQuestDone(npcDTO.secondQuestDone);
+        npc.setThirdQuestDone(npcDTO.thirdQuestDone);
+
+        npc.setFirstQuestUser(npcDTO.firstQuestUser);
+        npc.setSecondQuestUser(npcDTO.secondQuestUser);
+        npc.setThirdQuestUser(npcDTO.thirdQuestUser);
+
+        return npc;
+    }
+
+    public static FriendshipWithNpcData fromDTO(NPCFriendshipDTO dto)
+    {
+        NPC npc = fromDTO(dto.npcDTO);
+
+        FriendshipWithNpcData friendship = new FriendshipWithNpcData(npc);
+
+        friendship.setXp(dto.xp);
+        friendship.setHasTalked(dto.hasTalked);
+        friendship.setHasGifted(dto.hasGifted);
+
+        return friendship;
+    }
+
 }
 

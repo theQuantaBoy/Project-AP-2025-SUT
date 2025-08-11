@@ -81,6 +81,19 @@ public class City extends Map
         return new Vector2(worldX, worldY);
     }
 
+    public static Vector2 tileToWorldCity(Point p)
+    {
+        if (p == null) return null;
+
+        int tileX = p.getX();
+        int tileY = p.getY();
+
+        float worldX = tileX * TILE_SIZE;
+        float worldY = 108 * TILE_SIZE - tileY * TILE_SIZE;
+
+        return new Vector2(worldX, worldY);
+    }
+
     public Point findFreeStartingPoint()
     {
         for (int y = 0; y < HEIGHT; y++)

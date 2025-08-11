@@ -7,6 +7,7 @@ import ap.project.model.enums.building_enums.CraftingRecipeEnums;
 import ap.project.model.enums.building_enums.KitchenRecipe;
 import ap.project.model.game.GameObject;
 import ap.project.model.game.Player;
+import ap.project.model.player_data.FriendshipWithNpcData;
 import ap.project.network.shared.Mapper.Mapper;
 import com.badlogic.gdx.math.Vector2;
 
@@ -36,6 +37,12 @@ public class PlayerDTO
     public SkillDTO fishingSKill;
 
     public boolean newMessage;
+
+    public NPCFriendshipDTO SebastianFriendship;
+    public NPCFriendshipDTO AbigailFriendship;
+    public NPCFriendshipDTO HarveyFriendship;
+    public NPCFriendshipDTO LiaFriendship;
+    public NPCFriendshipDTO RobinFriendship;
 
     public ToolDTO currentToolDTO;
     public GameObjectDTO currentObject;
@@ -91,6 +98,12 @@ public class PlayerDTO
         this.farmingSkill = new SkillDTO(player.getFarmingSkill());
 
         this.newMessage = player.isNewMessage();
+
+        this.SebastianFriendship = new NPCFriendshipDTO(player.getSebastianFriendship());
+        this.AbigailFriendship = new NPCFriendshipDTO(player.getAbigailFriendship());
+        this.HarveyFriendship = new NPCFriendshipDTO(player.getHarveyFriendship());
+        this.LiaFriendship = new NPCFriendshipDTO(player.getLiaFriendship());
+        this.RobinFriendship = new NPCFriendshipDTO(player.getRobinFriendship());
 
         this.currentToolDTO = new ToolDTO(player.getCurrentTool());
         this.currentObject = Mapper.toDTO(player.getCurrentObject());

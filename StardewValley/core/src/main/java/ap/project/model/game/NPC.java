@@ -11,14 +11,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class NPC {
-    private final Point location;
+    private Point location;
     private final NpcDetails npcDetails;
     private final String name;
     private final ArrayList<String> dialogues = new ArrayList<>();
     private final List<GameObjectType> favorites;
     private final List<GameObject> requests;
     private final List<GameObject> rewards;
-    private final ArrayList<GameObject> openQuests = new ArrayList<>();
     private final String appearance;
 
     private boolean firstQuestDone = false;
@@ -39,7 +38,6 @@ public class NPC {
         this.favorites = npcDetails.getFavorites();
         this.requests = npcDetails.getRequests();
         this.rewards = npcDetails.getRewards();
-        this.openQuests.add(requests.getFirst());
         this.appearance = npcDetails.getAppearance();
 
         CharacterType characterType = npcDetails.getCharacterType();
@@ -63,10 +61,6 @@ public class NPC {
     {
         Time currentTime = App.getCurrentGame().getCurrentTime();
         return this.getNpcDetails().getDialogue(currentTime.getSeason(), currentTime.getTimeOfDay());
-    }
-
-    public void removeQuest(int index) {
-        openQuests.remove(index);
     }
 
     public String getAppearance()
@@ -165,5 +159,40 @@ public class NPC {
     public String getThirdQuestUser()
     {
         return thirdQuestUser;
+    }
+
+    public void setFirstQuestDone(boolean firstQuestDone)
+    {
+        this.firstQuestDone = firstQuestDone;
+    }
+
+    public void setSecondQuestDone(boolean secondQuestDone)
+    {
+        this.secondQuestDone = secondQuestDone;
+    }
+
+    public void setThirdQuestDone(boolean thirdQuestDone)
+    {
+        this.thirdQuestDone = thirdQuestDone;
+    }
+
+    public void setFirstQuestUser(String firstQuestUser)
+    {
+        this.firstQuestUser = firstQuestUser;
+    }
+
+    public void setSecondQuestUser(String secondQuestUser)
+    {
+        this.secondQuestUser = secondQuestUser;
+    }
+
+    public void setThirdQuestUser(String thirdQuestUser)
+    {
+        this.thirdQuestUser = thirdQuestUser;
+    }
+
+    public void setLocation(Point location)
+    {
+        character.setPosition(City.tileToWorldCity(new Point(location.getX(), location.getY())));
     }
 }
