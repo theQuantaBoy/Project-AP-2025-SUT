@@ -3,6 +3,7 @@ package ap.project.model.game;
 import ap.project.model.App.App;
 import ap.project.network.client.GameClient;
 import ap.project.network.shared.messages.RadioPlayMessage;
+import ap.project.screen.FriendsWindow;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.files.FileHandle;
@@ -15,6 +16,7 @@ public class RadioPlayer {
     private final ArrayList<String> playlist = new ArrayList<>();
     private int currentIndex = 0;
     private Music currentMusic;
+    private FriendsWindow friendsWindow;
 
     // Modes
     private boolean shuffleMode = false;
@@ -63,7 +65,7 @@ public class RadioPlayer {
 
         currentMusic.play();
         currentIndex = index;
-
+        friendsWindow.getTrackSelectBox().setSelectedIndex(currentIndex);
         Gdx.app.log("RadioPlayer", "Playing: " + playlist.get(index));
     }
 
@@ -200,6 +202,7 @@ public class RadioPlayer {
         currentMusic.setPosition(startSeconds); // jump to the timestamp
         currentIndex = index;
 
+
         Gdx.app.log("RadioPlayer", "Playing from " + startSeconds + "s: " + trackName);
     }
 
@@ -210,6 +213,11 @@ public class RadioPlayer {
         return 0f;
     }
 
+    public FriendsWindow getFriendsWindow() {
+        return friendsWindow;
+    }
 
-
+    public void setFriendsWindow(FriendsWindow friendsWindow) {
+        this.friendsWindow = friendsWindow;
+    }
 }

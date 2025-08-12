@@ -95,6 +95,7 @@ public class FriendsWindow {
         scrollPane.setScrollingDisabled(true, false);
 
         radioPlayer = Main.getApp().getRadio();
+        radioPlayer.setFriendsWindow(this);
         setupMusicControls();
 
         contentStack = new Stack();
@@ -853,5 +854,9 @@ public class FriendsWindow {
             }
             playPauseButton.setText("Pause");
         }
+    }
+
+    public SelectBox<String> getTrackSelectBox() {
+        return trackSelectBox;
     }
 }
