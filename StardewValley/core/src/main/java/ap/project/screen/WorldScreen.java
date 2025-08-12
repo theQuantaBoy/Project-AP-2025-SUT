@@ -744,6 +744,7 @@ public final class WorldScreen implements Screen
         uiRenderer.renderDarkOverlay(uiCam);
 
         map.getMapVisual().showAvailableTilesForArtisanEquipment(this);
+        map.getMapVisual().showAvailableTilesForAnimalBuilding(this);
         map.getMapVisual().drawCraftingProgressBars();
 
         if (hoveredTile != null)
@@ -1370,6 +1371,24 @@ public final class WorldScreen implements Screen
     public boolean isRefrigeratorVisible()
     {
         return refrigeratorWindow.isVisible();
+    }
+
+    public void showRedSelectionOverTile(Tile tile)
+    {
+        Gdx.gl.glEnable(GL20.GL_BLEND);
+        Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA); // ← add this
+
+        Gdx.gl.glEnable(GL20.GL_BLEND);
+        shapeRenderer.setProjectionMatrix(cam.combined);
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        shapeRenderer.setColor(1f, 0f, 0f, 0.3f);
+
+        Vector2 location = map.tileToWorld(tile);
+
+        shapeRenderer.rect(location.x, location.y - (16f * MAP_SCALE), (16f * MAP_SCALE), (16f * MAP_SCALE));
+
+        shapeRenderer.end();
+        Gdx.gl.glDisable(GL20.GL_BLEND);
     }
 
     public void showSelectionOverTile(Tile tile)
@@ -2027,6 +2046,11 @@ public final class WorldScreen implements Screen
     {
         Random rand = new Random();
         return FishType.values()[rand.nextInt(FishType.values().length)];
+    }
+
+    public CharacterController getCharacterController()
+    {
+        return characterController;
     }
 }
 

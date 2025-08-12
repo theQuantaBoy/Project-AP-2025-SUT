@@ -4,6 +4,7 @@ import ap.project.model.App.App;
 import ap.project.model.animal.AnimalBuilding;
 import ap.project.model.building.CraftingItem;
 import ap.project.model.enums.*;
+import ap.project.model.enums.animal_enums.FarmBuildingType;
 import ap.project.model.enums.building_enums.CraftingRecipeEnums;
 import ap.project.model.enums.resources_enums.CropType;
 import ap.project.model.enums.resources_enums.TreeType;
@@ -635,6 +636,80 @@ public class MapVisual
                 }
             }
         }
+    }
+
+    public void showAvailableTilesForAnimalBuilding(WorldScreen worldScreen)
+    {
+        if (map instanceof Farm)
+        {
+            Game game = App.getCurrentGame();
+            Player player = game.getCurrentPlayer();
+
+            if (player.getCurrentObject() != null)
+            {
+                FarmBuildingType farmBuildingType = FarmBuildingType.isAnimalBuilding(player.getCurrentObject());
+
+                if (farmBuildingType != null)
+                {
+                    ArrayList<Point> availablePoint = map.getNeighbors(player.getLocation());
+
+                    int width = farmBuildingType.getWidth();
+                    int height = farmBuildingType.getHeight();
+
+                    for (Point p : availablePoint)
+                    {
+                        Tile tile = map.getTile(p.getX(), p.getY());
+
+                        if (isGoodForAnimalBuilding(p, width, height))
+                        {
+                            ArrayList<Tile> tiles = getTilesForAnimalBuilding(p, width, height);
+                            for (Tile t : tiles)
+                            {
+                                if (t.getPoint().equals(tile.getPoint()))
+                                {
+                                    worldScreen.showRedSelectionOverTile(t);
+                                } else
+                                {
+                                    worldScreen.showSelectionOverTile(t);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private ArrayList<Tile> getTilesForAnimalBuilding(Point point, int width, int height)
+    {
+        ArrayList<Tile> tiles = new ArrayList<>();
+        Farm farm = (Farm) map;
+
+        for (int x = 0;  x < width; x++)
+        {
+            for (int y = 0;  y < height; y++)
+            {
+                Tile tile = map.getTile(point.getX() + x, point.getY() - y);
+                tiles.add(tile);
+            }
+        }
+
+        return tiles;
+    }
+
+    public boolean isGoodForAnimalBuilding(Point point, int width, int height)
+    {
+        ArrayList<Tile> tiles = getTilesForAnimalBuilding(point, width, height);
+        for (Tile tile : tiles)
+        {
+            if (tile == null || tile.getObject() != null ||
+                (tile.getTexture() != TileTexture.LAND && tile.getTexture() != TileTexture.GRASS))
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     public static void drawTileObject(Tile tile)

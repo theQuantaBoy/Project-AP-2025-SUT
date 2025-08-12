@@ -98,11 +98,6 @@ public class WorldController
             return;
         }
 
-        if (processAnimalPlacementTile(tile))
-        {
-            return;
-        }
-
         if (processObjectUse(tile, location,  clicked))
         {
             return;
@@ -130,6 +125,24 @@ public class WorldController
         }
 
         Point clicked = tile.getPoint();
+
+        if (Gdx.input.isKeyPressed(Input.Keys.SPACE))
+        {
+            if (clicked != null)
+            {
+                Map map = player.getCurrentMap();
+
+                Vector2 playerPos = player.getPosition();
+                Point playerTile = map.worldToTile(playerPos.x, playerPos.y);
+
+                ArrayList<Point> path = map.findShortestPath(playerTile, clicked);
+
+                if (path != null)
+                {
+                    WorldScreen.getInstance().getCharacterController().moveToPath(path);
+                }
+            }
+        }
 
         Player nearbyPlayer = findNearbyPlayer(clicked, 1); // radius 1 (8-neighbors)
 
@@ -601,6 +614,11 @@ public class WorldController
                 return true;
             }
 
+            if (tile.getObject() != null && (tile.getObject() instanceof Tree || tile.getObject() instanceof ForagingTree))
+            {
+                return false;
+            }
+
             else if (!tile.hasPlants() && tile.getObject() != null)
             {
                 GameObject object = tile.getObject();
@@ -773,6 +791,11 @@ public class WorldController
         }
 
         if (processCraftingPlacement(tile))
+        {
+            return true;
+        }
+
+        if (processAnimalPlacementTile(tile))
         {
             return true;
         }
@@ -962,7 +985,11 @@ public class WorldController
             return false;
         }
 
-        if (tile.getTexture() != TileTexture.LAND && tile.getTexture() != TileTexture.GRASS)
+        int width = farmBuildingType.getWidth();
+        int height = farmBuildingType.getHeight();
+        Point point = tile.getPoint();
+
+        if (!map.getMapVisual().isGoodForAnimalBuilding(point, width, height))
         {
             UIRenderer.showTextBox("you can't build a building on this type of tile");
             return false;

@@ -64,17 +64,6 @@ public class WorldScreenInputProcessor implements InputProcessor
                 {
                     System.out.println("Object: " + tile.getObject().getObjectType());
                 }
-//                for (int i = 0; i < farm.getDepth(); i++)
-//                {
-//                    Tile layerTile = farm.getLayerTiles()[i][tile.getY()][tile.getX()];
-//                    if (layerTile != null)
-//                    {
-//                        System.out.println("Layer " + i + ": " + layerTile.getTypeName());
-//                    } else
-//                    {
-//                        System.out.println("Layer " + i + ": null");
-//                    }
-//                }
             }
 
             WorldController.processClickLeft(worldScreen, tile);
@@ -87,19 +76,6 @@ public class WorldScreenInputProcessor implements InputProcessor
             if (tile != null)
             {
                 WorldController.processClickRight(worldScreen, tile);
-            }
-
-            if (clicked != null)
-            {
-                Vector2 playerPos = player.getPosition();
-                Point playerTile = map.worldToTile(playerPos.x, playerPos.y);
-
-                ArrayList<Point> path = map.findShortestPath(playerTile, clicked);
-
-                if (path != null)
-                {
-                    characterController.moveToPath(path);
-                }
             }
         }
 
