@@ -225,7 +225,13 @@ public class WorldController
 
                 if (Map.isNearOrOn(door, clicked))
                 {
-                    player.goToShop(shop);
+                    if (shop.isOpen(App.getCurrentGame().getCurrentTime()))
+                    {
+                        player.goToShop(shop);
+                    } else
+                    {
+                        UIRenderer.showTextBox("Work Hours: " + shop.getStartWork() + " to " + shop.getEndWork());
+                    }
                     return true;
                 }
             }

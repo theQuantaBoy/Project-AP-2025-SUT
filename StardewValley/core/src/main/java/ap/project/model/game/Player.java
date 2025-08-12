@@ -8,7 +8,6 @@ import ap.project.model.animal.AnimalBuilding;
 import ap.project.model.animal.Fish;
 import ap.project.model.enums.*;
 import ap.project.model.shops.Shop;
-import ap.project.model.shops.ShopMap;
 import ap.project.model.tools.*;
 import ap.project.model.enums.building_enums.ArtisanGoodsType;
 import ap.project.model.enums.building_enums.CraftingRecipeEnums;
@@ -19,16 +18,11 @@ import ap.project.model.player_data.FriendshipWithNpcData;
 import ap.project.model.player_data.Skill;
 import ap.project.model.player_data.Trade;
 import ap.project.model.resources.Plant;
-import ap.project.screen.ShopManager;
 import ap.project.screen.WorldScreen;
 import ap.project.view.CityMenu;
 import com.badlogic.gdx.math.Vector2;
-import com.fasterxml.jackson.databind.type.MapType;
 
-import javax.swing.text.Position;
 import java.util.*;
-
-import static ap.project.model.game.Map.TILE_SIZE;
 
 public class Player {
     private PlayerCharacter character;

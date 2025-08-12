@@ -4,7 +4,6 @@ import ap.project.model.App.App;
 import ap.project.model.App.GameAssetsManager;
 import ap.project.model.enums.GameObjectType;
 import ap.project.model.shops.Shop;
-import ap.project.model.shops.ShopMap;
 import ap.project.model.shops.ShopProduct;
 import ap.project.visual.UIRenderer;
 import com.badlogic.gdx.Gdx;
@@ -23,7 +22,8 @@ import com.badlogic.gdx.utils.Align;
 import javax.swing.*;
 import java.util.List;
 
-public class ShopWindow extends Window {
+public class ShopWindow extends Window
+{
     private final Stage stage;
     private Shop shop;
     private Table productsTable;
@@ -37,7 +37,6 @@ public class ShopWindow extends Window {
         super("", GameAssetsManager.getGameAssetsManager().getSkin());
         this.stage = stage;
         this.skin = GameAssetsManager.getGameAssetsManager().getSkin();
-        this.purchaseWindow = new PurchaseWindow(stage);
 
         // Window setup
         setSize(800, 600);
@@ -92,7 +91,7 @@ public class ShopWindow extends Window {
 
     private void refreshProductsTable() {
         productsTable.clear();
-        boolean showAvailableOnly = "Available Products".equals(filterSelectBox.getSelected());
+        boolean showAvailableOnly = (filterSelectBox.getSelected()).equals("Available Products");
 
         if (shop == null) return;
 
@@ -120,10 +119,9 @@ public class ShopWindow extends Window {
                 iconButton.addListener(new ClickListener() {
                     @Override
                     public void clicked(InputEvent event, float x, float y) {
-                        purchaseWindow.clearProduct();
-                        purchaseWindow.setProduct(product);
+                        purchaseWindow = new PurchaseWindow(stage, product);
                         purchaseWindow.toggleVisibility();
-                        purchaseWindow.centerWindow();
+                        purchaseWindow = null;
                     }
                 });
             } else {
@@ -192,7 +190,6 @@ public class ShopWindow extends Window {
         }
     }
 
-    // Helper method to check if a product is available for purchase
     private boolean isProductAvailable(ShopProduct product) {
         // Check if shop is open
         if (!shop.isOpen(App.getCurrentGame().getCurrentTime())) {
@@ -277,5 +274,14 @@ public class ShopWindow extends Window {
 
     public PurchaseWindow getPurchaseWindow() {
         return purchaseWindow;
+    }
+
+    public boolean isPurchaseWindowVisible()
+    {
+        if (purchaseWindow != null)
+        {
+            return purchaseWindow.isVisible();
+        }
+        return false;
     }
 }

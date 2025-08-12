@@ -6,7 +6,7 @@ public class ShopProduct {
     private String name;
     private int price;
     private int stock; // -1 for unlimited, 0 for out of stock
-    private GameObjectType gameObjectType;
+    private final GameObjectType gameObjectType;
     private Object originalItem; // For special handling during purchase
     public boolean isAvailable;
     public boolean isSeasonal;

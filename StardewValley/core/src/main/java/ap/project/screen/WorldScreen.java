@@ -119,9 +119,6 @@ public final class WorldScreen implements Screen
 
     private ShopWindow shopWindow;
 
-    private AnimalManager animalManager;
-    private AnimalWindow animalWindow;
-
 //    private NPCManager npcManager;
 
     public WorldScreen() {
@@ -461,8 +458,15 @@ public final class WorldScreen implements Screen
         Gdx.gl.glClearColor(0f, 0f, 0f, 1f);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        if (!terminalDialog.isVisible() && !isInventoryVisible() && !isCookBookVisible() && !isRefrigeratorVisible()
-            && !isShopWindowVisible() && !isPurchaseWindowVisible() && !greenHouseBuildWindow.isVisible())
+        boolean one = !terminalDialog.isVisible();
+        boolean two = !isInventoryVisible();
+        boolean three = !isCookBookVisible();
+        boolean four = !isRefrigeratorVisible();
+        boolean five = !isShopWindowVisible();
+        boolean six = !isPurchaseWindowVisible();
+        boolean seven = !greenHouseBuildWindow.isVisible();
+
+        if (one && two && three && four && five && six && seven)
         {
             update(dt);
             refreshHotbarUI();
@@ -1147,12 +1151,6 @@ public final class WorldScreen implements Screen
         return cam;
     }
 
-
-
-    public AnimalWindow getAnimalWindow() {
-        return animalWindow;
-    }
-
     public Map getMap() {
         return map;
     }
@@ -1166,7 +1164,7 @@ public final class WorldScreen implements Screen
     }
 
     public boolean isPurchaseWindowVisible() {
-        return shopWindow.getPurchaseWindow().isVisible();
+        return shopWindow.isPurchaseWindowVisible();
     }
 
     public Season getCurrentSeason() {
@@ -1192,75 +1190,6 @@ public final class WorldScreen implements Screen
     public PlayerCharacter getCharacter() {
         return character;
     }
-
-    private void initializeNPCs() {
-        // Initialize NPCs with their details
-        Vector2 townSquare = new Vector2(150 * TILE_SIZE, 120 * TILE_SIZE);
-
-//        npcManager.addNPC(new NPCCharacter(
-//            CharacterType.SEBASTIAN,
-//            townSquare.cpy().add(5, 0),
-//            "Sebastian",
-//            NpcDetails.Sebastian
-//        ), townSquare.cpy().add(5, 0));
-
-//        npcManager.addNPC(new NPCCharacter(
-//            CharacterType.ABIGAIL,
-//            townSquare.cpy().add(-5, 0),
-//            "Abigail",
-//            NpcDetails.Abigail
-//        ), townSquare.cpy().add(-5, 0));
-
-//        npcManager.addNPC(new NPCCharacter(
-//            CharacterType.HARVEY,
-//            townSquare.cpy().add(0, 5),
-//            "Harvey",
-//            NpcDetails.Harvey
-//        ), townSquare.cpy().add(0, 5));
-//
-//        npcManager.addNPC(new NPCCharacter(
-//            CharacterType.LIA,
-//            townSquare.cpy().add(0, -5),
-//            "Lia",
-//            NpcDetails.Lia
-//        ), townSquare.cpy().add(0, -5));
-//
-//        npcManager.addNPC(new NPCCharacter(
-//            CharacterType.ROBIN,
-//            townSquare.cpy().add(10, 0),
-//            "Robin",
-//            NpcDetails.Robin
-//        ), townSquare.cpy().add(10, 0));
-    }
-
-    public AnimalManager getAnimalManager() {
-        return animalManager;
-    }
-
-//    public void toggleInventoryWindowForGifting(NPCActor npcActor) {
-//        inventoryWindow.setGiftRecipient(npcActor);
-//        inventoryWindow.toggleVisibility();
-//    }
-//
-//    // Add this method to handle gift giving
-//    public void giveGiftToNPC(NPCActor npcActor, GameObject gift) {
-//        //npcManager.giveGiftToCurrentNPC(gift);
-//        //npcActor.updateFriendshipDisplay();
-//    }
-
-//    public void triggerNPCDialogue(NPCCharacter npc) {
-//        if (npc.hasDialogueAvailable()) {
-//            String dialogue = npc.getDialogue(
-//                getCurrentSeason(),
-//                getCurrentTimeOfDay()
-//            );
-//            communicationWindow.showDialogue(npc.getNickName(), dialogue);
-//        }
-//    }
-
-//    public void onNewDay() {
-//        npcManager.resetAllDialogues();
-//    }
 
     public void openMapTab()
     {

@@ -8,7 +8,6 @@ import ap.project.model.enums.GameAnimationType;
 import ap.project.model.enums.tool_enums.PickaxeLevel;
 import ap.project.model.game.*;
 import ap.project.model.shops.Shop;
-import ap.project.model.shops.ShopMap;
 import ap.project.screen.*;
 import ap.project.visual.UIRenderer;
 import ap.project.screen.CommunicationWindow;

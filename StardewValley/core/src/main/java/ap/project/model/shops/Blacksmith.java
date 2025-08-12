@@ -86,7 +86,7 @@ public class Blacksmith extends Shop {
                 tool.getName(),
                 tool.getCost(),
                 tool.getDailyLimit(),
-                null, // Not a GameObject
+                tool.getGameObjectType(), // Not a GameObject
                 tool
             ));
         }

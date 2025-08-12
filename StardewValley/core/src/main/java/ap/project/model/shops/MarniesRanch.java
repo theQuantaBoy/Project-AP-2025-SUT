@@ -86,7 +86,7 @@ public class MarniesRanch extends Shop
                 animal.getName(),
                 animal.getPurchaseCost(),
                 -1, // Unlimited stock
-                null, // Not a GameObject
+                animal.getType(), // Not a GameObject
                 animal
             ));
         }
