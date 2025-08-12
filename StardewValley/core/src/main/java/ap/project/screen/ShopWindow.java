@@ -122,6 +122,7 @@ public class ShopWindow extends Window {
                     public void clicked(InputEvent event, float x, float y) {
                         purchaseWindow.clearProduct();
                         purchaseWindow.setProduct(product);
+                        purchaseWindow.toggleVisibility();
                         purchaseWindow.centerWindow();
                     }
                 });
@@ -249,6 +250,8 @@ public class ShopWindow extends Window {
         if (isVisible) {
             toFront();
             refreshProductsTable();
+        } else {
+            this.shop = null;
         }
     }
 

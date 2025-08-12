@@ -5,7 +5,6 @@ import ap.project.model.enums.CharacterType;
 import ap.project.model.enums.GameObjectType;
 import ap.project.model.enums.NpcDetails;
 import ap.project.model.player_data.FriendshipWithNpcData;
-import ap.project.visual.DialogueIndicator;
 import com.badlogic.gdx.math.Vector2;
 
 import java.util.ArrayList;
@@ -141,16 +140,6 @@ public class NPC {
         thirdQuestDone = true;
     }
 
-    public void spawn(Map map) {
-        Vector2 spawnPoint = map.tileToWorld(map.getTile(location.getX(), location.getY()));
-        // Create NPCCharacter with reference to 'this' NPC
-        this.character = new NPCCharacter(
-            CharacterType.ABIGAIL, // Default type, adjust as needed
-            spawnPoint,
-            name, // Placeholder, adjust as needed
-            this
-        );
-    }
 
     // Getter for the visual representation
     public NPCCharacter getCharacter() {

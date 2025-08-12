@@ -104,7 +104,6 @@ public class PurchaseWindow extends Dialog {
         this.quantity = 1;
         clearWindow();
         updateWindow();
-        toggleVisibility();
         centerWindow();
     }
 
@@ -169,7 +168,7 @@ public class PurchaseWindow extends Dialog {
     private void purchase() {
         if (product == null || buyButton.isDisabled()) return;
 
-        buyButton.setDisabled(true);
+        //buyButton.setDisabled(true);
 
         try {
             int totalCost = quantity * product.getPrice();
@@ -197,7 +196,7 @@ public class PurchaseWindow extends Dialog {
 
             UIRenderer.showTextBox("Purchased " + quantity + " " + product.getName());
         } finally {
-            buyButton.setDisabled(false);
+            //buyButton.setDisabled(false);
         }
     }
 

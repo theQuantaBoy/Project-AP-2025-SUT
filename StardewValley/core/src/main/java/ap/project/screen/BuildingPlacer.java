@@ -29,7 +29,6 @@ public class BuildingPlacer {
         // Switch to farm view
         worldScreen.getCurrentPlayer().setCurrentMap(worldScreen.getCurrentPlayer().getFarm());
         worldScreen.updateGameInfo();
-        worldScreen.centerCameraOnFarm();
     }
 
     public void cancelPlacement() {
@@ -44,7 +43,6 @@ public class BuildingPlacer {
             ghostPosition = tilePosition;
             // Validate new position
             Farm farm = worldScreen.getCurrentPlayer().getFarm();
-            isValidPosition = farm.canPlaceBuildingAt(ghostPosition, buildingType);
         }
     }
 
@@ -81,7 +79,7 @@ public class BuildingPlacer {
         }
 
         // Create building
-        farm.constructBuilding(buildingType, position);
+
 
         // Exit placement mode
         isActive = false;

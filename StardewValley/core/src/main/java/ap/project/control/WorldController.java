@@ -52,6 +52,11 @@ public class WorldController
         Game game = App.getCurrentGame();
         Player player = game.getCurrentPlayer();
 
+        if (processShopWindow(tile))
+        {
+            return;
+        }
+
         if (tile == null)
         {
             return;
@@ -67,10 +72,7 @@ public class WorldController
             return;
         }
 
-        if (processShopWindow(tile))
-        {
-            return;
-        }
+
 
         // redundant code ?
 //        if (processPickingUpForagingItem(tile))
@@ -1154,15 +1156,5 @@ public class WorldController
         return false;
     }
 
-    private static Animal findAnimalAt(Point point) {
-        for (AnimalActor actor : WorldScreen.getInstance()
-            .getAnimalManager().getAnimalActors()) {
 
-            Rectangle bounds = actor.getBoundingRectangle();
-            if (bounds.contains(point.getX(), point.getY())) {
-                return actor.getAnimal();
-            }
-        }
-        return null;
-    }
 }
