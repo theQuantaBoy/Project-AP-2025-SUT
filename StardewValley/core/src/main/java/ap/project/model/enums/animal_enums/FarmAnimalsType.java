@@ -13,7 +13,8 @@ import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
 
-public enum FarmAnimalsType {
+public enum FarmAnimalsType
+{
 
     // --- WORKING EXAMPLE ---
     // The CHICKEN entry is fully configured with all its data and a working animation path.
@@ -93,7 +94,8 @@ public enum FarmAnimalsType {
 
     FarmAnimalsType(GameObjectType type, String name, int purchaseCost, List<GameObject> products,
                     AnimalType animalType, List<FarmBuildingType> buildings,
-                    String sheetPath, int cols, int rows, String atlasPath) {
+                    String sheetPath, int cols, int rows, String atlasPath)
+    {
         this.type = type;
         this.name = name;
         this.purchaseCost = purchaseCost;
@@ -103,9 +105,11 @@ public enum FarmAnimalsType {
 
         // --- Animation Loading Logic ---
         Texture sheet;
-        if (Gdx.files.internal(sheetPath).exists()) {
+        if (Gdx.files.internal(sheetPath).exists())
+        {
             sheet = new Texture(Gdx.files.internal(sheetPath));
-        } else {
+        } else
+        {
             Gdx.app.error("FarmAnimalsType", "Spritesheet not found: " + sheetPath + ". Using chicken as fallback.");
             sheet = new Texture(Gdx.files.internal("animals/chicken/Brown Chicken.png"));
         }
@@ -121,31 +125,39 @@ public enum FarmAnimalsType {
     }
 
     // --- Getters ---
-    public Animation<TextureRegion> getWalkAnimation(Direction direction) {
+    public Animation<TextureRegion> getWalkAnimation(Direction direction)
+    {
         return walkAnimations.get(direction);
     }
 
-    public Animation<TextureRegion> getIdleAnimation() {
+    public Animation<TextureRegion> getIdleAnimation()
+    {
         return idleAnimation;
     }
 
-    public String getName() {
+    public String getName()
+    {
         return name;
     }
 
-    public int getPurchaseCost() {
+    public int getPurchaseCost()
+    {
         return purchaseCost;
     }
 
-    public List<GameObject> getProducts() {
+    public List<GameObject> getProducts()
+    {
         return products;
     }
 
-    public static FarmAnimalsType getFarmAnimalsType(String name) {
+    public static FarmAnimalsType getFarmAnimalsType(String name)
+    {
 
-        for (FarmAnimalsType type : FarmAnimalsType.values()) {
+        for (FarmAnimalsType type : FarmAnimalsType.values())
+        {
 
-            if (type.getName().equalsIgnoreCase(name)) {
+            if (type.getName().equalsIgnoreCase(name))
+            {
 
                 return type;
 
@@ -165,11 +177,13 @@ public enum FarmAnimalsType {
 
     }
 
-    public List<FarmBuildingType> getBuildings() {
+    public List<FarmBuildingType> getBuildings()
+    {
         return buildings;
     }
 
-    public GameObjectType getType() {
+    public GameObjectType getType()
+    {
         return type;
     }
 

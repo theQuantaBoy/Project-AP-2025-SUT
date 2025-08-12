@@ -1477,16 +1477,8 @@ public final class WorldScreen implements Screen
         return time.getTimeOfDay(); // Implement this in Time class
     }
 
-    public CommunicationWindow getCommunicationWindow() {
-        return communicationWindow;
-    }
-
     public Skin getSkin() {
         return skin;
-    }
-
-    public Stage getUiStage() {
-        return uiStage;
     }
 
     public PlayerCharacter getCharacter() {

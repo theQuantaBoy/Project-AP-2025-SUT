@@ -23,6 +23,7 @@ import ap.project.model.shops.Shop;
 import ap.project.model.tools.*;
 import ap.project.network.shared.npcDialogLLM;
 import ap.project.screen.CommunicationWindow;
+import ap.project.screen.ShopWindow;
 import ap.project.screen.WorldScreen;
 import ap.project.util.NpcContextGenerator;
 import ap.project.view.GameMenu;
@@ -72,6 +73,11 @@ public class WorldController
 
         doLightning(tile);
         crowAttack(tile);
+
+        if (processShopWindow(tile))
+        {
+            return;
+        }
 
         if (!Map.isNearOrOn(location, clicked))
         {
@@ -290,7 +296,13 @@ public class WorldController
 
                 if (Map.isNearOrOn(door, clicked))
                 {
-                    player.goToShop(shop);
+                    if (shop.isOpen(App.getCurrentGame().getCurrentTime()))
+                    {
+                        player.goToShop(shop);
+                    } else
+                    {
+                        UIRenderer.showTextBox("Work Hours: " + shop.getStartWork() + " to " + shop.getEndWork());
+                    }
                     return true;
                 }
             }
@@ -1408,5 +1420,21 @@ public class WorldController
             (stage.getWidth() - dialog.getWidth()) / 2,
             (stage.getHeight() - dialog.getHeight()) / 2
         );
+    }
+
+    private static boolean processShopWindow(Tile tile) {
+        Player player = App.getCurrentGame().getCurrentPlayer();
+        ShopWindow shopWindow = WorldScreen.getInstance().getShopWindow();
+        if (player.getCurrentMap() instanceof Shop) {
+            Shop shop =  (Shop) player.getCurrentMap();
+
+            if (Map.isNearOrOn(tile.getPoint(), shop.getCounterPoint()))
+            {
+                shopWindow.setShop(shop);
+                shopWindow.toggleVisibility();
+                return true;
+            }
+        }
+        return false;
     }
 }
