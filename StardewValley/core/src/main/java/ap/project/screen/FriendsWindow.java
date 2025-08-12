@@ -235,7 +235,7 @@ public class FriendsWindow {
 
 
         // Layout
-        musicControlsTable.add(trackSelectBox).width(350).center().row();
+        musicControlsTable.add(trackSelectBox).width(550).center().row();
         Table navTable = new Table();
         navTable.defaults().width(150).pad(10); // Smaller buttons with minimal padding
         navTable.add(prevButton);
@@ -248,7 +248,7 @@ public class FriendsWindow {
         modeTable.defaults().width(150).pad(10); // Wider buttons for text
         modeTable.add(shuffleButton);
         modeTable.add(repeatButton);
-        musicControlsTable.add(modeTable).padTop(5); // Minimal top padding
+        musicControlsTable.add(modeTable).padTop(5).row(); // Minimal top padding
 
         Table backTable = new Table();
         backTable.defaults().width(150).pad(10);
@@ -327,13 +327,15 @@ public class FriendsWindow {
             });
 
             //stage.addActor(tooltip.getContainer());
-
-            friendsTable.add(nameLabel).left().pad(15);
-            friendsTable.add(bar).pad(15);
-            friendsTable.add(giftButton).pad(15);
-            friendsTable.add(tradeButton).pad(15);
-            friendsTable.add(radio).pad(15);
-            friendsTable.row();
+            friendsTable.center();
+            Table friendsPart = new Table();
+            friendsPart.defaults().pad(10);
+            friendsPart.add(nameLabel);
+            friendsPart.add(bar);
+            friendsPart.add(giftButton);
+            friendsPart.add(tradeButton);
+            friendsPart.add(radio);
+            friendsTable.add(friendsPart).row();
         }
 
         TextButton tradeHistoryButton = new TextButton("Trade History", skin);
@@ -362,7 +364,7 @@ public class FriendsWindow {
         });
 
         Table generalTable = new Table();
-        generalTable.defaults().width(150).pad(10);
+        generalTable.defaults().width(250).pad(10);
         generalTable.add(tradeHistoryButton);
         generalTable.add(publicChat);
         generalTable.add(musicButton);
