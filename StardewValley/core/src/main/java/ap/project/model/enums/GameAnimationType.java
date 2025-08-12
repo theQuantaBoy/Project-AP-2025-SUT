@@ -112,12 +112,21 @@ public enum GameAnimationType
         "affects/gift/gift_5.png",
         "affects/gift/gift_6.png",
         "affects/gift/gift_7.png",
-        "affects/gift/gift_8.png"}, 0.06f),
+        "affects/gift/gift_8.png"}, 0.1f),
 
     CELEBRATION(new String[]{"affects/celebration/celebration_0.png",
         "affects/celebration/celebration_1.png",
         "affects/celebration/celebration_2.png",
-        "affects/celebration/celebration_3.png"}, 0.06f),
+        "affects/celebration/celebration_3.png"}, 0.1f),
+
+    PET(new String[]{"affects/pet/pet_0.png",
+        "affects/pet/pet_1.png",
+        "affects/pet/pet_2.png",
+        "affects/pet/pet_3.png",
+        "affects/pet/pet_4.png",
+        "affects/pet/pet_5.png",
+        "affects/pet/pet_6.png",
+        "affects/pet/pet_7.png"}, 0.1f),
     ;
 
     private final String[] framePaths;

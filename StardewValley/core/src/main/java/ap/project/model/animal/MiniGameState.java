@@ -32,12 +32,12 @@ public class MiniGameState
     private Random random = new Random();
 
     private float fishMoveTimer = 0;
-    private static final float FISH_MOVE_INTERVAL = 0.1f;
+    private static final float FISH_MOVE_INTERVAL = 0.5f;
 
     private float fishMovementTimer = 0;
     private static final float FISH_UPDATE_INTERVAL = 0.5f;
 
-    private float MOVE_SCALE = 0.5f;
+    private float MOVE_SCALE = 1.0f;
 
     public MiniGameState(FishBehavior behavior, boolean trapBobberEquipped)
     {
@@ -73,10 +73,6 @@ public class MiniGameState
 
         if (!fishInBar || barOutOfBounds)
         {
-            if (perfectCatch)
-            {
-                System.out.println("not perfect any more");
-            }
             perfectCatch = false;
         }
 
@@ -210,7 +206,7 @@ public class MiniGameState
         Rectangle fishRect = fish.getBounds();
         Rectangle barRect = playerBar.getBounds();
 
-        float buffer = 5f;
+        float buffer = 30f;
         return fishRect.overlaps(barRect) ||
             (fishRect.y + fishRect.height - buffer > barRect.y &&
                 fishRect.y + buffer < barRect.y + barRect.height);

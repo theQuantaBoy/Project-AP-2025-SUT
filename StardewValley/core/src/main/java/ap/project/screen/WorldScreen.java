@@ -2,7 +2,6 @@ package ap.project.screen;
 
 import ap.project.Main;
 import ap.project.control.*;
-import ap.project.control.game.activities.TradeController;
 import ap.project.model.App.App;
 import ap.project.model.App.GameAssetsManager;
 import ap.project.model.animal.Animal;
@@ -45,7 +44,6 @@ import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
 
-import java.util.ArrayList;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -1635,7 +1633,7 @@ public final class WorldScreen implements Screen
     {
         if (player.isInFarm())
         {
-            for (Animal animal : player.getAnimalsList())
+            for (Animal animal : player.getAnimals())
             {
                 characterRenderer.render(batch, animal.getCharacter(), CHAR_SCALE);
             }

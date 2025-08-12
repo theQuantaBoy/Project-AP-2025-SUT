@@ -161,10 +161,10 @@ public class AnimalController
             return new Result(false, "you have no animal named " + name + " in your farm");
         }
 
-        if (!player.isNear(animal.getTile().getPoint()))
-        {
-            return new Result(false, "you are not near " + name);
-        }
+//        if (!player.isNear(animal.getTile().getPoint()))
+//        {
+//            return new Result(false, "you are not near " + name);
+//        }
 
         animal.pet();
 
@@ -193,7 +193,7 @@ public class AnimalController
     public void showAnimalDetails()
     {
         Player player = App.getCurrentGame().getCurrentPlayer();
-        ArrayList<Animal> animals = player.getAnimals();
+        ArrayList<Animal> animals = player.getAnimalList();
 
         if (animals.isEmpty())
         {
@@ -291,7 +291,7 @@ public class AnimalController
 
     public void showProducts()
     {
-        ArrayList<Animal> animals = App.getCurrentGame().getCurrentPlayer().getAnimals();
+        ArrayList<Animal> animals = App.getCurrentGame().getCurrentPlayer().getAnimalList();
         ArrayList<Animal> animalsWithProducts = new ArrayList<>();
 
         for (Animal animal : animals)

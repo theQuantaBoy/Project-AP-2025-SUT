@@ -2,7 +2,6 @@ package ap.project.control;
 
 import ap.project.model.App.App;
 import ap.project.model.App.GameAssetsManager;
-import ap.project.model.App.Result;
 import ap.project.model.animal.Animal;
 import ap.project.model.animal.AnimalBuilding;
 import ap.project.model.building.CraftingItem;
@@ -16,7 +15,6 @@ import ap.project.model.enums.resources_enums.ResourceItem;
 import ap.project.model.enums.resources_enums.TreeType;
 import ap.project.model.game.*;
 import ap.project.model.player_data.FriendshipWithNpcData;
-import ap.project.model.player_data.Skill;
 import ap.project.model.resources.*;
 import ap.project.model.resources.Tree;
 import ap.project.model.shops.Shop;
@@ -24,8 +22,6 @@ import ap.project.model.tools.*;
 import ap.project.network.shared.npcDialogLLM;
 import ap.project.screen.CommunicationWindow;
 import ap.project.screen.WorldScreen;
-import ap.project.util.NpcContextGenerator;
-import ap.project.view.GameMenu;
 import ap.project.visual.MapVisual;
 import ap.project.visual.UIRenderer;
 import com.badlogic.gdx.Gdx;
@@ -36,9 +32,9 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
+import com.sun.source.doctree.UnknownInlineTagTree;
 
 import java.util.ArrayList;
-import java.util.Vector;
 import java.util.function.Consumer;
 
 import static ap.project.model.game.Map.TILE_SIZE;
@@ -78,16 +74,6 @@ public class WorldController
             return;
         }
 
-//        if (processPickingUpForagingItem(tile))
-//        {
-//            return;
-//        }
-
-        if (processMapNavigation(tile))
-        {
-            return;
-        }
-
         if (processBuildings(worldScreen, tile, clicked))
         {
             return;
@@ -103,12 +89,17 @@ public class WorldController
             return;
         }
 
+        if (processMapNavigation(tile))
+        {
+            return;
+        }
+
         if (processNPCCommunication(tile))
         {
             return;
         }
 
-        if (processFishing(tile))
+        if (processAnimalInteraction(tile))
         {
             return;
         }
@@ -188,19 +179,7 @@ public class WorldController
     {
         Player player = App.getCurrentGame().getCurrentPlayer();
 
-        if (player.isInFarm())
-        {
-            ArrayList<Point> neighbors = player.getFarm().getSquareNeighbors(tile.getPoint(), 2);
-            for (Point p : neighbors)
-            {
-                Tile t = player.getFarm().getTile(p.getX(), p.getY());
-                if (t != null && t.getTexture() == TileTexture.LAKE)
-                {
-                    WorldScreen.getInstance().toggleFishMiniGame();
-                    break;
-                }
-            }
-        }
+
 
         return false;
     }
@@ -705,9 +684,9 @@ public class WorldController
                 return true;
             }
 
-            if (tile.getObject() != null && tile.getObject().getObjectType() != null && tile.getObject() instanceof Animal)
+            Animal animal = player.getTileAnimal(tile);
+            if (animal != null)
             {
-                Animal animal = (Animal) tile.getObject();
                 if (animal.getAnimalType().equals(FarmAnimalsType.SHEEP) ||
                     animal.getAnimalType().equals(FarmAnimalsType.COW))
                 {
@@ -740,10 +719,9 @@ public class WorldController
                 return true;
             }
 
-            if (tile.getObject() != null && tile.getObject().getObjectType() != null && tile.getObject() instanceof Animal)
+            Animal animal = player.getTileAnimal(tile);
+            if (animal != null)
             {
-                Animal animal = (Animal) tile.getObject();
-
                 if (animal.getAnimalType().equals(FarmAnimalsType.SHEEP))
                 {
                     player.addToInventory(GameObjectType.WOOL, 3);
@@ -758,6 +736,24 @@ public class WorldController
             }
 
             return false;
+        }
+
+        else if (tool instanceof FishingPole)
+        {
+            if (player.isInFarm())
+            {
+                ArrayList<Point> neighbors = player.getFarm().getSquareNeighbors(tile.getPoint(), 2);
+                for (Point p : neighbors)
+                {
+                    Tile t = player.getFarm().getTile(p.getX(), p.getY());
+                    if (t != null && t.getTexture() == TileTexture.LAKE)
+                    {
+                        WorldScreen.getInstance().toggleFishMiniGame();
+                        player.increaseEnergy((int)(weatherModifier * -((FishingPole) tool).getLevel().getBaseEnergyUsage()));
+                        return true;
+                    }
+                }
+            }
         }
 
         return false;
@@ -800,8 +796,53 @@ public class WorldController
             return true;
         }
 
+        if (processFeedingAnimal(tile))
+        {
+            return true;
+        }
+
         if (processEatingFood(tile, location, clicked))
         {
+            return true;
+        }
+
+        return false;
+    }
+
+    private static boolean processFeedingAnimal(Tile tile)
+    {
+        Player player = App.getCurrentGame().getCurrentPlayer();
+
+        if (!player.isInFarm())
+        {
+            return false;
+        }
+
+        Farm farm = player.getFarm();
+        Animal animal = player.getTileAnimal(tile);
+
+        if (animal == null)
+        {
+            return false;
+        }
+
+        GameObject object = player.getCurrentObject();
+        if (object == null)
+        {
+            return false;
+        }
+
+        if (object.getObjectType() == GameObjectType.HAY)
+        {
+            if (animal.isFed())
+            {
+                UIRenderer.showTextBox("Your friendship level was increased 8 units!");
+            }
+
+            animal.feed();
+            UIRenderer.showTextBox("You fed " + animal.getName() + "!");
+            MapVisual.playAnimationAt(GameAnimationType.EATING, tile);
+            player.removeAmountFromInventory(GameObjectType.HAY, 1);
             return true;
         }
 
@@ -1325,6 +1366,35 @@ public class WorldController
         return true;
     }
 
+    private static boolean processAnimalInteraction(Tile tile)
+    {
+        Player player = App.getCurrentGame().getCurrentPlayer();
+
+        if (!player.isInFarm())
+        {
+            return false;
+        }
+
+        Farm farm = player.getFarm();
+        Animal animal = player.getTileAnimal(tile);
+
+        if (animal == null)
+        {
+            return false;
+        }
+
+        if (animal.isPet())
+        {
+            UIRenderer.showTextBox("Your friendship level was increased 15 units!");
+        }
+
+        animal.pet();
+        UIRenderer.showTextBox("You just pet " + animal.getName() + "!");
+        MapVisual.playAnimationAt(GameAnimationType.PET, tile);
+
+        return true;
+    }
+
     private static boolean processNpcWindow(Tile tile)
     {
         Game game = App.getCurrentGame();
@@ -1371,15 +1441,21 @@ public class WorldController
         if (tile.getTexture() != TileTexture.LAND && tile.getTexture() != TileTexture.GRASS)
         {
             UIRenderer.showTextBox("You can't put an animal on this tile");
-            return false;
+            return true;
         }
 
-        showAnimalNameTextDialog(name -> {
-            // This callback runs AFTER user confirms name
+        if (!farm.hasPlaceForAnimal(animalsType.getAnimalType()))
+        {
+            UIRenderer.showTextBox("you must first build a home for your pet!");
+            return true;
+        }
+
+        showAnimalNameTextDialog(name ->
+        {
             Vector2 loc = player.getCurrentMap().tileToWorld(tile);
             Animal pet = new Animal(name, animalsType, loc);
             AnimalCharacterController controller = new AnimalCharacterController(pet.getCharacter(), map, PLAYER_SPEED, TILE_SIZE);
-            player.getAnimalsList().add(pet);
+            player.getAnimals().add(pet);
             player.getAnimalCharacterControllers().add(controller);
             UIRenderer.showTextBox("You placed " + name + " on this tile");
         });

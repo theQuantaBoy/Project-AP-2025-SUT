@@ -1127,7 +1127,23 @@ public class Player {
         return "null";
     }
 
-    public ArrayList<Animal> getAnimalsList()
+    public Animal getTileAnimal(Tile tile)
+    {
+        Point point = tile.getPoint();
+        for (Animal animal : animals)
+        {
+            Vector2 pos = animal.getCharacter().getPosition();
+            Point loc = farm.worldToTile(pos.x, pos.y);
+            if (Math.abs(point.getX() - loc.getX()) <= 1 && Math.abs(point.getY() - loc.getY()) <= 1)
+            {
+                return animal;
+            }
+        }
+
+        return null;
+    }
+
+    public ArrayList<Animal> getAnimals()
     {
         return animals;
     }
@@ -1137,7 +1153,7 @@ public class Player {
         return animalCharacterControllers;
     }
 
-    public ArrayList<Animal> getAnimals()
+    public ArrayList<Animal> getAnimalList()
     {
         ArrayList<Animal> animals = new ArrayList<>();
         for (AnimalBuilding animalBuilding : farm.getAnimalBuildings())
@@ -1152,7 +1168,7 @@ public class Player {
 
     public Animal findAnimal(String name)
     {
-        for (Animal animal : getAnimals())
+        for (Animal animal : getAnimalList())
         {
             if (animal.getName().equalsIgnoreCase(name))
             {
@@ -1164,7 +1180,7 @@ public class Player {
 
     public boolean validAnimalName(String name)
     {
-        for (Animal animal : getAnimals())
+        for (Animal animal : getAnimalList())
         {
             if (animal.getName().equalsIgnoreCase(name))
             {
@@ -1172,36 +1188,6 @@ public class Player {
             }
         }
         return true;
-    }
-
-    public boolean isNearAnimal(Animal animal)
-    {
-        for (Animal a : getAnimals())
-        {
-            if (a.getName().equalsIgnoreCase(animal.getName()))
-            {
-                Tile tile = a.getTile();
-
-                if (tile == null) // TODO: technically should be changed later
-                {
-                    return false;
-                }
-
-                Point p = tile.getPoint();
-                ArrayList<Point> neighbors = App.getCurrentGame().getCurrentPlayer().getFarm().getNeighbors(
-                        App.getCurrentGame().getCurrentPlayer().getLocation());
-
-                for (Point neighbor : neighbors)
-                {
-                    if (neighbor.equals(p))
-                    {
-                        return true;
-                    }
-                }
-            }
-        }
-
-        return false;
     }
 
     public ArrayList<Fish> getFishes()
