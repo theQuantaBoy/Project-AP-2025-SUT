@@ -902,7 +902,7 @@ public class ClientMessageHandler
             }
             // Run on the render thread
             Gdx.app.postRunnable(() -> {
-                UIRenderer.showTextBox(sender.getNickName() + " tagged you!");
+                UIRenderer.showTextBox(sender.getNickName() + ": " + message.message);
             });
         }
     }

@@ -217,7 +217,7 @@ public class PublicChatScreen {
                 System.out.println("tagged player not found: " + taggedNick);
                 return;
             }
-            client.send(new PlayerTaggedNotification(currentPlayer.getUser().getHashId(), taggedPlayer.getUser().getHashId()));
+            client.send(new PlayerTaggedNotification(currentPlayer.getUser().getHashId(), taggedPlayer.getUser().getHashId(), msg));
         }
     }
 
