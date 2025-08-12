@@ -76,4 +76,5 @@ public enum MessageType
     RADIO_RESPONSE,
     RADIO_PLAY,
     RADIO_CHANGED,
+    NPC_SERVER_DETAILS
 }

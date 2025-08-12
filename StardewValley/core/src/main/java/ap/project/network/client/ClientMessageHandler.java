@@ -185,7 +185,9 @@ public class ClientMessageHandler
             case RADIO_CHANGED:
                 handleRadioChanged((RadioChangedMessage) message);
                 break;
-            // Add other cases
+            case NPC_SERVER_DETAILS:
+                handleNpcServerUpdateMessage((NpcServerDetailsMessage) message);
+                break;
         }
     }
 
@@ -988,6 +990,22 @@ public class ClientMessageHandler
                     Main.getApp().getRadio().playTrackByName(message.trackName);
                 }
             });
+        }
+    }
+
+    private static void handleNpcServerUpdateMessage(NpcServerDetailsMessage message)
+    {
+        if (Main.getApp().getScreen() instanceof WorldScreen)
+        {
+            WorldScreen worldScreen = (WorldScreen) Main.getApp().getScreen();
+
+            String name = message.npcName;
+            float x = message.x;
+            float y = message.y;
+            byte direction = message.direction;
+            boolean isMoving = message.isMoving;
+
+            worldScreen.updateNpcPosition(name, x, y, direction, isMoving);
         }
     }
 }

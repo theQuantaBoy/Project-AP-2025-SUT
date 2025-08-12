@@ -41,7 +41,7 @@ public class NPC {
         this.appearance = npcDetails.getAppearance();
 
         CharacterType characterType = npcDetails.getCharacterType();
-        Vector2 spawnPoint = City.pointToWorld(npcDetails.getSpawnPoint());
+        Vector2 spawnPoint = City.pointToWorld(npcDetails.getHomePoint());
         this.character = new NPCCharacter(characterType, spawnPoint, characterType.getName());
     }
 

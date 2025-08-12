@@ -1,5 +1,6 @@
 package ap.project.network.server;
 
+import ap.project.control.NPCControllerServer;
 import ap.project.model.game.Farm;
 import ap.project.model.game.Game;
 import ap.project.model.game.Player;
@@ -27,11 +28,15 @@ public class GameWrapper
 
     private boolean gameStarted = false;
 
+    private float npcTimer = 0;
+    private static final float NPC_UPDATE_INTERVAL = 0.016f;
+
     private float saveTimer = 0;
     private static final float AUTO_SAVE_INTERVAL = 120; // 2 minutes
     private final Map<Integer, Long> lastPlayerPresence = new ConcurrentHashMap<>();
 
     private final Map<Integer, PlayerDTO> playerStateCache = new ConcurrentHashMap<>();
+    private ArrayList<NPCControllerServer> npcControllers = new ArrayList<>();
 
     public String getId()
     {
@@ -43,6 +48,8 @@ public class GameWrapper
         this.game = game;
         server = GameServer.getInstance();
         id = game.getId();
+
+        this.npcControllers = game.getNpcControllersServer();
 
         lastTimeSync = System.currentTimeMillis();
         lastMinuteAdvance = 0;
@@ -93,8 +100,36 @@ public class GameWrapper
             saveTimer = 0;
         }
 
+        npcTimer += delta;
+        if (npcTimer >= NPC_UPDATE_INTERVAL)
+        {
+            sendNpcDetails();
+            npcTimer = 0;
+        }
+
+        for (NPCControllerServer c : npcControllers)
+        {
+            c.update(delta);
+        }
+
         // Check for disconnected players
         checkPlayerPresence();
+    }
+
+    private void sendNpcDetails()
+    {
+        for (NPCControllerServer c : npcControllers)
+        {
+            String name = c.getDetails().getName();
+
+            float x = c.getPosition().x;
+            float y = c.getPosition().y;
+            byte direction = (byte) c.getDirection().ordinal();
+            boolean isMoving = c.isMoving();
+
+            NpcServerDetailsMessage msg = new NpcServerDetailsMessage(getId(), name, x, y, direction, isMoving);
+            broadcastMessage(msg);
+        }
     }
 
     private void syncGameTime()
