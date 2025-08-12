@@ -1557,9 +1557,16 @@ public final class WorldScreen implements Screen
             {
                 if (p.getUser().getUsername().equals(player.getUser().getUsername())) continue;
 
-                PlayerCharacter pc = p.getCharacter();
-                if (System.currentTimeMillis() - pc.getLastUpdateTime() < 2000)
+                if (p.isInCity())
                 {
+                    PlayerCharacter pc = p.getCharacter();
+                    if (ONLINE_MODE)
+                    {
+                        if (System.currentTimeMillis() - pc.getLastUpdateTime() >= 5000)
+                        {
+                            continue;
+                        }
+                    }
                     characterRenderer.render(batch, pc, CHAR_SCALE);
                 }
             }
@@ -1580,10 +1587,14 @@ public final class WorldScreen implements Screen
                     if (type != null && type == shopType)
                     {
                         PlayerCharacter pc = p.getCharacter();
-                        if (System.currentTimeMillis() - pc.getLastUpdateTime() < 2000)
+                        if (ONLINE_MODE)
                         {
-                            characterRenderer.render(batch, pc, CHAR_SCALE);
+                            if (System.currentTimeMillis() - pc.getLastUpdateTime() >= 5000)
+                            {
+                                continue;
+                            }
                         }
+                        characterRenderer.render(batch, pc, CHAR_SCALE);
                     }
                 }
             }
@@ -1596,10 +1607,6 @@ public final class WorldScreen implements Screen
         {
             for (NPC npc : game.getNPCs())
             {
-//                if (npc.getNpcDetails() == NpcDetails.Sebastian)
-//                {
-//                    System.out.println(npc.getName() + " at " + npc.getLocation().getX() + ", " + npc.getLocation().getY());
-//                }
                 characterRenderer.render(batch, npc.getCharacter(), CHAR_SCALE);
             }
         }

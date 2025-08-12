@@ -846,6 +846,7 @@ public class PreLobbyScreen implements Screen
             User currentUser = App.getCurrentUser();
 
             client.send(new PreLobbyPresenceMessage());
+            client.send(new UserSyncRequestMessage());
 
             setStatus("connected");
             messageTimer = 0;

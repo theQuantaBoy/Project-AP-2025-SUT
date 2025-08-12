@@ -227,33 +227,6 @@ public class Player {
         this.skills.add(foragingSkill); this.skills.add(fishingSkill);
     }
 
-    public Player(User user, Farm farm, int number) {
-        this.user = user;
-        this.farm = farm;
-        this.cabin = new Cabin();
-        this.greenHouse = new GreenHouse();
-        this.currentMap = this.farm;
-        this.energy = 200f;
-        this.fainted = false;
-        this.money = 0;
-        this.addToInventory(new Axe());
-        this.addToInventory(new Hoe());
-        this.addToInventory(new Pickaxe());
-        this.addToInventory(new WateringCan());
-        this.addToInventory(new Seythe());
-        this.addToInventory(new TrashCan());
-
-        this.zeidy = null;
-        setLocation(farm.getStartingPoint());
-        this.newMessage = false;
-        this.apperance = appearences.get(number);
-
-        this.character = new PlayerCharacter(CharacterType.ABIGAIL, new Vector2(60 * 24, 60 * 24),
-            user.getNickname(), this);
-        this.skills.add(farmingSkill); this.skills.add(miningSkill);
-        this.skills.add(foragingSkill); this.skills.add(fishingSkill);
-    }
-
     public PlayerCharacter getCharacter()
     {
         return character;
@@ -452,7 +425,6 @@ public class Player {
 
     public Point getLocation()
     {
-//        return location;
         Vector2 pos = character.getPosition();
         return currentMap.worldToTile(pos.x, pos.y);
     }

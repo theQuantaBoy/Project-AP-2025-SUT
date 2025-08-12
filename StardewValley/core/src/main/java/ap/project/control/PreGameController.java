@@ -232,8 +232,8 @@ public class PreGameController
                     } else
                     {
                         MapTypes type = MapTypes.getMapType(number - 1);
-                        Player player = new Player(user, new Farm(type), count++);
-                        players.add(player);
+//                        Player player = new Player(user, new Farm(type), count++);
+//                        players.add(player);
                         break;
                     }
                 }

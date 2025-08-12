@@ -101,6 +101,8 @@ public class NPCController
         if (state != NPCState.AT_WORK)
         {
             state = NPCState.AT_WORK;
+            npc.setDirection(AbstractCharacter.Direction.DOWN);
+            npc.resetAnimation();
             setTarget(details.getWorkPoint());
         }
     }
@@ -136,9 +138,9 @@ public class NPCController
     {
         Point currentTile = map.worldToTile(npc.getPosition().x, npc.getPosition().y);
 
-        // Generate random point within 10 tile radius
-        int randX = currentTile.getX() + random.nextInt(21) - 10;
-        int randY = currentTile.getY() + random.nextInt(21) - 10;
+        // Generate random point within 20 tile radius
+        int randX = currentTile.getX() + random.nextInt(41) - 20;
+        int randY = currentTile.getY() + random.nextInt(41) - 20;
 
         // Clamp to map bounds
         randX = Math.max(0, Math.min(randX, map.getWidth() - 1));

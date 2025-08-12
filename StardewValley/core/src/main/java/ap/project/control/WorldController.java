@@ -517,30 +517,7 @@ public class WorldController
 
         if (tool instanceof Pickaxe)
         {
-            if (!tile.hasPlants() && tile.getObject() != null)
-            {
-                GameObject object = tile.getObject();
-                if (!player.inventoryHasCapacity())
-                {
-                    UIRenderer.showTextBox("you don't have enough space in your inventory");
-                    return true;
-                }
-
-                player.addToInventory(object);
-                tile.setObject(null);
-
-                if (tile.isHitByThunder())
-                {
-                    tile.unHitByThunder();
-                    player.getFarm().getThunderedTiles().remove(tile);
-                    return true; //??
-                }
-
-                UIRenderer.showTextBox(object.getObjectType().toString() + " added to your inventory");
-                return true;
-            }
-
-            else if (tile.getObject() != null && tile.getObject() instanceof ForagingMineral)
+            if (tile.getObject() != null && tile.getObject() instanceof ForagingMineral)
             {
                 if (player.getEnergy() <= (int)(weatherModifier * ((Pickaxe) tool).getLevel().getBaseEnergyUsage()))
                 {
@@ -621,6 +598,29 @@ public class WorldController
                 player.increaseEnergy((int)(weatherModifier * -((Pickaxe) tool).getLevel().getBaseEnergyUsage()));
 
                 UIRenderer.showTextBox("seed is removed");
+                return true;
+            }
+
+            else if (!tile.hasPlants() && tile.getObject() != null)
+            {
+                GameObject object = tile.getObject();
+                if (!player.inventoryHasCapacity())
+                {
+                    UIRenderer.showTextBox("you don't have enough space in your inventory");
+                    return true;
+                }
+
+                player.addToInventory(object);
+                tile.setObject(null);
+
+                if (tile.isHitByThunder())
+                {
+                    tile.unHitByThunder();
+                    player.getFarm().getThunderedTiles().remove(tile);
+                    return true; //??
+                }
+
+                UIRenderer.showTextBox(object.getObjectType().toString() + " added to your inventory");
                 return true;
             }
 
