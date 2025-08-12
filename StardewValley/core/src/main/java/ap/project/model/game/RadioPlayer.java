@@ -21,7 +21,6 @@ public class RadioPlayer {
     private boolean repeatOne = false;
     private final Random random = new Random();
     private GameClient client = GameClient.getInstance();
-    private Runnable completionListener;
 
     public RadioPlayer(String musicFolderPath) {
         loadPlaylist(musicFolderPath);
@@ -60,12 +59,7 @@ public class RadioPlayer {
         currentMusic = Gdx.audio.newMusic(file);
         currentMusic.setLooping(false);
 
-        currentMusic.setOnCompletionListener(music -> {
-            if (completionListener != null) {
-                Gdx.app.postRunnable(completionListener);
-            }
-            playNext();
-        });
+        currentMusic.setOnCompletionListener(music -> playNext());
 
         currentMusic.play();
         currentIndex = index;
@@ -173,19 +167,13 @@ public class RadioPlayer {
     }
 
     public void playTrackByName(String trackName) {
+        if (playlist.isEmpty()) return;
+
         int index = playlist.indexOf(trackName);
-        if (index >= 0) {
+        if (index != -1) {
             playTrack(index);
-            // Notify listeners of track change
-            if (currentMusic != null) {
-                currentMusic.setOnCompletionListener(music -> {
-                    Gdx.app.postRunnable(() -> {
-                        if (completionListener != null) {
-                            completionListener.run();
-                        }
-                    });
-                });
-            }
+        } else {
+            Gdx.app.log("RadioPlayer", "Track not found: " + trackName);
         }
     }
 
@@ -222,12 +210,6 @@ public class RadioPlayer {
         return 0f;
     }
 
-    public void addPlaybackListener(Runnable listener) {
-        if (currentMusic != null) {
-            currentMusic.setOnCompletionListener(music -> {
-                listener.run();
-            });
-        }
-    }
+
 
 }
