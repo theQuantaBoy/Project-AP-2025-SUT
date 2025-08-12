@@ -34,7 +34,7 @@ public class Animal extends GameObject {
     private final AnimalCharacter character;
 
     public enum State {
-        IDLE, WALKING
+        IDLE, WALKING, PETTING
     }
 
     private double quality = 0;
@@ -282,5 +282,14 @@ public class Animal extends GameObject {
     public AnimalCharacter getCharacter()
     {
         return character;
+    }
+
+    public void startPetting() {
+        currentState = State.PETTING;
+        //stateTime = 0f;
+    }
+
+    public boolean isPetting() {
+        return currentState == State.PETTING;
     }
 }

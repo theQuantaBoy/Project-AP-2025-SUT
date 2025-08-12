@@ -71,6 +71,28 @@ public class MarniesRanch extends Shop
     }
 
     @Override
+    protected void initializeProducts() {
+        for (MarniesRanchShopInventory item : MarniesRanchShopInventory.values()) {
+            products.add(new ShopProduct(
+                item.getName(),
+                item.getPrice(),
+                item.getLimit(),
+                item.getGameObjectType(),
+                item
+            ));
+        }
+        for (FarmAnimalsType animal : FarmAnimalsType.values()) {
+            products.add(new ShopProduct(
+                animal.getName(),
+                animal.getPurchaseCost(),
+                -1, // Unlimited stock
+                animal.getType(), // Not a GameObject
+                animal
+            ));
+        }
+    }
+
+    @Override
     public void purchase(GameObject gameObject)
     {
         Iterator<MarniesRanchShopInventory> iterator = inventory.iterator();

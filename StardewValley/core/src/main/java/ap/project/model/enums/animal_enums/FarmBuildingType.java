@@ -3,6 +3,7 @@ package ap.project.model.enums.animal_enums;
 import ap.project.model.enums.MapTypes;
 import ap.project.model.game.GameObject;
 import ap.project.model.enums.GameObjectType;
+import ap.project.model.game.Point;
 import com.badlogic.gdx.graphics.Texture;
 import com.fasterxml.jackson.databind.type.MapType;
 

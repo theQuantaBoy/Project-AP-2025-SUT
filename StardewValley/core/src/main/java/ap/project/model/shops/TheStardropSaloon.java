@@ -50,6 +50,19 @@ public class TheStardropSaloon extends Shop {
     }
 
     @Override
+    protected void initializeProducts() {
+        for (TheStardropSaloonStock stock : TheStardropSaloonStock.values()) {
+            products.add(new ShopProduct(
+                stock.getName(),
+                stock.getPrice(),
+                stock.getLimit(),
+                stock.getGameObjectType(),
+                stock
+            ));
+        }
+    }
+
+    @Override
     public void purchase(GameObject gameObject)
     {
         Iterator<TheStardropSaloonStock> iterator = stocks.iterator();

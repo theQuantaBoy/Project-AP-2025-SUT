@@ -1,0 +1,16 @@
+npcs.png
+size: 1728, 928
+format: RGBA8888
+filter: Linear, Linear
+repeat: none
+pma: false
+Abigail
+  bounds: 0, 0, 576, 448
+Harvey
+  bounds: 576, 0, 576, 448
+Leah
+  bounds: 1152, 0, 576, 416
+Robin
+  bounds: 0, 448, 576, 320
+Sebastian
+  bounds: 576, 448, 576, 480

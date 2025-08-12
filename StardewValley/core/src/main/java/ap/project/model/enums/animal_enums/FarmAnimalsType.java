@@ -187,7 +187,6 @@ public enum FarmAnimalsType {
                 return animalType;
             }
         }
-
         return null;
     }
 }

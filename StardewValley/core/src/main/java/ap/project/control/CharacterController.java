@@ -15,6 +15,7 @@ public class CharacterController
 
     private final AbstractCharacter character;
     private final Map map;
+    private Map currentMap;
     private final float speed;
     private final float tileSize;
 
@@ -201,5 +202,9 @@ public class CharacterController
     {
         this.path = null;
         this.pathIndex = 0;
+    }
+
+    public void setMap(Map map) {
+        this.currentMap = map;
     }
 }

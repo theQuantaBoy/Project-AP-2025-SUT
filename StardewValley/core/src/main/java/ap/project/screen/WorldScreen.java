@@ -9,12 +9,16 @@ import ap.project.model.animal.Animal;
 import ap.project.model.enums.Season;
 import ap.project.model.building.CraftingItem;
 import ap.project.model.enums.*;
+import ap.project.model.enums.animal_enums.FarmBuildingType;
+import ap.project.model.enums.animal_enums.FishType;
+import ap.project.model.enums.tool_enums.FishingPoleLevel;
 import ap.project.model.enums.animal_enums.FishType;
 import ap.project.model.game.Game;
 import ap.project.model.player_data.Skill;
 import ap.project.model.shops.Shop;
 import ap.project.model.tools.BackPack;
 import ap.project.model.tools.Tool;
+import ap.project.model.tools.BackPack;
 import ap.project.network.client.GameClient;
 import ap.project.network.shared.DTO.BackPackDTO;
 import ap.project.network.shared.DTO.PlayerDTO;
@@ -36,6 +40,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -46,6 +51,8 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -120,6 +127,9 @@ public final class WorldScreen implements Screen
     private boolean cameraFixed = false;
     private final boolean DEBUG_MODE = false;
 
+    private ShopWindow shopWindow;
+
+//    private NPCManager npcManager;
     private float localTimeKeeper = 0f;
 
     private OnlineWorldController onlineWorldController = new OnlineWorldController();
@@ -174,6 +184,7 @@ public final class WorldScreen implements Screen
 
         // Set up current player
         this.map = game.getCurrentPlayer().getCurrentMap();
+        this.shopWindow = new ShopWindow(uiStage, null);
         time = game.getCurrentTime();
         currentSeason = time.getSeason();
 
@@ -442,7 +453,7 @@ public final class WorldScreen implements Screen
         characterController = new CharacterController(character, map, PLAYER_SPEED, TILE_SIZE);
 
         gameInputProcessor = new WorldScreenInputProcessor(map, character, characterController, cam, this,
-            inventoryWindow, communicationWindow);
+            inventoryWindow, communicationWindow, shopWindow);
 
         if (inputMultiplexer != null && inputMultiplexerHadSetUp)
         {
@@ -1440,6 +1451,46 @@ public final class WorldScreen implements Screen
     public OrthographicCamera getCamera()
     {
         return cam;
+    }
+
+    public Map getMap() {
+        return map;
+    }
+
+    public ShopWindow getShopWindow() {
+        return shopWindow;
+    }
+
+    public boolean isShopWindowVisible() {
+        return shopWindow.isVisible();
+    }
+
+    public boolean isPurchaseWindowVisible() {
+        return shopWindow.isPurchaseWindowVisible();
+    }
+
+    public Season getCurrentSeason() {
+        return time.getSeason();
+    }
+
+    public TimeOfDay getCurrentTimeOfDay() {
+        return time.getTimeOfDay(); // Implement this in Time class
+    }
+
+    public CommunicationWindow getCommunicationWindow() {
+        return communicationWindow;
+    }
+
+    public Skin getSkin() {
+        return skin;
+    }
+
+    public Stage getUiStage() {
+        return uiStage;
+    }
+
+    public PlayerCharacter getCharacter() {
+        return character;
     }
 
     public void openMapTab()
