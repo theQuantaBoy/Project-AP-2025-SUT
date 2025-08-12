@@ -25,8 +25,6 @@ public class PreGameMenu implements AppMenu
             usernames[0] = matcher.group("user1") == null ? "" : matcher.group("user1").trim();
             usernames[1] = matcher.group("user2") == null ? "" : matcher.group("user2").trim();
             usernames[2] = matcher.group("user3") == null ? "" : matcher.group("user3").trim();
-
-            controller.newGame(usernames);
         } else if ((matcher = PreGameCommands.LOAD_GAME.getMatcher(input)) != null)
         {
             println(controller.loadGame());

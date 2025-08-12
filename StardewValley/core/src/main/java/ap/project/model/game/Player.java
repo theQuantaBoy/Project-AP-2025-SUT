@@ -8,6 +8,7 @@ import ap.project.model.animal.Animal;
 import ap.project.model.animal.AnimalBuilding;
 import ap.project.model.animal.Fish;
 import ap.project.model.enums.*;
+import ap.project.model.enums.tool_enums.FishingPoleLevel;
 import ap.project.model.shops.Shop;
 import ap.project.model.tools.*;
 import ap.project.model.enums.building_enums.CraftingRecipeEnums;
@@ -133,32 +134,6 @@ public class Player {
         this.farm = farm;
     }
 
-    public Player(User user, MapTypes currentMapType, int number) {
-        this.user = user;
-        this.mapType = currentMapType;
-        this.cabin = new Cabin();
-        this.greenHouse = new GreenHouse();
-        this.gender = user.getGender();
-        this.energy = 200f;
-        this.fainted = false;
-        this.money = 0;
-        Axe axe = new Axe(); Hoe hoe = new Hoe(); Pickaxe  pickaxe = new Pickaxe();
-        WateringCan wateringCan = new WateringCan(); Seythe seythe = new Seythe();
-        addTool(axe); addToInventory(axe);
-        addTool(hoe); addToInventory(hoe);
-        addTool(pickaxe);  addToInventory(pickaxe);
-        addTool(wateringCan); addToInventory(wateringCan);
-        addTool(seythe); addToInventory(seythe);
-        addToInventory(GameObjectType.MILK, 2);
-
-
-        this.zeidy = null;
-        this.newMessage = false;
-        this.apperance = appearences.get(number);
-        this.skills.add(farmingSkill); this.skills.add(miningSkill);
-        this.skills.add(foragingSkill); this.skills.add(fishingSkill);
-    }
-
     public void spawn(Map map)
     {
         this.currentMap = map;
@@ -212,11 +187,21 @@ public class Player {
 
         Axe axe = new Axe(); Hoe hoe = new Hoe(); Pickaxe  pickaxe = new Pickaxe();
         WateringCan wateringCan = new WateringCan(); Seythe seythe = new Seythe();
+
+        FishingPole fishingPole = new FishingPole(FishingPoleLevel.Bamboo);
+        MilkPail milkPail = new MilkPail();
+        Shear shear = new Shear();
+
         addTool(axe); addToInventory(axe);
         addTool(hoe); addToInventory(hoe);
         addTool(pickaxe);  addToInventory(pickaxe);
         addTool(wateringCan); addToInventory(wateringCan);
         addTool(seythe); addToInventory(seythe);
+
+        addTool(fishingPole); addToInventory(fishingPole);
+        addTool(milkPail); addToInventory(milkPail);
+        addTool(shear); addToInventory(shear);
+
         addToInventory(GameObjectType.MILK, 2);
         addToInventory(GameObjectType.STONE, 1);
 
@@ -259,8 +244,6 @@ public class Player {
         {
            this.energy += energy;
         }
-
-        // TODO: add faint check mechanism
     }
 
 
