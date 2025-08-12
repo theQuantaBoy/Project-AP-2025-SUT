@@ -30,7 +30,7 @@ public class Animal extends GameObject {
     private Direction direction = Direction.DOWN;
 
     public enum State {
-        IDLE, WALKING
+        IDLE, WALKING, PETTING
     }
 
     private double quality = 0;
@@ -272,5 +272,14 @@ public class Animal extends GameObject {
 
     public void setQuality(double quality) {
         this.quality = quality;
+    }
+
+    public void startPetting() {
+        currentState = State.PETTING;
+        //stateTime = 0f;
+    }
+
+    public boolean isPetting() {
+        return currentState == State.PETTING;
     }
 }

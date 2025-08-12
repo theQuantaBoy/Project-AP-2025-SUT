@@ -3,9 +3,14 @@ package ap.project.screen.input;
 import ap.project.control.CharacterController;
 import ap.project.control.WorldController;
 import ap.project.model.App.App;
+import ap.project.model.enums.MapKind;
 import ap.project.model.enums.GameAnimationType;
 import ap.project.model.enums.tool_enums.PickaxeLevel;
 import ap.project.model.game.*;
+import ap.project.model.shops.Shop;
+import ap.project.model.shops.ShopMap;
+import ap.project.screen.*;
+import ap.project.visual.UIRenderer;
 import ap.project.screen.CommunicationWindow;
 import ap.project.screen.InventoryWindow;
 import ap.project.screen.WorldScreen;
@@ -27,10 +32,12 @@ public class WorldScreenInputProcessor implements InputProcessor
     private final WorldScreen worldScreen;
     private final InventoryWindow inventoryWindow;
     private final CommunicationWindow communicationWindow;
+    private final ShopWindow shopWindow;
 
     public WorldScreenInputProcessor(Map map, PlayerCharacter player, CharacterController controller,
                                      OrthographicCamera cam, WorldScreen worldScreen, InventoryWindow inventoryWindow,
-                                     CommunicationWindow communicationWindow)
+                                     CommunicationWindow communicationWindow,
+                                     ShopWindow shopWindow)
     {
         this.map = map;
         this.player = player;
@@ -39,6 +46,9 @@ public class WorldScreenInputProcessor implements InputProcessor
         this.worldScreen = worldScreen;
         this.inventoryWindow = inventoryWindow;
         this.communicationWindow = communicationWindow;
+        this.shopWindow = shopWindow;
+
+
     }
 
     @Override
@@ -47,7 +57,8 @@ public class WorldScreenInputProcessor implements InputProcessor
         if (worldScreen.isDialogVisible() || worldScreen.isInventoryVisible() ||
             worldScreen.isCookBookVisible() || worldScreen.isRefrigeratorVisible() ||
             worldScreen.isCraftingWindowVisible() || worldScreen.isChatVisible() ||
-        worldScreen.isGreenHouseBuildWindowVisible())
+        worldScreen.isGreenHouseBuildWindowVisible()|| worldScreen.isChatVisible() || worldScreen.isShopWindowVisible() ||
+            worldScreen.isPurchaseWindowVisible())
         {
             return false;
         }
@@ -119,7 +130,8 @@ public class WorldScreenInputProcessor implements InputProcessor
         if (worldScreen.isDialogVisible() || worldScreen.isInventoryVisible() ||
             worldScreen.isCookBookVisible() || worldScreen.isRefrigeratorVisible() ||
         worldScreen.isCraftingWindowVisible() || worldScreen.isChatVisible() ||
-        worldScreen.isGreenHouseBuildWindowVisible())
+        worldScreen.isGreenHouseBuildWindowVisible() || worldScreen.isChatVisible() || worldScreen.isShopWindowVisible() ||
+            worldScreen.isPurchaseWindowVisible())
         {
             return false;
         }

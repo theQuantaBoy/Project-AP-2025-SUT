@@ -8,6 +8,7 @@ import ap.project.model.animal.AnimalBuilding;
 import ap.project.model.animal.Fish;
 import ap.project.model.enums.*;
 import ap.project.model.shops.Shop;
+import ap.project.model.shops.ShopMap;
 import ap.project.model.tools.*;
 import ap.project.model.enums.building_enums.ArtisanGoodsType;
 import ap.project.model.enums.building_enums.CraftingRecipeEnums;
@@ -18,6 +19,7 @@ import ap.project.model.player_data.FriendshipWithNpcData;
 import ap.project.model.player_data.Skill;
 import ap.project.model.player_data.Trade;
 import ap.project.model.resources.Plant;
+import ap.project.screen.ShopManager;
 import ap.project.screen.WorldScreen;
 import ap.project.view.CityMenu;
 import com.badlogic.gdx.math.Vector2;
@@ -33,6 +35,7 @@ public class Player {
 
     private final User user;
     private Farm farm;
+    private Stack<Map> mapHistory;
     private final Cabin cabin;
     private GreenHouse greenHouse;
 
@@ -128,6 +131,8 @@ public class Player {
     {
         this.farm = farm;
     }
+
+    private Point previousLocation;
 
     public Player(User user, MapTypes currentMapType, int number) {
         this.user = user;
@@ -1238,5 +1243,23 @@ public class Player {
     public void setBuff(Buff buff)
     {
         this.buff = buff;
+    }
+
+    public void setInShop(boolean inShop) {
+        isInShop = inShop;
+    }
+
+    public Point getPreviousLocation() {
+        return previousLocation;
+    }
+
+    public void setPreviousLocation(Point previousLocation) {
+        this.previousLocation = previousLocation;
+    }
+
+    public void returnToPreviousMap() {
+        if (!mapHistory.isEmpty()) {
+            currentMap = mapHistory.pop();
+        }
     }
 }

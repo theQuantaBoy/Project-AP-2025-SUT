@@ -54,7 +54,7 @@ public class Game
             }
         }
 
-//        setNPCs();
+        //setNPCs();
 
         for (NPC npc : NPCs)
         {

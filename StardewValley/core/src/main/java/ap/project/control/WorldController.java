@@ -6,6 +6,7 @@ import ap.project.model.animal.Animal;
 import ap.project.model.building.CraftingItem;
 import ap.project.model.enums.GameAnimationType;
 import ap.project.model.enums.GameObjectType;
+import ap.project.model.enums.ShopType;
 import ap.project.model.enums.TileTexture;
 import ap.project.model.enums.Weather;
 import ap.project.model.enums.animal_enums.FarmAnimalsType;
@@ -19,12 +20,16 @@ import ap.project.model.resources.*;
 import ap.project.model.shops.Shop;
 import ap.project.model.tools.*;
 import ap.project.screen.CommunicationWindow;
+import ap.project.screen.PurchaseWindow;
+import ap.project.screen.ShopWindow;
 import ap.project.screen.WorldScreen;
 import ap.project.view.GameMenu;
 import ap.project.visual.MapVisual;
 import ap.project.visual.UIRenderer;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 
 import java.util.ArrayList;
@@ -58,6 +63,11 @@ public class WorldController
         doLightning(tile);
 
         if (!Map.isNearOrOn(location, clicked))
+        {
+            return;
+        }
+
+        if (processShopWindow(tile))
         {
             return;
         }
@@ -1123,6 +1133,34 @@ public class WorldController
                 if (found != null) {
                     return found;
                 }
+            }
+        }
+        return null;
+    }
+
+    private static boolean processShopWindow(Tile tile) {
+        Player player = App.getCurrentGame().getCurrentPlayer();
+        ShopWindow shopWindow = WorldScreen.getInstance().getShopWindow();
+        if (player.getCurrentMap() instanceof Shop) {
+            Shop shop =  (Shop) player.getCurrentMap();
+
+            if (Map.isNearOrOn(tile.getPoint(), shop.getCounterPoint()))
+            {
+                shopWindow.setShop(shop);
+                shopWindow.toggleVisibility();
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static Animal findAnimalAt(Point point) {
+        for (AnimalActor actor : WorldScreen.getInstance()
+            .getAnimalManager().getAnimalActors()) {
+
+            Rectangle bounds = actor.getBoundingRectangle();
+            if (bounds.contains(point.getX(), point.getY())) {
+                return actor.getAnimal();
             }
         }
         return null;

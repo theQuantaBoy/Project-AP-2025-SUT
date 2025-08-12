@@ -21,13 +21,13 @@ public enum MapTypes
     HOUSE("house", "", "", MapKind.HOUSE),
     GREEN_HOUSE("greenhouse", "", "", MapKind.GREEN_HOUSE),
 
-    MARNIE_RANCH("animal_shop", "", "", MapKind.SHOP),
+    MARNIE_RANCH("Marine's Ranch", "", "", MapKind.SHOP),
     BLACK_SMITH("blacksmith", "", "", MapKind.SHOP),
-    CARPENTER_SHOP("carpenter_shop", "", "", MapKind.SHOP),
-    FISH_SHOP("fish_shop", "", "", MapKind.SHOP),
-    JOJA_MART("joja_mart", "", "", MapKind.SHOP),
-    PIERRE_GENERAL_STORE("pierre_store", "", "", MapKind.SHOP),
-    SALOON("saloon", "", "", MapKind.SHOP);
+    CARPENTER_SHOP("Carpenter's Shop", "", "", MapKind.SHOP),
+    FISH_SHOP("fish shop", "", "", MapKind.SHOP),
+    JOJA_MART("joja mart", "", "", MapKind.SHOP),
+    PIERRE_GENERAL_STORE("Pierre's General Store", "", "", MapKind.SHOP),
+    SALOON("The Stardrop Saloon", "", "", MapKind.SHOP);
 
     private final String name;
     private final String mapPath;
@@ -123,6 +123,19 @@ public enum MapTypes
     public MapKind getMapKind()
     {
         return mapKind;
+    }
+
+    public static MapTypes getShopMapType(ShopType shopType) {
+        switch (shopType) {
+            case BLACK_SMITH: return BLACK_SMITH;
+            case CARPENTER_SHOP: return CARPENTER_SHOP;
+            case FISH_SHOP: return FISH_SHOP;
+            case JOJA_MART: return JOJA_MART;
+            case MARINE_RANCH: return MARNIE_RANCH;
+            case PIERRE_GENERAL_STORE: return PIERRE_GENERAL_STORE;
+            case STARDROP_SALOON: return SALOON;
+            default: return null;
+        }
     }
 
     public static Texture getMiniMapTexture(MapTypes mapTypes, Season season)

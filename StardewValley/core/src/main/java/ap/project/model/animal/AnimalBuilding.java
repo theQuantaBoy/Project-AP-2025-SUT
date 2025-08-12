@@ -1,6 +1,7 @@
 package ap.project.model.animal;
 
 import ap.project.model.App.App;
+import ap.project.model.enums.animal_enums.FarmAnimalsType;
 import ap.project.model.game.GameObject;
 import ap.project.model.game.Point;
 import ap.project.model.game.Tile;
@@ -110,5 +111,27 @@ public class AnimalBuilding extends GameObject
     public void sellAnimal(Animal animal)
     {
         animals.remove(animal);
+    }
+
+    public void addAnimal(FarmAnimalsType animalType) {
+        if (!hasCapacity()) return;
+
+        Animal animal = new Animal(animalType.getName(), animalType);
+        animals.add(animal);
+
+        // Find a random empty tile within the building for the animal
+        ArrayList<Tile> emptyTiles = new ArrayList<>();
+        for (Tile tile : getTiles()) {
+            if (tile.getObject() == null) {
+                emptyTiles.add(tile);
+            }
+        }
+
+        if (!emptyTiles.isEmpty()) {
+            Collections.shuffle(emptyTiles);
+            Tile animalTile = emptyTiles.get(0);
+            animal.setTile(animalTile);
+            animalTile.setObject(animal);
+        }
     }
 }

@@ -26,6 +26,14 @@ public abstract class Map
     protected Point startingPoint;
     protected java.util.Map<String, List<Point>> mapData;
 
+    private Point blacksmithDoor;
+    private Point carpenterDoor;
+    private Point fishShopDoor;
+    private Point jojamartDoor;
+    private Point marnieDoor;
+    private Point pierreDoor;
+    private Point saloonDoor;
+
     protected MapVisual visual;
     protected TiledMap tiledMap;
 
@@ -58,9 +66,8 @@ public abstract class Map
             farm.setExitPoint(loaded.exitPoint);
         }
 
-        if (this instanceof Shop)
+        if (this instanceof Shop shop)
         {
-            Shop shop = (Shop)this;
             shop.setExteriorDoor(startingPoint);
         }
 
@@ -71,9 +78,8 @@ public abstract class Map
             cabin.setOvenPoint(loaded.ovenPoint);
         }
 
-        if (this instanceof City)
+        if (this instanceof City city)
         {
-            City city = (City)this;
             city.setBlacksmithDoor(loaded.blacksmithDoor);
             city.setCarpenterDoor(loaded.carpenterDoor);
             city.setFishShopDoor(loaded.fishShopDoor);
@@ -193,7 +199,7 @@ public abstract class Map
         if (object != null)
         {
             if (object instanceof Tree || object instanceof ForagingTree ||
-                    object instanceof ForagingCrop || object instanceof Resource)
+                object instanceof ForagingCrop || object instanceof Resource)
             {
                 return false;
             }
@@ -581,7 +587,7 @@ public abstract class Map
                 if (isInBounds(col, row))
                 {
                     Tile tile = tiles[row][col];
-                        output.append(tile.getAppearance());
+                    output.append(tile.getAppearance());
                 }
                 else
                 {
@@ -693,6 +699,76 @@ public abstract class Map
         int dy = Math.abs(point.getY() - other.getY());
 
         return (dx <= 1 && dy <= 1);
+    }
+
+    public Point getBlacksmithDoor() {
+        return blacksmithDoor;
+    }
+
+    public Point getCarpenterDoor() {
+        return carpenterDoor;
+    }
+
+    public Point getFishShopDoor() {
+        return fishShopDoor;
+    }
+
+    public Point getJojamartDoor() {
+        return jojamartDoor;
+    }
+
+    public Point getMarnieDoor() {
+        return marnieDoor;
+    }
+
+    public Point getPierreDoor() {
+        return pierreDoor;
+    }
+
+    public Point getSaloonDoor() {
+        return saloonDoor;
+    }
+
+    public void setStartingPoint(Point startingPoint) {
+        this.startingPoint = startingPoint;
+    }
+
+    public void setWIDTH(int WIDTH)
+    {
+        this.WIDTH = WIDTH;
+    }
+
+    public void setHEIGHT(int HEIGHT)
+    {
+        this.HEIGHT = HEIGHT;
+    }
+
+    public void setSaloonDoor(Point saloonDoor) {
+        this.saloonDoor = saloonDoor;
+    }
+
+    public void setPierreDoor(Point pierreDoor) {
+        this.pierreDoor = pierreDoor;
+    }
+
+    public void setMarnieDoor(Point marnieDoor) {
+        this.marnieDoor = marnieDoor;
+    }
+
+    public void setJojamartDoor(Point jojamartDoor) {
+        this.jojamartDoor = jojamartDoor;
+    }
+
+    public void setFishShopDoor(Point fishShopDoor) {
+        this.fishShopDoor = fishShopDoor;
+    }
+
+    public void setCarpenterDoor(Point carpenterDoor) {
+        this.carpenterDoor = carpenterDoor;
+    }
+
+    public void setBlacksmithDoor(Point blacksmithDoor) {
+        this.blacksmithDoor = blacksmithDoor;
     }
 }
 

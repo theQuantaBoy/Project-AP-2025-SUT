@@ -415,7 +415,7 @@ public enum GameObjectType
     TRASH_CAN("Trash Can", "game_objects/Tools/Trash_Can_Iridium.png"),
     WATERING_CAN("Watering Can", "game_objects/Watering_Can/Watering_Can.png"),
 
-    ANIMAL_BUILDING("animal building", ""),
+    ANIMAL_BUILDING("animal building", "animals/Barn.png"),
 
     SHAD("Shad", "game_objects/animal_products/Shad.png"),
     BLUE_DISCUS("Blue Discus", "game_objects/animal_products/Blue_Discus.png"),
@@ -444,6 +444,8 @@ public enum GameObjectType
     BASE_PACK("Base Pack", ""),
     LARGE_PACK("Large Pack", ""),
     DELUXE_PACK("Deluxe Pack", ""),
+
+    SONAR_BOBBER("Sonar Bobber", "game_objects/crafting/Cherry_Bomb.png"),
     ;
 
     private final String name;

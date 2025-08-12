@@ -11,9 +11,13 @@ import ap.project.model.enums.Season;
 import ap.project.model.enums.animal_enums.FarmAnimalsType;
 import ap.project.model.building.CraftingItem;
 import ap.project.model.enums.*;
+import ap.project.model.enums.animal_enums.FarmBuildingType;
+import ap.project.model.enums.animal_enums.FishType;
+import ap.project.model.enums.tool_enums.FishingPoleLevel;
 import ap.project.model.game.Game;
 import ap.project.model.tools.BackPack;
 import ap.project.model.tools.Tool;
+import ap.project.model.tools.BackPack;
 import ap.project.screen.input.WorldScreenInputProcessor;
 import ap.project.util.MapAssetLoader;
 import ap.project.view.GameMenu;
@@ -31,6 +35,7 @@ import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -46,22 +51,18 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public final class WorldScreen implements Screen
 {
 
-//    private final com.badlogic.gdx.Game miniGame;
-
-//    private final Stage gameStage;
-//    private final Array<AnimalActor> animalActors;
-//    private final AnimalInteractionScreen animalInteractionScreen;
-//    private float animalMoveTimer = 0f;
+    private FishingMinigameManager fishingMinigame;
 
     private static WorldScreen INSTANCE;
 
     public static final float MAP_SCALE = 1.0f;
     private static final float CHAR_SCALE = 1f;
-    private static final float TILE_SIZE = 24f * MAP_SCALE;
+    static final float TILE_SIZE = 24f * MAP_SCALE;
     private static final float PLAYER_SPEED = 50f * MAP_SCALE;
 
     private final Game game;
@@ -116,7 +117,12 @@ public final class WorldScreen implements Screen
     private boolean cameraFixed = false;
     private final boolean DEBUG_MODE = false;
 
-//    private FishingMinigameWindow fishingWindow;
+    private ShopWindow shopWindow;
+
+    private AnimalManager animalManager;
+    private AnimalWindow animalWindow;
+
+//    private NPCManager npcManager;
 
     public WorldScreen() {
         INSTANCE = this;
@@ -161,6 +167,7 @@ public final class WorldScreen implements Screen
         }
 
         this.map = game.getCurrentPlayer().getCurrentMap();
+        this.shopWindow = new ShopWindow(uiStage, null);
         time = game.getCurrentTime();
         currentSeason = time.getSeason();
 
@@ -351,7 +358,7 @@ public final class WorldScreen implements Screen
         characterController = new CharacterController(character, map, PLAYER_SPEED, TILE_SIZE);
 
         gameInputProcessor = new WorldScreenInputProcessor(map, character, characterController, cam, this,
-            inventoryWindow, communicationWindow);
+            inventoryWindow, communicationWindow, shopWindow);
 
         if (inputMultiplexer != null && inputMultiplexerHadSetUp) {
             inputMultiplexer.removeProcessor(1);
@@ -455,7 +462,7 @@ public final class WorldScreen implements Screen
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         if (!terminalDialog.isVisible() && !isInventoryVisible() && !isCookBookVisible() && !isRefrigeratorVisible()
-        && !greenHouseBuildWindow.isVisible())
+            && !isShopWindowVisible() && !isPurchaseWindowVisible() && !greenHouseBuildWindow.isVisible())
         {
             update(dt);
             refreshHotbarUI();
@@ -493,7 +500,7 @@ public final class WorldScreen implements Screen
         if (SECOND_PLAYER) characterRenderer.render(batch, player2, CHAR_SCALE);
 
         if (!isDialogVisible() && !isInventoryVisible() && !isCookBookVisible() && !isRefrigeratorVisible()
-            && !greenHouseBuildWindow.isVisible())
+            && !greenHouseBuildWindow.isVisible() && !isShopWindowVisible() && !isPurchaseWindowVisible())
         {
             characterRenderer.renderToolOrObjectAtMouse(batch, character, worldMouseX, worldMouseY);
         }
@@ -648,7 +655,7 @@ public final class WorldScreen implements Screen
         if (currentRatio > targetRatio) {
             cam.viewportHeight = 15 * TILE_SIZE;
             cam.viewportWidth  = cam.viewportHeight * currentRatio;
-        } else {
+        } else {                                      // too tall → letterbox
             cam.viewportWidth  = 20 * TILE_SIZE;
             cam.viewportHeight = cam.viewportWidth / currentRatio;
         }
@@ -1139,6 +1146,121 @@ public final class WorldScreen implements Screen
     {
         return cam;
     }
+
+
+
+    public AnimalWindow getAnimalWindow() {
+        return animalWindow;
+    }
+
+    public Map getMap() {
+        return map;
+    }
+
+    public ShopWindow getShopWindow() {
+        return shopWindow;
+    }
+
+    public boolean isShopWindowVisible() {
+        return shopWindow.isVisible();
+    }
+
+    public boolean isPurchaseWindowVisible() {
+        return shopWindow.getPurchaseWindow().isVisible();
+    }
+
+    public Season getCurrentSeason() {
+        return time.getSeason();
+    }
+
+    public TimeOfDay getCurrentTimeOfDay() {
+        return time.getTimeOfDay(); // Implement this in Time class
+    }
+
+    public CommunicationWindow getCommunicationWindow() {
+        return communicationWindow;
+    }
+
+    public Skin getSkin() {
+        return skin;
+    }
+
+    public Stage getUiStage() {
+        return uiStage;
+    }
+
+    public PlayerCharacter getCharacter() {
+        return character;
+    }
+
+    private void initializeNPCs() {
+        // Initialize NPCs with their details
+        Vector2 townSquare = new Vector2(150 * TILE_SIZE, 120 * TILE_SIZE);
+
+//        npcManager.addNPC(new NPCCharacter(
+//            CharacterType.SEBASTIAN,
+//            townSquare.cpy().add(5, 0),
+//            "Sebastian",
+//            NpcDetails.Sebastian
+//        ), townSquare.cpy().add(5, 0));
+
+//        npcManager.addNPC(new NPCCharacter(
+//            CharacterType.ABIGAIL,
+//            townSquare.cpy().add(-5, 0),
+//            "Abigail",
+//            NpcDetails.Abigail
+//        ), townSquare.cpy().add(-5, 0));
+
+//        npcManager.addNPC(new NPCCharacter(
+//            CharacterType.HARVEY,
+//            townSquare.cpy().add(0, 5),
+//            "Harvey",
+//            NpcDetails.Harvey
+//        ), townSquare.cpy().add(0, 5));
+//
+//        npcManager.addNPC(new NPCCharacter(
+//            CharacterType.LIA,
+//            townSquare.cpy().add(0, -5),
+//            "Lia",
+//            NpcDetails.Lia
+//        ), townSquare.cpy().add(0, -5));
+//
+//        npcManager.addNPC(new NPCCharacter(
+//            CharacterType.ROBIN,
+//            townSquare.cpy().add(10, 0),
+//            "Robin",
+//            NpcDetails.Robin
+//        ), townSquare.cpy().add(10, 0));
+    }
+
+    public AnimalManager getAnimalManager() {
+        return animalManager;
+    }
+
+//    public void toggleInventoryWindowForGifting(NPCActor npcActor) {
+//        inventoryWindow.setGiftRecipient(npcActor);
+//        inventoryWindow.toggleVisibility();
+//    }
+//
+//    // Add this method to handle gift giving
+//    public void giveGiftToNPC(NPCActor npcActor, GameObject gift) {
+//        //npcManager.giveGiftToCurrentNPC(gift);
+//        //npcActor.updateFriendshipDisplay();
+//    }
+
+//    public void triggerNPCDialogue(NPCCharacter npc) {
+//        if (npc.hasDialogueAvailable()) {
+//            String dialogue = npc.getDialogue(
+//                getCurrentSeason(),
+//                getCurrentTimeOfDay()
+//            );
+//            communicationWindow.showDialogue(npc.getNickName(), dialogue);
+//        }
+//    }
+
+//    public void onNewDay() {
+//        npcManager.resetAllDialogues();
+//    }
 
     public void openMapTab()
     {

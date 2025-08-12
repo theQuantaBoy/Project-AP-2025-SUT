@@ -1,14 +1,18 @@
 package ap.project.model.game;
 
 import ap.project.model.App.App;
+import ap.project.model.enums.CharacterType;
 import ap.project.model.enums.GameObjectType;
 import ap.project.model.enums.NpcDetails;
 import ap.project.model.player_data.FriendshipWithNpcData;
+import ap.project.visual.DialogueIndicator;
+import com.badlogic.gdx.math.Vector2;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class NPC {
+    //private NPCCharacter character;
     private final Point location;
     private final NpcDetails npcDetails;
     private final String name;
@@ -18,6 +22,8 @@ public class NPC {
     private final List<GameObject> rewards;
     private final ArrayList<GameObject> openQuests = new ArrayList<>();
     private final String appearance;
+
+    private NPCCharacter character; // Reference to the visual representation
 
     private boolean firstQuestDone = false;
     private boolean secondQuestDone = false;
@@ -133,5 +139,21 @@ public class NPC {
     public void thirdQuestDone()
     {
         thirdQuestDone = true;
+    }
+
+    public void spawn(Map map) {
+        Vector2 spawnPoint = map.tileToWorld(map.getTile(location.getX(), location.getY()));
+        // Create NPCCharacter with reference to 'this' NPC
+        this.character = new NPCCharacter(
+            CharacterType.ABIGAIL, // Default type, adjust as needed
+            spawnPoint,
+            name, // Placeholder, adjust as needed
+            this
+        );
+    }
+
+    // Getter for the visual representation
+    public NPCCharacter getCharacter() {
+        return character;
     }
 }
