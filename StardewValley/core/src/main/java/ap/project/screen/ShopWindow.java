@@ -6,6 +6,7 @@ import ap.project.model.enums.GameObjectType;
 import ap.project.model.shops.Shop;
 import ap.project.model.shops.ShopMap;
 import ap.project.model.shops.ShopProduct;
+import ap.project.visual.UIRenderer;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -17,11 +18,10 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
+import com.badlogic.gdx.utils.Align;
 
-import java.io.PushbackInputStream;
+import javax.swing.*;
 import java.util.List;
-
-import static org.lwjgl.opengl.Display.setTitle;
 
 public class ShopWindow extends Window {
     private final Stage stage;
@@ -96,29 +96,51 @@ public class ShopWindow extends Window {
 
         if (shop == null) return;
 
-        List<ShopProduct> products = shop.getProducts();
+        List<ShopProduct> products;
+        if (showAvailableOnly) {
+            products = shop.getAvailableProducts();
+        } else {
+            products = shop.getAllProducts();
+        }
+
         for (ShopProduct product : products) {
-            if (showAvailableOnly && !product.isAvailable()) continue;
+            boolean isAvailable = isProductAvailable(product);
 
             // Create product row
             Table productRow = new Table(skin);
             productRow.defaults().pad(5);
+            productRow.setBackground(skin.getDrawable("background"));
 
             // Product icon
             ImageButton iconButton = new ImageButton(getProductIcon(product));
-            iconButton.addListener(new ClickListener() {
-                @Override
-                public void clicked(InputEvent event, float x, float y) {
-                    purchaseWindow.setProduct(product); // Update the existing window
-                    purchaseWindow.show(stage); // Show the existing window
-                    purchaseWindow.centerWindow();
-                }
-            });
-            productRow.add(iconButton).size(64, 64);
+            iconButton.setDisabled(!isAvailable); // Disable if not available
+
+            if (isAvailable) {
+                // Only add purchase listener for available products
+                iconButton.addListener(new ClickListener() {
+                    @Override
+                    public void clicked(InputEvent event, float x, float y) {
+                        purchaseWindow.clearProduct();
+                        purchaseWindow.setProduct(product);
+                        purchaseWindow.centerWindow();
+                    }
+                });
+            } else {
+                // Show error message when clicking unavailable product
+                iconButton.addListener(new ClickListener() {
+                    @Override
+                    public void clicked(InputEvent event, float x, float y) {
+                        String reason = getUnavailabilityReason(product);
+                        UIRenderer.showTextBox("Cannot purchase: " + reason);
+                    }
+                });
+            }
+
+            productRow.add(iconButton).size(64, 64).padRight(10);
 
             // Product info
             Table infoTable = new Table(skin);
-            infoTable.defaults().pad(2);
+            infoTable.defaults().pad(2).left();
 
             // Name and price
             infoTable.add(new Label(product.getName(), skin)).left().row();
@@ -128,20 +150,82 @@ public class ShopWindow extends Window {
             if (product.getStock() == 0) {
                 Label outOfStock = new Label("Out of Stock", skin);
                 outOfStock.setColor(0.7f, 0.7f, 0.7f, 1f);
-                infoTable.add(outOfStock).left();
+                infoTable.add(outOfStock).left().row();
             } else if (product.getStock() > 0) {
-                infoTable.add(new Label("In Stock: " + product.getStock(), skin)).left();
+                infoTable.add(new Label("In Stock: " + product.getStock(), skin)).left().row();
+            } else {
+                infoTable.add(new Label("Unlimited Stock", skin)).left().row();
             }
 
-            productRow.add(infoTable).width(250).left().expandX();
-
-            // Dim if unavailable
-            if (!product.isAvailable() || product.getStock() == 0) {
-                productRow.setColor(0.5f, 0.5f, 0.5f, 1f);
+            // Availability status indicators
+            if (!product.isAvailable()) {
+                Label seasonal = new Label("Not in Season", skin);
+                infoTable.add(seasonal).left().row();
             }
 
-            productsTable.add(productRow).fillX().expandX().row();
+            if (!shop.isOpen(App.getCurrentGame().getCurrentTime())) {
+                Label closed = new Label("Shop Closed", skin);
+                infoTable.add(closed).left().row();
+            }
+
+            productRow.add(infoTable).width(300).left().expandX();
+
+            // Add "Not Available" label for unavailable products
+            if (!isAvailable) {
+                Label notAvailableLabel = new Label("Not Available", skin);
+                notAvailableLabel.setAlignment(Align.right);
+                productRow.add(notAvailableLabel).padLeft(20).right().expandX();
+            }
+
+            // Apply visual styling for unavailable products
+            if (!isAvailable) {
+                // Darker background with more transparency
+                productRow.setColor(0.5f, 0.5f, 0.5f, 0.6f);
+                iconButton.setColor(0.5f, 0.5f, 0.5f, 0.6f);
+            }
+
+            productsTable.add(productRow).fillX().expandX().pad(5).row();
+            Table separator = new Table();
+            separator.setBackground(skin.getDrawable("background"));
+            productsTable.add(separator).height(2).fillX().padTop(5).padBottom(5).growX().row();
         }
+    }
+
+    // Helper method to check if a product is available for purchase
+    private boolean isProductAvailable(ShopProduct product) {
+        // Check if shop is open
+        if (!shop.isOpen(App.getCurrentGame().getCurrentTime())) {
+            return false;
+        }
+
+        // Check if product is in season
+        if (!product.isAvailable()) {
+            return false;
+        }
+
+        // Check stock
+        if (product.getStock() == 0) {
+            return false;
+        }
+
+        return true;
+    }
+
+    // Get reason for product unavailability
+    private String getUnavailabilityReason(ShopProduct product) {
+        if (!shop.isOpen(App.getCurrentGame().getCurrentTime())) {
+            return "Shop is currently closed";
+        }
+
+        if (!product.isAvailable()) {
+            return "Product is out of season";
+        }
+
+        if (product.getStock() == 0) {
+            return "Product is out of stock";
+        }
+
+        return "Product is unavailable";
     }
 
     private Drawable getProductIcon(ShopProduct product) {
@@ -163,7 +247,6 @@ public class ShopWindow extends Window {
         isVisible = !isVisible;
         setVisible(isVisible);
         if (isVisible) {
-            System.out.println("yes");
             toFront();
             refreshProductsTable();
         }
@@ -188,7 +271,8 @@ public class ShopWindow extends Window {
         return super.remove();
     }
 
-    public boolean isPurchaseWindowVisible() {
-        return purchaseWindow != null && purchaseWindow.isVisible();
+
+    public PurchaseWindow getPurchaseWindow() {
+        return purchaseWindow;
     }
 }

@@ -3,8 +3,6 @@ package ap.project.screen;
 import ap.project.model.App.App;
 import ap.project.model.App.GameAssetsManager;
 import ap.project.model.animal.Animal;
-import ap.project.model.animal.AnimalBuilding;
-import ap.project.model.enums.GameObjectType;
 import ap.project.model.enums.animal_enums.FarmAnimalsType;
 import ap.project.model.enums.animal_enums.FarmBuildingType;
 import ap.project.model.game.Farm;
@@ -31,20 +29,37 @@ public class PurchaseWindow extends Dialog {
     private TextButton buyButton;
     private TextButton cancelButton;
     private AnimalManager animalManager;
+    private TextButton minusButton;
+    private TextButton plusButton;
+    private boolean isVisible = false;
 
     public PurchaseWindow(Stage stage) {
         super("Purchase", GameAssetsManager.getGameAssetsManager().getSkin());
         this.stage = stage;
+        stage.addActor(this);
 
-        setModal(true);
+        setModal(false);
         setMovable(true);
         setResizable(true);
         setSize(400, 300);
-        hide(); // Start hidden
+        setVisible(false); // Start hidden
 
+        // Create buttons once
         buyButton = new TextButton("Buy", getSkin());
         cancelButton = new TextButton("Cancel", getSkin());
+        minusButton = new TextButton("-", getSkin());
+        plusButton = new TextButton("+", getSkin());
+        quantityLabel = new Label("1", getSkin());
+        totalPriceLabel = new Label("Total: 0g", getSkin());
 
+        // Setup listeners once
+        setupListeners();
+
+        createQuantityControls();
+    }
+
+    private void setupListeners() {
+        // Buy button listener
         buyButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
@@ -53,10 +68,33 @@ public class PurchaseWindow extends Dialog {
             }
         });
 
+        // Cancel button listener
         cancelButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 hide();
+            }
+        });
+
+        // Minus button listener
+        minusButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                if (quantity > 1) {
+                    quantity--;
+                    updateQuantity();
+                }
+            }
+        });
+
+        // Plus button listener
+        plusButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                if (product == null || product.getStock() == -1 || quantity < product.getStock()) {
+                    quantity++;
+                    updateQuantity();
+                }
             }
         });
     }
@@ -66,7 +104,7 @@ public class PurchaseWindow extends Dialog {
         this.quantity = 1;
         clearWindow();
         updateWindow();
-        show(stage);
+        toggleVisibility();
         centerWindow();
     }
 
@@ -85,17 +123,15 @@ public class PurchaseWindow extends Dialog {
         getContentTable().clear();
         getButtonTable().clear();
 
+        if (product == null) return;
+
         currentTexture = new Texture(Gdx.files.internal(product.getGameObjectType().getPath()));
         icon = new Image(new TextureRegionDrawable(currentTexture));
-
 
         // Product info
         Table contentTable = new Table(getSkin());
         contentTable.defaults().pad(10);
 
-        // Product icon using Texture
-        Texture texture = new Texture(Gdx.files.internal(product.getGameObjectType().getPath()));
-        icon = new Image(new TextureRegionDrawable(texture));
         contentTable.add(icon).size(80, 80).padRight(20);
 
         Table detailsTable = new Table(getSkin());
@@ -104,101 +140,64 @@ public class PurchaseWindow extends Dialog {
 
         // Quantity controls
         Table quantityTable = new Table(getSkin());
-        TextButton minusButton = new TextButton("-", getSkin());
-        TextButton plusButton = new TextButton("+", getSkin());
-        quantityLabel = new Label(String.valueOf(quantity), getSkin());
-
-        minusButton.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                if (quantity > 1) {
-                    quantity--;
-                    updateQuantity();
-                }
-            }
-        });
-
-        plusButton.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                if (product.getStock() == -1 || quantity < product.getStock()) {
-                    quantity++;
-                    updateQuantity();
-                }
-            }
-        });
-
         quantityTable.add(minusButton);
         quantityTable.add(quantityLabel).pad(0, 15, 0, 15);
         quantityTable.add(plusButton);
 
         detailsTable.add(quantityTable).padTop(15).row();
 
-        // Total price
-        totalPriceLabel = new Label("Total: " + (quantity * product.getPrice()) + "g", getSkin());
+        // Update labels
+        quantityLabel.setText("1");
+        totalPriceLabel.setText("Total: " + (quantity * product.getPrice()) + "g");
         detailsTable.add(totalPriceLabel).padTop(10);
 
         contentTable.add(detailsTable);
         getContentTable().add(contentTable).pad(20);
 
         // Buttons
-
-        buyButton.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                purchase();
-                hide();
-            }
-        });
-
-        cancelButton.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                hide();
-            }
-        });
-
         button(buyButton);
         button(cancelButton);
         pack();
     }
 
     private void updateQuantity() {
+        if (product == null) return;
         quantityLabel.setText(String.valueOf(quantity));
         totalPriceLabel.setText("Total: " + (quantity * product.getPrice()) + "g");
     }
 
     private void purchase() {
-        int totalCost = quantity * product.getPrice();
-        Player player = App.getCurrentGame().getCurrentPlayer();
+        if (product == null || buyButton.isDisabled()) return;
 
-        if (player.getMoney() < totalCost) {
-            UIRenderer.showTextBox("Not enough money!");
-            return;
-        }
+        buyButton.setDisabled(true);
 
-        if (product.getOriginalItem() instanceof FarmBuildingType) {
-            handleBuildingPurchase((FarmBuildingType) product.getOriginalItem());
-        }
-        else if (product.getOriginalItem() instanceof FarmAnimalsType) {
-            handleAnimalPurchase((FarmAnimalsType) product.getOriginalItem());
-        }
-        else {
-            GameObject purchasedItem = new GameObject(product.getGameObjectType(), quantity);
-            player.addToInventory(purchasedItem);
-        }
+        try {
+            int totalCost = quantity * product.getPrice();
+            Player player = App.getCurrentGame().getCurrentPlayer();
 
-        player.increaseMoney(-totalCost);
+            if (player.getMoney() < totalCost) {
+                UIRenderer.showTextBox("Not enough money!");
+                return;
+            }
 
-        if (product.getStock() > 0) {
-            product.setStock(product.getStock() - quantity);
-        }
+            if (product.getOriginalItem() instanceof FarmBuildingType) {
+                handleBuildingPurchase((FarmBuildingType) product.getOriginalItem());
+            } else if (product.getOriginalItem() instanceof FarmAnimalsType) {
+                handleAnimalPurchase((FarmAnimalsType) product.getOriginalItem());
+            } else {
+                GameObject purchasedItem = new GameObject(product.getGameObjectType(), quantity);
+                player.addToInventory(purchasedItem);
+            }
 
-        UIRenderer.showTextBox("Purchased " + quantity + " " + product.getName());
+            player.increaseMoney(-totalCost);
 
-        if(product.getOriginalItem() instanceof FarmBuildingType) {
-            System.out.println("salam");
-            handleBuildingPurchase((FarmBuildingType) product.getOriginalItem());
+            if (product.getStock() > 0) {
+                product.setStock(product.getStock() - quantity);
+            }
+
+            UIRenderer.showTextBox("Purchased " + quantity + " " + product.getName());
+        } finally {
+            buyButton.setDisabled(false);
         }
     }
 
@@ -210,13 +209,10 @@ public class PurchaseWindow extends Dialog {
 
     private void handleAnimalPurchase(FarmAnimalsType animalType) {
         Player player = App.getCurrentGame().getCurrentPlayer();
-        Farm farm = player.getFarm();
 
         for (int i = 0; i < quantity; i++) {
             Animal animal = new Animal("test", animalType);
 
-
-            // Add animal to animal manager for rendering
             if (animalManager != null) {
                 animalManager.addAnimal(animal);
             }
@@ -239,5 +235,32 @@ public class PurchaseWindow extends Dialog {
 
     public void setAnimalManager(AnimalManager animalManager) {
         this.animalManager = animalManager;
+    }
+
+    public void toggleVisibility() {
+        isVisible = !isVisible;
+        setVisible(isVisible);
+        if (isVisible) {
+            toFront();
+        }
+    }
+
+    @Override
+    public void hide() {
+        super.hide();
+        isVisible = false;
+    }
+
+    public boolean isVisible() {
+        return isVisible;
+    }
+
+    private void createQuantityControls() {
+        // Already created in constructor
+    }
+
+    public void clearProduct() {
+        this.product = null;
+        this.quantity = 1;
     }
 }

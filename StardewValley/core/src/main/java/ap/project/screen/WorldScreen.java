@@ -172,10 +172,7 @@ public final class WorldScreen implements Screen
         animalManager = new AnimalManager(20 * TILE_SIZE, 15 * TILE_SIZE);
 
         // Add a test animal (e.g., chicken)
-        Animal testAnimal = new Animal("test", FarmAnimalsType.CHICKEN);
-        animalManager.addAnimal(testAnimal);
-        testAnimal.setX(60);
-        testAnimal.setY(20);
+
 //        float playerX = character.getPosition().x;
 //        float playerY = character.getPosition().y;
 
@@ -325,7 +322,7 @@ public final class WorldScreen implements Screen
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         if (!terminalDialog.isVisible() && !isInventoryVisible() && !isCookBookVisible() && !isRefrigeratorVisible()
-         && !isShopWindowVisible())
+         && !isShopWindowVisible() && !isPurchaseWindowVisible())
         {
             update(dt);
             cam.update();
@@ -368,7 +365,7 @@ public final class WorldScreen implements Screen
         if (SECOND_PLAYER) characterRenderer.render(batch, player2, CHAR_SCALE);
 
         if (!isDialogVisible() && !isInventoryVisible() && !isCookBookVisible() && !isRefrigeratorVisible()
-         && !isShopWindowVisible())
+         && !isShopWindowVisible() && !isPurchaseWindowVisible())
         {
             characterRenderer.renderToolOrObjectAtMouse(batch, character, worldMouseX, worldMouseY);
         }
@@ -901,7 +898,7 @@ public final class WorldScreen implements Screen
     }
 
     public boolean isPurchaseWindowVisible() {
-        return shopWindow != null && shopWindow.isPurchaseWindowVisible();
+        return shopWindow.getPurchaseWindow().isVisible();
     }
 
     public Season getCurrentSeason() {

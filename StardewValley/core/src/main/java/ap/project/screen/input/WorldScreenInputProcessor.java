@@ -51,7 +51,8 @@ public class WorldScreenInputProcessor implements InputProcessor
     {
         if (worldScreen.isDialogVisible() || worldScreen.isInventoryVisible() ||
             worldScreen.isCookBookVisible() || worldScreen.isRefrigeratorVisible() ||
-            worldScreen.isCraftingWindowVisible() || worldScreen.isChatVisible() || worldScreen.isShopWindowVisible())
+            worldScreen.isCraftingWindowVisible() || worldScreen.isChatVisible() || worldScreen.isShopWindowVisible() ||
+            worldScreen.isPurchaseWindowVisible())
         {
             return false;
         }
