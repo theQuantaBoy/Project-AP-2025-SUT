@@ -1780,8 +1780,41 @@ public final class WorldScreen implements Screen
                         }
                     }
 
+                    applyPlayerMap(p);
+
                     pc.setLastUpdateTime(System.currentTimeMillis());
                     break;
+                }
+            }
+        }
+    }
+
+    private void applyPlayerMap(Player player)
+    {
+        if (player.isInFarm())
+        {
+            player.setCurrentMap(player.getFarm());
+        } else if (player.isInHome())
+        {
+            player.setCurrentMap(player.getCabin());
+        } else if (player.isInGreenHouse())
+        {
+            player.setCurrentMap(player.getGreenHouse());
+        } else if (player.isInCity())
+        {
+            player.setCurrentMap(game.getCity());
+        } else if (player.isInShop() && player.getCurrentShop() != null)
+        {
+            ShopType type = ShopType.getShopType(player.getCurrentShop());
+            if (type != null)
+            {
+                for (java.util.Map.Entry<Point, Shop> entry : game.getCity().getShopDoors().entrySet())
+                {
+                    if (entry.getValue().getType() == type)
+                    {
+                        player.setCurrentMap(entry.getValue());
+                        break;
+                    }
                 }
             }
         }

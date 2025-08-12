@@ -843,8 +843,6 @@ public class PreLobbyScreen implements Screen
 
         if (messageTimer >= 0.1f)
         {
-            User currentUser = App.getCurrentUser();
-
             client.send(new PreLobbyPresenceMessage());
             client.send(new UserSyncRequestMessage());
 
