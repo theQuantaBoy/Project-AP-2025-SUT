@@ -167,3 +167,4 @@ Thumbs.db
 /containers/client_1/saves/app/users_client.db
 /containers/client_2/saves/app/users_client.db
 /containers/server/saves/app/users_server.db
+/core/assets/secrets.properties

@@ -203,5 +203,7 @@ public class KryoRegistry
         kryo.register(RadioResponseMessage.class);
         kryo.register(RadioPlayMessage.class);
         kryo.register(RadioChangedMessage.class);
+
+        kryo.register(NpcServerDetailsMessage.class);
     }
 }

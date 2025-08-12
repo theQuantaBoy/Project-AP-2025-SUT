@@ -21,8 +21,10 @@ import ap.project.model.resources.*;
 import ap.project.model.resources.Tree;
 import ap.project.model.shops.Shop;
 import ap.project.model.tools.*;
+import ap.project.network.shared.npcDialogLLM;
 import ap.project.screen.CommunicationWindow;
 import ap.project.screen.WorldScreen;
+import ap.project.util.NpcContextGenerator;
 import ap.project.view.GameMenu;
 import ap.project.visual.MapVisual;
 import ap.project.visual.UIRenderer;
@@ -1288,11 +1290,12 @@ public class WorldController
             friendship.talk();
 
             UIRenderer.showTextBox("You received 20 xp.");
-            UIRenderer.showTextBox(npc.getName() + ": " + npc.talk());
-            return true;
         }
 
-        return false;
+        String dialogue = npcDialogLLM.generateDynamicDialogue(npc);
+        UIRenderer.showTextBox(npc.getName() + ": " + dialogue);
+
+        return true;
     }
 
     private static boolean processNpcWindow(Tile tile)
