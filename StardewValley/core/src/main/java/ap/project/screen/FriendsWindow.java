@@ -27,6 +27,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Scaling;
+import com.badlogic.gdx.utils.Timer;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -232,6 +233,23 @@ public class FriendsWindow {
             }
         });
 
+        radioPlayer.addPlaybackListener(() -> {
+            Gdx.app.postRunnable(() -> {
+                updateTrackSelection();
+            });
+        });
+
+        // Add a periodic update check
+        Timer.schedule(new Timer.Task() {
+            @Override
+            public void run() {
+                if (radioPlayer.getCurrentTrackName() != null &&
+                    !radioPlayer.getCurrentTrackName().equals(trackSelectBox.getSelected())) {
+                    updateTrackSelection();
+                }
+            }
+        }, 0, 0.5f); // Check every 0.5 seconds
+
 
 
         // Layout
@@ -382,6 +400,8 @@ public class FriendsWindow {
         tradeHistoryTable.setVisible(false);
         newGiftTable.setVisible(false);
         musicControlsTable.setVisible(true);
+
+        updateTrackSelection();
     }
 
     private void showGiftOptions(Player friend) {
@@ -848,10 +868,10 @@ public class FriendsWindow {
     private void updateTrackSelection() {
         if (radioPlayer.getCurrentTrackName() != null) {
             int index = radioPlayer.getPlaylist().indexOf(radioPlayer.getCurrentTrackName());
-            if (index >= 0) {
+            if (index >= 0 && index != trackSelectBox.getSelectedIndex()) {
                 trackSelectBox.setSelectedIndex(index);
             }
-            playPauseButton.setText("Pause");
+            playPauseButton.setText(radioPlayer.isPlaying() ? "Pause" : "Play");
         }
     }
 }
