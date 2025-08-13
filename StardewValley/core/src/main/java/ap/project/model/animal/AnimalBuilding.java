@@ -2,6 +2,9 @@ package ap.project.model.animal;
 
 import ap.project.model.App.App;
 import ap.project.model.game.*;
+import ap.project.model.game.GameObject;
+import ap.project.model.game.Point;
+import ap.project.model.game.Tile;
 import ap.project.model.enums.GameObjectType;
 import ap.project.model.enums.animal_enums.FarmBuildingType;
 
@@ -82,34 +85,30 @@ public class AnimalBuilding extends GameObject
         return (capacity - faghatVaseShipingBin.size()) > 0;
     }
 
-    public void putAnimalInBuilding(Animal animal)
-    {
-        animals.add(animal);
-
-        ArrayList<Tile> tiles = getTiles();
-        ArrayList<Tile> copy = new ArrayList<>(tiles);
-
-        Iterator<Tile> iterator = copy.iterator();
-        while (iterator.hasNext()) {
-            Tile tile = iterator.next();
-            if (tile.getObject() != null) {
-                iterator.remove();
-            }
-        }
-
-        // TODO
-//        if (copy.size() > 0)
-//       {
-           Collections.shuffle(copy);
-
-           Tile tile = copy.get(0);
-           animal.setTile(tile);
-           tile.setObject(animal);
-//       }
-    }
-
     public void sellAnimal(Animal animal)
     {
         animals.remove(animal);
     }
+
+//    public void addAnimal(FarmAnimalsType animalType) {
+//        if (!hasCapacity()) return;
+//
+//        Animal animal = new Animal(animalType.getName(), animalType);
+//        animals.add(animal);
+//
+//        // Find a random empty tile within the building for the animal
+//        ArrayList<Tile> emptyTiles = new ArrayList<>();
+//        for (Tile tile : getTiles()) {
+//            if (tile.getObject() == null) {
+//                emptyTiles.add(tile);
+//            }
+//        }
+//
+//        if (!emptyTiles.isEmpty()) {
+//            Collections.shuffle(emptyTiles);
+//            Tile animalTile = emptyTiles.get(0);
+//            animal.setTile(animalTile);
+//            animalTile.setObject(animal);
+//        }
+//    }
 }

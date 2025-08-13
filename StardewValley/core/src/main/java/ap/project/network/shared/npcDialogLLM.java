@@ -16,17 +16,6 @@ public class npcDialogLLM
     private static final String API_KEY = loadApiKey();
     private static final HttpClient httpClient = HttpClient.newHttpClient();
 
-    static
-    {
-        try
-        {
-            String test = getNPCDialogue("Hi");
-        } catch (Exception e)
-        {
-            System.out.println(e.getMessage());
-        }
-    }
-
     private static String loadApiKey()
     {
         try (InputStream input = npcDialogLLM.class

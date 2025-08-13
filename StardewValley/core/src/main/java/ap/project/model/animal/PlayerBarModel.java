@@ -10,12 +10,12 @@ import static ap.project.screen.FishingMinigameManager.MINIGAME_SCALE;
 public class PlayerBarModel {
     private float y;
     private static final float SPEED = 300f;
-    private boolean hitTopBound = false;
-    private boolean hitBottomBound = false;
 
     private float velocity = 0f;
     private static final float GRAVITY = 2000f;
     private static final float MAX_SPEED = 600f;
+
+    float UP_BUFFER = -102f;
 
     public PlayerBarModel() {
         reset();
@@ -37,43 +37,40 @@ public class PlayerBarModel {
         {
             y = MiniGameState.MIN_Y;
             velocity = 0;
-        } else if (y > MiniGameState.MAX_Y - (200 * MINIGAME_SCALE))
+        } else if (y > MiniGameState.MAX_Y + UP_BUFFER)
         {
-            y = MiniGameState.MAX_Y - (200 * MINIGAME_SCALE);
+            y = MiniGameState.MAX_Y + UP_BUFFER;
             velocity = 0;
         }
     }
 
     public void reset()
     {
-        // Start at the bottom
         y = 0;
-        hitTopBound = false;
-        hitBottomBound = false;
     }
 
     public void moveUp(float delta)
     {
         float newY = y + SPEED * delta;
-        if (newY > MiniGameState.MAX_Y - (200 * MINIGAME_SCALE))
+
+        if (newY > (MiniGameState.MAX_Y + UP_BUFFER))
         {
-            y = MiniGameState.MAX_Y - (50 * MINIGAME_SCALE);
-            hitTopBound = true;
+            y = MiniGameState.MAX_Y + UP_BUFFER;
         } else
         {
             y = newY;
-            hitTopBound = false;
         }
     }
 
-    public void moveDown(float delta) {
+    public void moveDown(float delta)
+    {
         float newY = y - SPEED * delta;
-        if (newY < MiniGameState.MIN_Y) {
+        if (newY < MiniGameState.MIN_Y)
+        {
             y = MiniGameState.MIN_Y;
-            hitBottomBound = true;
-        } else {
+        } else
+        {
             y = newY;
-            hitBottomBound = false;
         }
     }
 

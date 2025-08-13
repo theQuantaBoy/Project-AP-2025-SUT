@@ -1514,6 +1514,15 @@ public class InventoryWindow {
             {
                 drawPlayerAvatar(batch, player);
             }
+
+            if (map instanceof City)
+            {
+                ArrayList<NPC> NPCs = App.getCurrentGame().getNPCs();
+                for (NPC npc : NPCs)
+                {
+                    drawNpcAvatar(batch, npc);
+                }
+            }
         }
 
         private void drawPlayerAvatar(Batch batch, Player player)
@@ -1525,6 +1534,29 @@ public class InventoryWindow {
             Point playerLoc = getPlayerLocation(player);
             float xRatio = (float) playerLoc.getX() / map.getWidth();
             float yRatio = (float) playerLoc.getY() / map.getHeight();
+            float flipYRatio = 1 - yRatio;
+
+            float avatarX = getX() + xRatio * width - AVATAR_SIZE / 2f;
+            float avatarY = getY() + flipYRatio * height - AVATAR_SIZE / 2f;
+
+            // Draw downscaled avatar - REMOVED THE UNNECESSARY FLIP
+            batch.draw(avatarTexture,
+                avatarX, avatarY,
+                AVATAR_SIZE, AVATAR_SIZE,
+                0, 0,
+                avatarTexture.getWidth(), avatarTexture.getHeight(),
+                false, false); // Changed flipY from true to false
+        }
+
+        private void drawNpcAvatar(Batch batch, NPC npc)
+        {
+            // Get avatar texture
+            Texture avatarTexture = npc.getCharacter().getAvatar();
+
+            // Calculate position
+            Point npcLoc = npc.getLocation();
+            float xRatio = (float) npcLoc.getX() / map.getWidth();
+            float yRatio = (float) npcLoc.getY() / map.getHeight();
             float flipYRatio = 1 - yRatio;
 
             float avatarX = getX() + xRatio * width - AVATAR_SIZE / 2f;

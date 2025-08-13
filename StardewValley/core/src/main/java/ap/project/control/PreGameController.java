@@ -17,106 +17,6 @@ import java.util.Scanner;
 
 public class PreGameController
 {
-    public Game createGame(ArrayList<Player> players)
-    {
-        ArrayList<Player> finalPlayers = new ArrayList<>();
-
-        for (int i = 0; i < players.size(); i++)
-        {
-            Player player = players.get(i);
-            User user = player.getUser();
-            finalPlayers.add(new Player(user, player.getMapType(), 0));
-            finalPlayers.add(player);
-        }
-
-        Game game = new Game(finalPlayers);
-        game.setCurrentPlayer(finalPlayers.get(0));
-        App.addGame(game);
-        App.setCurrentGame(game);
-        App.setCurrentMenu(Menu.GameMenu);
-
-        for (Player player : finalPlayers)
-        {
-            User u = player.getUser();
-            u.setCurrentGame(game);
-            u.addToNumberOfGames();
-        }
-
-        PreGameMenu.println("New Game created.\n\n" +
-            "Welcome to Stardew Valley!");
-
-        return game;
-    }
-
-    public void newGame(String[] usernames)
-    {
-        User user = App.getCurrentUser();
-        ArrayList<User> users = new ArrayList<>();
-
-        if (user.hasCurrentGame())
-        {
-            PreGameMenu.println("You are already in a game. How many do you want at once?");
-            return;
-        }
-
-        users.add(user);
-
-        for (String username : usernames)
-        {
-            if (!username.isEmpty())
-            {
-                User thisUser = getUser(username);
-
-                if (thisUser != null && !thisUser.hasCurrentGame() && !users.contains(thisUser))
-                {
-                    users.add(getUser(username));
-                } else if (thisUser != null)
-                {
-                    PreGameMenu.println("Couldn't add " + username + ".");
-                }
-            }
-        }
-
-        int usersCount = users.size();
-
-        for (int i = 0; i < 4 - usersCount; i++)
-        {
-            User newUser = new User("guest" + (i + 1));
-            users.add(newUser);
-        }
-
-        PreGameMenu.println("Users selected successfully.");
-
-//        Scanner sc = new Scanner(System.in);
-
-//        chooseMaps(users, sc);
-//        chooseGender(sc);
-
-        ArrayList<Player> players = new ArrayList<>();
-
-        for (int i = 0; i < users.size(); i++)
-        {
-            User thisUser = users.get(i);
-//            Player player = new Player(thisUser, MapTypes.STANDARD, i);
-            Player player = new Player(thisUser, MapTypes.STANDARD, i);
-            players.add(player);
-        }
-
-        Game game = new Game(players);
-        game.setCurrentPlayer(players.get(0));
-        App.addGame(game);
-        App.setCurrentGame(game);
-        App.setCurrentMenu(Menu.GameMenu);
-        for (User u : users)
-        {
-            u.setCurrentGame(game);
-            u.addToNumberOfGames();
-        }
-
-        PreGameMenu.println("New Game created.\n\n" +
-                "Welcome to Stardew Valley!");
-    }
-
     public Result loadGame()
     {
         User user = App.getCurrentUser();
@@ -232,8 +132,8 @@ public class PreGameController
                     } else
                     {
                         MapTypes type = MapTypes.getMapType(number - 1);
-                        Player player = new Player(user, new Farm(type), count++);
-                        players.add(player);
+//                        Player player = new Player(user, new Farm(type), count++);
+//                        players.add(player);
                         break;
                     }
                 }

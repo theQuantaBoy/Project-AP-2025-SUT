@@ -235,7 +235,6 @@ public class CookBookWindow
             return;
         }
 
-        ArrayList<GameObject> refrigerator = player.getRefrigerator();
         HashMap<GameObjectType, Integer> ingredients = recipe.getIngredients();
         boolean canAfford = true;
 

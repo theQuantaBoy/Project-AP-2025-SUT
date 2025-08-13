@@ -241,7 +241,6 @@ public class FishingMinigameManager
                 break;
 
             case START:
-                // Player controls
                 if (Gdx.input.isKeyPressed(Input.Keys.UP))
                 {
                     gameState.getPlayerBar().moveUp(delta);
@@ -271,7 +270,7 @@ public class FishingMinigameManager
                         if (perfectCatch)
                         {
                             fish.increaseQuality();
-                            player.getFishingSkill().setUnit(player.getFishingSkill().getUnit() * 2.4f);
+                            player.getFishingSkill().setUnit((player.getFishingSkill().getUnit() + 1) * 2.4f);
                         }
                         player.addToInventory(fish);
                     } else

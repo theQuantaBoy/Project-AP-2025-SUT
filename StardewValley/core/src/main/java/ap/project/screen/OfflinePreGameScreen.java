@@ -155,13 +155,15 @@ public class OfflinePreGameScreen implements Screen
         createPrefsDialogs();
     }
 
-    private void addButtonListeners() {
+    private void addButtonListeners()
+    {
         addPlayerButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 User user = controller.getUser(username.getText());
-                if (user != null) {
-                    Player player = new Player(user, MapTypes.STANDARD, 0);
+                if (user != null)
+                {
+                    Player player = new Player(user);
                     addPlayerRow(player);
                     players.add(player);
                 }
@@ -295,16 +297,17 @@ public class OfflinePreGameScreen implements Screen
 
         TextButton prefsBtn = new TextButton("Prefs…", skin);
         prefsBtn.addListener(new ChangeListener() {
-            @Override public void changed(ChangeEvent event, Actor actor) {
+            @Override public void changed(ChangeEvent event, Actor actor)
+            {
                 // Set the context for dialogs
                 prefsTargetUser = player.getUser();
                 activeRowMapLabel = mapLabel;
                 activeRowAvatarLabel = avatarLabel;
 
                 // Initialize indices from current player
-                currentAvatarIndex = Math.max(0, Math.min(player.getUser().getCharacterChoice(), CharacterType.values().length - 1));
+                currentAvatarIndex = player.getUser().getCharacterChoice();
                 ArrayList<MapTypes> farms = MapTypes.getFarms();
-                currentMapIndex = Math.max(0, farms.indexOf(player.getMapType()));
+                currentMapIndex = player.getUser().getMapChoice();
 
                 updateAvatarPreview();
                 updateMapPreview();
@@ -551,26 +554,42 @@ public class OfflinePreGameScreen implements Screen
         mapPreviewActor.setTexture(texture);
     }
 
-    private void applyAvatarSelection() {
+    private void applyAvatarSelection()
+    {
         updateAvatarPreview();
-        if (prefsTargetUser != null) {
+        if (prefsTargetUser != null)
+        {
             prefsTargetUser.setCharacterChoice(currentAvatarIndex);
-            if (activeRowAvatarLabel != null) {
+
+            if (activeRowAvatarLabel != null)
+            {
                 activeRowAvatarLabel.setText(CharacterType.values()[currentAvatarIndex].name());
             }
         }
     }
 
-    private void applyMapSelection() {
+    private void applyMapSelection()
+    {
         updateMapPreview();
-        if (prefsTargetUser != null) {
+        if (prefsTargetUser != null)
+        {
             ArrayList<MapTypes> farms = MapTypes.getFarms();
             MapTypes sel = farms.get(currentMapIndex);
             prefsTargetUser.setMapChoice(currentMapIndex);
-            if (activeRowMapLabel != null) {
+
+            for (Player player : players)
+            {
+                if (player.getUser().getHashId() == prefsTargetUser.getHashId())
+                {
+                    player.setMapType(sel);
+                    break;
+                }
+            }
+
+            if (activeRowMapLabel != null)
+            {
                 activeRowMapLabel.setText(sel.getName());
             }
         }
     }
-
 }

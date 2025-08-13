@@ -385,7 +385,7 @@ public enum GameObjectType
     FIBERGLASS_ROD("Fiberglass Rod", "game_objects/Fishing_Pole/Fiberglass_Rod.png"),
     IRIDIUM_ROD("Iridium Rod", "game_objects/Fishing_Pole/Iridium_Rod.png"),
     JOJA_COLA("Joja Cola", "game_objects/Concessions/Joja_Cola_%28large%29.png"),
-    HAY("Hay", "game_objects/Tools/Hay_Hopper.png"),
+    HAY("Hay", "game_objects/Animals/Hay.png"),
     MILK_PAIL("Milk Pail", "game_objects/Tools/Milk_Pail.png"),
     SHEARS("Shears", "game_objects/Tools/Shears.png"),
     DELUXE_RETAINING_SOIL("Deluxe Retaining Soil", "game_objects/crafting/Deluxe_Retaining_Soil.png"),
@@ -415,7 +415,7 @@ public enum GameObjectType
     TRASH_CAN("Trash Can", "game_objects/Tools/Trash_Can_Iridium.png"),
     WATERING_CAN("Watering Can", "game_objects/Watering_Can/Watering_Can.png"),
 
-    ANIMAL_BUILDING("animal building", ""),
+    ANIMAL_BUILDING("animal building", "animals/Barn.png"),
 
     SHAD("Shad", "game_objects/animal_products/Shad.png"),
     BLUE_DISCUS("Blue Discus", "game_objects/animal_products/Blue_Discus.png"),

@@ -21,7 +21,7 @@ public class BackPack extends Tool {
         super.ObjectType = GameObjectType.BackPack;
         super.toolType = ToolType.BackPack;
         super.name = toolType.getName();
-        this.level = BackPackLevel.Deluxe;
+        this.level = BackPackLevel.base;
         initializeSlots();
     }
 

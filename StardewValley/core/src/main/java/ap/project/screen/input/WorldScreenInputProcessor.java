@@ -3,9 +3,13 @@ package ap.project.screen.input;
 import ap.project.control.CharacterController;
 import ap.project.control.WorldController;
 import ap.project.model.App.App;
+import ap.project.model.enums.MapKind;
 import ap.project.model.enums.GameAnimationType;
 import ap.project.model.enums.tool_enums.PickaxeLevel;
 import ap.project.model.game.*;
+import ap.project.model.shops.Shop;
+import ap.project.screen.*;
+import ap.project.visual.UIRenderer;
 import ap.project.screen.CommunicationWindow;
 import ap.project.screen.InventoryWindow;
 import ap.project.screen.WorldScreen;
@@ -27,10 +31,12 @@ public class WorldScreenInputProcessor implements InputProcessor
     private final WorldScreen worldScreen;
     private final InventoryWindow inventoryWindow;
     private final CommunicationWindow communicationWindow;
+    private final ShopWindow shopWindow;
 
     public WorldScreenInputProcessor(Map map, PlayerCharacter player, CharacterController controller,
                                      OrthographicCamera cam, WorldScreen worldScreen, InventoryWindow inventoryWindow,
-                                     CommunicationWindow communicationWindow)
+                                     CommunicationWindow communicationWindow,
+                                     ShopWindow shopWindow)
     {
         this.map = map;
         this.player = player;
@@ -39,6 +45,9 @@ public class WorldScreenInputProcessor implements InputProcessor
         this.worldScreen = worldScreen;
         this.inventoryWindow = inventoryWindow;
         this.communicationWindow = communicationWindow;
+        this.shopWindow = shopWindow;
+
+
     }
 
     @Override
@@ -47,8 +56,10 @@ public class WorldScreenInputProcessor implements InputProcessor
         if (worldScreen.isDialogVisible() || worldScreen.isInventoryVisible() ||
             worldScreen.isCookBookVisible() || worldScreen.isRefrigeratorVisible() ||
             worldScreen.isCraftingWindowVisible() || worldScreen.isChatVisible() ||
-        worldScreen.isGreenHouseBuildWindowVisible() || worldScreen.isReactionWindowVisible() ||
-        worldScreen.isScoreBoardVisible() || worldScreen.isNpcWindowVisible() || worldScreen.isFishWindowVisible())
+        worldScreen.isGreenHouseBuildWindowVisible() || worldScreen.isChatVisible() || worldScreen.isShopWindowVisible() ||
+            worldScreen.isPurchaseWindowVisible() || worldScreen.isReactionWindowVisible() ||
+            worldScreen.isScoreBoardVisible() || worldScreen.isNpcWindowVisible() || worldScreen.isFishWindowVisible() ||
+            worldScreen.isAnimalWindowVisible())
         {
             return false;
         }
@@ -64,17 +75,6 @@ public class WorldScreenInputProcessor implements InputProcessor
                 {
                     System.out.println("Object: " + tile.getObject().getObjectType());
                 }
-//                for (int i = 0; i < farm.getDepth(); i++)
-//                {
-//                    Tile layerTile = farm.getLayerTiles()[i][tile.getY()][tile.getX()];
-//                    if (layerTile != null)
-//                    {
-//                        System.out.println("Layer " + i + ": " + layerTile.getTypeName());
-//                    } else
-//                    {
-//                        System.out.println("Layer " + i + ": null");
-//                    }
-//                }
             }
 
             WorldController.processClickLeft(worldScreen, tile);
@@ -87,19 +87,6 @@ public class WorldScreenInputProcessor implements InputProcessor
             if (tile != null)
             {
                 WorldController.processClickRight(worldScreen, tile);
-            }
-
-            if (clicked != null)
-            {
-                Vector2 playerPos = player.getPosition();
-                Point playerTile = map.worldToTile(playerPos.x, playerPos.y);
-
-                ArrayList<Point> path = map.findShortestPath(playerTile, clicked);
-
-                if (path != null)
-                {
-                    characterController.moveToPath(path);
-                }
             }
         }
 
@@ -119,14 +106,14 @@ public class WorldScreenInputProcessor implements InputProcessor
 
         if (worldScreen.isDialogVisible() || worldScreen.isInventoryVisible() ||
             worldScreen.isCookBookVisible() || worldScreen.isRefrigeratorVisible() ||
-        worldScreen.isCraftingWindowVisible() || worldScreen.isChatVisible() ||
-        worldScreen.isGreenHouseBuildWindowVisible() || worldScreen.isReactionWindowVisible() ||
-        worldScreen.isScoreBoardVisible() || worldScreen.isNpcWindowVisible() || worldScreen.isFishWindowVisible())
+            worldScreen.isCraftingWindowVisible() || worldScreen.isChatVisible() || worldScreen.isShopWindowVisible() ||
+            worldScreen.isPurchaseWindowVisible() || worldScreen.isGreenHouseBuildWindowVisible() || worldScreen.isReactionWindowVisible() ||
+            worldScreen.isScoreBoardVisible() || worldScreen.isNpcWindowVisible() || worldScreen.isFishWindowVisible() ||
+            worldScreen.isAnimalWindowVisible())
         {
             return false;
         }
 
-        if (communicationWindow.getChatScreen().isVisible())
         if (keycode == Input.Keys.E ||  keycode == Input.Keys.ESCAPE) {
             boolean nowVisible = !inventoryWindow.isVisible();
             inventoryWindow.toggleVisibility();

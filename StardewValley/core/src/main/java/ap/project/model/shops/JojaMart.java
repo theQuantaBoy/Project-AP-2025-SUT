@@ -70,6 +70,33 @@ public class JojaMart extends Shop{
     }
 
     @Override
+    protected void initializeProducts() {
+        for (JojaMartPermanentStock item : JojaMartPermanentStock.values()) {
+            ShopProduct product = new ShopProduct(
+                item.getName(),
+                item.getPrice(),
+                item.getLimit(),
+                item.getGameObjectType(),
+                item
+            );
+            product.isSeasonal = false;
+            products.add(product);
+        }
+        for (JojaMartSeasonalStock item : JojaMartSeasonalStock.values()) {
+            ShopProduct product = new ShopProduct(
+                item.getName(),
+                item.getPrice(),
+                item.getLimit(),
+                item.getGameObjectType(),
+                item
+            );
+            product.isSeasonal = true;
+            //product.isAvailable = item.getSeason().equals(App.getCurrentGame().getCurrentTime().getSeason());
+            products.add(product);
+        }
+    }
+
+    @Override
     public void purchase(GameObject gameObject)
     {
         Iterator<JojaMartPermanentStock> permanentIterator = permanentStocks.iterator();

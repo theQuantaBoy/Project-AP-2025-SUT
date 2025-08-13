@@ -237,18 +237,19 @@ public class App
     // Add this method for user sync
     public static void syncUsersWithServer(List<User> serverUsers)
     {
-        Map<Integer, User> clientUserMap = new HashMap<>();
-        for (User user : users)
-        {
-            clientUserMap.put(user.getHashId(), user);
-        }
-
-        // Add new users from server
         for (User serverUser : serverUsers)
         {
-            if (!clientUserMap.containsKey(serverUser.getHashId()))
+            for (int i = 0; i < users.size(); i++)
             {
-                users.add(serverUser);
+                User user = users.get(i);
+
+                if (user.getHashId() == serverUser.getHashId())
+                {
+                    if (currentUser != null && currentUser.getHashId() != serverUser.getHashId())
+                    {
+                        users.set(i, serverUser);
+                    }
+                }
             }
         }
 

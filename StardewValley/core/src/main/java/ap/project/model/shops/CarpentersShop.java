@@ -71,6 +71,28 @@ public class CarpentersShop extends Shop {
     }
 
     @Override
+    protected void initializeProducts() {
+        for (CarpentersShopStock stock : CarpentersShopStock.values()) {
+            products.add(new ShopProduct(
+                stock.getName(),
+                stock.getPrice(),
+                -1, // Unlimited stock
+                stock.getGameObjectType(),
+                stock
+            ));
+        }
+        for (FarmBuildingType building : FarmBuildingType.values()) {
+            products.add(new ShopProduct(
+                building.getName(),
+                building.getPrice(),
+                1, // Unlimited stock
+                GameObjectType.ANIMAL_BUILDING, // Not a GameObject
+                building
+            ));
+        }
+    }
+
+    @Override
     public void purchase(GameObject gameObject)
     {
         GameObjectType targetType = gameObject.getObjectType();

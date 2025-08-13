@@ -8,6 +8,8 @@ import ap.project.model.animal.Animal;
 import ap.project.model.animal.AnimalBuilding;
 import ap.project.model.animal.Fish;
 import ap.project.model.enums.*;
+import ap.project.model.enums.animal_enums.AnimalType;
+import ap.project.model.enums.tool_enums.FishingPoleLevel;
 import ap.project.model.shops.Shop;
 import ap.project.model.tools.*;
 import ap.project.model.enums.building_enums.CraftingRecipeEnums;
@@ -133,32 +135,6 @@ public class Player {
         this.farm = farm;
     }
 
-    public Player(User user, MapTypes currentMapType, int number) {
-        this.user = user;
-        this.mapType = currentMapType;
-        this.cabin = new Cabin();
-        this.greenHouse = new GreenHouse();
-        this.gender = user.getGender();
-        this.energy = 200f;
-        this.fainted = false;
-        this.money = 0;
-        Axe axe = new Axe(); Hoe hoe = new Hoe(); Pickaxe  pickaxe = new Pickaxe();
-        WateringCan wateringCan = new WateringCan(); Seythe seythe = new Seythe();
-        addTool(axe); addToInventory(axe);
-        addTool(hoe); addToInventory(hoe);
-        addTool(pickaxe);  addToInventory(pickaxe);
-        addTool(wateringCan); addToInventory(wateringCan);
-        addTool(seythe); addToInventory(seythe);
-        addToInventory(GameObjectType.MILK, 2);
-
-
-        this.zeidy = null;
-        this.newMessage = false;
-        this.apperance = appearences.get(number);
-        this.skills.add(farmingSkill); this.skills.add(miningSkill);
-        this.skills.add(foragingSkill); this.skills.add(fishingSkill);
-    }
-
     public void spawn(Map map)
     {
         this.currentMap = map;
@@ -212,44 +188,27 @@ public class Player {
 
         Axe axe = new Axe(); Hoe hoe = new Hoe(); Pickaxe  pickaxe = new Pickaxe();
         WateringCan wateringCan = new WateringCan(); Seythe seythe = new Seythe();
+
+        FishingPole fishingPole = new FishingPole(FishingPoleLevel.Bamboo);
+        MilkPail milkPail = new MilkPail();
+        Shear shear = new Shear();
+
         addTool(axe); addToInventory(axe);
         addTool(hoe); addToInventory(hoe);
         addTool(pickaxe);  addToInventory(pickaxe);
         addTool(wateringCan); addToInventory(wateringCan);
         addTool(seythe); addToInventory(seythe);
+
+        addTool(fishingPole); addToInventory(fishingPole);
+        addTool(milkPail); addToInventory(milkPail);
+        addTool(shear); addToInventory(shear);
+
         addToInventory(GameObjectType.MILK, 2);
         addToInventory(GameObjectType.STONE, 1);
 
         this.zeidy = null;
         this.newMessage = false;
         this.apperance = appearences.get(0);
-        this.skills.add(farmingSkill); this.skills.add(miningSkill);
-        this.skills.add(foragingSkill); this.skills.add(fishingSkill);
-    }
-
-    public Player(User user, Farm farm, int number) {
-        this.user = user;
-        this.farm = farm;
-        this.cabin = new Cabin();
-        this.greenHouse = new GreenHouse();
-        this.currentMap = this.farm;
-        this.energy = 200f;
-        this.fainted = false;
-        this.money = 0;
-        this.addToInventory(new Axe());
-        this.addToInventory(new Hoe());
-        this.addToInventory(new Pickaxe());
-        this.addToInventory(new WateringCan());
-        this.addToInventory(new Seythe());
-        this.addToInventory(new TrashCan());
-
-        this.zeidy = null;
-        setLocation(farm.getStartingPoint());
-        this.newMessage = false;
-        this.apperance = appearences.get(number);
-
-        this.character = new PlayerCharacter(CharacterType.ABIGAIL, new Vector2(60 * 24, 60 * 24),
-            user.getNickname(), this);
         this.skills.add(farmingSkill); this.skills.add(miningSkill);
         this.skills.add(foragingSkill); this.skills.add(fishingSkill);
     }
@@ -286,8 +245,6 @@ public class Player {
         {
            this.energy += energy;
         }
-
-        // TODO: add faint check mechanism
     }
 
 
@@ -452,7 +409,6 @@ public class Player {
 
     public Point getLocation()
     {
-//        return location;
         Vector2 pos = character.getPosition();
         return currentMap.worldToTile(pos.x, pos.y);
     }
@@ -1172,7 +1128,23 @@ public class Player {
         return "null";
     }
 
-    public ArrayList<Animal> getAnimalsList()
+    public Animal getTileAnimal(Tile tile)
+    {
+        Point point = tile.getPoint();
+        for (Animal animal : animals)
+        {
+            Vector2 pos = animal.getCharacter().getPosition();
+            Point loc = farm.worldToTile(pos.x, pos.y);
+            if (Math.abs(point.getX() - loc.getX()) <= 1 && Math.abs(point.getY() - loc.getY()) <= 1)
+            {
+                return animal;
+            }
+        }
+
+        return null;
+    }
+
+    public ArrayList<Animal> getAnimals()
     {
         return animals;
     }
@@ -1182,22 +1154,9 @@ public class Player {
         return animalCharacterControllers;
     }
 
-    public ArrayList<Animal> getAnimals()
-    {
-        ArrayList<Animal> animals = new ArrayList<>();
-        for (AnimalBuilding animalBuilding : farm.getAnimalBuildings())
-        {
-            for (Animal animal : animalBuilding.getAnimals())
-            {
-                animals.add(animal);
-            }
-        }
-        return animals;
-    }
-
     public Animal findAnimal(String name)
     {
-        for (Animal animal : getAnimals())
+        for (Animal animal : animals)
         {
             if (animal.getName().equalsIgnoreCase(name))
             {
@@ -1209,7 +1168,7 @@ public class Player {
 
     public boolean validAnimalName(String name)
     {
-        for (Animal animal : getAnimals())
+        for (Animal animal : animals)
         {
             if (animal.getName().equalsIgnoreCase(name))
             {
@@ -1217,36 +1176,6 @@ public class Player {
             }
         }
         return true;
-    }
-
-    public boolean isNearAnimal(Animal animal)
-    {
-        for (Animal a : getAnimals())
-        {
-            if (a.getName().equalsIgnoreCase(animal.getName()))
-            {
-                Tile tile = a.getTile();
-
-                if (tile == null) // TODO: technically should be changed later
-                {
-                    return false;
-                }
-
-                Point p = tile.getPoint();
-                ArrayList<Point> neighbors = App.getCurrentGame().getCurrentPlayer().getFarm().getNeighbors(
-                        App.getCurrentGame().getCurrentPlayer().getLocation());
-
-                for (Point neighbor : neighbors)
-                {
-                    if (neighbor.equals(p))
-                    {
-                        return true;
-                    }
-                }
-            }
-        }
-
-        return false;
     }
 
     public ArrayList<Fish> getFishes()
@@ -1551,5 +1480,16 @@ public class Player {
 
     public void setCurrentListeningTo(Player currentListeningTo) {
         this.currentListeningTo = currentListeningTo;
+    }
+
+    public void removeAnimal(Animal animal)
+    {
+        int index = animals.indexOf(animal);
+
+        if (index != -1)
+        {
+            animalCharacterControllers.remove(index);
+            animals.remove(animal);
+        }
     }
 }

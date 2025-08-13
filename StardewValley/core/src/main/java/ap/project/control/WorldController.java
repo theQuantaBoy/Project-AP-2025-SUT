@@ -2,7 +2,6 @@ package ap.project.control;
 
 import ap.project.model.App.App;
 import ap.project.model.App.GameAssetsManager;
-import ap.project.model.App.Result;
 import ap.project.model.animal.Animal;
 import ap.project.model.animal.AnimalBuilding;
 import ap.project.model.building.CraftingItem;
@@ -16,16 +15,14 @@ import ap.project.model.enums.resources_enums.ResourceItem;
 import ap.project.model.enums.resources_enums.TreeType;
 import ap.project.model.game.*;
 import ap.project.model.player_data.FriendshipWithNpcData;
-import ap.project.model.player_data.Skill;
 import ap.project.model.resources.*;
 import ap.project.model.resources.Tree;
 import ap.project.model.shops.Shop;
 import ap.project.model.tools.*;
 import ap.project.network.shared.npcDialogLLM;
 import ap.project.screen.CommunicationWindow;
+import ap.project.screen.ShopWindow;
 import ap.project.screen.WorldScreen;
-import ap.project.util.NpcContextGenerator;
-import ap.project.view.GameMenu;
 import ap.project.visual.MapVisual;
 import ap.project.visual.UIRenderer;
 import com.badlogic.gdx.Gdx;
@@ -36,9 +33,9 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
+import com.sun.source.doctree.UnknownInlineTagTree;
 
 import java.util.ArrayList;
-import java.util.Vector;
 import java.util.function.Consumer;
 
 import static ap.project.model.game.Map.TILE_SIZE;
@@ -73,17 +70,12 @@ public class WorldController
         doLightning(tile);
         crowAttack(tile);
 
-        if (!Map.isNearOrOn(location, clicked))
+        if (processShopWindow(tile))
         {
             return;
         }
 
-//        if (processPickingUpForagingItem(tile))
-//        {
-//            return;
-//        }
-
-        if (processMapNavigation(tile))
+        if (!Map.isNearOrOn(location, clicked))
         {
             return;
         }
@@ -98,12 +90,12 @@ public class WorldController
             return;
         }
 
-        if (processAnimalPlacementTile(tile))
+        if (processObjectUse(tile, location,  clicked))
         {
             return;
         }
 
-        if (processObjectUse(tile, location,  clicked))
+        if (processMapNavigation(tile))
         {
             return;
         }
@@ -113,7 +105,7 @@ public class WorldController
             return;
         }
 
-        if (processFishing(tile))
+        if (processAnimalInteraction(tile))
         {
             return;
         }
@@ -130,6 +122,24 @@ public class WorldController
         }
 
         Point clicked = tile.getPoint();
+
+        if (Gdx.input.isKeyPressed(Input.Keys.SPACE))
+        {
+            if (clicked != null)
+            {
+                Map map = player.getCurrentMap();
+
+                Vector2 playerPos = player.getPosition();
+                Point playerTile = map.worldToTile(playerPos.x, playerPos.y);
+
+                ArrayList<Point> path = map.findShortestPath(playerTile, clicked);
+
+                if (path != null)
+                {
+                    WorldScreen.getInstance().getCharacterController().moveToPath(path);
+                }
+            }
+        }
 
         Player nearbyPlayer = findNearbyPlayer(clicked, 1); // radius 1 (8-neighbors)
 
@@ -149,6 +159,11 @@ public class WorldController
             }
 
             if (processNpcWindow(tile))
+            {
+                return;
+            }
+
+            if (processAnimalWindow(tile))
             {
                 return;
             }
@@ -175,19 +190,7 @@ public class WorldController
     {
         Player player = App.getCurrentGame().getCurrentPlayer();
 
-        if (player.isInFarm())
-        {
-            ArrayList<Point> neighbors = player.getFarm().getSquareNeighbors(tile.getPoint(), 2);
-            for (Point p : neighbors)
-            {
-                Tile t = player.getFarm().getTile(p.getX(), p.getY());
-                if (t != null && t.getTexture() == TileTexture.LAKE)
-                {
-                    WorldScreen.getInstance().toggleFishMiniGame();
-                    break;
-                }
-            }
-        }
+
 
         return false;
     }
@@ -290,7 +293,13 @@ public class WorldController
 
                 if (Map.isNearOrOn(door, clicked))
                 {
-                    player.goToShop(shop);
+                    if (shop.isOpen(App.getCurrentGame().getCurrentTime()))
+                    {
+                        player.goToShop(shop);
+                    } else
+                    {
+                        UIRenderer.showTextBox("Work Hours: " + shop.getStartWork() + " to " + shop.getEndWork());
+                    }
                     return true;
                 }
             }
@@ -517,30 +526,7 @@ public class WorldController
 
         if (tool instanceof Pickaxe)
         {
-            if (!tile.hasPlants() && tile.getObject() != null)
-            {
-                GameObject object = tile.getObject();
-                if (!player.inventoryHasCapacity())
-                {
-                    UIRenderer.showTextBox("you don't have enough space in your inventory");
-                    return true;
-                }
-
-                player.addToInventory(object);
-                tile.setObject(null);
-
-                if (tile.isHitByThunder())
-                {
-                    tile.unHitByThunder();
-                    player.getFarm().getThunderedTiles().remove(tile);
-                    return true; //??
-                }
-
-                UIRenderer.showTextBox(object.getObjectType().toString() + " added to your inventory");
-                return true;
-            }
-
-            else if (tile.getObject() != null && tile.getObject() instanceof ForagingMineral)
+            if (tile.getObject() != null && tile.getObject() instanceof ForagingMineral)
             {
                 if (player.getEnergy() <= (int)(weatherModifier * ((Pickaxe) tool).getLevel().getBaseEnergyUsage()))
                 {
@@ -624,6 +610,34 @@ public class WorldController
                 return true;
             }
 
+            if (tile.getObject() != null && (tile.getObject() instanceof Tree || tile.getObject() instanceof ForagingTree))
+            {
+                return false;
+            }
+
+            else if (!tile.hasPlants() && tile.getObject() != null)
+            {
+                GameObject object = tile.getObject();
+                if (!player.inventoryHasCapacity())
+                {
+                    UIRenderer.showTextBox("you don't have enough space in your inventory");
+                    return true;
+                }
+
+                player.addToInventory(object);
+                tile.setObject(null);
+
+                if (tile.isHitByThunder())
+                {
+                    tile.unHitByThunder();
+                    player.getFarm().getThunderedTiles().remove(tile);
+                    return true; //??
+                }
+
+                UIRenderer.showTextBox(object.getObjectType().toString() + " added to your inventory");
+                return true;
+            }
+
             else
             {
                 player.increaseEnergy((int)(weatherModifier * -((Pickaxe) tool).getLevel().getFailedEnergyUsage()));
@@ -687,9 +701,9 @@ public class WorldController
                 return true;
             }
 
-            if (tile.getObject() != null && tile.getObject().getObjectType() != null && tile.getObject() instanceof Animal)
+            Animal animal = player.getTileAnimal(tile);
+            if (animal != null)
             {
-                Animal animal = (Animal) tile.getObject();
                 if (animal.getAnimalType().equals(FarmAnimalsType.SHEEP) ||
                     animal.getAnimalType().equals(FarmAnimalsType.COW))
                 {
@@ -722,10 +736,9 @@ public class WorldController
                 return true;
             }
 
-            if (tile.getObject() != null && tile.getObject().getObjectType() != null && tile.getObject() instanceof Animal)
+            Animal animal = player.getTileAnimal(tile);
+            if (animal != null)
             {
-                Animal animal = (Animal) tile.getObject();
-
                 if (animal.getAnimalType().equals(FarmAnimalsType.SHEEP))
                 {
                     player.addToInventory(GameObjectType.WOOL, 3);
@@ -740,6 +753,24 @@ public class WorldController
             }
 
             return false;
+        }
+
+        else if (tool instanceof FishingPole)
+        {
+            if (player.isInFarm())
+            {
+                ArrayList<Point> neighbors = player.getFarm().getSquareNeighbors(tile.getPoint(), 2);
+                for (Point p : neighbors)
+                {
+                    Tile t = player.getFarm().getTile(p.getX(), p.getY());
+                    if (t != null && t.getTexture() == TileTexture.LAKE)
+                    {
+                        WorldScreen.getInstance().toggleFishMiniGame();
+                        player.increaseEnergy((int)(weatherModifier * -((FishingPole) tool).getLevel().getBaseEnergyUsage()));
+                        return true;
+                    }
+                }
+            }
         }
 
         return false;
@@ -777,8 +808,58 @@ public class WorldController
             return true;
         }
 
+        if (processAnimalPlacementTile(tile))
+        {
+            return true;
+        }
+
+        if (processFeedingAnimal(tile))
+        {
+            return true;
+        }
+
         if (processEatingFood(tile, location, clicked))
         {
+            return true;
+        }
+
+        return false;
+    }
+
+    private static boolean processFeedingAnimal(Tile tile)
+    {
+        Player player = App.getCurrentGame().getCurrentPlayer();
+
+        if (!player.isInFarm())
+        {
+            return false;
+        }
+
+        Farm farm = player.getFarm();
+        Animal animal = player.getTileAnimal(tile);
+
+        if (animal == null)
+        {
+            return false;
+        }
+
+        GameObject object = player.getCurrentObject();
+        if (object == null)
+        {
+            return false;
+        }
+
+        if (object.getObjectType() == GameObjectType.HAY)
+        {
+            if (!animal.isFed())
+            {
+                UIRenderer.showTextBox("Your friendship level was increased 8 units!");
+            }
+
+            animal.feed();
+            UIRenderer.showTextBox("You fed " + animal.getName() + "!");
+            MapVisual.playAnimationAt(GameAnimationType.EATING, tile);
+            player.removeAmountFromInventory(GameObjectType.HAY, 1);
             return true;
         }
 
@@ -962,7 +1043,11 @@ public class WorldController
             return false;
         }
 
-        if (tile.getTexture() != TileTexture.LAND && tile.getTexture() != TileTexture.GRASS)
+        int width = farmBuildingType.getWidth();
+        int height = farmBuildingType.getHeight();
+        Point point = tile.getPoint();
+
+        if (!map.getMapVisual().isGoodForAnimalBuilding(point, width, height))
         {
             UIRenderer.showTextBox("you can't build a building on this type of tile");
             return false;
@@ -1298,6 +1383,35 @@ public class WorldController
         return true;
     }
 
+    private static boolean processAnimalInteraction(Tile tile)
+    {
+        Player player = App.getCurrentGame().getCurrentPlayer();
+
+        if (!player.isInFarm())
+        {
+            return false;
+        }
+
+        Farm farm = player.getFarm();
+        Animal animal = player.getTileAnimal(tile);
+
+        if (animal == null)
+        {
+            return false;
+        }
+
+        if (!animal.isPet())
+        {
+            UIRenderer.showTextBox("Your friendship level was increased 15 units!");
+        }
+
+        animal.pet();
+        UIRenderer.showTextBox("You just pet " + animal.getName() + "!");
+        MapVisual.playAnimationAt(GameAnimationType.PET, tile);
+
+        return true;
+    }
+
     private static boolean processNpcWindow(Tile tile)
     {
         Game game = App.getCurrentGame();
@@ -1309,9 +1423,23 @@ public class WorldController
             return false;
         }
 
-        FriendshipWithNpcData friendship = player.getNpcFriendship(npc);
         WorldScreen.getInstance().toggleNpcWindow(npc);
         return true;
+    }
+
+    private static boolean processAnimalWindow(Tile tile)
+    {
+        Game game = App.getCurrentGame();
+        Player player = game.getCurrentPlayer();
+
+       Animal animal = player.getTileAnimal(tile);
+       if (animal == null)
+       {
+           return false;
+       }
+
+       WorldScreen.getInstance().toggleAnimalWindow(animal);
+       return true;
     }
 
     private static boolean processAnimalPlacementTile(Tile tile)
@@ -1344,15 +1472,21 @@ public class WorldController
         if (tile.getTexture() != TileTexture.LAND && tile.getTexture() != TileTexture.GRASS)
         {
             UIRenderer.showTextBox("You can't put an animal on this tile");
-            return false;
+            return true;
         }
 
-        showAnimalNameTextDialog(name -> {
-            // This callback runs AFTER user confirms name
+        if (!farm.hasPlaceForAnimal(animalsType.getAnimalType()))
+        {
+            UIRenderer.showTextBox("you must first build a home for your pet!");
+            return true;
+        }
+
+        showAnimalNameTextDialog(name ->
+        {
             Vector2 loc = player.getCurrentMap().tileToWorld(tile);
             Animal pet = new Animal(name, animalsType, loc);
             AnimalCharacterController controller = new AnimalCharacterController(pet.getCharacter(), map, PLAYER_SPEED, TILE_SIZE);
-            player.getAnimalsList().add(pet);
+            player.getAnimals().add(pet);
             player.getAnimalCharacterControllers().add(controller);
             UIRenderer.showTextBox("You placed " + name + " on this tile");
         });
@@ -1390,12 +1524,23 @@ public class WorldController
         // Handle button clicks
         confirmButton.addListener(new ClickListener() {
             @Override
-            public void clicked(InputEvent event, float x, float y) {
+            public void clicked(InputEvent event, float x, float y)
+            {
                 String text = textField.getText().trim();
-                if (!text.isEmpty()) {
-                    dialog.hide();
-                    onConfirm.accept(text); // Pass name to callback
-                } else {
+                if (!text.isEmpty())
+                {
+                    boolean isValid = App.getCurrentGame().getCurrentPlayer().validAnimalName(text);
+
+                    if (isValid)
+                    {
+                        dialog.hide();
+                        onConfirm.accept(text); // Pass name to callback
+                    } else
+                    {
+                        UIRenderer.showTextBox("you already have a pet with this name!");
+                    }
+                } else
+                {
                     UIRenderer.showTextBox("Name cannot be empty");
                 }
             }
@@ -1408,5 +1553,21 @@ public class WorldController
             (stage.getWidth() - dialog.getWidth()) / 2,
             (stage.getHeight() - dialog.getHeight()) / 2
         );
+    }
+
+    private static boolean processShopWindow(Tile tile) {
+        Player player = App.getCurrentGame().getCurrentPlayer();
+        ShopWindow shopWindow = WorldScreen.getInstance().getShopWindow();
+        if (player.getCurrentMap() instanceof Shop) {
+            Shop shop =  (Shop) player.getCurrentMap();
+
+            if (Map.isNearOrOn(tile.getPoint(), shop.getCounterPoint()))
+            {
+                shopWindow.setShop(shop);
+                shopWindow.toggleVisibility();
+                return true;
+            }
+        }
+        return false;
     }
 }

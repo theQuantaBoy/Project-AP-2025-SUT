@@ -161,10 +161,10 @@ public class AnimalController
             return new Result(false, "you have no animal named " + name + " in your farm");
         }
 
-        if (!player.isNear(animal.getTile().getPoint()))
-        {
-            return new Result(false, "you are not near " + name);
-        }
+//        if (!player.isNear(animal.getTile().getPoint()))
+//        {
+//            return new Result(false, "you are not near " + name);
+//        }
 
         animal.pet();
 

@@ -321,6 +321,9 @@ public class NpcWindow
         player.addToJournal("completed 1 quest for: " + currentNpc.getName() + ":\n");
         player.addToJournal("  gave " + request.getNumber() + " " + request.getObjectType() + "\n");
         player.addToJournal("  received " + reward.getNumber() + " " + reward.getObjectType() + "\n\n");
+
+        player.setCompletedQuests(player.getCompletedQuests() + 1);
+
         return true;
     }
 
