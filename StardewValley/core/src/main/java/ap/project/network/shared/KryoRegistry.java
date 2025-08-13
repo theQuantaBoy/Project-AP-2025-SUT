@@ -29,7 +29,6 @@ public class KryoRegistry
 
         kryo.register(AbstractCharacter.Direction.class);
 
-        // Enums for time system
         kryo.register(Time.class);
         kryo.register(Season.class);
         kryo.register(Weather.class);
@@ -205,5 +204,11 @@ public class KryoRegistry
         kryo.register(RadioChangedMessage.class);
 
         kryo.register(NpcServerDetailsMessage.class);
+
+        kryo.register(MusicFileChunkMessage.class);
+        kryo.register(MusicFileRequestMessage.class);
+        kryo.register(MusicFileListMessage.class);
+
+        kryo.register(byte[].class);
     }
 }

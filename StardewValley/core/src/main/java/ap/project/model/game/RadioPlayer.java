@@ -7,6 +7,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.files.FileHandle;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -27,17 +28,29 @@ public class RadioPlayer {
     }
 
     private void loadPlaylist(String folderPath) {
-        // Use absolute path instead of internal
-        FileHandle dir = Gdx.files.internal(folderPath);
+        File dir = new File(folderPath);
 
-        Gdx.app.log("RadioPlayer", "Loading from absolute path: " + dir.path());
+        Gdx.app.log("RadioPlayer", "Loading from path: " + dir.getAbsolutePath());
         Gdx.app.log("RadioPlayer", "Directory exists: " + dir.exists());
 
         if (dir.exists() && dir.isDirectory()) {
-            for (FileHandle file : dir.list()) {
-                Gdx.app.log("RadioPlayer", "Found file: " + file.name());
-                if (file.extension().equalsIgnoreCase("ogg")) {
-                    playlist.add(file.nameWithoutExtension());
+            File[] files = dir.listFiles();
+            if (files != null) {  // Important: listFiles() can return null
+                for (File file : files) {
+                    if (file.isFile()) {  // Ensure it's a file, not subdirectory
+                        String fileName = file.getName();
+                        Gdx.app.log("RadioPlayer", "Found file: " + fileName);
+
+                        // Extract extension manually
+                        int dotIndex = fileName.lastIndexOf('.');
+                        if (dotIndex > 0) {  // Ensure dot exists and isn't first char
+                            String extension = fileName.substring(dotIndex + 1);
+                            if ("ogg".equalsIgnoreCase(extension)) {
+                                String baseName = fileName.substring(0, dotIndex);
+                                playlist.add(baseName);
+                            }
+                        }
+                    }
                 }
             }
         }

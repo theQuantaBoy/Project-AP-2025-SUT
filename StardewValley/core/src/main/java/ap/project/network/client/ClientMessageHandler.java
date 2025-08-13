@@ -19,12 +19,19 @@ import ap.project.visual.UIRenderer;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class ClientMessageHandler
 {
+    private static Map<String, List<byte[]>> fileChunks = new ConcurrentHashMap<>();
+
     public static void handle(Message message)
     {
         switch (message.getType())
@@ -187,6 +194,15 @@ public class ClientMessageHandler
                 break;
             case NPC_SERVER_DETAILS:
                 handleNpcServerUpdateMessage((NpcServerDetailsMessage) message);
+                break;
+            case MUSIC_FILE_LIST:
+                handleMusicFileListMessage((MusicFileListMessage) message);
+                break;
+            case MUSIC_FILE_CHUNK:
+                handleMusicFileChunkMessage((MusicFileChunkMessage) message);
+                break;
+            case MUSIC_FILE_REQUEST:
+                handleMusicFileRequestMessage((MusicFileRequestMessage) message);
                 break;
         }
     }
@@ -1011,6 +1027,97 @@ public class ClientMessageHandler
             boolean isMoving = message.isMoving;
 
             worldScreen.updateNpcPosition(name, x, y, direction, isMoving);
+        }
+    }
+
+    private static void handleMusicFileListMessage(MusicFileListMessage message)
+    {
+        ArrayList<String> serverFiles = message.filenames;
+
+        File localDir = new File("music");
+        if (!localDir.exists()) localDir.mkdir();
+
+        Set<String> localFiles = new HashSet<>();
+        for (File file : localDir.listFiles())
+        {
+            if (file.isFile()) localFiles.add(file.getName());
+        }
+
+        for (String serverFile : serverFiles)
+        {
+            if (!localFiles.contains(serverFile))
+            {
+                GameClient.getInstance().send(new MusicFileRequestMessage(serverFile));
+            }
+        }
+    }
+
+    public static void handleMusicFileChunkMessage(MusicFileChunkMessage chunk)
+    {
+        String filename = chunk.filename;
+
+        // Initialize chunk list if needed
+        fileChunks.putIfAbsent(filename, new ArrayList<>());
+
+        // Store chunk
+        fileChunks.get(filename).add(chunk.chunkIndex, chunk.data);
+
+        // Check if all chunks received
+        if (fileChunks.get(filename).size() == chunk.totalChunks)
+        {
+            saveCompleteFile(filename);
+        }
+    }
+
+    private static void saveCompleteFile(String filename)
+    {
+        List<byte[]> chunks = fileChunks.get(filename);
+        int totalSize = chunks.stream().mapToInt(arr -> arr.length).sum();
+        ByteBuffer buffer = ByteBuffer.allocate(totalSize);
+
+        for (byte[] chunk : chunks) {
+            buffer.put(chunk);
+        }
+
+        try {
+            Files.write(Paths.get("music/" + filename), buffer.array());
+            System.out.println("Saved music file: " + filename);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        // Cleanup
+        fileChunks.remove(filename);
+    }
+
+    public static void handleMusicFileRequestMessage(MusicFileRequestMessage request)
+    {
+        File file = new File("music/" + request.filename);
+        if (!file.exists()) return;
+
+        try
+        {
+            byte[] fileData = Files.readAllBytes(file.toPath());
+            int CHUNK_SIZE = 4096;
+            int totalChunks = (int) Math.ceil((double) fileData.length / CHUNK_SIZE);
+
+            for (int i = 0; i < totalChunks; i++)
+            {
+                int start = i * CHUNK_SIZE;
+                int end = Math.min(start + CHUNK_SIZE, fileData.length);
+                byte[] chunk = Arrays.copyOfRange(fileData, start, end);
+
+                GameClient.getInstance().send(new MusicFileChunkMessage(
+                    request.filename,
+                    i,
+                    totalChunks,
+                    chunk
+                ));
+                System.out.println("sending chunk " + request.filename + i + totalChunks);
+            }
+        } catch (Exception e)
+        {
+            e.printStackTrace();
         }
     }
 }

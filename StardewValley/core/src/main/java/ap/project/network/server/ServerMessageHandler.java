@@ -9,6 +9,7 @@ import ap.project.model.game.Game;
 import ap.project.model.game.Lobby;
 import ap.project.model.game.Player;
 import ap.project.network.client.ClientMessageHandler;
+import ap.project.network.client.GameClient;
 import ap.project.network.shared.DTO.PlayerDTO;
 import ap.project.network.shared.DTO.UserDTO;
 import ap.project.network.shared.Mapper.Mapper;
@@ -19,7 +20,13 @@ import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import ap.project.util.SQLiteUtil;
 import com.esotericsoftware.kryonet.Server;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static ap.project.network.server.GameServer.MAX_PLAYERS_FOR_GAME;
 import static ap.project.network.server.GameServer.MIN_PLAYERS_FOR_GAME;
@@ -151,6 +158,15 @@ public class ServerMessageHandler
                 break;
             case RADIO_CHANGED:
                 handleRadioChanged(client, (RadioChangedMessage) message);
+                break;
+            case MUSIC_FILE_REQUEST:
+                handleMusicFileRequestMessage(client, (MusicFileRequestMessage) message);
+                break;
+            case MUSIC_FILE_LIST:
+                handleMusicFileListMessage(client, (MusicFileListMessage) message);
+                break;
+            case MUSIC_FILE_CHUNK:
+                handleMusicFileChunkMessage(client, (MusicFileChunkMessage) message);
                 break;
         }
     }
@@ -975,4 +991,76 @@ public class ServerMessageHandler
         server.broadcast(message);
     }
 
+    public static void handleMusicFileRequestMessage(ClientConnection client, MusicFileRequestMessage request)
+    {
+        File file = new File("music/" + request.filename);
+        if (!file.exists()) return;
+
+        try
+        {
+            byte[] fileData = Files.readAllBytes(file.toPath());
+            int CHUNK_SIZE = 4096;
+            int totalChunks = (int) Math.ceil((double) fileData.length / CHUNK_SIZE);
+
+            for (int i = 0; i < totalChunks; i++)
+            {
+                int start = i * CHUNK_SIZE;
+                int end = Math.min(start + CHUNK_SIZE, fileData.length);
+                byte[] chunk = Arrays.copyOfRange(fileData, start, end);
+
+                client.send(new MusicFileChunkMessage(
+                    request.filename,
+                    i,
+                    totalChunks,
+                    chunk
+                ));
+            }
+        } catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+    private static void handleMusicFileListMessage(ClientConnection connection, MusicFileListMessage message)
+    {
+        GameServer.getInstance().scanAndSyncClientFiles(connection, message.filenames);
+    }
+
+    public static void handleMusicFileChunkMessage(ClientConnection connection, MusicFileChunkMessage chunk)
+    {
+        String filename = chunk.filename;
+
+        GameServer.getInstance().getFileChunks().putIfAbsent(filename, new ArrayList<>());
+
+        GameServer.getInstance().getFileChunks().get(filename).add(chunk.chunkIndex, chunk.data);
+
+        if (GameServer.getInstance().getFileChunks().get(filename).size() == chunk.totalChunks)
+        {
+            System.out.println("complete chunks");
+            saveCompleteFile(filename);
+        }
+    }
+
+    private static void saveCompleteFile(String filename)
+    {
+        List<byte[]> chunks = GameServer.getInstance().getFileChunks().get(filename);
+        int totalSize = chunks.stream().mapToInt(arr -> arr.length).sum();
+        ByteBuffer buffer = ByteBuffer.allocate(totalSize);
+
+        for (byte[] chunk : chunks)
+        {
+            buffer.put(chunk);
+        }
+
+        try
+        {
+            Files.write(Paths.get("music/" + filename), buffer.array());
+            System.out.println("Saved music file: " + filename);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        // Cleanup
+        GameServer.getInstance().getFileChunks().remove(filename);
+    }
 }

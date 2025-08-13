@@ -72,7 +72,7 @@ public class Main extends com.badlogic.gdx.Game
 
     public RadioPlayer getRadio() {
         if (radio == null) {
-            return radio = new RadioPlayer("C:/Users/arash/OneDrive/Desktop/uni/AP/kakasiahMazrae/advanced-programming-phase-1-group-26/StardewValley/core/assets/music/");
+            return radio = new RadioPlayer("music");
         }
         return radio;
     }

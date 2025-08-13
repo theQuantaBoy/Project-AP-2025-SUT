@@ -14,10 +14,9 @@ import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
 import ap.project.network.shared.enums.MessageType;
 
+import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import static ap.project.network.shared.KryoRegistry.BUFFER_LIMIT;
@@ -179,5 +178,25 @@ public class GameClient
     public Client getKryoClient()
     {
         return kryoClient;
+    }
+
+    public void checkAndRequestMissingFiles(ArrayList<String> serverFiles)
+    {
+        File localDir = new File("music");
+        if (!localDir.exists()) localDir.mkdir();
+
+        Set<String> localFiles = new HashSet<>();
+        for (File file : localDir.listFiles())
+        {
+            if (file.isFile()) localFiles.add(file.getName());
+        }
+
+        for (String serverFile : serverFiles)
+        {
+            if (!localFiles.contains(serverFile))
+            {
+                send(new MusicFileRequestMessage(serverFile));
+            }
+        }
     }
 }

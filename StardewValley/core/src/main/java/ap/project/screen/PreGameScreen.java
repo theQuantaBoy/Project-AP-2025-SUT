@@ -7,6 +7,7 @@ import ap.project.model.App.App;
 import ap.project.model.App.GameAssetsManager;
 import ap.project.model.App.User;
 import ap.project.network.client.GameClient;
+import ap.project.network.shared.messages.MusicFileListMessage;
 import ap.project.network.shared.messages.UserProfileMessage;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
@@ -20,6 +21,9 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
+
+import java.io.File;
+import java.util.ArrayList;
 
 import static java.lang.Thread.sleep;
 
@@ -104,6 +108,7 @@ public class PreGameScreen implements Screen
                     showConnectionError();
                 } else
                 {
+                    sendMusicFileSync();
                     Main.getApp().setScreen(new PreLobbyScreen());
                 }
             }
@@ -116,6 +121,24 @@ public class PreGameScreen implements Screen
                 Main.getApp().setScreen(new MainScreen(new MainMenuController()));
             }
         });
+    }
+
+    private void sendMusicFileSync()
+    {
+        File musicDir = new File("music");
+        if (!musicDir.exists()) musicDir.mkdir();
+
+        File[] files = musicDir.listFiles((dir, name) ->
+            name.toLowerCase().endsWith(".ogg"));
+
+        ArrayList<String> filenames = new ArrayList<>();
+        for (File file : files)
+        {
+            filenames.add(file.getName());
+            System.out.println("found file: " + file.getName());
+        }
+
+        GameClient.getInstance().send(new MusicFileListMessage(filenames));
     }
 
     private void showConnectionError()
