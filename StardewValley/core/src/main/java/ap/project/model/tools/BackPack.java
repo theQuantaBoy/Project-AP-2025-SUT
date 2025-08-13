@@ -53,8 +53,13 @@ public class BackPack extends Tool {
     }
 
     public void setLevel(BackPackLevel level) {
+        int oldCapacity = level.getCapacity();
         this.level = level;
-        initializeSlots(); // Reinitialize slots when level changes
+
+        for (int i = 0; i < (level.getCapacity() - oldCapacity); i++)
+        {
+            slots.add(null);
+        }
     }
 
     public List<GameObject> getSlots() {
