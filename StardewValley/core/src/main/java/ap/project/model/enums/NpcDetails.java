@@ -106,7 +106,7 @@ public enum NpcDetails {
                             TimeOfDay.EVENING, "I hope everyone’s staying warm and healthy."
                     )
             )), List.of(GameObjectType.COFFEE_BEAN, GameObjectType.HONEY, GameObjectType.CARROT), 69,
-        CharacterType.HARVEY, new Point(35, 58), new Point(57, 88), 14, 19
+        CharacterType.HARVEY, new Point(35, 58), new Point(57, 90), 14, 19
     ),
 
     // 😊

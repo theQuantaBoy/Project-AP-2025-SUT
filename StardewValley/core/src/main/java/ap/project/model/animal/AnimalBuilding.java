@@ -85,32 +85,6 @@ public class AnimalBuilding extends GameObject
         return (capacity - faghatVaseShipingBin.size()) > 0;
     }
 
-    public void putAnimalInBuilding(Animal animal)
-    {
-        animals.add(animal);
-
-        ArrayList<Tile> tiles = getTiles();
-        ArrayList<Tile> copy = new ArrayList<>(tiles);
-
-        Iterator<Tile> iterator = copy.iterator();
-        while (iterator.hasNext()) {
-            Tile tile = iterator.next();
-            if (tile.getObject() != null) {
-                iterator.remove();
-            }
-        }
-
-        // TODO
-//        if (copy.size() > 0)
-//       {
-           Collections.shuffle(copy);
-
-           Tile tile = copy.get(0);
-           animal.setTile(tile);
-           tile.setObject(animal);
-//       }
-    }
-
     public void sellAnimal(Animal animal)
     {
         animals.remove(animal);

@@ -2,7 +2,6 @@ package ap.project.screen;
 
 import ap.project.Main;
 import ap.project.control.*;
-import ap.project.control.game.activities.TradeController;
 import ap.project.model.App.App;
 import ap.project.model.App.GameAssetsManager;
 import ap.project.model.animal.Animal;
@@ -110,6 +109,7 @@ public final class WorldScreen implements Screen
     private ReactionWindow reactionWindow;
     private ScoreBoardWindow scoreBoardWindow;
     private NpcWindow npcWindow;
+    private AnimalWindow animalWindow;
     private FishingMinigameManager fishingMinigameManager;
     private BackPack backPack;
     private TextButton reactButton;
@@ -129,7 +129,6 @@ public final class WorldScreen implements Screen
 
     private ShopWindow shopWindow;
 
-//    private NPCManager npcManager;
     private float localTimeKeeper = 0f;
 
     private OnlineWorldController onlineWorldController = new OnlineWorldController();
@@ -208,6 +207,7 @@ public final class WorldScreen implements Screen
         reactionWindow = new ReactionWindow(uiStage);
         scoreBoardWindow = new ScoreBoardWindow(uiStage);
         npcWindow = new NpcWindow(uiStage);
+        animalWindow = new AnimalWindow(uiStage);
         fishingMinigameManager = new FishingMinigameManager(uiStage);
         createReactButton();
         inputMultiplexer = new InputMultiplexer();
@@ -701,7 +701,8 @@ public final class WorldScreen implements Screen
 
         if (!terminalDialog.isVisible() && !isInventoryVisible() && !isCookBookVisible() && !isRefrigeratorVisible()
             && !greenHouseBuildWindow.isVisible() && !reactionWindow.isVisible() && !scoreBoardWindow.isVisible() &&
-            !npcWindow.isVisible() && !npcWindow.getGiftWindow().isVisible() && !fishingMinigameManager.isActive())
+            !npcWindow.isVisible() && !npcWindow.getGiftWindow().isVisible() && !fishingMinigameManager.isActive() &&
+            !animalWindow.isVisible() && !isShopWindowVisible() && !isPurchaseWindowVisible())
         {
             update(dt);
             refreshHotbarUI();
@@ -733,16 +734,13 @@ public final class WorldScreen implements Screen
 
         if (!isDialogVisible() && !isInventoryVisible() && !isCookBookVisible() && !isRefrigeratorVisible()
             && !greenHouseBuildWindow.isVisible() && !reactionWindow.isVisible() && !scoreBoardWindow.isVisible() &&
-            !npcWindow.isVisible() && !npcWindow.getGiftWindow().isVisible()
-            && !communicationWindow.getChatScreen().isVisible() && !fishingMinigameManager.isActive())
+            !npcWindow.isVisible() && !npcWindow.getGiftWindow().isVisible() && !communicationWindow.getChatScreen().isVisible()
+            && !fishingMinigameManager.isActive() && !animalWindow.isVisible() && !isShopWindowVisible() && !isPurchaseWindowVisible())
         {
             characterRenderer.renderToolOrObjectAtMouse(batch, character, worldMouseX, worldMouseY);
         }
 
         batch.end();
-
-//        gameStage.getViewport().apply();
-//        gameStage.draw();
 
         map.getMapVisual().renderInFrontOfCharacter(this);
 
@@ -755,6 +753,7 @@ public final class WorldScreen implements Screen
         uiRenderer.renderDarkOverlay(uiCam);
 
         map.getMapVisual().showAvailableTilesForArtisanEquipment(this);
+        map.getMapVisual().showAvailableTilesForAnimalBuilding(this);
         map.getMapVisual().drawCraftingProgressBars();
 
         if (hoveredTile != null)
@@ -1383,6 +1382,24 @@ public final class WorldScreen implements Screen
         return refrigeratorWindow.isVisible();
     }
 
+    public void showRedSelectionOverTile(Tile tile)
+    {
+        Gdx.gl.glEnable(GL20.GL_BLEND);
+        Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA); // ← add this
+
+        Gdx.gl.glEnable(GL20.GL_BLEND);
+        shapeRenderer.setProjectionMatrix(cam.combined);
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        shapeRenderer.setColor(1f, 0f, 0f, 0.3f);
+
+        Vector2 location = map.tileToWorld(tile);
+
+        shapeRenderer.rect(location.x, location.y - (16f * MAP_SCALE), (16f * MAP_SCALE), (16f * MAP_SCALE));
+
+        shapeRenderer.end();
+        Gdx.gl.glDisable(GL20.GL_BLEND);
+    }
+
     public void showSelectionOverTile(Tile tile)
     {
         Gdx.gl.glEnable(GL20.GL_BLEND);
@@ -1600,9 +1617,16 @@ public final class WorldScreen implements Screen
             {
                 if (p.getUser().getUsername().equals(player.getUser().getUsername())) continue;
 
-                PlayerCharacter pc = p.getCharacter();
-                if (System.currentTimeMillis() - pc.getLastUpdateTime() < 2000)
+                if (p.isInCity())
                 {
+                    PlayerCharacter pc = p.getCharacter();
+                    if (ONLINE_MODE)
+                    {
+                        if (System.currentTimeMillis() - pc.getLastUpdateTime() >= 5000)
+                        {
+                            continue;
+                        }
+                    }
                     characterRenderer.render(batch, pc, CHAR_SCALE);
                 }
             }
@@ -1623,10 +1647,14 @@ public final class WorldScreen implements Screen
                     if (type != null && type == shopType)
                     {
                         PlayerCharacter pc = p.getCharacter();
-                        if (System.currentTimeMillis() - pc.getLastUpdateTime() < 2000)
+                        if (ONLINE_MODE)
                         {
-                            characterRenderer.render(batch, pc, CHAR_SCALE);
+                            if (System.currentTimeMillis() - pc.getLastUpdateTime() >= 5000)
+                            {
+                                continue;
+                            }
                         }
+                        characterRenderer.render(batch, pc, CHAR_SCALE);
                     }
                 }
             }
@@ -1639,10 +1667,6 @@ public final class WorldScreen implements Screen
         {
             for (NPC npc : game.getNPCs())
             {
-//                if (npc.getNpcDetails() == NpcDetails.Sebastian)
-//                {
-//                    System.out.println(npc.getName() + " at " + npc.getLocation().getX() + ", " + npc.getLocation().getY());
-//                }
                 characterRenderer.render(batch, npc.getCharacter(), CHAR_SCALE);
             }
         }
@@ -1652,7 +1676,7 @@ public final class WorldScreen implements Screen
     {
         if (player.isInFarm())
         {
-            for (Animal animal : player.getAnimalsList())
+            for (Animal animal : player.getAnimals())
             {
                 characterRenderer.render(batch, animal.getCharacter(), CHAR_SCALE);
             }
@@ -1816,8 +1840,41 @@ public final class WorldScreen implements Screen
                         }
                     }
 
+                    applyPlayerMap(p);
+
                     pc.setLastUpdateTime(System.currentTimeMillis());
                     break;
+                }
+            }
+        }
+    }
+
+    private void applyPlayerMap(Player player)
+    {
+        if (player.isInFarm())
+        {
+            player.setCurrentMap(player.getFarm());
+        } else if (player.isInHome())
+        {
+            player.setCurrentMap(player.getCabin());
+        } else if (player.isInGreenHouse())
+        {
+            player.setCurrentMap(player.getGreenHouse());
+        } else if (player.isInCity())
+        {
+            player.setCurrentMap(game.getCity());
+        } else if (player.isInShop() && player.getCurrentShop() != null)
+        {
+            ShopType type = ShopType.getShopType(player.getCurrentShop());
+            if (type != null)
+            {
+                for (java.util.Map.Entry<Point, Shop> entry : game.getCity().getShopDoors().entrySet())
+                {
+                    if (entry.getValue().getType() == type)
+                    {
+                        player.setCurrentMap(entry.getValue());
+                        break;
+                    }
                 }
             }
         }
@@ -2009,6 +2066,17 @@ public final class WorldScreen implements Screen
         npcWindow.toggleVisibility();
     }
 
+    public boolean isAnimalWindowVisible()
+    {
+        return animalWindow.isVisible();
+    }
+
+    public void toggleAnimalWindow(Animal animal)
+    {
+        animalWindow.setAnimal(animal);
+        animalWindow.toggleVisibility();
+    }
+
     public boolean isFishWindowVisible()
     {
         return fishingMinigameManager.isActive();
@@ -2030,6 +2098,11 @@ public final class WorldScreen implements Screen
     {
         Random rand = new Random();
         return FishType.values()[rand.nextInt(FishType.values().length)];
+    }
+
+    public CharacterController getCharacterController()
+    {
+        return characterController;
     }
 }
 

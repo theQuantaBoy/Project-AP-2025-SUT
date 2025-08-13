@@ -584,6 +584,7 @@ public class ServerMessageHandler
     {
         User user = Mapper.fromDTO(msg.userDTO);
         GameServer.getInstance().createOrUpdateUser(user);
+        handleUserSyncRequest(client);
     }
 
     private static void handleSaveAndLeaveMessage(ClientConnection client, SaveAndLeaveMessage msg)

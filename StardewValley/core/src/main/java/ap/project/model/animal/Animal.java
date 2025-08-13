@@ -13,29 +13,20 @@ import java.util.ArrayList;
 import java.util.Random;
 
 
-public class Animal extends GameObject {
+public class Animal extends GameObject
+{
     private String name;
     private FarmAnimalsType animalType;
     private int friendship = 0;
-    private boolean isFed = false;
-    private boolean isIn = true;
-    private boolean isPet = false;
+    private boolean isFed;
+    private boolean isIn;
+    private boolean isPet;
     private final ArrayList<GameObject> products;
-    private Tile tile = null;
 
     private boolean hasProduct = false;
     private boolean secondProduct = false;
 
-    private float x, y;
-    private float targetX, targetY;
-    private State currentState = State.IDLE;
-    private Direction direction = Direction.DOWN;
-
     private final AnimalCharacter character;
-
-    public enum State {
-        IDLE, WALKING, PETTING
-    }
 
     private double quality = 0;
 
@@ -59,8 +50,9 @@ public class Animal extends GameObject {
             GameMenu.println("You fed " + name + " for the first time today!\n" +
                     "Your friendship level was increased 8 units!");
             increaseFriendship(8);
-            isFed = true;
         }
+
+        isFed = true;
     }
 
     public void pet()
@@ -70,8 +62,9 @@ public class Animal extends GameObject {
             GameMenu.println("You pet " + name + " for the first time today!\n" +
                     "Your friendship level was increased 15 units!");
             increaseFriendship(15);
-            isPet = true;
         }
+
+        isPet = true;
     }
 
     public String getName() {
@@ -148,27 +141,16 @@ public class Animal extends GameObject {
         }
     }
 
-
-    public Tile getTile()
-    {
-        return tile;
-    }
-
-    public void setTile(Tile tile)
-    {
-        this.tile = tile;
-    }
-
     public String getInfo()
     {
         StringBuilder output = new StringBuilder();
 
         output.append(name).append("\n");
-        output.append("\t").append("kind: ").append(animalType.getName()).append("\n");
-        output.append("\t").append("friendship: ").append(friendship).append(" xp \n");
-        output.append("\t").append("is fed today: ").append(isFed ? "positive" : "negative").append("\n");
-        output.append("\t").append("is pet today: ").append(isPet ? "positive" : "negative").append("\n");
-        output.append("--------------------------------");
+        output.append("type: ").append(animalType.getType().toString()).append("\n");
+        output.append("    ").append("kind: ").append(animalType.getName()).append("\n");
+        output.append("    ").append("friendship: ").append(friendship).append(" xp \n");
+        output.append("    ").append("is fed today: ").append(isFed ? "positive" : "negative").append("\n");
+        output.append("    ").append("is pet today: ").append(isPet ? "positive" : "negative").append("\n");
         return output.toString();
     }
 
@@ -200,6 +182,11 @@ public class Animal extends GameObject {
         return product;
     }
 
+    public void setHasProduct(boolean hasProduct)
+    {
+        this.hasProduct = hasProduct;
+    }
+
     public void calculateProductPrice(GameObject product)
     {
         quality = getQuality();
@@ -227,54 +214,6 @@ public class Animal extends GameObject {
         return (int) (animalType.getPurchaseCost() * (((double) friendship / 1000) + 0.3));
     }
 
-    public float getX() {
-        return x;
-    }
-
-    public void setX(float x) {
-        this.x = x;
-    }
-
-    public float getY() {
-        return y;
-    }
-
-    public void setY(float y) {
-        this.y = y;
-    }
-
-    public float getTargetX() {
-        return targetX;
-    }
-
-    public void setTargetX(float targetX) {
-        this.targetX = targetX;
-    }
-
-    public float getTargetY() {
-        return targetY;
-    }
-
-    public void setTargetY(float targetY) {
-        this.targetY = targetY;
-    }
-
-    public State getCurrentState() {
-        return currentState;
-    }
-
-    public void setCurrentState(State currentState) {
-        this.currentState = currentState;
-    }
-
-    public Direction getDirection() {
-        return direction;
-    }
-
-    public void setDirection(Direction direction) {
-        this.direction = direction;
-    }
-
     public void setQuality(double quality) {
         this.quality = quality;
     }
@@ -282,14 +221,5 @@ public class Animal extends GameObject {
     public AnimalCharacter getCharacter()
     {
         return character;
-    }
-
-    public void startPetting() {
-        currentState = State.PETTING;
-        //stateTime = 0f;
-    }
-
-    public boolean isPetting() {
-        return currentState == State.PETTING;
     }
 }

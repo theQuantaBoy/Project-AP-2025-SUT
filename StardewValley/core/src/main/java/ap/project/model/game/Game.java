@@ -19,7 +19,6 @@ import ap.project.model.enums.building_enums.KitchenRecipe;
 import ap.project.model.player_data.FriendshipData;
 import ap.project.model.player_data.FriendshipWithNpcData;
 import ap.project.model.resources.Plant;
-import ap.project.network.shared.messages.GameTimeSyncMessage;
 import ap.project.util.StringToNumber;
 import ap.project.view.GameMenu;
 import ap.project.view.HomeMenu;
@@ -28,7 +27,6 @@ import com.badlogic.gdx.Application;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector2;
 
-import java.net.Socket;
 import java.util.*;
 
 import static ap.project.model.game.Map.TILE_SIZE;
@@ -267,18 +265,6 @@ public class Game
 
     public void endDay()
     {
-//        for(Player player : players) {
-//            for(AnimalBuilding animalBuilding : player.getAnimalBuildings()) {
-//                if(animalBuilding.getFarmBuilding().equals(FarmBuildingType.SHIPPING_BIN)) {
-//                    for(GameObject gameObject : animalBuilding.getFaghatVaseShipingBin()) {
-//                        player.increaseMoney
-//                                (MarketingController.getPrice(gameObject.getObjectType()) * gameObject.getNumber());
-//                    }
-//                }
-//            }
-//
-//        }
-
         distributeForagingItems();
         unleashTheCrows();
 
@@ -295,11 +281,7 @@ public class Game
 
         takePlayerHome();
          resetNPCs();
-        // npcGiveGift();
-
-        // distributeFish();
-        // updateShippingBin();
-        // resetAnimals();
+         resetAnimals();
     }
 
     public void distributeForagingItems()

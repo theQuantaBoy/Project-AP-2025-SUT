@@ -8,6 +8,7 @@ import ap.project.model.enums.MapKind;
 import ap.project.model.enums.MapTypes;
 import ap.project.model.enums.Season;
 import ap.project.model.enums.TileTexture;
+import ap.project.model.enums.animal_enums.AnimalType;
 import ap.project.model.enums.animal_enums.FarmAnimalsType;
 import ap.project.model.enums.animal_enums.FishType;
 import ap.project.model.enums.resources_enums.*;
@@ -630,5 +631,32 @@ public class Farm extends Map
     public ArrayList<Tile> getAnimalBuildingTiles()
     {
         return animalBuildingTiles;
+    }
+
+    public boolean hasPlaceForAnimal(AnimalType animalType)
+    {
+        for (Tile tile : animalBuildingTiles)
+        {
+            if (tile.getObject() != null && tile.getObject() instanceof AnimalBuilding)
+            {
+                AnimalBuilding animalBuilding = (AnimalBuilding) tile.getObject();
+                switch (animalBuilding.getFarmBuildingType())
+                {
+                    case BARN:
+                    case BIG_BARN:
+                    case DELUXE_BARN:
+                        if (animalType == AnimalType.BARN) return true;
+                        break;
+
+                    case COOP:
+                    case BIG_COOP:
+                    case DELUXE_COOP:
+                        if (animalType == AnimalType.COOP) return true;
+                        break;
+                }
+            }
+        }
+
+        return false;
     }
 }
