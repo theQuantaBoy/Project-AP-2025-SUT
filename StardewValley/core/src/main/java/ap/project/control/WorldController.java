@@ -1377,8 +1377,13 @@ public class WorldController
             UIRenderer.showTextBox("You received 20 xp.");
         }
 
-        String dialogue = npcDialogLLM.generateDynamicDialogue(npc);
-        UIRenderer.showTextBox(npc.getName() + ": " + dialogue);
+        UIRenderer.showTextBox("loading response...");
+
+        // In your game screen/UI component:
+        npcDialogLLM.generateDynamicDialogue(npc, dialogue ->
+        {
+            UIRenderer.showTextBox(dialogue);
+        });
 
         return true;
     }

@@ -2,6 +2,7 @@ package ap.project.network.shared;
 
 import ap.project.model.game.NPC;
 import ap.project.util.NpcContextGenerator;
+import com.badlogic.gdx.Gdx;
 
 import java.io.InputStream;
 import java.net.URI;
@@ -9,6 +10,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.Properties;
+import java.util.function.Consumer;
 
 public class npcDialogLLM
 {
@@ -43,26 +45,30 @@ public class npcDialogLLM
         }
     }
 
-    public static String generateDynamicDialogue(NPC npc)
+    public static void generateDynamicDialogue(NPC npc, Consumer<String> callback)
     {
-        try
-        {
-            String context = NpcContextGenerator.generateContext(npc);
-            return getNPCDialogue(context);
-        } catch (Exception e)
-        {
-            // Fallback to pre-written dialogue
-            return fallbackDialogue(npc);
+        // Precompute fallback on main thread to avoid threading issues
+        final String fallback = fallbackDialogue(npc);
+
+        String context;
+        try {
+            context = NpcContextGenerator.generateContext(npc);
+        } catch (Exception e) {
+            callback.accept(fallback); // Use fallback if context fails
+            return;
         }
+
+        // Start async HTTP request
+        getNPCDialogueAsync(context, fallback, callback);
     }
 
-    private static String getNPCDialogue(String context) throws Exception
+    private static void getNPCDialogueAsync(String context, String fallback, Consumer<String> callback)
     {
         // Prepare the conversation history
         String jsonBody = String.format(
             "{\"model\":\"%s\",\"messages\":[" +
                 "{\"role\":\"system\",\"content\":\"%s\"}," +
-                "{\"role\":\"user\",\"content\":\"What would you say to the player?\"}" +
+                "{\"role\":\"user\",\"content\":\"What would you say to the player in 10 words or less?\"}" +
                 "],\"max_tokens\":50}",
             MODEL,
             escapeJson(context)
@@ -76,14 +82,20 @@ public class npcDialogLLM
             .POST(HttpRequest.BodyPublishers.ofString(jsonBody))
             .build();
 
-        // Send the request and get response
-        HttpResponse<String> response = httpClient.send(
-            request,
-            HttpResponse.BodyHandlers.ofString()
-        );
-
-        // Parse the response
-        return extractResponseContent(response.body());
+        // Async request with callback handling
+        httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString())
+            .thenApplyAsync(response -> {
+                try {
+                    return extractResponseContent(response.body());
+                } catch (Exception e) {
+                    return fallback; // Use fallback on parsing error
+                }
+            })
+            .exceptionally(e -> fallback) // Use fallback on network error
+            .thenAccept(result -> {
+                // Post result to LibGDX main thread
+                Gdx.app.postRunnable(() -> callback.accept(result));
+            });
     }
 
     private static String escapeJson(String content)
