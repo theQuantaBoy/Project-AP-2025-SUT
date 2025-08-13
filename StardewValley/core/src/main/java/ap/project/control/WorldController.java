@@ -156,6 +156,11 @@ public class WorldController
             {
                 return;
             }
+
+            if (processAnimalWindow(tile))
+            {
+                return;
+            }
         }
     }
 
@@ -834,7 +839,7 @@ public class WorldController
 
         if (object.getObjectType() == GameObjectType.HAY)
         {
-            if (animal.isFed())
+            if (!animal.isFed())
             {
                 UIRenderer.showTextBox("Your friendship level was increased 8 units!");
             }
@@ -1383,7 +1388,7 @@ public class WorldController
             return false;
         }
 
-        if (animal.isPet())
+        if (!animal.isPet())
         {
             UIRenderer.showTextBox("Your friendship level was increased 15 units!");
         }
@@ -1406,9 +1411,23 @@ public class WorldController
             return false;
         }
 
-        FriendshipWithNpcData friendship = player.getNpcFriendship(npc);
         WorldScreen.getInstance().toggleNpcWindow(npc);
         return true;
+    }
+
+    private static boolean processAnimalWindow(Tile tile)
+    {
+        Game game = App.getCurrentGame();
+        Player player = game.getCurrentPlayer();
+
+       Animal animal = player.getTileAnimal(tile);
+       if (animal == null)
+       {
+           return false;
+       }
+
+       WorldScreen.getInstance().toggleAnimalWindow(animal);
+       return true;
     }
 
     private static boolean processAnimalPlacementTile(Tile tile)
@@ -1493,12 +1512,23 @@ public class WorldController
         // Handle button clicks
         confirmButton.addListener(new ClickListener() {
             @Override
-            public void clicked(InputEvent event, float x, float y) {
+            public void clicked(InputEvent event, float x, float y)
+            {
                 String text = textField.getText().trim();
-                if (!text.isEmpty()) {
-                    dialog.hide();
-                    onConfirm.accept(text); // Pass name to callback
-                } else {
+                if (!text.isEmpty())
+                {
+                    boolean isValid = App.getCurrentGame().getCurrentPlayer().validAnimalName(text);
+
+                    if (isValid)
+                    {
+                        dialog.hide();
+                        onConfirm.accept(text); // Pass name to callback
+                    } else
+                    {
+                        UIRenderer.showTextBox("you already have a pet with this name!");
+                    }
+                } else
+                {
                     UIRenderer.showTextBox("Name cannot be empty");
                 }
             }

@@ -47,8 +47,9 @@ public class WorldScreenInputProcessor implements InputProcessor
         if (worldScreen.isDialogVisible() || worldScreen.isInventoryVisible() ||
             worldScreen.isCookBookVisible() || worldScreen.isRefrigeratorVisible() ||
             worldScreen.isCraftingWindowVisible() || worldScreen.isChatVisible() ||
-        worldScreen.isGreenHouseBuildWindowVisible() || worldScreen.isReactionWindowVisible() ||
-        worldScreen.isScoreBoardVisible() || worldScreen.isNpcWindowVisible() || worldScreen.isFishWindowVisible())
+            worldScreen.isGreenHouseBuildWindowVisible() || worldScreen.isReactionWindowVisible() ||
+            worldScreen.isScoreBoardVisible() || worldScreen.isNpcWindowVisible() || worldScreen.isFishWindowVisible() ||
+            worldScreen.isAnimalWindowVisible())
         {
             return false;
         }
@@ -95,14 +96,14 @@ public class WorldScreenInputProcessor implements InputProcessor
 
         if (worldScreen.isDialogVisible() || worldScreen.isInventoryVisible() ||
             worldScreen.isCookBookVisible() || worldScreen.isRefrigeratorVisible() ||
-        worldScreen.isCraftingWindowVisible() || worldScreen.isChatVisible() ||
-        worldScreen.isGreenHouseBuildWindowVisible() || worldScreen.isReactionWindowVisible() ||
-        worldScreen.isScoreBoardVisible() || worldScreen.isNpcWindowVisible() || worldScreen.isFishWindowVisible())
+            worldScreen.isCraftingWindowVisible() || worldScreen.isChatVisible() ||
+            worldScreen.isGreenHouseBuildWindowVisible() || worldScreen.isReactionWindowVisible() ||
+            worldScreen.isScoreBoardVisible() || worldScreen.isNpcWindowVisible() || worldScreen.isFishWindowVisible() ||
+            worldScreen.isAnimalWindowVisible())
         {
             return false;
         }
 
-        if (communicationWindow.getChatScreen().isVisible())
         if (keycode == Input.Keys.E ||  keycode == Input.Keys.ESCAPE) {
             boolean nowVisible = !inventoryWindow.isVisible();
             inventoryWindow.toggleVisibility();

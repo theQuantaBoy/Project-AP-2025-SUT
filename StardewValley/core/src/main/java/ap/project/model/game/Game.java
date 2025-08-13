@@ -265,18 +265,6 @@ public class Game
 
     public void endDay()
     {
-//        for(Player player : players) {
-//            for(AnimalBuilding animalBuilding : player.getAnimalBuildings()) {
-//                if(animalBuilding.getFarmBuilding().equals(FarmBuildingType.SHIPPING_BIN)) {
-//                    for(GameObject gameObject : animalBuilding.getFaghatVaseShipingBin()) {
-//                        player.increaseMoney
-//                                (MarketingController.getPrice(gameObject.getObjectType()) * gameObject.getNumber());
-//                    }
-//                }
-//            }
-//
-//        }
-
         distributeForagingItems();
         unleashTheCrows();
 
@@ -293,11 +281,7 @@ public class Game
 
         takePlayerHome();
          resetNPCs();
-        // npcGiveGift();
-
-        // distributeFish();
-        // updateShippingBin();
-        // resetAnimals();
+         resetAnimals();
     }
 
     public void distributeForagingItems()

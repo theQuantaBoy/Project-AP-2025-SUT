@@ -50,8 +50,9 @@ public class Animal extends GameObject
             GameMenu.println("You fed " + name + " for the first time today!\n" +
                     "Your friendship level was increased 8 units!");
             increaseFriendship(8);
-            isFed = true;
         }
+
+        isFed = true;
     }
 
     public void pet()
@@ -61,8 +62,9 @@ public class Animal extends GameObject
             GameMenu.println("You pet " + name + " for the first time today!\n" +
                     "Your friendship level was increased 15 units!");
             increaseFriendship(15);
-            isPet = true;
         }
+
+        isPet = true;
     }
 
     public String getName() {
@@ -144,11 +146,11 @@ public class Animal extends GameObject
         StringBuilder output = new StringBuilder();
 
         output.append(name).append("\n");
-        output.append("\t").append("kind: ").append(animalType.getName()).append("\n");
-        output.append("\t").append("friendship: ").append(friendship).append(" xp \n");
-        output.append("\t").append("is fed today: ").append(isFed ? "positive" : "negative").append("\n");
-        output.append("\t").append("is pet today: ").append(isPet ? "positive" : "negative").append("\n");
-        output.append("--------------------------------");
+        output.append("type: ").append(animalType.getType().toString()).append("\n");
+        output.append("    ").append("kind: ").append(animalType.getName()).append("\n");
+        output.append("    ").append("friendship: ").append(friendship).append(" xp \n");
+        output.append("    ").append("is fed today: ").append(isFed ? "positive" : "negative").append("\n");
+        output.append("    ").append("is pet today: ").append(isPet ? "positive" : "negative").append("\n");
         return output.toString();
     }
 
@@ -178,6 +180,11 @@ public class Animal extends GameObject
         }
 
         return product;
+    }
+
+    public void setHasProduct(boolean hasProduct)
+    {
+        this.hasProduct = hasProduct;
     }
 
     public void calculateProductPrice(GameObject product)

@@ -8,6 +8,7 @@ import ap.project.model.animal.Animal;
 import ap.project.model.animal.AnimalBuilding;
 import ap.project.model.animal.Fish;
 import ap.project.model.enums.*;
+import ap.project.model.enums.animal_enums.AnimalType;
 import ap.project.model.enums.tool_enums.FishingPoleLevel;
 import ap.project.model.shops.Shop;
 import ap.project.model.tools.*;
@@ -1153,22 +1154,9 @@ public class Player {
         return animalCharacterControllers;
     }
 
-    public ArrayList<Animal> getAnimalList()
-    {
-        ArrayList<Animal> animals = new ArrayList<>();
-        for (AnimalBuilding animalBuilding : farm.getAnimalBuildings())
-        {
-            for (Animal animal : animalBuilding.getAnimals())
-            {
-                animals.add(animal);
-            }
-        }
-        return animals;
-    }
-
     public Animal findAnimal(String name)
     {
-        for (Animal animal : getAnimalList())
+        for (Animal animal : animals)
         {
             if (animal.getName().equalsIgnoreCase(name))
             {
@@ -1180,7 +1168,7 @@ public class Player {
 
     public boolean validAnimalName(String name)
     {
-        for (Animal animal : getAnimalList())
+        for (Animal animal : animals)
         {
             if (animal.getName().equalsIgnoreCase(name))
             {
@@ -1492,5 +1480,16 @@ public class Player {
 
     public void setCurrentListeningTo(Player currentListeningTo) {
         this.currentListeningTo = currentListeningTo;
+    }
+
+    public void removeAnimal(Animal animal)
+    {
+        int index = animals.indexOf(animal);
+
+        if (index != -1)
+        {
+            animalCharacterControllers.remove(index);
+            animals.remove(animal);
+        }
     }
 }

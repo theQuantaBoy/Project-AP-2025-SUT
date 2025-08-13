@@ -101,6 +101,7 @@ public final class WorldScreen implements Screen
     private ReactionWindow reactionWindow;
     private ScoreBoardWindow scoreBoardWindow;
     private NpcWindow npcWindow;
+    private AnimalWindow animalWindow;
     private FishingMinigameManager fishingMinigameManager;
     private BackPack backPack;
     private TextButton reactButton;
@@ -195,6 +196,7 @@ public final class WorldScreen implements Screen
         reactionWindow = new ReactionWindow(uiStage);
         scoreBoardWindow = new ScoreBoardWindow(uiStage);
         npcWindow = new NpcWindow(uiStage);
+        animalWindow = new AnimalWindow(uiStage);
         fishingMinigameManager = new FishingMinigameManager(uiStage);
         createReactButton();
         inputMultiplexer = new InputMultiplexer();
@@ -688,7 +690,8 @@ public final class WorldScreen implements Screen
 
         if (!terminalDialog.isVisible() && !isInventoryVisible() && !isCookBookVisible() && !isRefrigeratorVisible()
             && !greenHouseBuildWindow.isVisible() && !reactionWindow.isVisible() && !scoreBoardWindow.isVisible() &&
-            !npcWindow.isVisible() && !npcWindow.getGiftWindow().isVisible() && !fishingMinigameManager.isActive())
+            !npcWindow.isVisible() && !npcWindow.getGiftWindow().isVisible() && !fishingMinigameManager.isActive() &&
+            !animalWindow.isVisible())
         {
             update(dt);
             refreshHotbarUI();
@@ -721,7 +724,7 @@ public final class WorldScreen implements Screen
         if (!isDialogVisible() && !isInventoryVisible() && !isCookBookVisible() && !isRefrigeratorVisible()
             && !greenHouseBuildWindow.isVisible() && !reactionWindow.isVisible() && !scoreBoardWindow.isVisible() &&
             !npcWindow.isVisible() && !npcWindow.getGiftWindow().isVisible()
-            && !communicationWindow.getChatScreen().isVisible() && !fishingMinigameManager.isActive())
+            && !communicationWindow.getChatScreen().isVisible() && !fishingMinigameManager.isActive() && !animalWindow.isVisible())
         {
             characterRenderer.renderToolOrObjectAtMouse(batch, character, worldMouseX, worldMouseY);
         }
@@ -2021,6 +2024,17 @@ public final class WorldScreen implements Screen
     {
         npcWindow.setNpc(npc);
         npcWindow.toggleVisibility();
+    }
+
+    public boolean isAnimalWindowVisible()
+    {
+        return animalWindow.isVisible();
+    }
+
+    public void toggleAnimalWindow(Animal animal)
+    {
+        animalWindow.setAnimal(animal);
+        animalWindow.toggleVisibility();
     }
 
     public boolean isFishWindowVisible()
