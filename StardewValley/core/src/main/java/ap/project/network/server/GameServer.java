@@ -489,7 +489,7 @@ public class GameServer
         return users;
     }
 
-    private void scanMusicFiles()
+    public void sendMusicList(ClientConnection connection)
     {
         File musicDir = new File("music");
         if (!musicDir.exists()) musicDir.mkdir();
@@ -502,8 +502,7 @@ public class GameServer
             filenames.add(file.getName());
         }
 
-        // Broadcast to all clients
-        broadcast(new MusicFileListMessage(filenames));
+        connection.send(new MusicFileListMessage(filenames));
     }
 
     public static Map<String, List<byte[]>> getFileChunks()

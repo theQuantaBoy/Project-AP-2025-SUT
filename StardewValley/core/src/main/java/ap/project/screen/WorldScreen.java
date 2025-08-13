@@ -1322,6 +1322,13 @@ public final class WorldScreen implements Screen
 
     public void toggleFriendsWindow()
     {
+        if (ONLINE_MODE)
+        {
+            client.sendMusicFileSync();
+            client.send(new MusicListRequestMessage());
+        }
+
+        Main.getApp().getRadio().updatePlaylist();
         friendsWindow.toggleVisibility();
     }
 

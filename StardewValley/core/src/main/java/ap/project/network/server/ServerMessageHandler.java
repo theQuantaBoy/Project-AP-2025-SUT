@@ -168,6 +168,9 @@ public class ServerMessageHandler
             case MUSIC_FILE_CHUNK:
                 handleMusicFileChunkMessage(client, (MusicFileChunkMessage) message);
                 break;
+            case MUSIC_LIST_REQUEST:
+                handleMusicListRequestMessage(client, (MusicListRequestMessage) message);
+                break;
         }
     }
 
@@ -1036,7 +1039,6 @@ public class ServerMessageHandler
 
         if (GameServer.getInstance().getFileChunks().get(filename).size() == chunk.totalChunks)
         {
-            System.out.println("complete chunks");
             saveCompleteFile(filename);
         }
     }
@@ -1062,5 +1064,10 @@ public class ServerMessageHandler
 
         // Cleanup
         GameServer.getInstance().getFileChunks().remove(filename);
+    }
+
+    private static void handleMusicListRequestMessage(ClientConnection connection, MusicListRequestMessage message)
+    {
+        GameServer.getInstance().sendMusicList(connection);
     }
 }

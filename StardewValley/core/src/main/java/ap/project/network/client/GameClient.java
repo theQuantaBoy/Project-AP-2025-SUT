@@ -4,6 +4,7 @@ import ap.project.Main;
 import ap.project.model.App.App;
 import ap.project.model.App.User;
 import ap.project.model.game.AbstractCharacter;
+import ap.project.network.server.ClientConnection;
 import ap.project.network.shared.DTO.UserDTO;
 import ap.project.network.shared.KryoRegistry;
 import ap.project.network.shared.messages.*;
@@ -17,6 +18,7 @@ import ap.project.network.shared.enums.MessageType;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import static ap.project.network.shared.KryoRegistry.BUFFER_LIMIT;
@@ -33,6 +35,8 @@ public class GameClient
     private boolean connected = false;
     private boolean registered =  false;
     private volatile boolean userSyncComplete = false;
+
+    private static Map<String, List<byte[]>> fileChunks = new ConcurrentHashMap<>();
 
     private GameClient()
     {
@@ -180,23 +184,46 @@ public class GameClient
         return kryoClient;
     }
 
-    public void checkAndRequestMissingFiles(ArrayList<String> serverFiles)
+    public void scanAndSyncServerFiles(List<String> clientFiles)
     {
-        File localDir = new File("music");
-        if (!localDir.exists()) localDir.mkdir();
+        File musicDir = new File("music");
+        if (!musicDir.exists()) musicDir.mkdirs();
 
-        Set<String> localFiles = new HashSet<>();
-        for (File file : localDir.listFiles())
+        Set<String> serverFiles = new HashSet<>();
+        for (File file : musicDir.listFiles())
         {
-            if (file.isFile()) localFiles.add(file.getName());
+            if (file.isFile()) serverFiles.add(file.getName());
         }
 
-        for (String serverFile : serverFiles)
+        for (String clientFile : clientFiles)
         {
-            if (!localFiles.contains(serverFile))
+            if (!serverFiles.contains(clientFile))
             {
-                send(new MusicFileRequestMessage(serverFile));
+                GameClient.getInstance().send(new MusicFileRequestMessage(clientFile));
             }
         }
+    }
+
+    public static Map<String, List<byte[]>> getFileChunks()
+    {
+        return fileChunks;
+    }
+
+    public void sendMusicFileSync()
+    {
+        File musicDir = new File("music");
+        if (!musicDir.exists()) musicDir.mkdir();
+
+        File[] files = musicDir.listFiles((dir, name) ->
+            name.toLowerCase().endsWith(".ogg"));
+
+        ArrayList<String> filenames = new ArrayList<>();
+        for (File file : files)
+        {
+            filenames.add(file.getName());
+            System.out.println("found file: " + file.getName());
+        }
+
+        send(new MusicFileListMessage(filenames));
     }
 }

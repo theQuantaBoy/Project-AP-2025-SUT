@@ -9,13 +9,17 @@ import com.badlogic.gdx.files.FileHandle;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Random;
+import java.util.Set;
 
 public class RadioPlayer {
 
     private final ArrayList<String> playlist = new ArrayList<>();
+    private final Set<String> playlistSet = new HashSet<>();
     private int currentIndex = 0;
     private Music currentMusic;
+    private final String musicFolderPath;
 
     // Modes
     private boolean shuffleMode = false;
@@ -24,39 +28,78 @@ public class RadioPlayer {
     private GameClient client = GameClient.getInstance();
 
     public RadioPlayer(String musicFolderPath) {
-        loadPlaylist(musicFolderPath);
+        this.musicFolderPath = musicFolderPath;
+        loadPlaylist();
     }
 
-    private void loadPlaylist(String folderPath) {
-        File dir = new File(folderPath);
+    private void loadPlaylist() {
+        File dir = new File(musicFolderPath);
 
         Gdx.app.log("RadioPlayer", "Loading from path: " + dir.getAbsolutePath());
         Gdx.app.log("RadioPlayer", "Directory exists: " + dir.exists());
 
         if (dir.exists() && dir.isDirectory()) {
             File[] files = dir.listFiles();
-            if (files != null) {  // Important: listFiles() can return null
+            if (files != null) {
                 for (File file : files) {
-                    if (file.isFile()) {  // Ensure it's a file, not subdirectory
-                        String fileName = file.getName();
-                        Gdx.app.log("RadioPlayer", "Found file: " + fileName);
-
-                        // Extract extension manually
-                        int dotIndex = fileName.lastIndexOf('.');
-                        if (dotIndex > 0) {  // Ensure dot exists and isn't first char
-                            String extension = fileName.substring(dotIndex + 1);
-                            if ("ogg".equalsIgnoreCase(extension)) {
-                                String baseName = fileName.substring(0, dotIndex);
-                                playlist.add(baseName);
-                            }
-                        }
-                    }
+                    addFileToPlaylist(file);
                 }
             }
         }
 
         if (playlist.isEmpty()) {
-            Gdx.app.log("RadioPlayer", "No .ogg files found in: " + folderPath);
+            Gdx.app.log("RadioPlayer", "No .ogg files found in: " + musicFolderPath);
+        }
+    }
+
+    private void addFileToPlaylist(File file) {
+        if (file.isFile()) {
+            String fileName = file.getName();
+            int dotIndex = fileName.lastIndexOf('.');
+            if (dotIndex > 0) {
+                String extension = fileName.substring(dotIndex + 1);
+                if ("ogg".equalsIgnoreCase(extension)) {
+                    String baseName = fileName.substring(0, dotIndex);
+                    if (!playlistSet.contains(baseName)) {
+                        playlist.add(baseName);
+                        playlistSet.add(baseName);
+                        Gdx.app.log("RadioPlayer", "Added to playlist: " + baseName);
+                    }
+                }
+            }
+        }
+    }
+
+    public void updatePlaylist() {
+        File dir = new File(musicFolderPath);
+        if (!dir.exists() || !dir.isDirectory()) {
+            Gdx.app.log("RadioPlayer", "Directory not found during update: " + musicFolderPath);
+            return;
+        }
+
+        File[] files = dir.listFiles();
+        if (files == null) return;
+
+        int newFilesCount = 0;
+        for (File file : files) {
+            String fileName = file.getName();
+            int dotIndex = fileName.lastIndexOf('.');
+            if (dotIndex > 0) {
+                String extension = fileName.substring(dotIndex + 1);
+                if ("ogg".equalsIgnoreCase(extension)) {
+                    String baseName = fileName.substring(0, dotIndex);
+                    if (!playlistSet.contains(baseName)) {
+                        playlist.add(baseName);
+                        playlistSet.add(baseName);
+                        newFilesCount++;
+                        Gdx.app.log("RadioPlayer", "Discovered new track: " + baseName);
+                    }
+                }
+            }
+        }
+
+        if (newFilesCount > 0) {
+            Gdx.app.log("RadioPlayer", "Added " + newFilesCount + " new tracks to playlist");
         }
     }
 
@@ -68,8 +111,9 @@ public class RadioPlayer {
             currentMusic.dispose();
         }
 
-        FileHandle file = Gdx.files.internal("music/" + playlist.get(index) + ".ogg");
-        currentMusic = Gdx.audio.newMusic(file);
+        File audioFile = new File(musicFolderPath, playlist.get(index) + ".ogg");
+        FileHandle fileHandle = Gdx.files.absolute(audioFile.getAbsolutePath());
+        currentMusic = Gdx.audio.newMusic(fileHandle);
         currentMusic.setLooping(false);
 
         currentMusic.setOnCompletionListener(music -> playNext());

@@ -208,6 +208,7 @@ public class KryoRegistry
         kryo.register(MusicFileChunkMessage.class);
         kryo.register(MusicFileRequestMessage.class);
         kryo.register(MusicFileListMessage.class);
+        kryo.register(MusicListRequestMessage.class);
 
         kryo.register(byte[].class);
     }

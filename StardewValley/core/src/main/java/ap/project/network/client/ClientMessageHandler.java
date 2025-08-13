@@ -10,7 +10,6 @@ import ap.project.model.game.Gift;
 import ap.project.model.game.Player;
 import ap.project.model.player_data.FriendshipData;
 import ap.project.model.player_data.Skill;
-import ap.project.network.server.ClientConnection;
 import ap.project.network.shared.DTO.UserDTO;
 import ap.project.network.shared.Mapper.Mapper;
 import ap.project.network.shared.messages.*;
@@ -26,12 +25,9 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class ClientMessageHandler
 {
-    private static Map<String, List<byte[]>> fileChunks = new ConcurrentHashMap<>();
-
     public static void handle(Message message)
     {
         switch (message.getType())
@@ -1032,24 +1028,7 @@ public class ClientMessageHandler
 
     private static void handleMusicFileListMessage(MusicFileListMessage message)
     {
-        ArrayList<String> serverFiles = message.filenames;
-
-        File localDir = new File("music");
-        if (!localDir.exists()) localDir.mkdir();
-
-        Set<String> localFiles = new HashSet<>();
-        for (File file : localDir.listFiles())
-        {
-            if (file.isFile()) localFiles.add(file.getName());
-        }
-
-        for (String serverFile : serverFiles)
-        {
-            if (!localFiles.contains(serverFile))
-            {
-                GameClient.getInstance().send(new MusicFileRequestMessage(serverFile));
-            }
-        }
+        GameClient.getInstance().scanAndSyncServerFiles(message.filenames);
     }
 
     public static void handleMusicFileChunkMessage(MusicFileChunkMessage chunk)
@@ -1057,13 +1036,13 @@ public class ClientMessageHandler
         String filename = chunk.filename;
 
         // Initialize chunk list if needed
-        fileChunks.putIfAbsent(filename, new ArrayList<>());
+        GameClient.getInstance().getFileChunks().putIfAbsent(filename, new ArrayList<>());
 
         // Store chunk
-        fileChunks.get(filename).add(chunk.chunkIndex, chunk.data);
+        GameClient.getInstance().getFileChunks().get(filename).add(chunk.chunkIndex, chunk.data);
 
         // Check if all chunks received
-        if (fileChunks.get(filename).size() == chunk.totalChunks)
+        if (GameClient.getInstance().getFileChunks().get(filename).size() == chunk.totalChunks)
         {
             saveCompleteFile(filename);
         }
@@ -1071,7 +1050,7 @@ public class ClientMessageHandler
 
     private static void saveCompleteFile(String filename)
     {
-        List<byte[]> chunks = fileChunks.get(filename);
+        List<byte[]> chunks =GameClient.getInstance().getFileChunks().get(filename);
         int totalSize = chunks.stream().mapToInt(arr -> arr.length).sum();
         ByteBuffer buffer = ByteBuffer.allocate(totalSize);
 
@@ -1087,7 +1066,7 @@ public class ClientMessageHandler
         }
 
         // Cleanup
-        fileChunks.remove(filename);
+        GameClient.getInstance().getFileChunks().remove(filename);
     }
 
     public static void handleMusicFileRequestMessage(MusicFileRequestMessage request)
@@ -1113,7 +1092,6 @@ public class ClientMessageHandler
                     totalChunks,
                     chunk
                 ));
-                System.out.println("sending chunk " + request.filename + i + totalChunks);
             }
         } catch (Exception e)
         {
