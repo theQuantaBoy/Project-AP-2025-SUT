@@ -311,6 +311,10 @@ public class FriendsWindow {
             radio.addListener(new ClickListener() {
                 @Override
                 public void clicked(InputEvent event, float x, float y) {
+                    if (GameAssetsManager.getGameAssetsManager().getRadioNoise().isPlaying()) {
+//                        GameAssetsManager.getGameAssetsManager().getRadioNoise().stop();
+                        radio.setText("Radio");
+                    }
                     if (player.getCurrentListeningTo() != null && player.getCurrentListeningTo().equals(friend)) {
                         // If already listening to this friend, stop
                         radioPlayer.stop();

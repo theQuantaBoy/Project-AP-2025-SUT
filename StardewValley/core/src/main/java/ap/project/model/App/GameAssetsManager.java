@@ -33,7 +33,7 @@ public class GameAssetsManager {
     private Skin skin;
     private Array<AvatarOptions> avatars;
     HashMap<String, Music> musicMap = new HashMap<>();
-    private Sound radioNoise;
+    private Music radioNoise;
 
     public GameAssetsManager() {
         skin = new Skin(Gdx.files.internal("skin/NzSkin.json"));
@@ -55,7 +55,7 @@ public class GameAssetsManager {
         // Create different font styles
         createFonts();
         loadAllMusic();
-        radioNoise = Gdx.audio.newSound(Gdx.files.internal("White_noise.ogg"));
+        radioNoise = Gdx.audio.newMusic(Gdx.files.internal("White_noise.ogg"));
 
         // Load skin with better error handling
 
@@ -179,7 +179,7 @@ public class GameAssetsManager {
         return font;
     }
 
-    public Sound getRadioNoise() {
+    public Music getRadioNoise() {
         return radioNoise;
     }
 }

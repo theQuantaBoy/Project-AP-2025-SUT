@@ -964,8 +964,10 @@ public class ClientMessageHandler
                     Main.getApp().getRadio().playTrackFrom(message.trackName, message.timestamp);
                     requested.setCurrentListeningTo(host);
                 }
-                else GameAssetsManager.getGameAssetsManager().getRadioNoise().play();
-
+                else if (GameAssetsManager.getGameAssetsManager().getRadioNoise().isPlaying()) GameAssetsManager.getGameAssetsManager().getRadioNoise().stop();
+                else {
+                    GameAssetsManager.getGameAssetsManager().getRadioNoise().play();
+                }
                 UIRenderer.showTextBox("you connected to the radio now!");
             });
         }
