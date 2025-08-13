@@ -239,17 +239,23 @@ public class App
     {
         for (User serverUser : serverUsers)
         {
+            boolean found = false;
+
             for (int i = 0; i < users.size(); i++)
             {
                 User user = users.get(i);
 
                 if (user.getHashId() == serverUser.getHashId())
                 {
-                    if (currentUser != null && currentUser.getHashId() != serverUser.getHashId())
-                    {
-                        users.set(i, serverUser);
-                    }
+                    users.set(i, serverUser);
+                    found = true;
+                    break;
                 }
+            }
+
+            if (!found)
+            {
+                users.add(serverUser);
             }
         }
 

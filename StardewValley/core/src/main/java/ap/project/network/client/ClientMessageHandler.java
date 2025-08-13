@@ -10,7 +10,6 @@ import ap.project.model.game.Gift;
 import ap.project.model.game.Player;
 import ap.project.model.player_data.FriendshipData;
 import ap.project.model.player_data.Skill;
-import ap.project.network.server.ClientConnection;
 import ap.project.network.shared.DTO.UserDTO;
 import ap.project.network.shared.Mapper.Mapper;
 import ap.project.network.shared.messages.*;
@@ -19,9 +18,13 @@ import ap.project.visual.UIRenderer;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
+import java.util.*;
 
 public class ClientMessageHandler
 {
@@ -187,6 +190,15 @@ public class ClientMessageHandler
                 break;
             case NPC_SERVER_DETAILS:
                 handleNpcServerUpdateMessage((NpcServerDetailsMessage) message);
+                break;
+            case MUSIC_FILE_LIST:
+                handleMusicFileListMessage((MusicFileListMessage) message);
+                break;
+            case MUSIC_FILE_CHUNK:
+                handleMusicFileChunkMessage((MusicFileChunkMessage) message);
+                break;
+            case MUSIC_FILE_REQUEST:
+                handleMusicFileRequestMessage((MusicFileRequestMessage) message);
                 break;
         }
     }
@@ -382,10 +394,15 @@ public class ClientMessageHandler
     private static void handleLobbyTimeUpdateMessage(LobbyTimeUpdateMessage message)
     {
         int remainingSeconds = message.remainingSeconds;
+        String adminName = message.lobbyAdmin;
+        String usersList = message.usersList;
+
         if (Main.getApp().getScreen() instanceof LobbyScreen)
         {
             LobbyScreen ls = (LobbyScreen) Main.getApp().getScreen();
             ls.setRemainingTime(remainingSeconds);
+            ls.setAdminName(adminName);
+            ls.setUsersList(usersList);
         }
     }
 
@@ -1006,6 +1023,79 @@ public class ClientMessageHandler
             boolean isMoving = message.isMoving;
 
             worldScreen.updateNpcPosition(name, x, y, direction, isMoving);
+        }
+    }
+
+    private static void handleMusicFileListMessage(MusicFileListMessage message)
+    {
+        GameClient.getInstance().scanAndSyncServerFiles(message.filenames);
+    }
+
+    public static void handleMusicFileChunkMessage(MusicFileChunkMessage chunk)
+    {
+        String filename = chunk.filename;
+
+        // Initialize chunk list if needed
+        GameClient.getInstance().getFileChunks().putIfAbsent(filename, new ArrayList<>());
+
+        // Store chunk
+        GameClient.getInstance().getFileChunks().get(filename).add(chunk.chunkIndex, chunk.data);
+
+        // Check if all chunks received
+        if (GameClient.getInstance().getFileChunks().get(filename).size() == chunk.totalChunks)
+        {
+            saveCompleteFile(filename);
+        }
+    }
+
+    private static void saveCompleteFile(String filename)
+    {
+        List<byte[]> chunks =GameClient.getInstance().getFileChunks().get(filename);
+        int totalSize = chunks.stream().mapToInt(arr -> arr.length).sum();
+        ByteBuffer buffer = ByteBuffer.allocate(totalSize);
+
+        for (byte[] chunk : chunks) {
+            buffer.put(chunk);
+        }
+
+        try {
+            Files.write(Paths.get("music/" + filename), buffer.array());
+            System.out.println("Saved music file: " + filename);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        // Cleanup
+        GameClient.getInstance().getFileChunks().remove(filename);
+    }
+
+    public static void handleMusicFileRequestMessage(MusicFileRequestMessage request)
+    {
+        File file = new File("music/" + request.filename);
+        if (!file.exists()) return;
+
+        try
+        {
+            byte[] fileData = Files.readAllBytes(file.toPath());
+            int CHUNK_SIZE = 4096;
+            int totalChunks = (int) Math.ceil((double) fileData.length / CHUNK_SIZE);
+
+            for (int i = 0; i < totalChunks; i++)
+            {
+                int start = i * CHUNK_SIZE;
+                int end = Math.min(start + CHUNK_SIZE, fileData.length);
+                byte[] chunk = Arrays.copyOfRange(fileData, start, end);
+
+                GameClient.getInstance().send(new MusicFileChunkMessage(
+                    request.filename,
+                    i,
+                    totalChunks,
+                    chunk
+                ));
+            }
+        } catch (Exception e)
+        {
+            e.printStackTrace();
         }
     }
 }

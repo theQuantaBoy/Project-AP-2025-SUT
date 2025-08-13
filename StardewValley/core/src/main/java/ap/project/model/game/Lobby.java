@@ -133,4 +133,19 @@ public class Lobby
     {
         return createdAt;
     }
+
+    public String getUsersList()
+    {
+        StringBuilder sb = new StringBuilder();
+        for (User user : users)
+        {
+            sb.append("\n -").append(user.getUsername());
+        }
+        return sb.toString();
+    }
+
+    public String getAdminName()
+    {
+        return (getAdmin() == null) ? "" : getAdmin().getUsername();
+    }
 }

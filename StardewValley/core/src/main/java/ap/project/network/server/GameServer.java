@@ -13,6 +13,7 @@ import com.esotericsoftware.kryonet.Server;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -39,6 +40,8 @@ public class GameServer
 
     public static final int MIN_PLAYERS_FOR_GAME = 1;
     public static final int MAX_PLAYERS_FOR_GAME = 4;
+
+    private static Map<String, List<byte[]>> fileChunks = new ConcurrentHashMap<>();
 
     public void update(float delta)
     {
@@ -80,7 +83,7 @@ public class GameServer
                 toRemove.add(lobby);
             } else
             {
-                broadcastToLobby(lobby, new LobbyTimeUpdateMessage(remaining));
+                broadcastToLobby(lobby, new LobbyTimeUpdateMessage(remaining, lobby.getAdminName(), lobby.getUsersList()));
             }
         }
 
@@ -484,5 +487,46 @@ public class GameServer
     public ArrayList<User> getUsers()
     {
         return users;
+    }
+
+    public void sendMusicList(ClientConnection connection)
+    {
+        File musicDir = new File("music");
+        if (!musicDir.exists()) musicDir.mkdir();
+
+        File[] files = musicDir.listFiles((dir, name) ->
+            name.toLowerCase().endsWith(".ogg"));
+
+        ArrayList<String> filenames = new ArrayList<>();
+        for (File file : files) {
+            filenames.add(file.getName());
+        }
+
+        connection.send(new MusicFileListMessage(filenames));
+    }
+
+    public static Map<String, List<byte[]>> getFileChunks()
+    {
+        return fileChunks;
+    }
+
+    public void scanAndSyncClientFiles(ClientConnection connection, List<String> clientFiles)
+    {
+        File musicDir = new File("music");
+        if (!musicDir.exists()) musicDir.mkdirs();
+
+        Set<String> serverFiles = new HashSet<>();
+        for (File file : musicDir.listFiles())
+        {
+            if (file.isFile()) serverFiles.add(file.getName());
+        }
+
+        for (String clientFile : clientFiles)
+        {
+            if (!serverFiles.contains(clientFile))
+            {
+                connection.send(new MusicFileRequestMessage(clientFile));
+            }
+        }
     }
 }
