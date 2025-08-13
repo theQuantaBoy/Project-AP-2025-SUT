@@ -72,7 +72,7 @@ public class Player {
 
     private Tool currentTool;
     private GameObject currentObject;
-    private double money;
+    private double money = 5000;
 
     private ArrayList<AnimalBuilding> animalBuildings = new ArrayList<>();
 
@@ -172,7 +172,7 @@ public class Player {
         this.gender = user.getGender();
         this.energy = 200f;
         this.fainted = false;
-        this.money = 0;
+        this.money = 5000;
     }
 
     public Player(User user)
@@ -184,7 +184,7 @@ public class Player {
         this.gender = user.getGender();
         this.energy = 200f;
         this.fainted = false;
-        this.money = 0;
+        this.money = 5000;
 
         Axe axe = new Axe(); Hoe hoe = new Hoe(); Pickaxe  pickaxe = new Pickaxe();
         WateringCan wateringCan = new WateringCan(); Seythe seythe = new Seythe();
