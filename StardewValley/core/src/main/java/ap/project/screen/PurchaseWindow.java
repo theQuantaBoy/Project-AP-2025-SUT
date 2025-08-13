@@ -3,12 +3,15 @@ package ap.project.screen;
 import ap.project.model.App.App;
 import ap.project.model.App.GameAssetsManager;
 import ap.project.model.animal.Animal;
+import ap.project.model.enums.GameObjectType;
 import ap.project.model.enums.animal_enums.FarmAnimalsType;
 import ap.project.model.enums.animal_enums.FarmBuildingType;
+import ap.project.model.enums.tool_enums.BackPackLevel;
 import ap.project.model.game.Farm;
 import ap.project.model.game.GameObject;
 import ap.project.model.game.Player;
 import ap.project.model.shops.ShopProduct;
+import ap.project.model.tools.BackPack;
 import ap.project.visual.UIRenderer;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
@@ -170,7 +173,10 @@ public class PurchaseWindow extends Dialog {
         }
 
         GameObject purchasedItem = new GameObject(product.getGameObjectType(), quantity);
-        player.addToInventory(purchasedItem);
+        if (!checkBackpack())
+        {
+            player.addToInventory(purchasedItem);
+        }
 
         player.increaseMoney(-totalCost);
 
@@ -179,6 +185,28 @@ public class PurchaseWindow extends Dialog {
         }
 
         UIRenderer.showTextBox("Purchased " + quantity + " " + product.getName());
+    }
+
+    private boolean checkBackpack()
+    {
+        if (product.getGameObjectType() != GameObjectType.BackPack)
+        {
+            return false;
+        }
+
+        Player player = App.getCurrentGame().getCurrentPlayer();
+
+        if (product.getName().equals("Large Pack"))
+        {
+            player.getCurrentBackPack().setLevel(BackPackLevel.Large);
+            return true;
+        } else if (product.getName().equals("Deluxe Pack"))
+        {
+            player.getCurrentBackPack().setLevel(BackPackLevel.Deluxe);
+            return true;
+        }
+
+        return false;
     }
 
     public void centerWindow() {
