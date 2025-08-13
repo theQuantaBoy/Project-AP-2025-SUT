@@ -49,9 +49,10 @@ public class LobbyScreen implements Screen
     private static LobbyScreen INSTANCE;
     private final GameClient client;
 
-    private String adminName;
-    private String lobbyName;
-    private String lobbyId;
+    private String adminName = "";
+    private String lobbyName = "";
+    private String lobbyId = "";
+    private String usersList = "";
 
     private final LobbyMap map;
     private final MapVisual mapVisual;
@@ -85,11 +86,10 @@ public class LobbyScreen implements Screen
     private float positionUpdateTimer = 0;
     private static final float POSITION_UPDATE_INTERVAL = 0.016f;
 
-    public LobbyScreen(String lobbyName, String lobbyId, String adminName, Player player)
+    public LobbyScreen(String lobbyName, String lobbyId, Player player)
     {
         INSTANCE = this;
 
-        this.adminName = adminName;
         this.lobbyName = lobbyName;
         this.lobbyId = lobbyId;
         this.client = GameClient.getInstance();
@@ -229,10 +229,20 @@ public class LobbyScreen implements Screen
         String info = "Name: " + lobbyName + "\n" +
             "ID: " + lobbyId + "\n" +
             "Remaining Time: " + formatTime(remainingSeconds) + "\n" +
-            "Admin: " + getAdminName() + "\n" +
-            "Players: " + getPlayerList();
+            "Admin: " + adminName + "\n" +
+            "Players: " + usersList;
 
         lobbyInfoLabel.setText(info);
+    }
+
+    public void setAdminName(String adminName)
+    {
+        this.adminName = adminName;
+    }
+
+    public void setUsersList(String usersList)
+    {
+        this.usersList = usersList;
     }
 
     private String formatTime(int seconds)
@@ -240,11 +250,6 @@ public class LobbyScreen implements Screen
         int minutes = seconds / 60;
         int secs = seconds % 60;
         return String.format("%02d:%02d", minutes, secs);
-    }
-
-    private String getAdminName()
-    {
-        return adminName;
     }
 
     private String getPlayerList()

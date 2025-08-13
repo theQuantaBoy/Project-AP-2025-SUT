@@ -138,9 +138,9 @@ public class NPCControllerServer
     {
         Point currentTile = map.worldToTile(position.x, position.y);
 
-        // Generate random point within 10 tile radius
-        int randX = currentTile.getX() + random.nextInt(21) - 10;
-        int randY = currentTile.getY() + random.nextInt(21) - 10;
+        // Generate random point within 20 tile radius
+        int randX = currentTile.getX() + random.nextInt(41) - 20;
+        int randY = currentTile.getY() + random.nextInt(21) - 20;
 
         // Clamp to map bounds
         randX = Math.max(0, Math.min(randX, map.getWidth() - 1));

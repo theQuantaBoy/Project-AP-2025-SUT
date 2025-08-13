@@ -41,20 +41,8 @@ public class Main extends com.badlogic.gdx.Game
         int hotspotY = 0;
         Gdx.graphics.setCursor(Gdx.graphics.newCursor(cursorPixmap, hotspotX, hotspotY));
         cursorPixmap.dispose();
-         // Path inside assets
-        radio = getRadio();
-//        if (!radio.getPlaylist().isEmpty()) {
-//            radio.playTrack(0);
-//        }
 
-//        System.out.println("enter name: ");
-//        Scanner scanner = new Scanner(System.in);
-//        String name = scanner.nextLine().trim();
-//        String name = "mohsen";
-//
-//        User user = new User(name, "1234", name, "mail", Gender.MALE, "", "");
-//        App.setCurrentUser(user);
-//        app.setScreen(new PreGameScreen());
+        radio = getRadio();
 
         app.setScreen(new RegisterScreen(new RegisterController()));
     }
@@ -63,18 +51,6 @@ public class Main extends com.badlogic.gdx.Game
     public void render()
     {
         super.render();
-//        if (Gdx.input.isKeyJustPressed(Input.Keys.N)) {
-//            radio.playNext();
-//        }
-//        if (Gdx.input.isKeyJustPressed(Input.Keys.P)) {
-//            radio.playPrevious();
-//        }
-//        if (Gdx.input.isKeyJustPressed(Input.Keys.S)) {
-//            radio.toggleShuffle();
-//        }
-//        if (Gdx.input.isKeyJustPressed(Input.Keys.R)) {
-//            radio.toggleRepeatOne();
-//        }
     }
 
     @Override

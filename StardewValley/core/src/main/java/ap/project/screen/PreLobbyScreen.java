@@ -921,7 +921,7 @@ public class PreLobbyScreen implements Screen
     {
         textBoxSystem.showTextBox("successfully joined: " + lobbyName);
         Player player = new Player(user);
-        Main.getApp().setScreen(new LobbyScreen(lobbyName, lobbyId, user.getUsername(), player));
+        Main.getApp().setScreen(new LobbyScreen(lobbyName, lobbyId, player));
     }
 
     public void refreshOnlineUsersList()

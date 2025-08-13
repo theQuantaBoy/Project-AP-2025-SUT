@@ -382,10 +382,15 @@ public class ClientMessageHandler
     private static void handleLobbyTimeUpdateMessage(LobbyTimeUpdateMessage message)
     {
         int remainingSeconds = message.remainingSeconds;
+        String adminName = message.lobbyAdmin;
+        String usersList = message.usersList;
+
         if (Main.getApp().getScreen() instanceof LobbyScreen)
         {
             LobbyScreen ls = (LobbyScreen) Main.getApp().getScreen();
             ls.setRemainingTime(remainingSeconds);
+            ls.setAdminName(adminName);
+            ls.setUsersList(usersList);
         }
     }
 

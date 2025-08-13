@@ -80,7 +80,7 @@ public class GameServer
                 toRemove.add(lobby);
             } else
             {
-                broadcastToLobby(lobby, new LobbyTimeUpdateMessage(remaining));
+                broadcastToLobby(lobby, new LobbyTimeUpdateMessage(remaining, lobby.getAdminName(), lobby.getUsersList()));
             }
         }
 
