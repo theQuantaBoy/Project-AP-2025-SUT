@@ -1,33 +1,33 @@
 # StardewValley
 
-A [libGDX](https://libgdx.com/) project generated with [gdx-liftoff](https://github.com/libgdx/gdx-liftoff).
+A Stardew Valley–inspired 2D farming/life-sim game built with [libGDX](https://libgdx.com/), made as a team project for the Advanced Programming course at Sharif University of Technology.
 
-This project was generated with a template including simple application launchers and an `ApplicationAdapter` extension that draws libGDX logo.
+The game is client/server: a headless `GameServer` hosts the game state and multiple `lwjgl3` desktop clients connect to it over the network ([Kryonet](https://github.com/EsotericSoftware/kryonet)).
 
-## Platforms
+## Modules
 
-- `core`: Main module with the application logic shared by all platforms.
-- `lwjgl3`: Primary desktop platform using LWJGL3; was called 'desktop' in older docs.
+- `core`: Shared game logic — model (world, animals, buildings, tools, resources, shops), controllers, screens/UI, and the client/server networking layer.
+- `lwjgl3`: Desktop launcher for the game client (LWJGL3 backend).
 
-## Gradle
+## Running
 
-This project uses [Gradle](https://gradle.org/) to manage dependencies.
-The Gradle wrapper was included, so you can run Gradle tasks using `gradlew.bat` or `./gradlew` commands.
-Useful Gradle tasks and flags:
+This project uses [Gradle](https://gradle.org/) with the included wrapper (`./gradlew` / `gradlew.bat`).
 
-- `--continue`: when using this flag, errors will not stop the tasks from running.
-- `--daemon`: thanks to this flag, Gradle daemon will be used to run chosen tasks.
-- `--offline`: when using this flag, cached dependency archives will be used.
-- `--refresh-dependencies`: this flag forces validation of all dependencies. Useful for snapshot versions.
-- `build`: builds sources and archives of every project.
-- `cleanEclipse`: removes Eclipse project data.
-- `cleanIdea`: removes IntelliJ project data.
-- `clean`: removes `build` folders, which store compiled classes and built archives.
-- `eclipse`: generates Eclipse project data.
-- `idea`: generates IntelliJ project data.
-- `lwjgl3:jar`: builds application's runnable jar, which can be found at `lwjgl3/build/libs`.
-- `lwjgl3:run`: starts the application.
-- `test`: runs unit tests (if any).
+**Start the server** (headless, no window): run the `main` method of `ap.project.network.server.GameServer` (e.g. from your IDE, or via a Gradle `application`/`JavaExec` task once one is added to `core`).
 
-Note that most tasks that are not specific to a single project can be run with `name:` prefix, where the `name` should be replaced with the ID of a specific project.
-For example, `core:clean` removes `build` folder only from the `core` project.
+**Start a client**:
+
+```
+./gradlew lwjgl3:run
+```
+
+You can run multiple clients against the same server instance to play multiplayer locally.
+
+Persistent data (user accounts, save games) is stored as local SQLite databases at runtime.
+
+Useful Gradle tasks:
+
+- `./gradlew build` — build all subprojects.
+- `./gradlew clean` — remove build output.
+- `./gradlew lwjgl3:run` — launch a game client.
+- `./gradlew test` — run unit tests.
