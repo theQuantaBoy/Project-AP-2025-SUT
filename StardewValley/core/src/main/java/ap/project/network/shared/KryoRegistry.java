@@ -14,7 +14,12 @@ import java.util.ArrayList;
 
 public class KryoRegistry
 {
-    public static final int BUFFER_LIMIT = 5120000;
+    // Music-file sync (ClientMessageHandler.handleMusicFileRequestMessage) queues every
+    // 4KB chunk of a whole file via GameClient.send() and then drains the queue in a tight
+    // loop with no flow control, so this buffer needs to hold an entire file transfer's
+    // worth of chunks at once, not just one message. 32MB comfortably covers a personal
+    // music folder; a much larger one could still overflow this fixed-size buffer.
+    public static final int BUFFER_LIMIT = 33_554_432;
 
     public static void registerClasses(Kryo kryo)
     {
