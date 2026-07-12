@@ -37,6 +37,13 @@ public class UIRenderer
     private final Time time;
 
     private final ShapeRenderer shapeRenderer = new ShapeRenderer();
+
+    // Reused for the energy-bar text draw below, which needs its own Batch since it
+    // runs while the main SpriteBatch passed into renderUI() is already mid begin()/end().
+    // A previous version called `new SpriteBatch()` here every frame and never disposed
+    // it - each SpriteBatch allocates its own Mesh/ShaderProgram/VBO/IBO on the GPU, so
+    // that leaked GPU + native (off-heap) memory every single frame.
+    private final SpriteBatch energyTextBatch = new SpriteBatch();
     private Player player;
 
     private final TextButton friends;
@@ -203,15 +210,14 @@ public class UIRenderer
         Gdx.gl.glDisable(GL20.GL_BLEND);
 
         // Draw energy text
-        Batch batch = new SpriteBatch();
-        batch.begin();
+        energyTextBatch.begin();
         font.getData().setScale(1.0f);
         font.setColor(Color.WHITE);
         String energyText = Math.round(player.getEnergy()) + "/" + Math.round(player.getMaxEnergy());
         int textX = barX - 100;
         int textY = barY + barHeight/2 + 5;
-        font.draw(batch, energyText, textX, textY);
-        batch.end();
+        font.draw(energyTextBatch, energyText, textX, textY);
+        energyTextBatch.end();
     }
 
     private void drawStatus(Batch batch, int x, int y)
@@ -296,6 +302,7 @@ public class UIRenderer
 
         font.dispose();
         shapeRenderer.dispose();
+        energyTextBatch.dispose();
     }
 
     public TextButton getFriends() {

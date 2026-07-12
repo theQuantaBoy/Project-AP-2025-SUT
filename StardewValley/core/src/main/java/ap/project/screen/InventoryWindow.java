@@ -56,6 +56,7 @@ public class InventoryWindow {
     private static final int SLOTS_SIZE = 64;
     private Drawable slotBackground; // For inventory slot backgrounds
     private Drawable slotHighlight;
+    private final java.util.Map<String, Texture> iconTextureCache = new HashMap<>();
     private Player player;
     private TooltipManager tooltipManager = TooltipManager.getInstance();
     private Drawable tooltipBg;
@@ -1001,15 +1002,25 @@ public class InventoryWindow {
         {
             return getIconForGameObject(obj);
         } catch (Exception e) {
-            return new Image(new Texture(Gdx.files.internal("game_objects/crops/Rice.png"))).getDrawable();
+            return new TextureRegionDrawable(new TextureRegion(getCachedTexture("game_objects/crops/Rice.png")));
         }
     }
 
     private Drawable getIconForGameObject(GameObject obj)
     {
-        // Replace with your actual icon loading logic
         String path = obj.getObjectType().getPath();
-        return new TextureRegionDrawable(new TextureRegion(new Texture(Gdx.files.internal(path))));
+        return new TextureRegionDrawable(new TextureRegion(getCachedTexture(path)));
+    }
+
+    private Texture getCachedTexture(String path)
+    {
+        Texture texture = iconTextureCache.get(path);
+        if (texture == null)
+        {
+            texture = new Texture(Gdx.files.internal(path));
+            iconTextureCache.put(path, texture);
+        }
+        return texture;
     }
 
     private Table buildSkillsTable() {
@@ -1445,6 +1456,11 @@ public class InventoryWindow {
 
     public void dispose() {
         popup.remove();
+        for (Texture texture : iconTextureCache.values())
+        {
+            texture.dispose();
+        }
+        iconTextureCache.clear();
     }
 
     public TextButton getToolsTab() {

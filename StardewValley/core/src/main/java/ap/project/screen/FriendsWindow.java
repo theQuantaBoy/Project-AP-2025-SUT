@@ -48,6 +48,7 @@ public class FriendsWindow {
     private final Drawable tooltipBg;
     private Player selectedFriend;
     private CommunicateController controller;
+    private Texture giftGridBorderTexture;
     private InventoryWindow inventoryWindow;
     private Table inventoryTable;
     private WorldScreen  worldScreen;
@@ -588,11 +589,15 @@ public class FriendsWindow {
             .createColoredDrawable(64, 64, new Color(0.3f, 0.3f, 0.3f, 0.7f));
 
         // Create selection border
-        Pixmap borderPixmap = new Pixmap(68, 68, Pixmap.Format.RGBA8888);
-        borderPixmap.setColor(Color.YELLOW);
-        borderPixmap.drawRectangle(0, 0, 67, 67);
-        Drawable selectionBorder = new TextureRegionDrawable(new TextureRegion(new Texture(borderPixmap)));
-        borderPixmap.dispose();
+        if (giftGridBorderTexture == null)
+        {
+            Pixmap borderPixmap = new Pixmap(68, 68, Pixmap.Format.RGBA8888);
+            borderPixmap.setColor(Color.YELLOW);
+            borderPixmap.drawRectangle(0, 0, 67, 67);
+            giftGridBorderTexture = new Texture(borderPixmap);
+            borderPixmap.dispose();
+        }
+        Drawable selectionBorder = new TextureRegionDrawable(new TextureRegion(giftGridBorderTexture));
 
         for (int i = 0; i < rows * cols; i++) {
             Stack slotStack = new Stack();
@@ -822,6 +827,11 @@ public class FriendsWindow {
 
     public void dispose() {
         popup.remove();
+        if (giftGridBorderTexture != null)
+        {
+            giftGridBorderTexture.dispose();
+            giftGridBorderTexture = null;
+        }
     }
 
     public Window getPopup() {

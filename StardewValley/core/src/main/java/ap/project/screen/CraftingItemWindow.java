@@ -42,6 +42,7 @@ public class CraftingItemWindow
     private static final int SLOT_SIZE = 48;
     private static final int GRID_SPACING = 8;
     private Drawable selectionBorderDrawable;
+    private Texture separatorTexture;
     private Drawable slotBackground;
 
     // Selection tracking
@@ -507,12 +508,16 @@ public class CraftingItemWindow
 
     private Image createSeparator()
     {
-        Pixmap separatorPixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
-        separatorPixmap.setColor(Color.BROWN);
-        separatorPixmap.fill();
-        Image separator = new Image(new Texture(separatorPixmap));
+        if (separatorTexture == null)
+        {
+            Pixmap separatorPixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
+            separatorPixmap.setColor(Color.BROWN);
+            separatorPixmap.fill();
+            separatorTexture = new Texture(separatorPixmap);
+            separatorPixmap.dispose();
+        }
+        Image separator = new Image(separatorTexture);
         separator.setSize(600, 2);
-        separatorPixmap.dispose();
         return separator;
     }
 

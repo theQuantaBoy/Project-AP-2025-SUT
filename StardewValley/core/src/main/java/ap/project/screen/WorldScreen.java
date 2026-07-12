@@ -122,6 +122,13 @@ public final class WorldScreen implements Screen
     private static final int HOTBAR_SLOT_SIZE = 48; // Smaller than inventory slots
     private Drawable hotbarSlotBackground;
     private Drawable hotbarSlotHighlight;
+
+    // Cache of the hotbar contents as of the last rebuild, so refreshHotbarUI()
+    // (called every frame) can skip rebuilding the whole actor tree when nothing changed.
+    private final GameObjectType[] lastHotbarTypes = new GameObjectType[HOTBAR_SLOTS];
+    private final int[] lastHotbarCounts = new int[HOTBAR_SLOTS];
+    private int lastSelectedHotbarSlot = Integer.MIN_VALUE;
+    private boolean hotbarUiBuiltOnce = false;
     private int selectedHotbarSlot = -1;
 
     private boolean cameraFixed = false;
@@ -306,14 +313,23 @@ public final class WorldScreen implements Screen
 
     public void refreshHotbarUI()
     {
-        hotbarUI.clear();
-
         if (player == null || player.getCurrentBackPack() == null)
         {
+            hotbarUI.clear();
+            hotbarUiBuiltOnce = false;
             return;
         }
 
         java.util.List<GameObject> hotbarSlots = player.getCurrentBackPack().getHotbarSlots();
+
+        // This is called every frame; skip the (allocation-heavy) actor rebuild below
+        // when the hotbar's contents and selection haven't actually changed since last time.
+        if (hotbarUiBuiltOnce && !hotbarContentsChanged(hotbarSlots))
+        {
+            return;
+        }
+
+        hotbarUI.clear();
 
         for (int slot = 0; slot < HOTBAR_SLOTS; slot++)
         {
@@ -415,6 +431,42 @@ public final class WorldScreen implements Screen
             (uiStage.getWidth() - hotbarUI.getWidth()) / 2f,
             20f // 20 pixels from bottom
         );
+
+        recordHotbarSignature(hotbarSlots);
+        hotbarUiBuiltOnce = true;
+    }
+
+    private boolean hotbarContentsChanged(java.util.List<GameObject> hotbarSlots)
+    {
+        if (selectedHotbarSlot != lastSelectedHotbarSlot)
+        {
+            return true;
+        }
+
+        for (int slot = 0; slot < HOTBAR_SLOTS; slot++)
+        {
+            GameObject obj = slot < hotbarSlots.size() ? hotbarSlots.get(slot) : null;
+            GameObjectType type = obj != null ? obj.getObjectType() : null;
+            int count = obj != null ? obj.getNumber() : 0;
+
+            if (type != lastHotbarTypes[slot] || count != lastHotbarCounts[slot])
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private void recordHotbarSignature(java.util.List<GameObject> hotbarSlots)
+    {
+        for (int slot = 0; slot < HOTBAR_SLOTS; slot++)
+        {
+            GameObject obj = slot < hotbarSlots.size() ? hotbarSlots.get(slot) : null;
+            lastHotbarTypes[slot] = obj != null ? obj.getObjectType() : null;
+            lastHotbarCounts[slot] = obj != null ? obj.getNumber() : 0;
+        }
+        lastSelectedHotbarSlot = selectedHotbarSlot;
     }
 
     private Drawable getIconForGameObject(GameObject obj)
@@ -1093,6 +1145,16 @@ public final class WorldScreen implements Screen
 
     private void updateMap()
     {
+        // Dispose the previous map's TiledMap/renderer BEFORE constructing the
+        // replacement: MapVisual.renderer/currentInstance are static, so once the new
+        // MapVisual() below runs it overwrites them - disposing afterwards would tear
+        // down the *new* map's resources instead of the old one's.
+        MapVisual oldVisual = map.getMapVisual();
+        if (oldVisual != null)
+        {
+            oldVisual.dispose();
+        }
+
         MapAssetLoader.LoadedMap loaded = MapAssetLoader.loadFromTmx(map.getMapType().getName(), time.getSeason(), map.getMapType().getMapKind());
         TiledMap tiledMap = loaded.tiledMap;
         map.setVisual(new MapVisual(map, tiledMap));
